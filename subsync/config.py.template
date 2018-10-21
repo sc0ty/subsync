@@ -1,0 +1,29 @@
+import os
+import sys
+
+appname = 'subsync'
+
+
+if sys.platform == 'win32':
+    configdir = os.path.join(os.environ['APPDATA'], appname)
+    shareddir = os.path.join(os.environ['ALLUSERSPROFILE'], appname)
+    assetupd  = dict(type='subsync', params=('win', 'x86_64'))
+
+elif sys.platform == 'linux':
+    configdir = os.path.join(os.path.expanduser('~'), '.config', appname)
+    shareddir = configdir
+    assetupd =  None
+
+else:
+    configdir = '.'
+    shareddir = configdir
+    assetupd  = None
+
+configpath = os.path.join(configdir, appname + '.json')
+assetspath = os.path.join(configdir, 'assets.json')
+
+assetdir   = os.path.join(shareddir, 'assets')
+imgdirs    = [ os.path.join(d, 'img')     for d in ('.', 'subsync') ]
+keypaths   = [ os.path.join(d, 'key.pub') for d in ('.', 'subsync') ]
+
+assetsurl = 'https://github.com/sc0ty/subsync/releases/download/assets/assets.json'

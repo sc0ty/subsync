@@ -1,0 +1,12 @@
+certifi==2018.4.16
+chardet==3.0.4
+cx-Freeze==5.1.1
+idna==2.7
+pybind11==2.2.3
+pycryptodome==3.6.6
+Pypubsub==4.0.0
+pysubs2==0.2.3
+requests==2.19.1
+six==1.11.0
+urllib3==1.23
+wxPython==4.0.3

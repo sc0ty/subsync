@@ -1,0 +1,6 @@
+*.pyc
+*_layout.py
+config.py
+version.py
+/build
+/dist
