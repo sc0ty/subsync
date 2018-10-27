@@ -149,9 +149,22 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         self.Fit()
         self.Layout()
 
+    def ShowModal(self):
+        res = super().ShowModal()
+        self.onClose(None)  # since EVT_CLOSE is not emitted for modal frame
+        return res
+
     def onClose(self, event):
         self.stop()
-        event.Skip()
+        self.sync.stop()
+
+        while self.sync.isRunning():
+            wx.Yield()
+
+        self.sync.destroy()
+
+        if event:
+            event.Skip()
 
     def onButtonStopClick(self, event):
         if self.isRunning:

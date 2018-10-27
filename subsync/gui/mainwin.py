@@ -124,8 +124,8 @@ class MainWin(gui.mainwin_layout.MainWin):
         if self.validateAssets():
             sub = self.m_panelSub.stream
             ref = self.m_panelRef.stream
-            dlg = SyncWin(self, sub, ref)
-            dlg.ShowModal()
+            with SyncWin(self, sub, ref) as dlg:
+                dlg.ShowModal()
 
     def validateSelection(self):
         subs = self.m_panelSub.stream

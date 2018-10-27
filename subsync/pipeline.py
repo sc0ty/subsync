@@ -16,6 +16,11 @@ class BasePipeline(object):
         self.duration = self.demux.getDuration()
         self.timeWindow = [0, self.duration]
 
+    def destroy(self):
+        self.extractor.connectEosCallback(None)
+        self.extractor.connectErrorCallback(None)
+        self.extractor.stop(True)
+
     def selectTimeWindow(self, *window):
         self.timeWindow = window
         self.extractor.selectTimeWindow(*window)
@@ -57,6 +62,11 @@ class SubtitlePipeline(BasePipeline):
             self.dec.setEncoding(stream.enc)
 
         self.demux.connectDec(self.dec, stream.no)
+
+    def destroy(self):
+        super().destroy()
+        self.dec.connectWordsCallback(None, None)
+        self.dec.connectSubsCallback(None, None)
 
     def connectWordsCallback(self, cb, dst=None):
         self.dec.connectWordsCallback(cb, dst)
@@ -108,6 +118,10 @@ class SpeechPipeline(BasePipeline):
         self.dec.connectOutput(self.resampler)
         self.resampler.connectOutput(self.audioDemux)
         self.audioDemux.connectOutputChannel(0, self.speechRec)
+
+    def destroy(self):
+        super().destroy()
+        self.speechRec.connectWordsCallback(None, None)
 
     def connectWordsCallback(self, cb, dst=None):
         self.speechRec.connectWordsCallback(cb, dst)

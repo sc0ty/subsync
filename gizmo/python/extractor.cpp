@@ -16,6 +16,6 @@ void initExtractorWrapper(py::module &m)
 	extractor.def("connectEosCallback", &Extractor::connectEosCallback);
 	extractor.def("connectErrorCallback", &Extractor::connectErrorCallback);
 	extractor.def("start", &Extractor::start);
-	extractor.def("stop", &Extractor::stop);
+	extractor.def("stop", &Extractor::stop, py::arg("wait") = false);
 	extractor.def("isRunning", &Extractor::isRunning);
 }

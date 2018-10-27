@@ -50,9 +50,11 @@ void Extractor::start()
 	m_thread = thread(&Extractor::run, this);
 }
 
-void Extractor::stop()
+void Extractor::stop(bool wait)
 {
 	m_running = false;
+	if (wait)
+		terminate();
 }
 
 bool Extractor::isRunning() const

@@ -68,6 +68,17 @@ class Synchronizer(object):
 
         self.pipelines = [ self.subPipeline ] + self.refPipelines
 
+    def destroy(self):
+        self.stop()
+        self.correlator.connectStatsCallback(None)
+
+        for p in self.pipelines:
+            p.destroy()
+
+        self.subPipeline = None
+        self.refPipelines = []
+        self.pipelines = []
+
     def start(self):
         logger.info('starting synchronization jobs')
         self.correlator.start()

@@ -28,7 +28,7 @@ class Extractor
 		void connectErrorCallback(ErrorCallback callback);
 
 		void start();
-		void stop();
+		void stop(bool wait=false);
 		bool isRunning() const;
 
 	private:
