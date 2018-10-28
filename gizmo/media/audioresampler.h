@@ -5,6 +5,7 @@
 #include "stream.h"
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 extern "C"
 {
@@ -18,7 +19,7 @@ class AudioResampler : public AudioOutput
 		AudioResampler();
 		virtual ~AudioResampler();
 
-		void connectOutput(AudioOutput *output);
+		void connectOutput(std::shared_ptr<AudioOutput> output);
 
 		void setParams(
 				const AudioFormat &in,
@@ -35,7 +36,7 @@ class AudioResampler : public AudioOutput
 		ConnectedAudioOutputs getConnectedOutputs() const;
 
 	private:
-		AudioOutput *m_output;
+		std::shared_ptr<AudioOutput> m_output;
 		SwrContext *m_swr;
 		uint8_t *m_buffer;
 		int m_bufferSize;

@@ -4,6 +4,7 @@
 #include "stream.h"
 #include "audioout.h"
 #include <vector>
+#include <memory>
 
 
 class AudioDemux : public AudioOutput
@@ -14,7 +15,8 @@ class AudioDemux : public AudioOutput
 
 		void setOutputFormat(const AudioFormat &format);
 		void setOutputFormat(unsigned sampleSize, unsigned channelsNo);
-		void connectOutputChannel(unsigned channelNo, AudioOutput *output);
+		void connectOutputChannel(unsigned channelNo,
+				std::shared_ptr<AudioOutput> output);
 
 		virtual void start();
 		virtual void stop();
@@ -28,7 +30,7 @@ class AudioDemux : public AudioOutput
 		unsigned m_sampleSize;
 		unsigned m_channelsNo;
 
-		std::vector<AudioOutput*> m_outputs;
+		std::vector<std::shared_ptr<AudioOutput>> m_outputs;
 		uint8_t *m_buffer;
 		size_t m_channelSize;  // size of buffer for single channel in bytes
 		size_t m_pos;          // position in buffer

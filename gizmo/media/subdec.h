@@ -5,6 +5,7 @@
 #include "text/words.h"
 #include <string>
 #include <functional>
+#include <memory>
 
 extern "C"
 {
@@ -25,7 +26,7 @@ class SubtitleDec : public Decoder
 			SubsCallback;
 
 	public:
-		SubtitleDec(const Demux *demux, unsigned streamId);
+		SubtitleDec(const std::shared_ptr<Demux> demux, unsigned streamId);
 		SubtitleDec(AVStream *stream);
 		virtual ~SubtitleDec();
 

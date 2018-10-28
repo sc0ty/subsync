@@ -7,6 +7,7 @@
 #include <functional>
 #include <thread>
 #include <atomic>
+#include <memory>
 #include <string>
 
 
@@ -17,7 +18,7 @@ class Extractor
 		typedef std::function<void (const Exception &)> ErrorCallback;
 
 	public:
-		Extractor(Demux &demux);
+		Extractor(std::shared_ptr<Demux> demux);
 		~Extractor();
 
 		const StreamsFormat &getStreamsInfo() const;
@@ -28,7 +29,7 @@ class Extractor
 		void connectErrorCallback(ErrorCallback callback);
 
 		void start();
-		void stop(bool wait=false);
+		void stop();
 		bool isRunning() const;
 
 	private:
@@ -37,10 +38,9 @@ class Extractor
 
 	private:
 		std::thread m_thread;
-		Semaphore m_threadEndSem;
 
 		std::atomic_bool m_running;
-		Demux &m_demux;
+		std::shared_ptr<Demux> m_demux;
 
 		double m_beginTime;
 		double m_endTime;

@@ -19,7 +19,7 @@ class BasePipeline(object):
     def destroy(self):
         self.extractor.connectEosCallback(None)
         self.extractor.connectErrorCallback(None)
-        self.extractor.stop(True)
+        self.extractor.stop()
 
     def selectTimeWindow(self, *window):
         self.timeWindow = window

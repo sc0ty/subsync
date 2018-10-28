@@ -4,6 +4,7 @@
 #include "decoder.h"
 #include "stream.h"
 #include "audioout.h"
+#include <memory>
 
 class Demux;
 class AudioOutput;
@@ -12,7 +13,7 @@ class AudioOutput;
 class AudioDec : public Decoder
 {
 	public:
-		AudioDec(const Demux *demux, unsigned streamId);
+		AudioDec(const std::shared_ptr<Demux> demux, unsigned streamId);
 		AudioDec(AVStream *stream);
 		virtual ~AudioDec();
 
@@ -21,7 +22,7 @@ class AudioDec : public Decoder
 
 		virtual AudioFormat getFormat() const;
 
-		void connectOutput(AudioOutput *output);
+		void connectOutput(std::shared_ptr<AudioOutput> output);
 
 		virtual bool feed(AVPacket &packet);
 		virtual void flush();
@@ -35,7 +36,7 @@ class AudioDec : public Decoder
 		AVCodec *m_codec;
 		AVCodecContext *m_codecCtx;
 		AVFrame *m_frame;
-		AudioOutput *m_output;
+		std::shared_ptr<AudioOutput> m_output;
 		int m_sampleSizeChs;    // sampleSize * channelsNo
 		double m_timeBase;
 		double m_position;

@@ -6,7 +6,7 @@
 using namespace std;
 
 
-AudioDec::AudioDec(const Demux *demux, unsigned streamId)
+AudioDec::AudioDec(const shared_ptr<Demux> demux, unsigned streamId)
 	: AudioDec(demux->getStreamRawData(streamId))
 {
 }
@@ -69,7 +69,7 @@ void AudioDec::stop()
 	avcodec_close(m_codecCtx);
 }
 
-void AudioDec::connectOutput(AudioOutput *output)
+void AudioDec::connectOutput(shared_ptr<AudioOutput> output)
 {
 	m_output = output;
 }

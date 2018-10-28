@@ -26,7 +26,7 @@ AudioResampler::~AudioResampler()
 	m_bufferSize = 0;
 }
 
-void AudioResampler::connectOutput(AudioOutput *output)
+void AudioResampler::connectOutput(shared_ptr<AudioOutput> output)
 {
 	m_output = output;
 }

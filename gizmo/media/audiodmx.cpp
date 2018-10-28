@@ -40,7 +40,7 @@ void AudioDemux::setOutputFormat(const AudioFormat &format)
 	setOutputFormat(format.getSampleSize(), format.channelsNo);
 }
 
-void AudioDemux::connectOutputChannel(unsigned channelNo, AudioOutput *output)
+void AudioDemux::connectOutputChannel(unsigned channelNo, shared_ptr<AudioOutput> output)
 {
 	if (m_channelsNo == 0)
 		throw EXCEPTION("output format not set").module("AudioDemux");
@@ -56,7 +56,7 @@ void AudioDemux::connectOutputChannel(unsigned channelNo, AudioOutput *output)
 
 void AudioDemux::start()
 {
-	for (AudioOutput *out : m_outputs)
+	for (shared_ptr<AudioOutput> out : m_outputs)
 	{
 		if (out)
 			out->start();
@@ -65,7 +65,7 @@ void AudioDemux::start()
 
 void AudioDemux::stop()
 {
-	for (AudioOutput *out : m_outputs)
+	for (shared_ptr<AudioOutput> out : m_outputs)
 	{
 		if (out)
 			out->stop();
@@ -94,7 +94,7 @@ void AudioDemux::onNewData(const uint8_t *data, size_t size, double ts)
 				{
 					for (unsigned ch = 0; ch < m_channelsNo; ch++)
 					{
-						AudioOutput *out = m_outputs[ch];
+						shared_ptr<AudioOutput> out = m_outputs[ch];
 						if (out)
 							out->onNewData(m_buffer+ch*m_channelSize,
 									m_channelSize, m_timestamp);
@@ -119,7 +119,7 @@ void AudioDemux::onDiscontinuity()
 
 	for (unsigned ch = 0; ch < m_channelsNo; ch++)
 	{
-		AudioOutput *output = m_outputs[ch];
+		shared_ptr<AudioOutput> output = m_outputs[ch];
 		if (output)
 			output->onDiscontinuity();
 	}
@@ -130,7 +130,7 @@ ConnectedAudioOutputs AudioDemux::getConnectedOutputs() const
 	ConnectedAudioOutputs outs;
 	for (unsigned ch = 0; ch < m_channelsNo; ch++)
 	{
-		AudioOutput *output = m_outputs[ch];
+		shared_ptr<AudioOutput> output = m_outputs[ch];
 		if (output)
 			outs.push_back(ConnectedAudioOutput("channel" + to_string(ch), output));
 	}

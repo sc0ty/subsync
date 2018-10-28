@@ -7,6 +7,7 @@
 #include <tuple>
 #include <string>
 #include <atomic>
+#include <memory>
 
 struct AVFormatContext;
 struct AVStream;
@@ -20,9 +21,9 @@ class Demux
 
 		const StreamsFormat &getStreamsInfo() const;
 
-		void connectDec(Decoder *dec, unsigned streamId);
-		void disconnectDec(Decoder *dec, unsigned streamId);
-		void disconnectAllDec(Decoder *dec);
+		void connectDec(std::shared_ptr<Decoder> dec, unsigned streamId);
+		void disconnectDec(std::shared_ptr<Decoder> dec, unsigned streamId);
+		void disconnectAllDec(std::shared_ptr<Decoder> dec);
 
 		double getPosition() const;
 		double getDuration() const;
@@ -38,7 +39,7 @@ class Demux
 
 		AVStream *getStreamRawData(unsigned streamId) const;
 
-		typedef std::tuple<std::string, Decoder*> ConnectedOutput;
+		typedef std::tuple<std::string, std::shared_ptr<Decoder>> ConnectedOutput;
 		typedef std::vector<ConnectedOutput> ConnectedOutputs;
 		ConnectedOutputs getConnectedOutputs() const;
 
@@ -50,13 +51,13 @@ class Demux
 	private:
 		struct Stream
 		{
-			typedef std::vector<Decoder*> Decoders;
+			typedef std::vector<std::shared_ptr<Decoder>> Decoders;
 			Decoders decoders;
 			double timeBase;
 
 			Stream();
-			void connectDecoder(Decoder *decoder);
-			bool disconnectDecoder(Decoder *decoder);
+			void connectDecoder(std::shared_ptr<Decoder> decoder);
+			bool disconnectDecoder(std::shared_ptr<Decoder> decoder);
 		};
 
 		Stream *m_streams;

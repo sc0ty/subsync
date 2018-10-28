@@ -4,10 +4,12 @@
 #include "text/utf8.h"
 #include "text/translator.h"
 #include "general/exception.h"
+#include <pybind11/pybind11.h>
 #include <sstream>
 #include <iomanip>
 
 using namespace std;
+namespace py = pybind11;
 
 
 Correlator::Correlator(
@@ -62,8 +64,6 @@ void Correlator::run()
 		if (newBestLine)
 			correlate();
 	}
-
-	m_threadEndSem.wait();
 }
 
 void Correlator::terminate()
@@ -73,11 +73,10 @@ void Correlator::terminate()
 	if (m_thread.joinable())
 	{
 		m_queue.release();
-		m_threadEndSem.post();
+
+		py::gil_scoped_release release;
 		m_thread.join();
 	}
-
-	m_threadEndSem.reset();
 }
 
 void Correlator::start()

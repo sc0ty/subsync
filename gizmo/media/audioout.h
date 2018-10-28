@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <tuple>
 #include <vector>
+#include <memory>
 
 
 class AudioOutput
@@ -24,7 +25,7 @@ class AudioOutput
 };
 
 
-typedef std::tuple<std::string, AudioOutput*> ConnectedAudioOutput;
+typedef std::tuple<std::string, std::shared_ptr<AudioOutput>> ConnectedAudioOutput;
 typedef std::vector<ConnectedAudioOutput> ConnectedAudioOutputs;
 
 #endif

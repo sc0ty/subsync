@@ -76,13 +76,13 @@ AVStream *Demux::getStreamRawData(unsigned streamId) const
 	return m_formatContext->streams[streamId];
 }
 
-void Demux::connectDec(Decoder *dec, unsigned streamId)
+void Demux::connectDec(shared_ptr<Decoder> dec, unsigned streamId)
 {
 	VALIDATE_STREAM_ID(streamId);
 	m_streams[streamId].connectDecoder(dec);
 }
 
-void Demux::disconnectDec(Decoder *dec, unsigned streamId)
+void Demux::disconnectDec(shared_ptr<Decoder> dec, unsigned streamId)
 {
 	VALIDATE_STREAM_ID(streamId);
 
@@ -93,7 +93,7 @@ void Demux::disconnectDec(Decoder *dec, unsigned streamId)
 	}
 }
 
-void Demux::disconnectAllDec(Decoder *dec)
+void Demux::disconnectAllDec(shared_ptr<Decoder> dec)
 {
 	bool disconnected = false;
 
@@ -109,7 +109,7 @@ void Demux::start()
 {
 	for (unsigned i = 0; i < m_streamsNo; i++)
 	{
-		for (Decoder *dec : m_streams[i].decoders)
+		for (shared_ptr<Decoder> dec : m_streams[i].decoders)
 			dec->start();
 	}
 }
@@ -118,7 +118,7 @@ void Demux::stop()
 {
 	for (unsigned i = 0; i < m_streamsNo; i++)
 	{
-		for (Decoder *dec : m_streams[i].decoders)
+		for (shared_ptr<Decoder> dec : m_streams[i].decoders)
 			dec->stop();
 	}
 }
@@ -140,7 +140,7 @@ bool Demux::step()
 		{
 			Demux::Stream &stream = m_streams[streamID];
 
-			for (Decoder *dec : stream.decoders)
+			for (shared_ptr<Decoder> dec : stream.decoders)
 				dec->feed(packet);
 
 			m_position = (double)packet.pts * stream.timeBase;
@@ -190,7 +190,7 @@ void Demux::notifyDiscontinuity()
 {
 	for (unsigned i = 0; i < m_streamsNo; i++)
 	{
-		for (Decoder *dec : m_streams[i].decoders)
+		for (shared_ptr<Decoder> dec : m_streams[i].decoders)
 			dec->discontinuity();
 	}
 }
@@ -199,7 +199,7 @@ void Demux::flush()
 {
 	for (unsigned i = 0; i < m_streamsNo; i++)
 	{
-		for (Decoder *dec : m_streams[i].decoders)
+		for (shared_ptr<Decoder> dec : m_streams[i].decoders)
 			dec->flush();
 	}
 }
@@ -209,7 +209,7 @@ Demux::ConnectedOutputs Demux::getConnectedOutputs() const
 	ConnectedOutputs res;
 	for (unsigned i = 0; i < m_streamsNo; i++)
 	{
-		for (Decoder *dec : m_streams[i].decoders)
+		for (shared_ptr<Decoder> dec : m_streams[i].decoders)
 		{
 			res.push_back(ConnectedOutput("stream" + to_string(i), dec));
 		}
@@ -222,9 +222,9 @@ Demux::ConnectedOutputs Demux::getConnectedOutputs() const
 Demux::Stream::Stream() : timeBase(0.0)
 {}
 
-void Demux::Stream::connectDecoder(Decoder *decoder)
+void Demux::Stream::connectDecoder(shared_ptr<Decoder> decoder)
 {
-	for (Decoder *dec : decoders)
+	for (shared_ptr<Decoder> dec : decoders)
 	{
 		if (dec == decoder)
 			throw EXCEPTION("decoder already connected to this stream")
@@ -234,7 +234,7 @@ void Demux::Stream::connectDecoder(Decoder *decoder)
 	decoders.push_back(decoder);
 }
 
-bool Demux::Stream::disconnectDecoder(Decoder *decoder)
+bool Demux::Stream::disconnectDecoder(shared_ptr<Decoder> decoder)
 {
 	for (Decoders::iterator it = decoders.begin(); it != decoders.end(); ++it)
 	{

@@ -1,12 +1,14 @@
 #include "extractor.h"
 #include "general/thread.h"
 #include "general/exception.h"
+#include <pybind11/pybind11.h>
 #include <cfloat>
 
 using namespace std;
+namespace py = pybind11;
 
 
-Extractor::Extractor(Demux &demux) :
+Extractor::Extractor(shared_ptr<Demux> demux) :
 	m_running(false),
 	m_demux(demux),
 	m_beginTime(0.0),
@@ -20,7 +22,7 @@ Extractor::~Extractor()
 
 const StreamsFormat &Extractor::getStreamsInfo() const
 {
-	return m_demux.getStreamsInfo();
+	return m_demux->getStreamsInfo();
 }
 
 void Extractor::selectTimeWindow(double begin, double end)
@@ -50,11 +52,9 @@ void Extractor::start()
 	m_thread = thread(&Extractor::run, this);
 }
 
-void Extractor::stop(bool wait)
+void Extractor::stop()
 {
 	m_running = false;
-	if (wait)
-		terminate();
 }
 
 bool Extractor::isRunning() const
@@ -65,11 +65,12 @@ bool Extractor::isRunning() const
 void Extractor::run()
 {
 	lowerThreadPriority();
+	Demux *demux = m_demux.get();
 
 	try
 	{
-		m_demux.seek(m_beginTime);
-		m_demux.start();
+		demux->seek(m_beginTime);
+		demux->start();
 	}
 	catch (Exception &ex)
 	{
@@ -96,7 +97,7 @@ void Extractor::run()
 		{
 			while (m_running)
 			{
-				if (!m_demux.step() || (m_demux.getPosition() >= m_endTime))
+				if (!demux->step() || (demux->getPosition() >= m_endTime))
 				{
 					m_running = false;
 					if (m_eosCb)
@@ -106,7 +107,8 @@ void Extractor::run()
 		}
 		catch (const Exception &ex)
 		{
-			m_demux.notifyDiscontinuity();
+			if (m_running)
+				demux->notifyDiscontinuity();
 
 			if (m_errorCb)
 				m_errorCb(ex);
@@ -121,8 +123,14 @@ void Extractor::run()
 		}
 	}
 
-	m_demux.stop();
-	m_threadEndSem.wait();
+	try
+	{
+		demux->stop();
+	}
+	catch (...)
+	{ }
+
+	m_demux = NULL;
 }
 
 void Extractor::terminate()
@@ -131,10 +139,8 @@ void Extractor::terminate()
 
 	if (m_thread.joinable())
 	{
-		m_threadEndSem.post();
+		py::gil_scoped_release release;
 		m_thread.join();
 	}
-
-	m_threadEndSem.reset();
 }
 

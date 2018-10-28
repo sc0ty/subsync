@@ -35,6 +35,9 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         self.subs = subs
         self.refs = refs
 
+        self.startTime = time.time()
+        self.sync = None
+
         self.isRunning = False
         self.isCorrelated = False
         self.isSubReady = False
@@ -49,8 +52,6 @@ class SyncWin(gui.syncwin_layout.SyncWin):
 
     @gui.errorwin.error_dlg
     def init(self):
-        self.startTime = time.time()
-
         self.sync = synchro.Synchronizer(self, self.subs, self.refs)
         self.sync.start()
         self.stats = self.sync.getStats()
@@ -156,12 +157,14 @@ class SyncWin(gui.syncwin_layout.SyncWin):
 
     def onClose(self, event):
         self.stop()
-        self.sync.stop()
 
-        while self.sync.isRunning():
-            wx.Yield()
+        if self.sync:
+            self.sync.stop()
 
-        self.sync.destroy()
+            while self.sync.isRunning():
+                wx.Yield()
+
+            self.sync.destroy()
 
         if event:
             event.Skip()

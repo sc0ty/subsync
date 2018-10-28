@@ -1,13 +1,11 @@
 #include "subdec.h"
 #include "demux.h"
 #include "general/exception.h"
-#include <string>
-#include <memory>
 
 using namespace std;
 
 
-SubtitleDec::SubtitleDec(const Demux *demux, unsigned streamId)
+SubtitleDec::SubtitleDec(const shared_ptr<Demux> demux, unsigned streamId)
 	: SubtitleDec(demux->getStreamRawData(streamId))
 {
 }
