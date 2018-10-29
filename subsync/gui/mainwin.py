@@ -136,11 +136,8 @@ class MainWin(gui.mainwin_layout.MainWin):
             raise Error(_('Reference file not set'))
         if subs.path == refs.path and subs.no == refs.no:
             raise Error(_('Subtitles can\'t be the same as reference'))
-        if not (subs.lang == None and refs.lang == None):
-            if subs.lang == None:
-                raise Error(_('Select subtitles language first'))
-            if refs.lang == None:
-                raise Error(_('Select reference language first'))
+        if refs.type == 'audio' and not refs.lang:
+            raise Error(_('Select reference language first'))
 
     def validateAssets(self):
         subs = self.m_panelSub.stream
