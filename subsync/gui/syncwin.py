@@ -136,7 +136,10 @@ class SyncWin(gui.syncwin_layout.SyncWin):
                 self.m_buttonSave.Enable()
                 self.m_bitmapTick.Show()
                 self.m_bitmapCross.Hide()
-                self.m_textStatus.SetLabel(_('Subtitles synchronized'))
+                if abs(self.sync.getMaxChange()) > 0.3:
+                    self.m_textStatus.SetLabel(_('Subtitles synchronized'))
+                else:
+                    self.m_textStatus.SetLabel(_('No need to synchronize, subtitles are good already'))
             else:
                 self.m_bitmapTick.Hide()
                 self.m_bitmapCross.Show()
