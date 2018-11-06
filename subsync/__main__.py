@@ -7,7 +7,6 @@ import sys
 import argparse
 import gettext
 import error
-import assets
 import loggercfg
 from settings import settings
 from stream import Stream
@@ -34,8 +33,6 @@ def subsync():
     if args.window_size:
         settings().set(windowSize=args.window_size)
 
-    assets.init(autoUpdate=settings().autoUpdate)
-
     try:
         win = MainWin(None, subs=subs, refs=refs)
         win.Show()
@@ -49,7 +46,6 @@ def subsync():
         showExceptionDlg()
 
     settings().save()
-    assets.terminate()
     loggercfg.terminate()
 
 

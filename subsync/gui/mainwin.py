@@ -2,11 +2,12 @@ import gui.mainwin_layout
 import wx
 from gui.syncwin import SyncWin
 from gui.settingswin import SettingsWin
-from gui.downloadwin import DownloadWin, UpdateWin
+from gui.downloadwin import AssetDownloadWin, SelfUpdaterWin
 from gui.aboutwin import AboutWin
 from gui.errorwin import error_dlg
 import assets
 import img
+import thread
 import config
 import loggercfg
 from settings import settings
@@ -57,15 +58,13 @@ class MainWin(gui.mainwin_layout.MainWin):
         self.Fit()
         self.Layout()
 
-    '''
-    def reload(self):
-        subs = self.m_panelSub.stream
-        refs = self.m_panelRef.stream
-        self.Unbind(wx.EVT_CLOSE)
-        self.Close(force=True)
-        win = MainWin(None, subs, refs)
-        win.Show()
-    '''
+        self.selfUpdater = None
+        assets.init(self.assetsUpdated)
+
+    @thread.gui_thread
+    def assetsUpdated(self):
+        if settings().autoUpdate and assets.isUpdateAvailable():
+            self.selfUpdater = SelfUpdaterWin(self)
 
     def onSliderMaxDistScroll(self, event):
         val = self.m_sliderMaxDist.GetValue()
@@ -91,20 +90,17 @@ class MainWin(gui.mainwin_layout.MainWin):
                     settings().save()
 
     def onMenuItemCheckUpdateClick(self, event):
-        if assets.isUpdateDownloadInProgress():
-            if UpdateWin(self, allowHide=True).ShowModal() != wx.ID_OK:
-                return
+        if self.selfUpdater == None and assets.isUpdateAvailable():
+            self.selfUpdater = SelfUpdaterWin(self)
 
-        assets.updater.load()
-        if assets.updater.upgradeReady:
-            if askForUpdate(self):
-                assets.updater.upgrade()
-                self.Unbind(wx.EVT_CLOSE)
+        if self.selfUpdater:
+            if self.selfUpdater.startUpdate(self):
                 self.Close(force=True)
+
         else:
             dlg = wx.MessageDialog(
                     self,
-                    _('There is no upgrade available'),
+                    _('Your version is up to date'),
                     _('Upgrade'),
                     wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
@@ -169,45 +165,25 @@ class MainWin(gui.mainwin_layout.MainWin):
 
     def downloadAssets(self, assetsl):
         for asset in assetsl:
-            down = assets.Downloader(**asset)
-            down.start(name='AssetDown', daemon=False)
-            title = asset['title']
-
-            with DownloadWin(self, down, title=title) as dlg:
+            with AssetDownloadWin(self, asset) as dlg:
                 if dlg.ShowModal() != wx.ID_OK:
                     return False
         return True
 
     @error_dlg
     def onClose(self, event):
-        if assets.isUpdateDownloadInProgress() and not askForUpdateTermination(self):
-            UpdateWin(self, allowHide=event.CanVeto()).ShowModal()
-            event.Veto()
+        if self.selfUpdater:
+            if event.CanVeto() and settings().askForUpdate:
+                dlg = wx.MessageDialog(
+                        self,
+                        _('New version is available. Update now?'),
+                        _('Upgrade'),
+                        wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
+                if dlg.ShowModal() == wx.ID_YES:
+                    self.selfUpdater.startUpdate(self, ask=False)
 
-        if settings().askForUpdate and not assets.isUpdateDownloadInProgress():
-            assets.updater.load()
-            if assets.updater.upgradeReady and askForUpdate(self):
-                assets.updater.upgrade()
-                event.Veto(False)
+            self.selfUpdater.stop()
 
-        if not event.GetVeto():
-            event.Skip()
-
-
-def askForUpdateTermination(parent):
-    dlg = wx.MessageDialog(
-            parent,
-            _('Update is being download, do you want to terminate?'),
-            _('Upgrade'),
-            wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-    return dlg.ShowModal() == wx.ID_YES
-
-
-def askForUpdate(parent):
-    dlg = wx.MessageDialog(
-            parent,
-            _('New version is ready to be installed. Upgrade now?'),
-            _('Upgrade'),
-            wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
-    return dlg.ShowModal() == wx.ID_YES
+        assets.terminate()
+        event.Skip()
 

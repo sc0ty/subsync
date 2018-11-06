@@ -8,19 +8,19 @@ def getLanguageName(lang):
     return lang
 
 
-def parvseVersion(version):
+def parseVersion(version, defaultVer=None):
     try:
         return tuple(int(x) for x in version.split('.'))
     except:
-        return None
+        return defaultVer
 
 
-def getCurrentVersion():
+def getCurrentVersion(defaultVer=None):
     try:
         from version import version_short
-        return parvseVersion(version_short)
+        return parseVersion(version_short)
     except:
-        return None
+        return defaultVer
 
 
 def fileSizeFmt(val):

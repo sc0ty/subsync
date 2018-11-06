@@ -1,45 +1,42 @@
 import config
 import utils
-from assets.assets import Assets
-from assets.updater import Updater
-from assets.downloader import Downloader
+import assets.local
+import assets.remote
 
-assets = Assets()
-updater = Updater()
-updateDownloader = None
+remoteAssets = None
 
 
-def init(autoUpdate):
-
-    def onAssetsUpdated(err):
-        global updateDownloader
-        if config.assetupd:
-            cv = utils.getCurrentVersion()
-            asset = getRemoteAsset(**config.assetupd)
-            if cv and asset and not isUpdateDownloadInProgress():
-                rv = utils.parvseVersion(asset.get('version', None))
-                if updater.version == None or updater.version < rv:
-                    if not updater.upgradeReady and rv and rv > cv:
-                        updateDownloader = Downloader(**asset)
-                        if autoUpdate:
-                            updateDownloader.start(name='Updater', daemon=False)
-
-    assets.update(onFinish=onAssetsUpdated, delay=5)
-
+def init(updateCb):
+    global remoteAssets
+    remoteAssets = assets.remote.RemoteAssets(updateCb)
 
 def terminate():
-    if updateDownloader:
-        updateDownloader.stop(block=True)
-
+    global remoteAssets
+    if remoteAssets:
+        remoteAssets.terminate()
+        remoteAssets = None
 
 def getLocalAsset(*args, **kwargs):
-    return assets.getLocalAsset(*args, **kwargs)
-
+    return assets.local.getAsset(*args, **kwargs)
 
 def getRemoteAsset(*args, **kwargs):
-    return assets.getRemoteAsset(*args, **kwargs)
+    return remoteAssets.getAsset(*args, **kwargs)
 
+def isUpdateAvailable():
+    if config.assetupd:
+        currentVer = utils.getCurrentVersion()
+        remoteUpdate = getRemoteAsset(**config.assetupd)
+        remoteVer = utils.parseVersion(remoteUpdate.get('version'))
+        return currentVer and remoteVer and currentVer < remoteVer
 
-def isUpdateDownloadInProgress():
-    return updateDownloader and updateDownloader.isAlive()
+def getAssetPrettyName(type, params, **kw):
+    if type == 'speech':
+        return _('{} speech recognition model').format(
+                utils.getLanguageName(params[0]))
+    elif type == 'dict':
+        return _('dictionary {} / {}').format(
+                utils.getLanguageName(params[0]),
+                utils.getLanguageName(params[1]))
+    else:
+        return '{}/{}'.format(type, '-'.join(params))
 
