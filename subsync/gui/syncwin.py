@@ -54,7 +54,6 @@ class SyncWin(gui.syncwin_layout.SyncWin):
     def init(self):
         self.sync = synchro.Synchronizer(self, self.subs, self.refs)
         self.sync.start()
-        self.stats = self.sync.getStats()
 
         self.isRunning = True
         self.updateTimer.Start(500)
@@ -84,7 +83,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
             if self.sync.isRunning():
                 self.setProgress(self.sync.getProgress())
             else:
-                self.stop()
+                self.stop(finished=True)
                 self.setProgress(1.0)
 
     @thread.gui_thread
@@ -121,7 +120,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         else:
             self.m_gaugeProgress.Pulse()
 
-    def stop(self):
+    def stop(self, finished=False):
         self.m_buttonStop.Enable(False)
         self.m_buttonStop.Show(False)
         self.m_buttonClose.Enable(True)
@@ -139,12 +138,21 @@ class SyncWin(gui.syncwin_layout.SyncWin):
                 if abs(self.sync.getMaxChange()) > 0.3:
                     self.m_textStatus.SetLabel(_('Subtitles synchronized'))
                 else:
-                    self.m_textStatus.SetLabel(_('No need to synchronize, subtitles are good already'))
+                    self.m_textStatus.SetLabel(
+                            _('No need to synchronize, subtitles are good already'))
             else:
                 self.m_bitmapTick.Hide()
                 self.m_bitmapCross.Show()
                 if self.isSubReady:
-                    self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
+                    stats = self.sync.getStats()
+                    if (finished and stats.points > settings().minPointsNo/2 and
+                            stats.factor > settings().minCorrelation**10 and
+                            stats.maxDistance < 2*settings().maxPointDist):
+                        self.m_buttonSave.Enable()
+                        self.m_textStatus.SetLabel(
+                                _('Couldn\'t synchronize, but you could try anyway'))
+                    else:
+                        self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
                 else:
                     self.m_textStatus.SetLabel(_('Subtitles not ready'))
 
