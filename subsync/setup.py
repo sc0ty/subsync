@@ -7,9 +7,9 @@ import version
 
 
 build_exe = {
-    'packages': ['idna'],
+    'packages': ['idna', 'asyncio'],
     'excludes': ['updatelangs', 'tkinter', 'tcl', 'ttk'],
-    'include_files': ['img', 'key.pub'],
+    'include_files': ['img', 'locale', 'key.pub'],
 }
 
 if sys.platform == 'win32':
