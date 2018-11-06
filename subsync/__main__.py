@@ -2,27 +2,30 @@
 import logging
 logger = logging.getLogger(__name__)
 
+import translations
+translations.init()
+
 import wx
 import sys
 import argparse
-import gettext
 import error
 import loggercfg
 from settings import settings
 from stream import Stream
 
-from gui.errorwin import showExceptionDlg
-from gui.mainwin import MainWin
-
 
 def subsync():
-    gettext.install('subsync')
+    from gui.errorwin import showExceptionDlg
+
     subs, refs, args = parseCmdArgs(sys.argv)
     app = wx.App()
 
     try:
         settings().load()
-    except Exception as err:
+        translations.setLanguage(settings().language)
+
+    except Exception as e:
+        logger.warning('settings load failed, %r', e, exc_info=True)
         showExceptionDlg()
 
     setupLogger(args)
@@ -34,6 +37,7 @@ def subsync():
         settings().set(windowSize=args.window_size)
 
     try:
+        from gui.mainwin import MainWin
         win = MainWin(None, subs=subs, refs=refs)
         win.Show()
 
@@ -42,7 +46,7 @@ def subsync():
 
         app.MainLoop()
 
-    except error.Error as err:
+    except error.Error as e:
         showExceptionDlg()
 
     settings().save()

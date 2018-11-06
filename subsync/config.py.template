@@ -25,5 +25,6 @@ assetspath = os.path.join(configdir, 'assets.json')
 assetdir   = os.path.join(shareddir, 'assets')
 imgdirs    = [ os.path.join(d, 'img')     for d in ('.', 'subsync') ]
 keypaths   = [ os.path.join(d, 'key.pub') for d in ('.', 'subsync') ]
+localedirs = [ os.path.join(d, 'locale')  for d in ('.', 'subsync') ]
 
 assetsurl = 'https://github.com/sc0ty/subsync/releases/download/assets/assets.json'

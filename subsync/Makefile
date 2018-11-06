@@ -1,7 +1,6 @@
 PYTHON_PREFIX ?= python
 
 WXFORMBUILDER ?= wxformbuilder
-UPDATE_TRANSLATIONS ?= PYTHONPATH=. $(PYTHON_PREFIX) ../tools/update_translations.py
 
 GUI_SRC = \
 		  gui/mainwin.fbp \
@@ -25,11 +24,10 @@ gui-gen: $(GUI_DST)
 
 gui-gen-clean:
 	$(RM) $(GUI_DST)
-	$(RM) $(GUI_DST:.py=.py.tmp)
 
 $(GUI_DST): %_layout.py: %.fbp
 	$(WXFORMBUILDER) -g $<
-
+	$(PYTHON_PREFIX) ../tools/remove_gettext.py $@
 
 config.py:
 	cp config.py.template $@
@@ -39,10 +37,6 @@ version.py: .FORCE
 
 version-clean:
 	$(RM) version.py
-
-
-translations:
-	$(UPDATE_TRANSLATIONS)
 
 
 .PHONY: all clean gui-gen gui-gen-clean version-clean translations

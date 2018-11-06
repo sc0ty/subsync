@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 class Settings(object):
     def __init__(self, settings=None, **kw):
+        self.language = None
         self.maxPointDist = 2.0
         self.minPointsNo = 20
         self.appendLangCode = True
