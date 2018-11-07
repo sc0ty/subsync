@@ -29,7 +29,7 @@ class RemoteAssets(object):
             self.loop.run_until_complete(self.task)
             self.loop.close()
 
-        self.thread = threading.Thread(target=runUpdate)
+        self.thread = threading.Thread(name='AssetsUpdate', target=runUpdate)
         if config.assetsurl:
             self.thread.start()
 

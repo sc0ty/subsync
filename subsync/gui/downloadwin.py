@@ -24,7 +24,7 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
         self.loop = None
         self.task = None
 
-        self.thread = threading.Thread(target=self.run, args=[job])
+        self.thread = threading.Thread(name='Download', target=self.run, args=[job])
         self.thread.start()
 
     def stop(self):
