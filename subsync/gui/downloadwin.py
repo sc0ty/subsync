@@ -24,10 +24,17 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
         self.loop = None
         self.task = None
 
+        self.progress = thread.AtomicValue(None)
+        self.progressTimer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.onProgressTimerTick, self.progressTimer)
+        self.progressTimer.Start(50)
+
         self.thread = threading.Thread(name='Download', target=self.run, args=[job])
         self.thread.start()
 
     def stop(self):
+        if self.progressTimer.IsRunning():
+            self.progressTimer.Stop()
         if self.loop:
             self.loop.call_soon_threadsafe(self.task.cancel)
         if self.thread.isAlive():
@@ -35,6 +42,11 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
 
     def onButtonCancelClick(self, event):
         self.stop()
+
+    def onProgressTimerTick(self, event):
+        progress = self.progress.get()
+        if progress:
+            self.setStatus(*progress)
 
     @thread.gui_thread
     def EndModal(self, retCode):
@@ -72,7 +84,8 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
 
         self.setStatus(_('downloading...'))
         fp, hash = await downloader.download(lambda progress:
-                self.setStatus(_('downloading'), progress))
+                self.progress.set((_('downloading'), progress)))
+        self.progress.set(None)
 
         self.setProgress(1)
         self.setStatus(_('verifying...'))
