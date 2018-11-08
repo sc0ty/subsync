@@ -49,7 +49,6 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
         if not stream.lang and len(stream.streams) == 1:
             stream.lang = getLangFromPath(stream.path)
-            print(stream.lang)
 
         lang = stream.lang
         enc = stream.enc
