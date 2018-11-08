@@ -1,5 +1,5 @@
 import locale
-from data.languages import languages
+from data.languages import languages, languages2to3
 from error import Error
 
 import logging
@@ -8,11 +8,13 @@ logger = logging.getLogger(__name__)
 
 def detectEncoding(path, lang, probeSize=32*1024):
     dlang, denc = locale.getdefaultlocale()
+    if not lang:
+        lang2 = dlang.split('_', 1)[0]
+        lang = languages2to3.get(lang2)
+
     encs = [ 'UTF-8' ] + languages.get(lang, (None, []))[1]
     if denc not in encs:
         encs.append(denc)
-
-    # TODO: use also dlang (2-letter code, must be converted to 3-letter)
 
     try:
         for enc in encs:
