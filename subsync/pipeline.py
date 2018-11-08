@@ -101,12 +101,16 @@ class SpeechPipeline(BasePipeline):
                 speechAudioFormat.channelsNo)
 
         if inputAudioFormat.channelsNo > 1:
+            if not stream.channels:
+                stream.channels = speech.getDefaultAudioChannels(
+                        stream.stream().audio)
+
+            names = stream.stream().audio.getChannelNames()
+            id2pos = { id: pos for pos, id in enumerate(sorted(names)) }
+            gain = 1.0 / len(stream.channels)
             mixMap = speech.MixMap(inputAudioFormat.channelsNo)
-            centerNo = speech.MixMap.getChannelNoByName('front center', inputAudioFormat)
-            if centerNo != None:
-                mixMap.setPath(centerNo, 0)
-            else:
-                mixMap.mixAll(0)
+            for id in stream.channels:
+                mixMap.setPath(id2pos[id], 0, gain)
         else:
             mixMap = speech.MixMap()
 
