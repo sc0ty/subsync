@@ -78,16 +78,27 @@ class MainWin(gui.mainwin_layout.MainWin):
         with SettingsWin(self, settings()) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 newSettings = dlg.getSettings()
-
-                if settings().logLevel != newSettings.logLevel:
-                    loggercfg.setLevel(newSettings.logLevel)
-
-                if settings().logBlacklist != newSettings.logBlacklist:
-                    loggercfg.setBlacklistFilters(newSettings.logBlacklist)
-
                 if settings() != newSettings:
-                    settings().set(**newSettings.items())
-                    settings().save()
+                    self.changeSettings(newSettings)
+
+    def changeSettings(self, newSettings):
+        if settings().logLevel != newSettings.logLevel:
+            loggercfg.setLevel(newSettings.logLevel)
+
+        if settings().logBlacklist != newSettings.logBlacklist:
+            loggercfg.setBlacklistFilters(newSettings.logBlacklist)
+
+        if settings().language != newSettings.language:
+            dlg = wx.MessageDialog(
+                self,
+                _('Language changes will take effect after application restart'),
+                _('Settings'),
+                wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
+
+        settings().set(**newSettings.items())
+        settings().save()
+
 
     def onMenuItemCheckUpdateClick(self, event):
         if self.selfUpdater == None and assets.isUpdateAvailable():

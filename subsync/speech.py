@@ -60,6 +60,19 @@ def getSpeechAudioFormat(speechModel, inputAudioFormat):
         raise Error(_('Invalid speech audio format'))
 
 
+def getDefaultAudioChannels(audio):
+    ''' Center channel will be selected if available,
+    otherwise all channels will be mixed together
+    '''
+
+    channels = audio.getChannelNames()
+    for id, name in channels.items():
+        if name == 'front center':
+            return [ id ]
+
+    return list(channels.keys())
+
+
 class MixMap:
     def __init__(self, channelsNo = 0):
         self.channelsNo = channelsNo

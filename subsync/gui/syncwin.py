@@ -24,8 +24,12 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         img.setItemBitmap(self.m_bitmapCross, 'crossmark')
 
         if settings().debugOptions:
-            import graph
-            graph.init()
+            try:
+                import graph
+                graph.init()
+            except ImportError:
+                pass
+
             self.m_buttonDebugMenu.Show()
 
         self.m_buttonStop.SetFocus()

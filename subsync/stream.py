@@ -11,6 +11,7 @@ class Stream(object):
         self.fps     = None
         self.lang    = None
         self.enc     = None
+        self.channels= None
 
         if path != None:
             self.open(path)
@@ -30,6 +31,7 @@ class Stream(object):
         self.no = None
         self.lang = None
         self.enc = None
+        self.channels = None
         self.fps = None
 
         for stream in ss:
@@ -49,6 +51,7 @@ class Stream(object):
         self.fps     = s.fps
         self.lang    = s.lang
         self.enc     = s.enc
+        self.channels= s.channels
 
     def setNotNone(self, **kw):
         for key, val in kw.items():
