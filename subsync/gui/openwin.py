@@ -64,8 +64,8 @@ class OpenWin(gui.openwin_layout.OpenWin):
         if stream.no != None:
             self.selectStream(stream.stream())
 
-        self.m_choiceLang.setLang(lang)
-        self.m_choiceEncoding.setCharEnc(enc)
+        self.m_choiceLang.SetValue(lang)
+        self.m_choiceEncoding.SetValue(enc)
         if channels:
             self.selectAudioChannels(channels)
 
@@ -76,7 +76,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
         if updateLang and stream.lang:
             self.stream.lang = stream.lang
-            self.m_choiceLang.setLang(stream.lang)
+            self.m_choiceLang.SetValue(stream.lang)
 
         isSubText = stream.type == 'subtitle/text'
         isAudio = stream.type == 'audio'
@@ -106,7 +106,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
             self.m_textChannels.SetValue('')
 
     def onChoiceLangChoice(self, event):
-        self.stream.lang = self.m_choiceLang.getLang()
+        self.stream.lang = self.m_choiceLang.GetValue()
 
     def onListStreamsSelect(self, event):
         index = self.m_listStreams.getSelectedStream()
@@ -117,7 +117,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
         self.EndModal(wx.ID_OK)
 
     def onChoiceEncChoice(self, event):
-        self.stream.enc = self.m_choiceEncoding.getCharEnc()
+        self.stream.enc = self.m_choiceEncoding.GetValue()
 
     @error_dlg
     def onButtonSelectChannelsClick(self, event):

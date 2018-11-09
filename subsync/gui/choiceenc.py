@@ -10,15 +10,15 @@ class ChoiceCharEnc(wx.Choice):
             name = '{} - {}'.format(enc[0], enc[1])
             self.Append(name, enc[0])
 
-    def setCharEnc(self, enc):
+    def SetValue(self, enc):
         if enc != None:
             for i in range(1, self.GetCount()):
-                if self.GetClientData(i) == enc:
+                if self.GetClientData(i).lower() == enc.lower():
                     self.SetSelection(i)
                     return
         self.SetSelection(0)
 
-    def getCharEnc(self):
+    def GetValue(self):
         i = self.GetSelection()
         return self.GetClientData(i) if i != -1 else None
 

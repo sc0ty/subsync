@@ -37,6 +37,8 @@ class Subtitles(pysubs2.SSAFile):
         if fmt == None and path.endswith('.txt'):
             fmt = 'microdvd'
 
+        logger.info('save subtitles, enc=%s format=%s fps=%f path=%s',
+                encoding, fmt, fps, path)
         try:
             super().save(path, encoding=encoding, format_=fmt, fps=fps)
         except pysubs2.exceptions.UnknownFileExtensionError as err:

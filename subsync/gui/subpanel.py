@@ -29,7 +29,7 @@ class SubtitlePanel(gui.subpanel_layout.SubtitlePanel):
                     self.setStream(dlg.stream)
 
     def onChoiceSubLang(self, event):
-        self.stream.lang = self.m_choiceSubLang.getLang()
+        self.stream.lang = self.m_choiceSubLang.GetValue()
 
     def onDropSubFile(self, filename):
         self.openStreamSelectDlg(filename)
@@ -46,5 +46,5 @@ class SubtitlePanel(gui.subpanel_layout.SubtitlePanel):
             self.stream.assign(stream)
             self.m_textSubPath.SetValue('{}:{}'.format(self.stream.path, self.stream.no + 1))
             self.m_textSubPath.SetInsertionPoint(self.m_textSubPath.GetLastPosition())
-            self.m_choiceSubLang.setLang(self.stream.lang)
+            self.m_choiceSubLang.SetValue(self.stream.lang)
 

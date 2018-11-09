@@ -194,9 +194,11 @@ class SyncWin(gui.syncwin_layout.SyncWin):
     def onButtonSaveClick(self, event):
         path = self.saveFileDlg(self.refs.path)
         if path != None:
-            fps = self.subs.fps if self.subs.fps != None else self.refs.fps
+            fps = self.subs.fps or self.refs.fps
+            enc = settings().outputCharEnc or self.subs.enc
+
             try:
-                self.sync.getSynchronizedSubtitles().save(path, fps=fps)
+                self.sync.getSynchronizedSubtitles().save(path, fps=fps, encoding=enc)
             except pysubs2.exceptions.Pysubs2Error as err:
                 gui.errorwin.showExceptionDlg(self)
 

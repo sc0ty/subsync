@@ -13,6 +13,7 @@ class Settings(object):
         self.maxPointDist = 2.0
         self.minPointsNo = 20
         self.appendLangCode = True
+        self.outputCharEnc = 'UTF-8'
         self.windowSize = 30.0 * 60.0
         self.minWordProb = 0.3
         self.jobsNo = None

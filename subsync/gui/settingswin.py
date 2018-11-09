@@ -9,6 +9,7 @@ import wx
 class SettingsWin(gui.settingswin_layout.SettingsWin):
     def __init__(self, parent, settings):
         gui.settingswin_layout.SettingsWin.__init__(self, parent)
+        self.m_outputCharEnc.SetString(0, _('same as input subtitles'))
 
         if not config.assetupd:
             self.m_textUpdates.Hide()
