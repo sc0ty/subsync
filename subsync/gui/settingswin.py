@@ -1,6 +1,7 @@
 import gui.settingswin_layout
 from gui.filedlg import showSaveFileDlg
 from settings import Settings
+import config
 import multiprocessing
 import wx
 
@@ -8,6 +9,12 @@ import wx
 class SettingsWin(gui.settingswin_layout.SettingsWin):
     def __init__(self, parent, settings):
         gui.settingswin_layout.SettingsWin.__init__(self, parent)
+
+        if not config.assetupd:
+            self.m_textUpdates.Hide()
+            self.m_autoUpdate.Hide()
+            self.m_askForUpdate.Hide()
+
         self.setSettings(settings)
 
     def setSettings(self, settings):
