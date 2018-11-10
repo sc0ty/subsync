@@ -6,15 +6,9 @@
 using namespace std;
 
 
-static void init()
-{
-	static bool initialized = false;
-	if (!initialized)
-	{
-		av_register_all();
-		initialized = true;
-	}
-}
+static void init();
+static AVInputFormat *getInputFormatByFname(const char *path);
+
 
 #define VALIDATE_STREAM_ID(streamId) \
 	if (streamId >= m_streamsNo) \
@@ -22,6 +16,7 @@ static void init()
 			.module("Demux") \
 			.add("id", streamId) \
 			.add("range", m_streamsNo)
+
 
 Demux::Demux(const string &fileName) :
 	m_formatContext(NULL),
@@ -32,6 +27,14 @@ Demux::Demux(const string &fileName) :
 	init();
 
 	int res = avformat_open_input(&m_formatContext, fileName.c_str(), NULL, NULL);
+	if (res < 0)
+	{
+		// try to detect container by file extension - works for slightly broken subtitles
+		AVInputFormat *fmt = getInputFormatByFname(fileName.c_str());
+		if (fmt && avformat_open_input(&m_formatContext, fileName.c_str(), fmt, NULL) == 0)
+			res = 0;
+	}
+
 	if (res < 0)
 		throw EXCEPTION_FFMPEG("can't open multimedia file", res)
 			.module("Demux", "avformat_open_input")
@@ -247,3 +250,56 @@ bool Demux::Stream::disconnectDecoder(shared_ptr<Decoder> decoder)
 
 	return false;
 }
+
+
+/*** Helper functions ***/
+
+void init()
+{
+	static bool initialized = false;
+	if (!initialized)
+	{
+		av_register_all();
+		initialized = true;
+	}
+}
+
+AVInputFormat *getInputFormatByFname(const char *path)
+{
+	const char *p = strrchr(path, '.');
+	string ext;
+	for (p++; *p; p++)
+		ext += tolower(*p);
+
+	static const char *formatExtensions[] = {
+		"aqt", "aqtitle",
+		"ass", "ass",
+		"jss", "jacosub",
+		"mpl", "mpl2",
+		"pjs", "pjs",
+		"rt", "realtext",
+		"sami", "sami",
+		"smi", "sami",
+		"srt", "srt",
+		"ssa", "ass",
+		"stl", "stl",
+		"sub", "microdvd",
+		"txt", "vplayer",
+	};
+
+	AVInputFormat *fmt = NULL;
+	for (size_t i = 0; i < sizeof(formatExtensions)/sizeof(const char*); i += 2)
+	{
+		if (strcmp(ext.c_str(), formatExtensions[i]) == 0)
+		{
+			fmt = av_find_input_format(formatExtensions[i + 1]);
+			break;
+		}
+	}
+
+	if (fmt == NULL)
+		fmt = av_find_input_format(ext.c_str());
+
+	return fmt;
+}
+
