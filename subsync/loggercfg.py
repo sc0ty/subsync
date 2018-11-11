@@ -15,7 +15,7 @@ _activeFilter = None
 
 def init(level=None, path=None):
     logging.basicConfig(
-            format='%(relativeCreated)8d:%(threadName)12.12s:%(levelname)8.8s:%(name)12.12s: %(message)s',
+            format='%(asctime)s:%(threadName)12.12s:%(levelname)8.8s:%(name)12.12s: %(message)s',
             level=level,
             filename=path)
 
