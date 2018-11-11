@@ -6,9 +6,11 @@ from gui.filedlg import showOpenFileDlg
 from gui.filedrop import setFileDropTarget
 from gui.channelssel import AudioChannelsSel
 from gui.errorwin import error_dlg
+from utils import onesPositions
 from error import Error
 from data.filetypes import subtitleWildcard, videoWildcard
-from data.languages import languages2to3
+from data.languages import languages, languages2to3
+from data.audio import getAduioChannelName
 
 
 @error_dlg
@@ -48,9 +50,9 @@ class OpenWin(gui.openwin_layout.OpenWin):
         self.m_buttonOk.Enable(False)
 
         if not stream.lang and len(stream.streams) == 1:
-            stream.lang = getLangFromPath(stream.path)
+            stream.lang = validateLang(getLangFromPath(stream.path))
 
-        lang = stream.lang
+        lang = validateLang(stream.lang)
         enc = stream.enc
         channels = stream.channels
 
@@ -64,6 +66,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
         if stream.no != None:
             self.selectStream(stream.stream())
 
+        stream.lang = lang
         self.m_choiceLang.SetValue(lang)
         self.m_choiceEncoding.SetValue(enc)
         if channels:
@@ -75,8 +78,8 @@ class OpenWin(gui.openwin_layout.OpenWin):
         self.stream.type = stream.type
 
         if updateLang and stream.lang:
-            self.stream.lang = stream.lang
-            self.m_choiceLang.SetValue(stream.lang)
+            self.stream.lang = validateLang(stream.lang)
+            self.m_choiceLang.SetValue(self.stream.lang)
 
         isSubText = stream.type == 'subtitle/text'
         isAudio = stream.type == 'audio'
@@ -95,18 +98,18 @@ class OpenWin(gui.openwin_layout.OpenWin):
         self.stream.channels = channels
 
         if channels:
-            names = self.stream.stream().audio.getChannelNames()
-            if len(channels) == len(names):
+            ids = onesPositions(self.stream.stream().audio.channelLayout)
+            if len(channels) == len(ids):
                 self.m_textChannels.SetValue(_('all channels'))
             else:
-                chls = [ names[id] for id in channels ]
+                chls = [ getAduioChannelName(id) for id in channels ]
                 self.m_textChannels.SetValue(', '.join(chls))
 
         else:
             self.m_textChannels.SetValue('')
 
     def onChoiceLangChoice(self, event):
-        self.stream.lang = self.m_choiceLang.GetValue()
+        self.stream.lang = validateLang(self.m_choiceLang.GetValue())
 
     def onListStreamsSelect(self, event):
         index = self.m_listStreams.getSelectedStream()
@@ -162,4 +165,9 @@ def getLangFromPath(path):
         return languages2to3.get(name[-2:].lower())
     elif size == 3:
         return name[-3:].lower()
+
+
+def validateLang(lang):
+    if lang and lang.lower() in languages:
+        return lang.lower()
 

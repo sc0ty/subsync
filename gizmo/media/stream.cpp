@@ -5,39 +5,6 @@
 using namespace std;
 
 
-static const char *channelIdToName(uint64_t id)
-{
-	switch (id)
-	{
-		case AV_CH_FRONT_LEFT:             return "front left";
-		case AV_CH_FRONT_RIGHT:            return "front right";
-		case AV_CH_FRONT_CENTER:           return "front center";
-		case AV_CH_LOW_FREQUENCY:          return "subwoofer";
-		case AV_CH_BACK_LEFT:              return "back left";
-		case AV_CH_BACK_RIGHT:             return "back right";
-		case AV_CH_FRONT_LEFT_OF_CENTER:   return "front left of center";
-		case AV_CH_FRONT_RIGHT_OF_CENTER:  return "front right of center";
-		case AV_CH_BACK_CENTER:            return "back center";
-		case AV_CH_SIDE_LEFT:              return "side left";
-		case AV_CH_SIDE_RIGHT:             return "side right";
-		case AV_CH_TOP_CENTER:             return "top center";
-		case AV_CH_TOP_FRONT_LEFT:         return "top front left";
-		case AV_CH_TOP_FRONT_CENTER:       return "top front center";
-		case AV_CH_TOP_FRONT_RIGHT:        return "top front right";
-		case AV_CH_TOP_BACK_LEFT:          return "top back left";
-		case AV_CH_TOP_BACK_CENTER:        return "top back center";
-		case AV_CH_TOP_BACK_RIGHT:         return "top back right";
-		case AV_CH_STEREO_LEFT:            return "stereo left";
-		case AV_CH_STEREO_RIGHT:           return "stereo right";
-		case AV_CH_WIDE_LEFT:              return "wide left";
-		case AV_CH_WIDE_RIGHT:             return "wide right";
-		case AV_CH_SURROUND_DIRECT_LEFT:   return "surround direct left";
-		case AV_CH_SURROUND_DIRECT_RIGHT:  return "surround direct right";
-		case AV_CH_LOW_FREQUENCY_2:        return "second subwoofer";
-		default: return NULL;
-	}
-}
-
 static const char *sampleFormatToName(AVSampleFormat format)
 {
 	switch (format)
@@ -197,22 +164,6 @@ AudioFormat::AudioFormat(AVSampleFormat sampleFormat, unsigned sampleRate,
 unsigned AudioFormat::getSampleSize() const
 {
 	return av_get_bytes_per_sample(sampleFormat);
-}
-
-map<uint64_t, string> AudioFormat::getChannelNames() const
-{
-	map<uint64_t, string> res;
-	for (uint64_t no = 1; no <= channelLayout; no <<= 1)
-	{
-		if (no & channelLayout)
-		{
-			const char *name = channelIdToName(no);
-			if (name)
-				res[no] = name;
-		}
-	}
-
-	return res;
 }
 
 string AudioFormat::toString() const

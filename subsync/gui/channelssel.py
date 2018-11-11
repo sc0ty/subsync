@@ -1,4 +1,6 @@
 import wx
+import utils
+import data.audio
 
 
 class AudioChannelsSel(wx.MultiChoiceDialog):
@@ -6,12 +8,11 @@ class AudioChannelsSel(wx.MultiChoiceDialog):
         self.pos2id = {}
         self.id2pos = {}
 
-        names = audio.getChannelNames()
         lst = []
         pos = 0
 
-        for id in sorted(names):
-            lst.append(names[id])
+        for id in utils.onesPositions(audio.channelLayout):
+            lst.append(data.audio.getAduioChannelName(id))
             self.pos2id[pos] = id
             self.id2pos[id] = pos
             pos += 1

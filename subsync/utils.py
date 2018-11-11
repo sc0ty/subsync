@@ -30,3 +30,15 @@ def fileSizeFmt(val):
         val /= 1000.0
         unit = 'TB'
     return '{:.1f} {}'.format(val, unit)
+
+
+def onesPositions(val):
+    res = []
+    idx = 0
+    while val > 0:
+        if val & 1:
+            res.append(idx)
+        idx += 1
+        val >>= 1
+    return res
+

@@ -1,5 +1,6 @@
 import gizmo
 import speech
+import utils
 from settings import settings
 from error import Error
 import math
@@ -105,8 +106,8 @@ class SpeechPipeline(BasePipeline):
                 stream.channels = speech.getDefaultAudioChannels(
                         stream.stream().audio)
 
-            names = stream.stream().audio.getChannelNames()
-            id2pos = { id: pos for pos, id in enumerate(sorted(names)) }
+            ids = utils.onesPositions(stream.stream().audio.channelLayout)
+            id2pos = { id: pos for pos, id in enumerate(sorted(ids)) }
             gain = 1.0 / len(stream.channels)
             mixMap = speech.MixMap(inputAudioFormat.channelsNo)
             for id in stream.channels:

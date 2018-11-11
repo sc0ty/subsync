@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
 extern "C"
 {
@@ -23,7 +22,6 @@ struct AudioFormat
 			uint64_t channelLayout=0);
 
 	unsigned getSampleSize() const;
-	std::map<uint64_t, std::string> getChannelNames() const;
 	std::string toString() const;
 };
 

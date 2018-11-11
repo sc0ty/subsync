@@ -1,12 +1,15 @@
 import gizmo
 from assets import assets
-from error import Error
+import utils
+import error
 import json
 import os
 
 import logging
 logger = logging.getLogger(__name__)
 
+
+audio_channel_center_id = 2
 
 _speechModels = {}
 
@@ -51,13 +54,14 @@ def getSpeechAudioFormat(speechModel, inputAudioFormat):
             sampleRate = int(sampleRate)
 
         channelLayout = 1
-        ids = inputAudioFormat.getChannelNames().keys()
-        if len(ids) > 0:
-            channelLayout = list(ids)[0]
+        if inputAudioFormat.channelLayout:
+            channelId = utils.onesPositions(inputAudioFormat.channelLayout)[0]
+            channelLayout = 1 << channelId
 
         return gizmo.AudioFormat(sampleFormat, sampleRate, channelLayout)
     except:
-        raise Error(_('Invalid speech audio format'))
+        raise error.Error(_('Invalid speech audio format'),
+                inputFormat=str(inputAudioFormat))
 
 
 def getDefaultAudioChannels(audio):
@@ -65,12 +69,11 @@ def getDefaultAudioChannels(audio):
     otherwise all channels will be mixed together
     '''
 
-    channels = audio.getChannelNames()
-    for id, name in channels.items():
-        if name == 'front center':
-            return [ id ]
+    channels = utils.onesPositions(audio.channelLayout)
+    if audio_channel_center_id in channels:
+        return [ audio_channel_center_id ]
 
-    return list(channels.keys())
+    return channels
 
 
 class MixMap:
@@ -85,14 +88,6 @@ class MixMap:
         g = gain / self.channelsNo
         for srcNo in range(self.channelsNo):
             self.setPath(srcNo, dstNo, g)
-
-    def getChannelNoByName(name, fmt):
-        no = 0
-        for channel, chname in sorted(fmt.getChannelNames().items()):
-            if name == chname:
-                return no
-            no += 1
-        return None
 
     def __repr__(self):
         if self.channelsNo == 0:
