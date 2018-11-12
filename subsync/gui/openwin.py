@@ -6,6 +6,7 @@ from gui.filedlg import showOpenFileDlg
 from gui.filedrop import setFileDropTarget
 from gui.channelssel import AudioChannelsSel
 from gui.errorwin import error_dlg
+from gui.busydlg import BusyDlg
 from utils import onesPositions
 from error import Error
 from data.filetypes import subtitleWildcard, videoWildcard
@@ -27,7 +28,8 @@ def showOpenSubFileDlg(parent, stream):
 
     path = showOpenFileDlg(parent, **props)
     if path != None:
-        return Stream(path=path, types=stream.types)
+        with BusyDlg(_('Loading, please wait...')):
+            return Stream(path=path, types=stream.types)
 
 
 class OpenWin(gui.openwin_layout.OpenWin):
@@ -40,7 +42,8 @@ class OpenWin(gui.openwin_layout.OpenWin):
     @error_dlg
     def openStream(self, stream=None, path=None):
         if path:
-            stream = Stream(path=path, types=self.stream.types)
+            with BusyDlg(_('Loading, please wait...')):
+                stream = Stream(path=path, types=self.stream.types)
 
         self.stream = stream
         self.m_textPath.SetValue(self.stream.path)

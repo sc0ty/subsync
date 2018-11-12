@@ -3,6 +3,7 @@ import wx
 import synchro
 import gui.filedlg
 import gui.errorwin
+import gui.busydlg
 import thread
 import data.filetypes
 from subtitle import Subtitles, makeTimestamp
@@ -51,13 +52,9 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         self.updateTimer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.onUpdateTimerTick, self.updateTimer)
 
-        # workaround for GUI freeze
-        wx.CallAfter(self.init)
-
-    @gui.errorwin.error_dlg
-    def init(self):
-        self.sync = synchro.Synchronizer(self, self.subs, self.refs)
-        self.sync.start()
+        with gui.busydlg.BusyDlg(_('Loading, please wait...')):
+            self.sync = synchro.Synchronizer(self, self.subs, self.refs)
+            self.sync.start()
 
         self.isRunning = True
         self.updateTimer.Start(500)
@@ -171,15 +168,16 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         return res
 
     def onClose(self, event):
-        self.stop()
+        with gui.busydlg.BusyDlg(_('Loading, please wait...')):
+            self.stop()
 
-        if self.sync:
-            self.sync.stop()
+            if self.sync:
+                self.sync.stop()
 
-            while self.sync.isRunning():
-                wx.Yield()
+                while self.sync.isRunning():
+                    wx.Yield()
 
-            self.sync.destroy()
+                self.sync.destroy()
 
         if event:
             event.Skip()
