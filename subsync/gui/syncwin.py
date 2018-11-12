@@ -168,7 +168,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         return res
 
     def onClose(self, event):
-        with gui.busydlg.BusyDlg(_('Loading, please wait...')):
+        with gui.busydlg.BusyDlg(_('Terminating, please wait...')):
             self.stop()
 
             if self.sync:
