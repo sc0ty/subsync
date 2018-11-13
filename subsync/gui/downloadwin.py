@@ -79,6 +79,14 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
 
             showExceptionDlgAndQuit(sys.exc_info())
 
+        finally:
+            @thread.gui_thread
+            def stopTimerIfRunning():
+                if self.progressTimer.IsRunning():
+                    self.progressTimer.Stop()
+
+            stopTimerIfRunning()
+
     async def downloadJob(self, asset):
         downloader = assets.downloader.AssetDownloader(**asset)
 
