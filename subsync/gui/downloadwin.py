@@ -25,9 +25,11 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
         self.task = None
 
         self.progress = thread.AtomicValue(None)
+        self.lastPos = 0
+
         self.progressTimer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.onProgressTimerTick, self.progressTimer)
-        self.progressTimer.Start(50)
+        self.progressTimer.Start(500)
 
         self.thread = threading.Thread(name='Download', target=self.run, args=[job])
         self.thread.start()
@@ -46,7 +48,8 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
     def onProgressTimerTick(self, event):
         progress = self.progress.get()
         if progress:
-            self.setStatus(*progress)
+            interval = self.progressTimer.GetInterval() / 1000.0
+            self.setStatus(*progress, interval)
 
     @thread.gui_thread
     def EndModal(self, retCode):
@@ -104,7 +107,7 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
         self.setStatus(_('done'))
 
     @thread.gui_thread
-    def setStatus(self, status, progress=None):
+    def setStatus(self, status, progress=None, interval=None):
         if progress:
             pos, size = progress
             if size:
@@ -113,6 +116,13 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
             else:
                 self.m_gaugeProgress.Pulse()
                 msg = '{} {}'.format(status, fileSizeFmt(pos))
+
+            if interval:
+                if self.lastPos:
+                    delta = pos - self.lastPos
+                    if delta > 0:
+                        msg += ' ({}/s)'.format(fileSizeFmt(delta / interval))
+                self.lastPos = pos
         else:
             msg = status
         self.m_textDetails.SetLabel(msg)
