@@ -26,9 +26,8 @@ class AssetDownloader(object):
 
     async def download(self, progressCb=None):
         logger.info('downloading %s', self.url)
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(read_timeout=None, raise_for_status=True) as session:
             async with session.get(self.url) as response:
-                assert response.status == 200
                 pos = 0
                 size = getSizeFromHeader(response.headers, self.size)
 
