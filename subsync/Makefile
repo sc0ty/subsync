@@ -7,6 +7,7 @@ GUI_SRC = \
 		  gui/subpanel.fbp \
 		  gui/openwin.fbp \
 		  gui/syncwin.fbp \
+		  gui/fpswin.fbp \
 		  gui/settingswin.fbp \
 		  gui/downloadwin.fbp \
 		  gui/aboutwin.fbp \

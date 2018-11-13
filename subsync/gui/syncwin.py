@@ -2,6 +2,7 @@ import gui.syncwin_layout
 import wx
 import synchro
 import gui.filedlg
+import gui.fpswin
 import gui.errorwin
 import gui.busydlg
 import thread
@@ -192,13 +193,17 @@ class SyncWin(gui.syncwin_layout.SyncWin):
     def onButtonSaveClick(self, event):
         path = self.saveFileDlg(self.refs.path)
         if path != None:
-            fps = self.subs.fps or self.refs.fps
-            enc = settings().outputCharEnc or self.subs.enc
+            enc = settings().outputCharEnc or self.subs.enc or 'UTF-8'
 
             try:
-                self.sync.getSynchronizedSubtitles().save(path, fps=fps, encoding=enc)
-            except pysubs2.exceptions.Pysubs2Error as err:
-                gui.errorwin.showExceptionDlg(self)
+                self.sync.getSynchronizedSubtitles().save(path, encoding=enc)
+
+            except pysubs2.exceptions.UnknownFPSError:
+                with gui.fpswin.FpsWin(self, self.subs.fps, self.refs.fps) as dlg:
+                    if dlg.ShowModal() == wx.ID_OK:
+                        self.sync.getSynchronizedSubtitles().save(
+                                path, encoding=enc, fps=dlg.getFps())
+
 
     def onTextShowDetailsClick(self, event):
         self.m_panelDetails.Show()

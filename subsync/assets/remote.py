@@ -75,8 +75,10 @@ class RemoteAssets(object):
             if updateCb:
                 updateCb()
 
+            logger.info('update job done')
+
         except asyncio.CancelledError:
-            pass
+            logger.info('update job cancelled')
 
     async def downloadAssets(self):
         try:

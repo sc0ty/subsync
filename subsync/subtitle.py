@@ -1,4 +1,4 @@
-from error import Error
+import error
 import bisect
 import pysubs2
 import copy
@@ -37,13 +37,13 @@ class Subtitles(pysubs2.SSAFile):
         if fmt == None and path.endswith('.txt'):
             fmt = 'microdvd'
 
-        logger.info('save subtitles, enc=%s format=%s fps=%f path=%s',
+        logger.info('save subtitles, enc=%r format=%r fps=%r path=%s',
                 encoding, fmt, fps, path)
         try:
             super().save(path, encoding=encoding, format_=fmt, fps=fps)
         except pysubs2.exceptions.UnknownFileExtensionError as err:
             if fmt != None:
-                return Error('Can\'t save subtitles file' + '\n' + str(err)) \
+                raise error.Error('Can\'t save subtitles file' + '\n' + str(err)) \
                         .add('path', path) \
                         .add('encodings', encoding) \
                         .addn('format', fmt) \
