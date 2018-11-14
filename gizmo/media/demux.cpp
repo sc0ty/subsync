@@ -1,7 +1,6 @@
 #include "demux.h"
 #include "general/exception.h"
 #include <memory>
-#include <assert.h>
 
 using namespace std;
 
