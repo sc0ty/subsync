@@ -2,11 +2,11 @@ import gui.openwin_layout
 import wx
 from stream import Stream
 from speech import getDefaultAudioChannels
-from gui.filedlg import showOpenFileDlg
-from gui.filedrop import setFileDropTarget
-from gui.channelssel import AudioChannelsSel
+import gui.filedlg
+import gui.filedrop
+import gui.channelssel
+import gui.busydlg
 from gui.errorwin import error_dlg
-from gui.busydlg import BusyDlg
 from utils import onesPositions
 from error import Error
 from data.filetypes import subtitleWildcard, videoWildcard
@@ -15,7 +15,7 @@ from data.audio import getAduioChannelName
 
 
 @error_dlg
-def showOpenSubFileDlg(parent, stream):
+def showOpenFileDlg(parent, stream):
     props = {}
     if stream.path != None:
         props['defaultFile'] = stream.path
@@ -26,24 +26,27 @@ def showOpenSubFileDlg(parent, stream):
             _('Video files'), videoWildcard,
             _('All files'), '*.*' ])
 
-    path = showOpenFileDlg(parent, **props)
-    if path != None:
-        with BusyDlg(_('Loading, please wait...')):
-            return Stream(path=path, types=stream.types)
+    path = gui.filedlg.showOpenFileDlg(parent, **props)
+    return readStream(path, stream.types)
+
+
+def readStream(path, types):
+    if path:
+        with gui.busydlg.BusyDlg(_('Loading, please wait...')):
+            return Stream(path=path, types=types)
 
 
 class OpenWin(gui.openwin_layout.OpenWin):
     def __init__(self, parent, stream):
         gui.openwin_layout.OpenWin.__init__(self, parent)
-        setFileDropTarget(self, self.onDropFile)
+        gui.filedrop.setFileDropTarget(self, self.onDropFile)
         self.stream = Stream(stream=stream)
         self.openStream(stream)
 
     @error_dlg
     def openStream(self, stream=None, path=None):
         if path:
-            with BusyDlg(_('Loading, please wait...')):
-                stream = Stream(path=path, types=self.stream.types)
+            return readStream(path, self.stream.types)
 
         self.stream = stream
         self.m_textPath.SetValue(self.stream.path)
@@ -127,7 +130,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
     @error_dlg
     def onButtonSelectChannelsClick(self, event):
-        dlg = AudioChannelsSel(self,
+        dlg = gui.channelssel.AudioChannelsSel(self,
                 _('Select audio channels to listen:'),
                 _('Select channels'),
                 self.stream.stream().audio)
@@ -141,7 +144,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
     @error_dlg
     def onButtonOpenClick(self, event):
-        stream = showOpenSubFileDlg(self, self.stream)
+        stream = showOpenFileDlg(self, self.stream)
         if stream != None and stream.isOpen():
             self.openStream(stream)
 

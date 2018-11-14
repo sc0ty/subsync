@@ -3,28 +3,29 @@ import wx
 import os
 from stream import Stream
 from settings import settings
-from gui.openwin import OpenWin, showOpenSubFileDlg
-from gui.filedrop import setFileDropTarget
+import gui.openwin
+import gui.filedrop
 from gui.errorwin import error_dlg
 
 
 class SubtitlePanel(gui.subpanel_layout.SubtitlePanel):
+    ''' This is subtitle or reference panel used on MainWin
+    '''
     def __init__(self, parent, *args, **kwargs):
-        wx.FileDropTarget.__init__(self)
         gui.subpanel_layout.SubtitlePanel.__init__(self, parent)
-        setFileDropTarget(self, self.onDropSubFile)
+        gui.filedrop.setFileDropTarget(self, self.onDropSubFile)
         self.stream = Stream()
 
     @error_dlg
     def onButtonSubOpenClick(self, event):
         stream = self.stream
         if not stream.isOpen():
-            stream = showOpenSubFileDlg(self, self.stream)
-        self.showStreamSelectDlg(stream)
+            stream = gui.openwin.showOpenFileDlg(self, self.stream)
+        self.showOpenWin(stream)
 
-    def showStreamSelectDlg(self, stream):
+    def showOpenWin(self, stream):
         if stream != None and stream.isOpen():
-            with OpenWin(self, stream) as dlg:
+            with gui.openwin.OpenWin(self, stream) as dlg:
                 if dlg.ShowModal() == wx.ID_OK and dlg.stream.isOpen():
                     self.setStream(dlg.stream)
 
@@ -32,14 +33,17 @@ class SubtitlePanel(gui.subpanel_layout.SubtitlePanel):
         self.stream.lang = self.m_choiceSubLang.GetValue()
 
     def onDropSubFile(self, filename):
-        self.openStreamSelectDlg(filename)
-        return True
 
-    @error_dlg
-    def openStreamSelectDlg(self, filename):
-        stream = Stream(path=filename, types=self.stream.types)
-        settings().lastdir = os.path.dirname(filename)
-        self.showStreamSelectDlg(stream)
+        @error_dlg
+        def showOpenWinWithFile(filename):
+            stream = gui.openwin.readStream(filename, self.stream.types)
+            settings().lastdir = os.path.dirname(filename)
+            self.showOpenWin(stream)
+
+        # this is workaround for Windows showing drag&drop cursor inside OpenWin
+        # and locking explorer window from where the file was dragged
+        wx.CallAfter(showOpenWinWithFile, filename)
+        return True
 
     def setStream(self, stream):
         if stream != None and stream.isOpen():
