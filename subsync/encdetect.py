@@ -29,5 +29,4 @@ def detectEncoding(path, lang, probeSize=32*1024):
         raise Error('File not found').add('path', path)
 
     logger.info('couldn\'t detect encoding for file "%s", tried %s', path, encs)
-    return None
 

@@ -8,11 +8,8 @@ _verifier = None
 
 
 def getPublicKey():
-    for path in config.keypaths:
-        if os.path.isfile(path):
-            with open(path, 'rb') as fp:
-                return RSA.importKey(fp.read())
-    raise Error(_('Cannot load public key'), paths=config.keypaths)
+    with open(config.keypath, 'rb') as fp:
+        return RSA.importKey(fp.read())
 
 
 def getVerifier():

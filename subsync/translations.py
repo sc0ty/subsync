@@ -7,17 +7,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-_localedir = None
-
 def init():
-    global _localedir
-    for d in config.localedirs:
-        if os.path.isdir(d):
-            logger.info('using translations from %s', d)
-            _localedir = d
-            break
-
-    gettext.install('messages', localedir=_localedir)
+    gettext.install('messages', localedir=config.localedir)
 
 def setLanguage(lang):
     try:
@@ -27,11 +18,11 @@ def setLanguage(lang):
         logger.info('changing translation language to %s', lang)
 
         if lang == 'en':
-            gettext.install('messages', localedir=_localedir)
+            gettext.install('messages', localedir=config.localedir)
 
         else:
             tr = gettext.translation('messages',
-                    localedir=_localedir,
+                    localedir=config.localedir,
                     languages=[lang])
             tr.install()
 
@@ -39,9 +30,9 @@ def setLanguage(lang):
         logger.warning('translation language setup failed, %r', e, exc_info=True)
 
 def listLanguages():
-    if _localedir:
-        langs = os.listdir(_localedir)
-    else:
+    try:
+        langs = os.listdir(config.localedir)
+    except:
         langs = []
 
     if 'en' not in langs:
