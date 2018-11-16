@@ -1,7 +1,6 @@
 #include "correlator.h"
 #include "math/point.h"
 #include "math/line.h"
-#include "text/utf8.h"
 #include "text/translator.h"
 #include "general/exception.h"
 #include <pybind11/pybind11.h>

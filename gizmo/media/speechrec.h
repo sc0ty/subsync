@@ -5,7 +5,6 @@
 #include "text/words.h"
 #include <pocketsphinx.h>
 #include <string>
-#include <map>
 
 
 class SpeechRecognition : public AudioOutput

@@ -3,10 +3,6 @@
 
 #include "math/linefinder.h"
 #include "text/wordsqueue.h"
-#include <functional>
-#include <mutex>
-#include <map>
-#include <vector>
 #include <string>
 #include <thread>
 #include <atomic>

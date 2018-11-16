@@ -2,13 +2,11 @@
 #define __EXTRACTOR_H__
 
 #include "media/demux.h"
-#include "general/sem.h"
 #include "general/exception.h"
 #include <functional>
 #include <thread>
 #include <atomic>
 #include <memory>
-#include <string>
 
 
 class Extractor
