@@ -1,12 +1,32 @@
+# based on https://github.com/Valloric/ycmd/blob/master/.ycm_extra_conf.py
+
 import ycm_core
+import os
 
-def FlagsForFile(filename):
+
+basePath = os.path.dirname(os.path.abspath(__file__))
+
+
+def getFlags():
+    flags = [ '-x', 'c++' ]
     try:
-        from ycm_flags import flags
+        with open(os.path.join(basePath, 'ycm.flags'), 'rt') as fp:
+            flags += fp.read().split()
     except:
-        flags = [ '-x', 'c++', '-Wall', '-Wextra', '-std=c++11', '-I.' ]
+        flags += [
+                '-Wall',
+                '-Wextra',
+                '-pedantic',
+                '-std=c++11',
+                '-I.',
+                ]
+    return flags
 
+
+def FlagsForFile(filename, **kwargs):
     return {
-        'flags': flags,
-        'do_cache': True
-    }
+            'flags': getFlags(),
+            'include_paths_relative_to_dir': basePath,
+            'do_cache': True
+            }
+

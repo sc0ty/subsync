@@ -128,8 +128,8 @@ $(TARGET): $(OBJECTS)
 	$(CXX) -shared -o $@ $^ $(LDFLAGS)
 
 
-ycm_flags.py: .FORCE
-	@echo "flags = '$(CXXFLAGS) $(LDFLAGS)'.split()" > $@
+ycm.flags: .FORCE
+	@echo "$(CXXFLAGS) $(LDFLAGS)" > $@
 
 -include test/test.mk
 

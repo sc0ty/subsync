@@ -1,4 +1,4 @@
 config.mk
-ycm_flags.py
+ycm.flags
 test/tests
 
