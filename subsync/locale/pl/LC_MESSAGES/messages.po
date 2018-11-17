@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-06 17:34+0100\n"
-"PO-Revision-Date: 2018-11-06 17:35+0100\n"
+"POT-Creation-Date: 2018-11-17 17:20+0100\n"
+"PO-Revision-Date: 2018-11-17 18:35+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -23,137 +23,141 @@ msgstr ""
 msgid "There is no dictionary for transaltion from {} to {}"
 msgstr "Brak słownika dla translacji z {} do {}"
 
-#: pipeline.py:136
+#: pipeline.py:141
 msgid "Not supported stream type"
 msgstr "Niewspierany typ strumienia"
 
 #: gui/aboutwin.py:14
 msgid "version "
-msgstr "wersja"
+msgstr "wersja "
 
-#: gui/settingswin_layout.py:22 gui/mainwin_layout.py:84
+#: gui/settingswin_layout.py:23 gui/mainwin.py:95 gui/mainwin_layout.py:84
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: gui/settingswin_layout.py:42 gui/openwin_layout.py:68
+#: gui/settingswin_layout.py:43 gui/openwin_layout.py:68
 msgid "Language:"
 msgstr "Język:"
 
-#: gui/settingswin_layout.py:51
+#: gui/settingswin_layout.py:52
+msgid "Output encoding:"
+msgstr "Kodowanie znaków:"
+
+#: gui/settingswin_layout.py:61
 msgid "Output filename:"
 msgstr "Nazwa pliku wyjściowego:"
 
-#: gui/settingswin_layout.py:55
+#: gui/settingswin_layout.py:65
 msgid "append language code"
 msgstr "dodaj kod języka"
 
-#: gui/settingswin_layout.py:59
+#: gui/settingswin_layout.py:69
 msgid "Updates:"
 msgstr "Aktualizacje:"
 
-#: gui/settingswin_layout.py:63
+#: gui/settingswin_layout.py:73
 msgid "download updates automatically"
 msgstr "pobieraj aktualizacje automatycznie"
 
-#: gui/settingswin_layout.py:70
+#: gui/settingswin_layout.py:80
 msgid "ask for update on exit"
 msgstr "aktualizuj przy zamykaniu programu"
 
-#: gui/settingswin_layout.py:78
+#: gui/settingswin_layout.py:88
 msgid "General"
 msgstr "Ogólne"
 
-#: gui/settingswin_layout.py:85
+#: gui/settingswin_layout.py:95
 msgid "Max points distance:"
 msgstr "Max odległość między punktami:"
 
-#: gui/settingswin_layout.py:92
+#: gui/settingswin_layout.py:102
 msgid "Min points no:"
 msgstr "Min ilość punktów:"
 
-#: gui/settingswin_layout.py:99
+#: gui/settingswin_layout.py:109
 msgid "Min world length (letters):"
 msgstr "Min długość wyrazu (litery):"
 
-#: gui/settingswin_layout.py:106
+#: gui/settingswin_layout.py:116
 msgid "Min worlds similarity:"
 msgstr "Min podobieństwo wyrazów:"
 
-#: gui/settingswin_layout.py:113
+#: gui/settingswin_layout.py:123
 msgid "Min correlation factor:"
 msgstr "Min współczynnik korelacji:"
 
-#: gui/settingswin_layout.py:120
+#: gui/settingswin_layout.py:130
 msgid "Min speech recognition score:"
 msgstr "Min współczynnik rozpoznawania mowy:"
 
-#: gui/settingswin_layout.py:127
+#: gui/settingswin_layout.py:137
 msgid "Extractor jobs no:"
 msgstr "Ilość wątków ekstrakcji:"
 
-#: gui/settingswin_layout.py:137
+#: gui/settingswin_layout.py:147
 msgid "auto"
 msgstr "auto"
 
-#: gui/settingswin_layout.py:153 gui/syncwin_layout.py:21
+#: gui/settingswin_layout.py:163 gui/syncwin_layout.py:21
 msgid "Synchronization"
 msgstr "Synchronizacja"
 
-#: gui/settingswin_layout.py:161
+#: gui/settingswin_layout.py:171
 msgid "enable advanced debug options"
 msgstr "włącz zaawansowane opcje debugowania"
 
-#: gui/settingswin_layout.py:169
+#: gui/settingswin_layout.py:179
 msgid "Logging level:"
 msgstr "Poziom logowania:"
 
-#: gui/settingswin_layout.py:173
+#: gui/settingswin_layout.py:183
 msgid "all"
 msgstr "wszystko"
 
-#: gui/settingswin_layout.py:173
+#: gui/settingswin_layout.py:183
 msgid "debug"
 msgstr ""
 
-#: gui/settingswin_layout.py:173
+#: gui/settingswin_layout.py:183
 msgid "info"
 msgstr ""
 
-#: gui/settingswin_layout.py:173
+#: gui/settingswin_layout.py:183
 msgid "warning"
 msgstr ""
 
-#: gui/settingswin_layout.py:173
+#: gui/settingswin_layout.py:183
 msgid "error"
 msgstr "błąd"
 
-#: gui/settingswin_layout.py:173
+#: gui/settingswin_layout.py:183
 msgid "critical"
 msgstr ""
 
-#: gui/settingswin_layout.py:187
+#: gui/settingswin_layout.py:197
 msgid "log to file"
 msgstr "zapisz log do pliku"
 
-#: gui/settingswin_layout.py:203
+#: gui/settingswin_layout.py:213
 msgid "Filter out logs from modules (one per line):"
 msgstr "Odfiltruj logi modułów (każdy moduł w osobnej linii):"
 
-#: gui/settingswin_layout.py:214 gui/syncwin_layout.py:194
+#: gui/settingswin_layout.py:224 gui/syncwin_layout.py:194
 msgid "Debug"
 msgstr "Debug"
 
-#: gui/settingswin_layout.py:222 gui/settingswin.py:89
+#: gui/settingswin_layout.py:232 gui/settingswin.py:97
 msgid "Restore defaults"
 msgstr "Domyślne ustawienia"
 
-#: gui/settingswin_layout.py:225 gui/downloadwin_layout.py:55
-#: gui/openwin_layout.py:98
+#: gui/settingswin_layout.py:235 gui/fpswin_layout.py:69
+#: gui/downloadwin_layout.py:55 gui/openwin_layout.py:121
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: gui/settingswin_layout.py:228 gui/errorwin_layout.py:72
-#: gui/openwin_layout.py:101
+#: gui/settingswin_layout.py:238 gui/fpswin_layout.py:72
+#: gui/errorwin_layout.py:72 gui/openwin_layout.py:124
 msgid "OK"
 msgstr "OK"
 
@@ -161,43 +165,47 @@ msgstr "OK"
 msgid "{} min"
 msgstr ""
 
-#: gui/mainwin.py:103
+#: gui/mainwin.py:94
+msgid "Language changes will take effect after application restart"
+msgstr "Zmiana języka odniesie skutek po restarcie aplikacji"
+
+#: gui/mainwin.py:114
 msgid "Your version is up to date"
 msgstr "Twoja wersja jest aktualna"
 
-#: gui/mainwin.py:104 gui/mainwin.py:180 gui/downloadwin.py:152
+#: gui/mainwin.py:115 gui/mainwin.py:191 gui/downloadwin.py:184
 msgid "Upgrade"
 msgstr "Aktualizuj"
 
-#: gui/mainwin.py:130
+#: gui/mainwin.py:141
 msgid "Subtitles not set"
 msgstr "Napisy nie wybrane"
 
-#: gui/mainwin.py:132
+#: gui/mainwin.py:143
 msgid "Reference file not set"
 msgstr "Referencja nie wybrana"
 
-#: gui/mainwin.py:134
+#: gui/mainwin.py:145
 msgid "Subtitles can't be the same as reference"
 msgstr "Napisy i referencja nie mogą być tym samym"
 
-#: gui/mainwin.py:136
+#: gui/mainwin.py:147
 msgid "Select reference language first"
 msgstr "Wybierz najpierw język referencji"
 
-#: gui/mainwin.py:158
+#: gui/mainwin.py:169
 msgid "Following assets must be download to continue:\n"
 msgstr "Aby kontynuować trzeba pobrać następujące pakiety:\n"
 
-#: gui/mainwin.py:160
+#: gui/mainwin.py:171
 msgid "Download now?"
 msgstr "Pobrać teraz?"
 
-#: gui/mainwin.py:161
+#: gui/mainwin.py:172
 msgid "Download assets"
 msgstr "Pobieranie"
 
-#: gui/mainwin.py:179
+#: gui/mainwin.py:190
 msgid "New version is available. Update now?"
 msgstr "Nowa wersja jest dostępna. Zaktualizować?"
 
@@ -222,11 +230,15 @@ msgid ""
 "Synchronization is done by listening to the audio track, translating it if "
 "necessary.\n"
 "It could also use another subtitle as a reference.\n"
-"In other words, just feed it with subtitles and video file and it will "
-"figure it out.\n"
 "\n"
 "Author: Michał Szymaniak"
 msgstr ""
+"Narzędzie do automatycznej synchronizacji napisów do filmu.\n"
+"Synchronizacja odbywa się poprzez słuchanie ścieżki audio.\n"
+"W razie konieczności, ścieżka ta zostanie przetłumaczona.\n"
+"Możliwa jest również synchronizacja z innymi napisami.\n"
+"\n"
+"Autor: Michał Szymaniak"
 
 #: gui/aboutwin_layout.py:79
 msgid "License"
@@ -234,7 +246,7 @@ msgstr "Licencja"
 
 #: gui/aboutwin_layout.py:82
 msgid "Credits"
-msgstr ""
+msgstr "Użyte technologie"
 
 #: gui/aboutwin_layout.py:85
 msgid "Website"
@@ -244,84 +256,136 @@ msgstr "Strona programu"
 msgid "Close"
 msgstr "Zamknij"
 
-#: gui/openwin.py:18
+#: gui/openwin.py:24
 msgid "All supported files"
 msgstr "Wszystkie wspierane pliki"
 
-#: gui/openwin.py:19
+#: gui/openwin.py:25
 msgid "Subtitle files"
 msgstr "Napisy"
 
-#: gui/openwin.py:20
+#: gui/openwin.py:26
 msgid "Video files"
 msgstr "Wideo"
 
-#: gui/openwin.py:21 gui/syncwin.py:224
+#: gui/openwin.py:27 gui/syncwin.py:233
 msgid "All files"
 msgstr "Wszystkie pliki"
 
-#: gui/openwin.py:53
+#: gui/openwin.py:35 gui/syncwin.py:56
+msgid "Loading, please wait..."
+msgstr "Ładowanie, proszę czekać..."
+
+#: gui/openwin.py:68
 msgid "There are no usable streams"
 msgstr "Brak użytecznych strumieni"
+
+#: gui/openwin.py:109
+msgid "all channels"
+msgstr "wszystkie kanały"
+
+#: gui/openwin.py:134
+msgid "Select audio channels to listen:"
+msgstr "Wybierz kanały audio do nasłuchu:"
+
+#: gui/openwin.py:135
+msgid "Select channels"
+msgstr "Wybór kanałów"
+
+#: gui/openwin.py:142
+msgid "At lest one audio channel must be selected"
+msgstr "Przynajmniej jeden kanał audio musi być wybrany"
 
 #: gui/choiceenc.py:8
 msgid "Auto detect"
 msgstr "Auto detekcja"
 
-#: gui/downloadwin.py:60
+#: gui/downloadwin.py:75
 msgid "operation failed"
 msgstr "błąd"
 
-#: gui/downloadwin.py:73
+#: gui/downloadwin.py:81
+msgid "Operation failed"
+msgstr "Operacja nie powiodła się"
+
+#: gui/downloadwin.py:97
 msgid "downloading..."
 msgstr "pobieranie..."
 
-#: gui/downloadwin.py:75
+#: gui/downloadwin.py:99
 msgid "downloading"
 msgstr "pobieranie"
 
-#: gui/downloadwin.py:78
+#: gui/downloadwin.py:103
 msgid "verifying..."
 msgstr "weryfikacja..."
 
-#: gui/downloadwin.py:81 gui/downloadwin_layout.py:44
+#: gui/downloadwin.py:106 gui/downloadwin_layout.py:44
 msgid "processing..."
 msgstr "przetwarzanie..."
 
-#: gui/downloadwin.py:83
+#: gui/downloadwin.py:108
 msgid "done"
 msgstr "gotowe"
 
-#: gui/downloadwin.py:115
+#: gui/downloadwin.py:147
 msgid "Application upgrade"
 msgstr "Aktualizacja aplikacji"
 
-#: gui/downloadwin.py:128
+#: gui/downloadwin.py:160
 msgid "update ready"
 msgstr "aktualizacja gotowa"
 
-#: gui/downloadwin.py:151
+#: gui/downloadwin.py:183
 msgid "New version is ready to be installed. Upgrade now?"
 msgstr "Nowa wersja jest gotowa do instalacji. Zaktualizować teraz?"
 
 #: gui/errorwin.py:30 gui/errorwin_layout.py:21 gui/errorwin_layout.py:43
-#: gui/syncwin.py:219
+#: gui/syncwin.py:228
 msgid "Error"
 msgstr "Błąd"
 
-#: gui/settingswin.py:88
+#: gui/fpswin.py:40
+msgid "fps"
+msgstr "fps"
+
+#: gui/fpswin_layout.py:22
+msgid "FPS"
+msgstr "FPS"
+
+#: gui/fpswin_layout.py:33
+msgid "Select output subtitles framerate:"
+msgstr "Wybierz ilość klatek na sekundę:"
+
+#: gui/fpswin_layout.py:39
+msgid "same as reference file"
+msgstr "takie jak referencja"
+
+#: gui/fpswin_layout.py:42 gui/settingswin.py:12
+msgid "same as input subtitles"
+msgstr "takie jak napisy źródłowe"
+
+#: gui/fpswin_layout.py:49
+msgid "custom value:"
+msgstr "inna wartość:"
+
+#: gui/settingswin.py:96
 msgid "Are you sure you want to reset settings to defaults?"
-msgstr "Na pewno przywrócić domyślne ustawienia?"
+msgstr "Na pewno przywrócić ustawienia domyślne?"
 
 #: gui/choicelang.py:12
 msgid "<other>"
 msgstr "<inny>"
 
-#: gui/choicelang.py:48
-msgid "<system default>"
-msgstr "<domyślny>"
+#: gui/choicelang.py:42
+msgid "default"
+msgstr "domyślny"
 
-#: gui/downloadwin_layout.py:21 gui/downloadwin_layout.py:34
+#: gui/downloadwin_layout.py:21
+msgid "Downloading"
+msgstr "Pobieranie"
+
+#: gui/downloadwin_layout.py:34
 msgid "Download"
 msgstr "Pobierz"
 
@@ -329,60 +393,64 @@ msgstr "Pobierz"
 msgid "[details]"
 msgstr "[więcej]"
 
-#: gui/syncwin.py:67
+#: gui/syncwin.py:69
 msgid "Synchronization: {} points"
 msgstr "Synchronizacja: {} punktów"
 
-#: gui/syncwin.py:139
+#: gui/syncwin.py:141
 msgid "Subtitles synchronized"
 msgstr "Napisy zsynchronizowane"
 
-#: gui/syncwin.py:142
+#: gui/syncwin.py:144
 msgid "No need to synchronize, subtitles are good already"
 msgstr "Synchronizacja niekonieczna, napisy pasują"
 
-#: gui/syncwin.py:153
+#: gui/syncwin.py:155
 msgid "Couldn't synchronize, but you could try anyway"
 msgstr "Synchronizacja nie powiodła się, ale możesz spróbować mimo wszystko"
 
-#: gui/syncwin.py:155
+#: gui/syncwin.py:157
 msgid "Couldn't synchronize"
 msgstr "Nie można zsynchronizować"
 
-#: gui/syncwin.py:157
+#: gui/syncwin.py:159
 msgid "Subtitles not ready"
 msgstr "Napisy nie są jeszcze gotowe"
 
-#: gui/syncwin.py:291
+#: gui/syncwin.py:172
+msgid "Terminating, please wait..."
+msgstr "Kończenie, proszę czekać..."
+
+#: gui/syncwin.py:300
 msgid "Some subtitles can't be decoded (invalid encoding?)"
 msgstr "Błąd dekodowania napisów (nieprawidłowe kodowanie znaków?)"
 
-#: gui/syncwin.py:293
+#: gui/syncwin.py:302
 msgid "Subtitles read failed"
 msgstr "Odczyt napisów nie powiódł się"
 
-#: gui/syncwin.py:295
+#: gui/syncwin.py:304
 msgid "Error during subtitles read"
 msgstr "Błąd odczytu napisów"
 
-#: gui/syncwin.py:298
+#: gui/syncwin.py:307
 msgid "Some reference subtitles can't be decoded (invalid encoding?)"
 msgstr ""
 "Błąd dekodowania referencyjnych napisów (nieprawidłowe kodowanie znaków?)"
 
-#: gui/syncwin.py:300
+#: gui/syncwin.py:309
 msgid "Reference read failed"
 msgstr "Odczyt referencji nie powiódł się"
 
-#: gui/syncwin.py:302
+#: gui/syncwin.py:311
 msgid "Error during reference read"
 msgstr "Błąd odczytu referencji"
 
-#: gui/syncwin.py:304
+#: gui/syncwin.py:313
 msgid "Unexpected error occurred"
 msgstr "Wystąpił niespodziewany błąd"
 
-#: gui/mainwin_layout.py:22 __main__.py:88
+#: gui/mainwin_layout.py:22 __main__.py:86
 msgid "Subtitle Speech Synchronizer"
 msgstr ""
 
@@ -507,8 +575,16 @@ msgid "Select stream:"
 msgstr "Wybierz strumień:"
 
 #: gui/openwin_layout.py:77
-msgid "Encoding:"
+msgid "Character encoding:"
 msgstr "Kodowanie znaków:"
+
+#: gui/openwin_layout.py:88
+msgid "Audio channels:"
+msgstr "Kanały audio:"
+
+#: gui/openwin_layout.py:103
+msgid "Select"
+msgstr "Wybierz"
 
 #: gui/streamlist.py:7
 msgid "id"
@@ -525,6 +601,110 @@ msgstr "typ"
 #: gui/streamlist.py:10
 msgid "description"
 msgstr "informacje"
+
+#: data/audio.py:4
+msgid "front left"
+msgstr "przedni lewy"
+
+#: data/audio.py:5
+msgid "front right"
+msgstr "przedni prawy"
+
+#: data/audio.py:6
+msgid "front center"
+msgstr "przedni centralny"
+
+#: data/audio.py:7
+msgid "subwoofer"
+msgstr "subwoofer"
+
+#: data/audio.py:8
+msgid "back left"
+msgstr "tylny lewy"
+
+#: data/audio.py:9
+msgid "back right"
+msgstr "tylny prawy"
+
+#: data/audio.py:10
+msgid "front left of center"
+msgstr "przedni lewy centralny"
+
+#: data/audio.py:11
+msgid "front right of center"
+msgstr "przedni prawy centralny"
+
+#: data/audio.py:12
+msgid "back center"
+msgstr "tylny centralny"
+
+#: data/audio.py:13
+msgid "side left"
+msgstr "boczny lewy"
+
+#: data/audio.py:14
+msgid "side right"
+msgstr "boczny prawy"
+
+#: data/audio.py:15
+msgid "top center"
+msgstr "górny centralny"
+
+#: data/audio.py:16
+msgid "top front left"
+msgstr "górny przedni lewy"
+
+#: data/audio.py:17
+msgid "top front center"
+msgstr "górny przedni centralny"
+
+#: data/audio.py:18
+msgid "top front right"
+msgstr "górny przedni prawy"
+
+#: data/audio.py:19
+msgid "top back left"
+msgstr "górny tylny lewy"
+
+#: data/audio.py:20
+msgid "top back center"
+msgstr "górny tylny centralny"
+
+#: data/audio.py:21
+msgid "top back right"
+msgstr "górny tylny prawy"
+
+#: data/audio.py:22
+msgid "stereo left"
+msgstr "lewy stereo"
+
+#: data/audio.py:23
+msgid "stereo right"
+msgstr "prawy stereo"
+
+#: data/audio.py:24
+msgid "wide left"
+msgstr "przestrzenny lewy"
+
+#: data/audio.py:25
+msgid "wide right"
+msgstr "przestrzenny prawy"
+
+#: data/audio.py:26
+msgid "surround direct left"
+msgstr "przestrzenny lewy bezpośredni"
+
+#: data/audio.py:27
+msgid "surround direct right"
+msgstr "przestrzenny prawy bezpośredni"
+
+#: data/audio.py:28
+msgid "second subwoofer"
+msgstr "drugi subwoofer"
+
+#: data/audio.py:33
+msgid "channel {}"
+msgstr "kanał {}"
 
 #: data/languages.py:2
 msgid "Albanian"
@@ -718,21 +898,26 @@ msgstr "Brak {}"
 msgid "Update instalation failed miserably"
 msgstr "Aktualizacja nie powiodła się"
 
-#: assets/downloader.py:58
+#: assets/downloader.py:57
 msgid "Signature verification failed"
 msgstr "Nieprawidłowa sygnatura"
 
-#: pubkey.py:15
-msgid "Cannot load public key"
-msgstr "Nie można załadować klucza publicznego"
-
-#: speech.py:60
+#: speech.py:63
 msgid "Invalid speech audio format"
 msgstr "Nieprawidłowy format audio"
 
-#: settings.py:62
+#: settings.py:63
 msgid "Cannot load settings file, {}"
 msgstr "Błąd odczytu ustawień, {}"
+
+#~ msgid "Cannot load public key"
+#~ msgstr "Nie można załadować klucza publicznego"
+
+#~ msgid "<system default>"
+#~ msgstr "<domyślny>"
+
+#~ msgid "Encoding:"
+#~ msgstr "Kodowanie znaków:"
 
 #~ msgid "Select subtitles language first"
 #~ msgstr "Wybierz najpierw język napisów"

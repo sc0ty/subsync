@@ -38,7 +38,6 @@ CMU Sphinx - Copyright (c) 1999-2016 Carnegie Mellon University - BSD license
 wxWindows - Copyright (c) 1998-2005 Julian Smart, Robert Roebling et al - wxWindows Library Licence
 pybind11 - Copyright (c) 2016 Wenzel Jakob - BSD license
 pysubs2 - Copyright (c) 2014-2015 Tomas Karabela - MIT license
-requests - Copyright (c) 2018 Kenneth Reitz - Apache2 license
 Catch - Copyright (c) 2018 Two Blue Cubes Ltd - Boost Software License'''
 
 
