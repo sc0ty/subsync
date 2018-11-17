@@ -77,7 +77,8 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
             @thread.gui_thread
             def showExceptionDlgAndQuit(excInfo):
                 if self.IsModal():
-                    gui.errorwin.showExceptionDlg(self, excInfo)
+                    gui.errorwin.showExceptionDlg(self, excInfo=excInfo,
+                            msg=_('Operation failed'))
                     self.EndModal(wx.ID_CANCEL)
 
             showExceptionDlgAndQuit(sys.exc_info())

@@ -71,5 +71,5 @@ def getExceptionMessage(e):
     elif type(e) is error.Error:
         return e.message
     else:
-        return str(e)
+        return str(e) or repr(e)
 

@@ -34,9 +34,10 @@ class ErrorWin(gui.errorwin_layout.ErrorWin):
         dlg.ShowModal()
 
 
-def showExceptionDlg(parent=None, excInfo=None):
-    def showDlg():
-        msg = error.getExceptionMessage(exc)
+def showExceptionDlg(parent=None, excInfo=None, msg=None):
+    def showDlg(msg):
+        if not msg:
+            msg = error.getExceptionMessage(exc)
         with ErrorWin(parent, msg) as dlg:
             dlg.addDetails(*traceback.format_exception(type, exc, tb))
             dlg.ShowModal()
@@ -48,9 +49,9 @@ def showExceptionDlg(parent=None, excInfo=None):
 
     if exc:
         if wx.IsMainThread():
-            showDlg()
+            showDlg(msg)
         else:
-            wx.CallAfter(showDlg)
+            wx.CallAfter(showDlg, msg)
 
 
 def error_dlg(func):
