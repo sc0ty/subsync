@@ -119,6 +119,7 @@ class RemoteAssets(object):
 
     async def saveList(self):
         try:
+            os.makedirs(os.path.dirname(config.assetspath), exist_ok=True)
             with open(config.assetspath, 'w', encoding='utf8') as fp:
                 json.dump(self.assets, fp, indent=4)
 
