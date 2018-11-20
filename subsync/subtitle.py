@@ -2,15 +2,10 @@ import error
 import bisect
 import pysubs2
 import copy
-import re
 import threading
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-formatRe  = re.compile(r'{\\.*?}')
-newlineRe = re.compile(r'\\[nN]')
 
 
 class Subtitles(pysubs2.SSAFile):
@@ -85,26 +80,6 @@ class SubtitlesCollector(object):
             return self.subtitles.synchronize(formula)
 
 
-def makeTimestamp(time, short=False, fraction=True):
-    t = int(time)
-    h = int(t / 3600)
-    m = int((t % 3600) / 60)
-    s = int(t % 60)
-
-    if short:
-        if t < 3600:
-            res = '{:d}:{:02d}'.format(m, s);
-        else:
-            res = '{:d}:{:02d}:{:02d}'.format(h, m, s);
-    else:
-        res = '{:02d}:{:02d}:{:02d}'.format(h, m, s);
-
-    if fraction:
-        ms = int((time % 1) * 1000)
-        res += '.{:03d}'.format(ms)
-    return res
-
-
 def parseLine(text):
     fields = text.split(',', 8)
     if len(fields) == 9:
@@ -121,9 +96,4 @@ def parseLine(text):
             'style': 'Default',
             'text':  text }
     return entry
-
-def extractText(text, linesep='\n'):
-    global newLineRe
-    global formatRe
-    return newlineRe.sub(linesep, formatRe.sub('', parseLine(text)['text']))
 

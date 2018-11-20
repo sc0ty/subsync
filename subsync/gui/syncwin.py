@@ -7,8 +7,9 @@ import gui.errorwin
 import gui.busydlg
 import thread
 import data.filetypes
-from subtitle import Subtitles, makeTimestamp
+import subtitle
 from settings import settings
+import utils
 import img
 import error
 import pysubs2.exceptions
@@ -67,10 +68,10 @@ class SyncWin(gui.syncwin_layout.SyncWin):
             maxChange = self.sync.getMaxChange()
 
             self.m_textSync.SetLabel(_('Synchronization: {} points').format(stats.points))
-            self.m_textElapsedTime.SetLabel(makeTimestamp(elapsed, short=True, fraction=False))
+            self.m_textElapsedTime.SetLabel(utils.timeStampFmt(elapsed))
             self.m_textCorrelation.SetLabel('{:.2f} %'.format(100.0 * stats.factor))
             self.m_textFormula.SetLabel(str(stats.formula))
-            self.m_textMaxChange.SetLabel(makeTimestamp(maxChange, short=True))
+            self.m_textMaxChange.SetLabel(utils.timeStampFractionFmt(maxChange))
 
             if not self.isCorrelated and stats.correlated:
                 self.isCorrelated = stats.correlated
@@ -284,7 +285,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         self.saveWordsDlg(self.refs.path, self.sync.correlator.getRefs())
 
     def saveWordsDlg(self, path, words):
-        subs = Subtitles()
+        subs = subtitle.Subtitles()
         for time, text in words:
             subs.add(time, time, text)
 

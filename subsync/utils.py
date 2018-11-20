@@ -32,6 +32,23 @@ def fileSizeFmt(val):
     return '{:.1f} {}'.format(val, unit)
 
 
+def timeStampFmt(time):
+    t = int(time)
+    h = int(t / 3600)
+    m = int((t % 3600) / 60)
+    s = int(t % 60)
+
+    if t < 3600:
+        return '{:d}:{:02d}'.format(m, s);
+    else:
+        return '{:d}:{:02d}:{:02d}'.format(h, m, s);
+
+
+def timeStampFractionFmt(time):
+    ms = int((time % 1) * 1000)
+    return '{}.{:03d}'.format(timeStampFmt(time), ms)
+
+
 def onesPositions(val):
     res = []
     idx = 0
