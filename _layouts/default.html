@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     {% assign pages=site.pages | where: 'ref', page.ref | sort: 'lang' %}
     {% for p in pages %}
-    <link rel="alternate" hreflang="{{ p.lang }}" href="{{ p.url }}" />
+    <link rel="alternate" hreflang="{{ p.lang }}" href="{{ p.url | prepend: site.baseurl }}" />
     {% endfor %}
 
 {% seo %}
@@ -23,7 +23,7 @@
             <a id="forkme_banner" href="{{ site.github.repository_url }}">View on GitHub</a>
           {% endif %}
 
-          <img id="logo" src="/img/logo.png" />
+          <img id="logo" src="{{ site.baseurl }}/img/logo.png" />
           <h1 id="project_title">{{ site.title | default: site.github.repository_name }}</h1>
           <h2 id="project_tagline">{{ site.description | default: site.github.project_tagline }}</h2>
 
@@ -31,7 +31,7 @@
             <ul id="menu">
               {% assign pages=site.pages | where: 'lang', page.lang | sort: 'precedence' %}
               {% for p in pages %}
-                <li><a {% if p.ref == page.ref %}id="item-selected"{% endif %} href="{{ p.url }}" class="{{ p.lang }}">{{ p.title }}</a></li>
+                <li><a {% if p.ref == page.ref %}id="item-selected"{% endif %} href="{{ p.url | prepend: site.baseurl }}" class="{{ p.lang }}">{{ p.title }}</a></li>
               {% endfor %}
             </ul>
           </section>
@@ -40,7 +40,7 @@
             <ul id="menu">
               {% assign pages=site.pages | where: 'ref', page.ref | sort: 'lang' %}
               {% for p in pages %}
-                <li><a {% if p.lang == page.lang %}id="item-selected"{% endif %} href="{{ p.url }}" class="{{ p.lang }}">{{ p.lang }}</a></li>
+                <li><a {% if p.lang == page.lang %}id="item-selected"{% endif %} href="{{ p.url | prepend: site.baseurl }}" class="{{ p.lang }}">{{ p.lang }}</a></li>
               {% endfor %}
             </ul>
           </section>
