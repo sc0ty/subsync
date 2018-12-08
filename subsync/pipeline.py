@@ -57,7 +57,7 @@ class SubtitlePipeline(BasePipeline):
         '''
 
         super().__init__(stream)
-        self.dec = gizmo.SubtitleDec(self.demux, stream.no)
+        self.dec = gizmo.SubtitleDec()
         self.dec.setMinWordLen(settings().minWordLen)
         if stream.enc != None:
             self.dec.setEncoding(stream.enc)
@@ -80,26 +80,21 @@ class SpeechPipeline(BasePipeline):
     def __init__(self, stream):
         ''' Speech recognition pipeline:
 
-        Demux --> AudioDec --[inputAudioFormat]--> AudioResampler -->
-        --> AudioDemux --[speechAudioFormat]--> SpeechRecognition --[words]--> ...
+        Demux --> AudioDec --> Resampler --> SpeechRecognition --[words]--> ...
         '''
 
         super().__init__(stream)
 
         speechModel = speech.loadSpeechModel(stream.lang)
-        self.dec = gizmo.AudioDec(self.demux, stream.no)
+        self.dec = gizmo.AudioDec()
 
-        inputAudioFormat = self.dec.getFormat()
+        inputAudioFormat = self.demux.getStreamsInfo()[stream.no].audio
         speechAudioFormat = speech.getSpeechAudioFormat(speechModel, inputAudioFormat)
         logger.info('audio format conversion %r to %r', inputAudioFormat, speechAudioFormat)
 
         self.speechRec = speech.createSpeechRec(speechModel)
         self.speechRec.setMinWordProb(settings().minWordProb)
         self.speechRec.setMinWordLen(settings().minWordLen)
-
-        self.audioDemux = gizmo.AudioDemux()
-        self.audioDemux.setOutputFormat(speechAudioFormat.getSampleSize(),
-                speechAudioFormat.channelsNo)
 
         if inputAudioFormat.channelsNo > 1:
             if not stream.channels:
@@ -116,13 +111,12 @@ class SpeechPipeline(BasePipeline):
             mixMap = speech.MixMap()
 
         logger.debug('audio channels mixer map %r', mixMap)
-        self.resampler = gizmo.AudioResampler()
-        self.resampler.setParams(inputAudioFormat, speechAudioFormat, mixMap.map)
+        self.resampler = gizmo.Resampler()
+        self.resampler.setChannelMap(mixMap.map)
 
         self.demux.connectDec(self.dec, stream.no)
         self.dec.connectOutput(self.resampler)
-        self.resampler.connectOutput(self.audioDemux)
-        self.audioDemux.connectOutputChannel(0, self.speechRec)
+        self.resampler.connectOutput(self.speechRec, speechAudioFormat)
 
     def destroy(self):
         super().destroy()

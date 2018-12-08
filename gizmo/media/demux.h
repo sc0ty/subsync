@@ -4,7 +4,6 @@
 #include "decoder.h"
 #include "stream.h"
 #include <vector>
-#include <tuple>
 #include <string>
 #include <atomic>
 #include <memory>
@@ -36,12 +35,6 @@ class Demux
 
 		void notifyDiscontinuity();
 		void flush();
-
-		AVStream *getStreamRawData(unsigned streamId) const;
-
-		typedef std::tuple<std::string, std::shared_ptr<Decoder>> ConnectedOutput;
-		typedef std::vector<ConnectedOutput> ConnectedOutputs;
-		ConnectedOutputs getConnectedOutputs() const;
 
 	private:
 		AVFormatContext *m_formatContext;

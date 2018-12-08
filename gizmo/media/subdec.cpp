@@ -5,41 +5,30 @@
 using namespace std;
 
 
-SubtitleDec::SubtitleDec(const shared_ptr<Demux> demux, unsigned streamId)
-	: SubtitleDec(demux->getStreamRawData(streamId))
-{
-}
-
-SubtitleDec::SubtitleDec(AVStream *stream) :
-	m_codec(NULL),
-	m_codecPar(stream->codecpar),
+SubtitleDec::SubtitleDec() :
 	m_codecCtx(NULL),
 	m_minWordLen(0),
 	m_timeBase(0.0),
 	m_position(0.0)
 {
-	m_codec = avcodec_find_decoder(stream->codecpar->codec_id);
-	if (m_codec == NULL)
-		throw EXCEPTION("can't find suitable audio codec")
-			.module("SubtitleDec", "avcodec_find_decoder");
-
-	m_timeBase = (double)stream->time_base.num/(double)stream->time_base.den;
 }
 
 SubtitleDec::~SubtitleDec()
 {
 }
 
-void SubtitleDec::start()
+void SubtitleDec::start(const AVStream *stream)
 {
-	m_codecCtx = avcodec_alloc_context3(m_codec);
-
-	m_codec = avcodec_find_decoder(m_codecPar->codec_id);
-	if (m_codec == NULL)
+	AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+	if (codec == NULL)
 		throw EXCEPTION("can't find suitable subtitle decoder")
 			.module("SubtitleDec", "avcodec_find_decoder");
 
-	if (avcodec_parameters_to_context(m_codecCtx, m_codecPar) < 0)
+	m_timeBase = av_q2d(stream->time_base);
+
+	m_codecCtx = avcodec_alloc_context3(codec);
+
+	if (avcodec_parameters_to_context(m_codecCtx, stream->codecpar) < 0)
 		throw EXCEPTION("can't set subtitle codec context")
 			.module("SubtitleDec", "avcodec_parameters_to_context");
 
@@ -56,7 +45,7 @@ void SubtitleDec::start()
 		av_dict_set(&options, "sub_charenc", m_encoding.c_str(), 0);
 	}
 
-	int res = avcodec_open2(m_codecCtx, m_codec, &options);
+	int res = avcodec_open2(m_codecCtx, codec, &options);
 	av_dict_free(&options);
 
 	if (res < 0)
@@ -70,7 +59,7 @@ void SubtitleDec::stop()
 	avcodec_free_context(&m_codecCtx);
 }
 
-bool SubtitleDec::feed(AVPacket &packet)
+bool SubtitleDec::feed(const AVPacket *packet)
 {
 	if (!m_subsCb && !m_wordsCb)
 		return false;
@@ -78,11 +67,13 @@ bool SubtitleDec::feed(AVPacket &packet)
 	AVSubtitle sub;
 	int gotSub;
 
-	int len = avcodec_decode_subtitle2(m_codecCtx, &sub, &gotSub, &packet);
+	int len = avcodec_decode_subtitle2(m_codecCtx, &sub, &gotSub,
+			(AVPacket*) packet);
+
 	if (len < 0)
 		throw EXCEPTION_FFMPEG("subtitle decoder failed", len)
 			.module("SubtitleDec", "decode", "avcodec_decode_subtitle2")
-			.time((double)packet.pts * m_timeBase);
+			.time((double)packet->pts * m_timeBase);
 
 	if (!gotSub)
 		return false;
@@ -90,8 +81,8 @@ bool SubtitleDec::feed(AVPacket &packet)
 	unique_ptr<AVSubtitle, void(*)(AVSubtitle*)>
 		scopedSubFreeGuard(&sub, &avsubtitle_free);
 
-	m_position = (double)packet.pts * m_timeBase;
-	double duration = (double)packet.duration * m_timeBase;
+	m_position = (double)packet->pts * m_timeBase;
+	double duration = (double)packet->duration * m_timeBase;
 
 	gotSub = feedOutput(sub, duration);
 	return gotSub;
@@ -189,16 +180,11 @@ void SubtitleDec::flush()
 	av_init_packet(&packet);
 	packet.data = NULL;
 	packet.size = 0;
-	feed(packet);
+	feed(&packet);
 }
 
 void SubtitleDec::discontinuity()
 {
-}
-
-double SubtitleDec::getPosition() const
-{
-	return m_position;
 }
 
 void SubtitleDec::connectSubsCallback(SubsCallback callback)

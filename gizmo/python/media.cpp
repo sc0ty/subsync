@@ -5,9 +5,8 @@
 #include "media/demux.h"
 #include "media/subdec.h"
 #include "media/audiodec.h"
-#include "media/audiodmx.h"
-#include "media/audioresampler.h"
-#include "media/audioout.h"
+#include "media/resampler.h"
+#include "media/avout.h"
 #include "media/speechrec.h"
 
 namespace py = pybind11;
@@ -31,19 +30,17 @@ void initMediaWrapper(py::module &m)
 	demux.def("step", &Demux::step);
 	demux.def("seek", &Demux::seek);
 	demux.def("notifyDiscontinuity", &Demux::notifyDiscontinuity);
-	demux.def("getConnectedOutputs", &Demux::getConnectedOutputs);
 
 	/*** interface Decoder ***/
 	py::class_<Decoder, shared_ptr<Decoder>>
 		decoder(m, "Decoder", py::dynamic_attr());
 	decoder.def("start", &Decoder::start);
 	decoder.def("stop", &Decoder::stop);
-	decoder.def("getPosition", &Decoder::getPosition);
 
 	/*** class SubtitleDec ***/
 	py::class_<SubtitleDec, shared_ptr<SubtitleDec>>
 		subDec(m, "SubtitleDec", decoder, py::dynamic_attr());
-	subDec.def(py::init<const shared_ptr<Demux>, unsigned>());
+	subDec.def(py::init<>());
 	subDec.def("setMinWordLen", &SubtitleDec::setMinWordLen);
 	subDec.def("setEncoding", &SubtitleDec::setEncoding);
 	subDec.def("connectSubsCallback",
@@ -60,37 +57,21 @@ void initMediaWrapper(py::module &m)
 	/*** class AudioDec ***/
 	py::class_<AudioDec, shared_ptr<AudioDec>>
 		audioDec(m, "AudioDec", decoder, py::dynamic_attr());
-	audioDec.def(py::init<const shared_ptr<Demux>, unsigned>());
-	audioDec.def("getFormat", &AudioDec::getFormat);
+	audioDec.def(py::init<>());
 	audioDec.def("connectOutput", &AudioDec::connectOutput);
-	audioDec.def("getConnectedOutputs", &AudioDec::getConnectedOutputs);
 
-	/*** interface AudioOutput ***/
-	py::class_<AudioOutput, shared_ptr<AudioOutput>>
-		audioOut(m, "AudioOutput", py::dynamic_attr());
+	/*** interface AVOutput ***/
+	py::class_<AVOutput, shared_ptr<AVOutput>>
+		audioOut(m, "AVOutput", py::dynamic_attr());
 
-	/*** class AudioResampler ***/
-	py::class_<AudioResampler, shared_ptr<AudioResampler>>
-		audioRes(m, "AudioResampler", audioOut, py::dynamic_attr());
+	/*** class Resampler ***/
+	py::class_<Resampler, shared_ptr<Resampler>>
+		audioRes(m, "Resampler", audioOut, py::dynamic_attr());
 	audioRes.def(py::init<>());
-	audioRes.def("setParams", &AudioResampler::setParams,
-			py::arg("input"), py::arg("output"), py::arg("mixMap"),
+	audioRes.def("connectOutput", &Resampler::connectOutput,
+			py::arg("output"), py::arg("format"),
 			py::arg("bufferSize") = 32*1024);
-	audioRes.def("connectOutput", &AudioResampler::connectOutput);
-	audioRes.def("getConnectedOutputs", &AudioResampler::getConnectedOutputs);
-
-	/*** class AudioDemux ***/
-	py::class_<AudioDemux, shared_ptr<AudioDemux>>
-		audioDemux(m, "AudioDemux", audioOut, py::dynamic_attr());
-	audioDemux.def(py::init<>());
-	audioDemux.def("setOutputFormat",
-			(void (AudioDemux::*)(unsigned, unsigned))
-			&AudioDemux::setOutputFormat);
-	audioDemux.def("setOutputFormat",
-			(void (AudioDemux::*)(const AudioFormat&))
-			&AudioDemux::setOutputFormat);
-	audioDemux.def("connectOutputChannel", &AudioDemux::connectOutputChannel);
-	audioDemux.def("getConnectedOutputs", &AudioDemux::getConnectedOutputs);
+	audioRes.def("setChannelMap", &Resampler::setChannelMap);
 
 	/*** class SpeechRecognition ***/
 	py::class_<SpeechRecognition, shared_ptr<SpeechRecognition>>

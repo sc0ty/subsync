@@ -1,31 +1,31 @@
 #include "audiodec.h"
 #include "demux.h"
-#include "audioout.h"
+#include "avout.h"
 #include "general/exception.h"
 
 using namespace std;
 
 
-AudioDec::AudioDec(const shared_ptr<Demux> demux, unsigned streamId)
-	: AudioDec(demux->getStreamRawData(streamId))
-{
-}
-
-AudioDec::AudioDec(AVStream *stream) :
-	m_codec(NULL),
+AudioDec::AudioDec() :
 	m_codecCtx(NULL),
 	m_frame(NULL),
 	m_output(NULL),
-	m_sampleSizeChs(0),
-	m_timeBase(0.0),
-	m_position(0.0)
+	m_timeBase(0.0)
 {
-	m_codec = avcodec_find_decoder(stream->codecpar->codec_id);
-	if (m_codec == NULL)
+}
+
+AudioDec::~AudioDec()
+{
+}
+
+void AudioDec::start(const AVStream *stream)
+{
+	AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+	if (codec == NULL)
 		throw EXCEPTION("can't find suitable audio codec")
 			.module("AudioDec", "avcodec_find_decoder");
 
-	m_codecCtx = avcodec_alloc_context3(m_codec);
+	m_codecCtx = avcodec_alloc_context3(codec);
 
 	if (avcodec_parameters_to_context(m_codecCtx, stream->codecpar) < 0)
 		throw EXCEPTION("can't set audio codec context")
@@ -35,21 +35,9 @@ AudioDec::AudioDec(AVStream *stream) :
 		throw EXCEPTION("this is not audio stream")
 			.module("AudioDec");
 
-	AVCodecParameters *cp = stream->codecpar;
-	int bytesPerSample = av_get_bytes_per_sample((AVSampleFormat) cp->format);
-	m_sampleSizeChs = bytesPerSample * cp->channels;
+	m_timeBase = av_q2d(stream->time_base);
 
-	m_timeBase = (double)stream->time_base.num/(double)stream->time_base.den;
-}
-
-AudioDec::~AudioDec()
-{
-	avcodec_free_context(&m_codecCtx);
-}
-
-void AudioDec::start()
-{
-	int res = avcodec_open2(m_codecCtx, m_codec, NULL);
+	int res = avcodec_open2(m_codecCtx, codec, NULL);
 	if (res < 0)
 		throw EXCEPTION_FFMPEG("can't open audio stream", res)
 			.module("AudioDec", "avcodec_open2");
@@ -57,7 +45,7 @@ void AudioDec::start()
 	m_frame = av_frame_alloc();
 
 	if (m_output)
-		m_output->start();
+		m_output->start(stream);
 }
 
 void AudioDec::stop()
@@ -67,25 +55,21 @@ void AudioDec::stop()
 
 	av_frame_free(&m_frame);
 	avcodec_close(m_codecCtx);
+	avcodec_free_context(&m_codecCtx);
 }
 
-void AudioDec::connectOutput(shared_ptr<AudioOutput> output)
+void AudioDec::connectOutput(shared_ptr<AVOutput> output)
 {
 	m_output = output;
 }
 
-AudioFormat AudioDec::getFormat() const
+bool AudioDec::feed(const AVPacket *packet)
 {
-	return AudioFormat(m_codecCtx);
-}
-
-bool AudioDec::feed(AVPacket &packet)
-{
-	int ret = avcodec_send_packet(m_codecCtx, &packet);
+	int ret = avcodec_send_packet(m_codecCtx, packet);
 	if ((ret < 0) && (ret != AVERROR(EAGAIN)) && (ret != AVERROR_EOF))
 		throw EXCEPTION_FFMPEG("audio decoder failed", ret)
 			.module("AudioDec", "avcodec_send_packet")
-			.time((double)packet.pts * m_timeBase);
+			.time(m_timeBase * packet->pts);
 
 	bool gotFrame = false;
 	while (true)
@@ -98,17 +82,10 @@ bool AudioDec::feed(AVPacket &packet)
 		if (ret < 0)
 			throw EXCEPTION_FFMPEG("audio decoder failed", ret)
 				.module("AudioDec", "avcodec_receive_frame")
-				.time((double)packet.pts * m_timeBase);
-
-		m_position = (double)packet.pts * m_timeBase;
+				.time(m_timeBase * packet->pts);
 
 		if (m_output)
-		{
-			m_output->onNewData(
-					(const uint8_t*) m_frame->extended_data,
-					m_frame->nb_samples * m_sampleSizeChs,
-					m_position);
-		}
+			m_output->feed(m_frame);
 
 		gotFrame = true;
 	}
@@ -120,25 +97,14 @@ void AudioDec::flush()
 	av_init_packet(&packet);
 	packet.data = NULL;
 	packet.size = 0;
-	while (feed(packet));
+	while (feed(&packet));
+
+	if (m_output)
+		m_output->flush();
 }
 
 void AudioDec::discontinuity()
 {
 	if (m_output)
-		m_output->onDiscontinuity();
+		m_output->discontinuity();
 }
-
-double AudioDec::getPosition() const
-{
-	return m_position;
-}
-
-ConnectedAudioOutputs AudioDec::getConnectedOutputs() const
-{
-	ConnectedAudioOutputs outs;
-	if (m_output)
-		outs.push_back(ConnectedAudioOutput("", m_output));
-	return outs;
-}
-

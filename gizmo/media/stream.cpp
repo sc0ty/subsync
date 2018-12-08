@@ -147,6 +147,25 @@ AudioFormat::AudioFormat(const AVCodecContext *ctx)
 	}
 }
 
+AudioFormat::AudioFormat(const AVFrame *frame)
+{
+	sampleFormat  = AV_SAMPLE_FMT_NONE;
+	sampleRate    = 0;
+	channelsNo    = 0;
+	channelLayout = 0;
+
+	if (frame)
+	{
+		sampleFormat  = (AVSampleFormat) frame->format;
+		sampleRate    = frame->sample_rate;
+		channelsNo    = frame->channels;
+		channelLayout = frame->channel_layout;
+
+		if (channelLayout == 0)
+			channelLayout = av_get_default_channel_layout(frame->channels);
+	}
+}
+
 AudioFormat::AudioFormat(AVSampleFormat sampleFormat, unsigned sampleRate,
 		uint64_t channelLayout) :
 	sampleFormat(sampleFormat),

@@ -3,42 +3,32 @@
 
 #include "decoder.h"
 #include "stream.h"
-#include "audioout.h"
+#include "avout.h"
 #include <memory>
 
 class Demux;
-class AudioOutput;
+class AVOutput;
 
 
 class AudioDec : public Decoder
 {
 	public:
-		AudioDec(const std::shared_ptr<Demux> demux, unsigned streamId);
-		AudioDec(AVStream *stream);
+		AudioDec();
 		virtual ~AudioDec();
 
-		virtual void start();
+		virtual void start(const AVStream *stream);
 		virtual void stop();
 
-		virtual AudioFormat getFormat() const;
+		void connectOutput(std::shared_ptr<AVOutput> output);
 
-		void connectOutput(std::shared_ptr<AudioOutput> output);
-
-		virtual bool feed(AVPacket &packet);
+		virtual bool feed(const AVPacket *packet);
 		virtual void flush();
 		virtual void discontinuity();
 
-		virtual double getPosition() const;
-
-		ConnectedAudioOutputs getConnectedOutputs() const;
-
 	private:
-		AVCodec *m_codec;
 		AVCodecContext *m_codecCtx;
 		AVFrame *m_frame;
-		std::shared_ptr<AudioOutput> m_output;
-		int m_sampleSizeChs;    // sampleSize * channelsNo
+		std::shared_ptr<AVOutput> m_output;
 		double m_timeBase;
-		double m_position;
 };
 #endif

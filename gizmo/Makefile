@@ -64,8 +64,7 @@ SOURCES = \
 		  media/demux.cpp \
 		  media/stream.cpp \
 		  media/audiodec.cpp \
-		  media/audioresampler.cpp \
-		  media/audiodmx.cpp \
+		  media/resampler.cpp \
 		  media/subdec.cpp \
 		  media/speechrec.cpp \
 		  text/translator.cpp \

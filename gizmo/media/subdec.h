@@ -5,7 +5,6 @@
 #include "text/words.h"
 #include <string>
 #include <functional>
-#include <memory>
 
 extern "C"
 {
@@ -26,18 +25,15 @@ class SubtitleDec : public Decoder
 			SubsCallback;
 
 	public:
-		SubtitleDec(const std::shared_ptr<Demux> demux, unsigned streamId);
-		SubtitleDec(AVStream *stream);
+		SubtitleDec();
 		virtual ~SubtitleDec();
 
-		virtual void start();
+		virtual void start(const AVStream *stream);
 		virtual void stop();
 
-		virtual bool feed(AVPacket &packet);
+		virtual bool feed(const AVPacket *packet);
 		virtual void flush();
 		virtual void discontinuity();
-
-		virtual double getPosition() const;
 
 		void connectSubsCallback(SubsCallback callback);
 		void connectWordsCallback(WordsCallback callback);
@@ -45,14 +41,11 @@ class SubtitleDec : public Decoder
 		void setMinWordLen(unsigned minLen);
 		void setEncoding(const std::string &encoding);
 
-
 	private:
 		bool feedOutput(AVSubtitle &sub, double duration);
 		void feedWordsOutput(double begin, double end, const char *text);
 
 	private:
-		AVCodec *m_codec;
-		AVCodecParameters *m_codecPar;
 		AVCodecContext *m_codecCtx;
 
 		SubsCallback m_subsCb;

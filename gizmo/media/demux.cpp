@@ -1,6 +1,5 @@
 #include "demux.h"
 #include "general/exception.h"
-#include <memory>
 
 using namespace std;
 
@@ -72,12 +71,6 @@ const StreamsFormat &Demux::getStreamsInfo() const
 	return m_streamsInfo;
 }
 
-AVStream *Demux::getStreamRawData(unsigned streamId) const
-{
-	VALIDATE_STREAM_ID(streamId);
-	return m_formatContext->streams[streamId];
-}
-
 void Demux::connectDec(shared_ptr<Decoder> dec, unsigned streamId)
 {
 	VALIDATE_STREAM_ID(streamId);
@@ -111,8 +104,10 @@ void Demux::start()
 {
 	for (unsigned i = 0; i < m_streamsNo; i++)
 	{
+		const AVStream *avStream = m_formatContext->streams[i];
+
 		for (shared_ptr<Decoder> dec : m_streams[i].decoders)
-			dec->start();
+			dec->start(avStream);
 	}
 }
 
@@ -143,7 +138,7 @@ bool Demux::step()
 			Demux::Stream &stream = m_streams[streamID];
 
 			for (shared_ptr<Decoder> dec : stream.decoders)
-				dec->feed(packet);
+				dec->feed(&packet);
 
 			m_position = (double)packet.pts * stream.timeBase;
 		}
@@ -206,18 +201,6 @@ void Demux::flush()
 	}
 }
 
-Demux::ConnectedOutputs Demux::getConnectedOutputs() const
-{
-	ConnectedOutputs res;
-	for (unsigned i = 0; i < m_streamsNo; i++)
-	{
-		for (shared_ptr<Decoder> dec : m_streams[i].decoders)
-		{
-			res.push_back(ConnectedOutput("stream" + to_string(i), dec));
-		}
-	}
-	return res;
-}
 
 /*** Demux::Stream ***/
 

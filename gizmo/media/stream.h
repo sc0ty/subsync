@@ -18,6 +18,7 @@ struct AudioFormat
 	uint64_t channelLayout;
 
 	AudioFormat(const AVCodecContext *codecContext = NULL);
+	AudioFormat(const AVFrame *frame);
 	AudioFormat(AVSampleFormat sampleFormat, unsigned sampleRate,
 			uint64_t channelLayout=0);
 

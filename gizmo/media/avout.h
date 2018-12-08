@@ -1,27 +1,25 @@
-#ifndef __DECODER_H__
-#define __DECODER_H__
+#ifndef __AV_OUTPUT_H__
+#define __AV_OUTPUT_H__
 
 #include <cstddef>
 #include <cstdint>
 
 extern "C"
 {
-#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 }
 
 
-class Decoder
+class AVOutput
 {
 	public:
-		virtual ~Decoder() {};
+		virtual ~AVOutput() {};
 
 		virtual void start(const AVStream *stream) = 0;
 		virtual void stop() = 0;
 
-		virtual bool feed(const AVPacket *packet) = 0;
+		virtual void feed(const AVFrame *frame) = 0;
 		virtual void flush() = 0;
 		virtual void discontinuity() = 0;
 };
-
 #endif

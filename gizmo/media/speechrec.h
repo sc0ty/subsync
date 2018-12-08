@@ -1,19 +1,19 @@
 #ifndef __SPHINX_H__
 #define __SPHINX_H__
 
-#include "audioout.h"
+#include "avout.h"
 #include "text/words.h"
 #include <pocketsphinx.h>
 #include <string>
 
 
-class SpeechRecognition : public AudioOutput
+class SpeechRecognition : public AVOutput
 {
 	public:
 		SpeechRecognition();
 		virtual ~SpeechRecognition();
 
-		virtual void start();
+		virtual void start(const AVStream *stream);
 		virtual void stop();
 
 		void setParam(const std::string &key, const std::string &val);
@@ -22,8 +22,9 @@ class SpeechRecognition : public AudioOutput
 		void setMinWordProb(float minProb);
 		void setMinWordLen(unsigned minLen);
 
-		virtual void onNewData(const uint8_t *data, size_t size, double timestamp);
-		virtual void onDiscontinuity();
+		virtual void feed(const AVFrame *frame);
+		virtual void flush();
+		virtual void discontinuity();
 
 	private:
 		void parseUtterance();
@@ -36,6 +37,7 @@ class SpeechRecognition : public AudioOutput
 
 		double m_framePeriod;
 		double m_deltaTime;
+		double m_timeBase;
 
 		WordsCallback m_wordsCb;
 		float m_minProb;

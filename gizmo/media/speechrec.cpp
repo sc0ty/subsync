@@ -12,6 +12,7 @@ SpeechRecognition::SpeechRecognition() :
 	m_utteranceStarted(false),
 	m_framePeriod(0.0),
 	m_deltaTime(-1.0),
+	m_timeBase(0.0),
 	m_minProb(1.0f),
 	m_minLen(0)
 {
@@ -75,7 +76,7 @@ void SpeechRecognition::setMinWordLen(unsigned minLen)
 	m_minLen = minLen;
 }
 
-void SpeechRecognition::start()
+void SpeechRecognition::start(const AVStream *stream)
 {
 	if ((m_ps = ps_init(m_config)) == NULL)
 		throw EXCEPTION("can't init Sphinx engine")
@@ -93,6 +94,7 @@ void SpeechRecognition::start()
 			.module("SpeechRecognition", "ps_start_utt");
 
 	m_utteranceStarted = false;
+	m_timeBase = av_q2d(stream->time_base);
 }
 
 void SpeechRecognition::stop()
@@ -114,12 +116,15 @@ void SpeechRecognition::stop()
 	}
 }
 
-void SpeechRecognition::onNewData(const uint8_t *data, size_t size, double timestamp)
+void SpeechRecognition::feed(const AVFrame *frame)
 {
 	if (m_deltaTime < 0.0)
-		m_deltaTime = timestamp;
+		m_deltaTime = m_timeBase * frame->pts;
 
-	int no = ps_process_raw(m_ps, (const int16*)data, size/2, FALSE, FALSE);
+	const int16 *data = (const int16*) frame->data[0];
+	size_t size = frame->nb_samples;
+
+	int no = ps_process_raw(m_ps, data, size, FALSE, FALSE);
 	if (no < 0)
 		throw EXCEPTION("speech recognition error")
 			.module("SpeechRecognition", "ps_process_raw");
@@ -145,7 +150,11 @@ void SpeechRecognition::onNewData(const uint8_t *data, size_t size, double times
 	}
 }
 
-void SpeechRecognition::onDiscontinuity()
+void SpeechRecognition::flush()
+{
+}
+
+void SpeechRecognition::discontinuity()
 {
 	if (ps_end_utt(m_ps))
 		throw EXCEPTION("can't stop speech recognition")
