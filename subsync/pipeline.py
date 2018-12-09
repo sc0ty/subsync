@@ -101,7 +101,7 @@ class SpeechPipeline(BasePipeline):
             channelsMap = speech.getChannelsMap(stream.channels)
             logger.debug('audio channels mixer map %s',
                     speech.channelsMapToString(channelsMap))
-            self.resampler.setChannelMap(channelsMap)
+            self.resampler.setChannelMap(channelsMap or {})
 
         else:
             self.resampler.connectFormatChangeCallback(self.onAudioFormatChanged)
@@ -120,7 +120,7 @@ class SpeechPipeline(BasePipeline):
         channelsMap = speech.getDefaultChannelsMap(inFormat)
         logger.debug('audio channels map %s',
                 speech.channelsMapToString(channelsMap))
-        self.resampler.setChannelMap(channelsMap)
+        self.resampler.setChannelMap(channelsMap or {})
 
     def connectWordsCallback(self, cb, dst=None):
         self.speechRec.connectWordsCallback(cb, dst)

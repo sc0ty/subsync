@@ -71,13 +71,17 @@ def getDefaultChannelsMap(audio):
 
 
 def getChannelsMap(channels):
-    gain = 1.0 / len(channels)
-    return { (i, 1): gain for i in channels }
+    if channels and len(channels) > 0:
+        gain = 1.0 / len(channels)
+        return { (i, 1): gain for i in channels }
 
 
 def channelsMapToString(cm):
     def chName(ch):
         return gizmo.AudioFormat.getChannelName(ch) or str(ch)
+
+    if not cm:
+        return 'auto'
 
     return ', '.join([ '{}->{}: {:.2}'.format(chName(chIn), chName(chOut), gain)
         for (chIn, chOut), gain in sorted(cm.items()) ])
