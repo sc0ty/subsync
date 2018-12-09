@@ -1,30 +1,38 @@
 import wx
 import utils
-import data.audio
+import gizmo
+
+
+def channelName(ch):
+    if ch:
+        return gizmo.AudioFormat.getChannelDescription(ch)
+    else:
+        return _('auto')
+
+
+def channelNames(chs):
+    if chs:
+        return ', '.join([ gizmo.AudioFormat.getChannelName(ch) for ch in chs ])
+    else:
+        return channelName(0)
 
 
 class AudioChannelsSel(wx.MultiChoiceDialog):
     def __init__(self, parent, msg, caption, audio):
-        self.pos2id = {}
-        self.id2pos = {}
-
-        lst = []
-        pos = 0
-
-        for id in utils.onesPositions(audio.channelLayout):
-            lst.append(data.audio.getAduioChannelName(id))
-            self.pos2id[pos] = id
-            self.id2pos[id] = pos
-            pos += 1
-
-        super().__init__(parent, msg, caption, lst)
+        self.ids = [ 0 ] + utils.splitBitVector(audio.channelLayout)
+        names = [ channelName(ch) for ch in self.ids ]
+        super().__init__(parent, msg, caption, names)
+        self.selectChannels(None)
 
     def selectChannels(self, channels):
         if channels:
-            self.SetSelections([ self.id2pos[id] for id in channels ])
+            sel = [ self.ids.index(ch) for ch in channels if ch in self.ids ]
+            self.SetSelections(sel)
         else:
-            self.SetSelections([])
+            self.SetSelections([ 0 ])
 
     def getSelectedChannels(self):
-        return [ self.pos2id[id] for id in self.GetSelections() ]
+        sel = self.GetSelections()
+        if 0 not in sel and len(sel) > 0:
+            return [ self.ids[ch] for ch in sel ]
 

@@ -24,6 +24,9 @@ struct AudioFormat
 
 	unsigned getSampleSize() const;
 	std::string toString() const;
+
+	static const char *getChannelName(uint64_t id);
+	static const char *getChannelDescription(uint64_t id);
 };
 
 struct StreamFormat

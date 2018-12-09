@@ -88,31 +88,23 @@ class SpeechPipeline(BasePipeline):
         speechModel = speech.loadSpeechModel(stream.lang)
         self.dec = gizmo.AudioDec()
 
-        inputAudioFormat = self.demux.getStreamsInfo()[stream.no].audio
-        speechAudioFormat = speech.getSpeechAudioFormat(speechModel, inputAudioFormat)
-        logger.info('audio format conversion %r to %r', inputAudioFormat, speechAudioFormat)
+        speechAudioFormat = speech.getSpeechAudioFormat(speechModel)
+        logger.info('speech recognition audio format %r', speechAudioFormat)
 
         self.speechRec = speech.createSpeechRec(speechModel)
         self.speechRec.setMinWordProb(settings().minWordProb)
         self.speechRec.setMinWordLen(settings().minWordLen)
 
-        if inputAudioFormat.channelsNo > 1:
-            if not stream.channels:
-                stream.channels = speech.getDefaultAudioChannels(
-                        stream.stream().audio)
-
-            ids = utils.onesPositions(stream.stream().audio.channelLayout)
-            id2pos = { id: pos for pos, id in enumerate(sorted(ids)) }
-            gain = 1.0 / len(stream.channels)
-            mixMap = speech.MixMap(inputAudioFormat.channelsNo)
-            for id in stream.channels:
-                mixMap.setPath(id2pos[id], 0, gain)
-        else:
-            mixMap = speech.MixMap()
-
-        logger.debug('audio channels mixer map %r', mixMap)
         self.resampler = gizmo.Resampler()
-        self.resampler.setChannelMap(mixMap.map)
+
+        if stream.channels:
+            channelsMap = speech.getChannelsMap(stream.channels)
+            logger.debug('audio channels mixer map %s',
+                    speech.channelsMapToString(channelsMap))
+            self.resampler.setChannelMap(channelsMap)
+
+        else:
+            self.resampler.connectFormatChangeCallback(self.onAudioFormatChanged)
 
         self.demux.connectDec(self.dec, stream.no)
         self.dec.connectOutput(self.resampler)
@@ -121,6 +113,14 @@ class SpeechPipeline(BasePipeline):
     def destroy(self):
         super().destroy()
         self.speechRec.connectWordsCallback(None, None)
+        self.resampler.connectFormatChangeCallback(None)
+
+    def onAudioFormatChanged(self, inFormat, outFormat):
+        logger.debug('input audio format %r', inFormat)
+        channelsMap = speech.getDefaultChannelsMap(inFormat)
+        logger.debug('audio channels map %s',
+                speech.channelsMapToString(channelsMap))
+        self.resampler.setChannelMap(channelsMap)
 
     def connectWordsCallback(self, cb, dst=None):
         self.speechRec.connectWordsCallback(cb, dst)

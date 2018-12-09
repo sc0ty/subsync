@@ -49,9 +49,14 @@ void Resampler::connectOutput(shared_ptr<AVOutput> output,
 	m_output = output;
 }
 
-void Resampler::setChannelMap(const std::vector<double> &mixMap)
+void Resampler::connectFormatChangeCallback(Resampler::FormatChangeCallback cb)
 {
-	m_mixMap = mixMap;
+	m_formatChangeCb = cb;
+}
+
+void Resampler::setChannelMap(const ChannelsMap &channelsMap)
+{
+	m_channelsMap = channelsMap;
 }
 
 void Resampler::start(const AVStream *stream)
@@ -66,6 +71,31 @@ void Resampler::stop()
 {
 	if (m_output)
 		m_output->stop();
+
+	swr_close(m_swr);
+}
+
+static vector<double> makeMixMap(const AudioFormat &out, const AudioFormat &in,
+		Resampler::ChannelsMap channelsMap)
+{
+	vector<double> mixMap;
+	mixMap.resize(in.channelsNo * out.channelsNo);
+
+	for (const auto &ch : channelsMap)
+	{
+		int i = av_get_channel_layout_channel_index(
+				in.channelLayout,
+				get<0>(ch.first));
+
+		int o = av_get_channel_layout_channel_index(
+				out.channelLayout,
+				get<1>(ch.first));
+
+		if (i >= 0 && o >= 0)
+			mixMap[i * out.channelsNo + o] = ch.second;
+	}
+
+	return mixMap;
 }
 
 void Resampler::initSwrContext(const AudioFormat &out, const AudioFormat &in)
@@ -84,10 +114,10 @@ void Resampler::initSwrContext(const AudioFormat &out, const AudioFormat &in)
 			.add("input", in.toString())
 			.add("output", out.toString());
 
-
-	if (!m_mixMap.empty())
+	if (!m_channelsMap.empty())
 	{
-		int res = swr_set_matrix(m_swr, m_mixMap.data(), out.channelsNo);
+		vector<double> mixMap = makeMixMap(out, in, m_channelsMap);
+		int res = swr_set_matrix(m_swr, mixMap.data(), out.channelsNo);
 		if (res < 0)
 			throw EXCEPTION_FFMPEG("can't initialize audio mixer", res)
 				.module("Resampler", "swr_set_matrix")
@@ -106,15 +136,24 @@ void Resampler::initSwrContext(const AudioFormat &out, const AudioFormat &in)
 void Resampler::feed(const AVFrame *frame)
 {
 	m_outFrame->nb_samples = m_bufferSize;
+	m_outFrame->pts = frame->pts;
 
 	if (!swr_is_initialized(m_swr))
+	{
+		if (m_formatChangeCb)
+			m_formatChangeCb(AudioFormat(frame), AudioFormat(m_outFrame));
+
 		initSwrContext(m_outFrame, frame);
+	}
 
 	int res = swr_convert_frame(m_swr, m_outFrame, frame);
 	if (res < 0)
 	{
 		if (res == AVERROR_INPUT_CHANGED)
 		{
+			if (m_formatChangeCb)
+				m_formatChangeCb(AudioFormat(frame), AudioFormat(m_outFrame));
+
 			swr_close(m_swr);
 			initSwrContext(m_outFrame, frame);
 			res = swr_convert_frame(m_swr, m_outFrame, frame);
@@ -130,8 +169,6 @@ void Resampler::feed(const AVFrame *frame)
 				.time(m_timeBase * frame->pts);
 		}
 	}
-
-	m_outFrame->pts = frame->pts;
 
 	if (m_output)
 		m_output->feed(m_outFrame);

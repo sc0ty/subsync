@@ -49,13 +49,11 @@ def timeStampFractionFmt(time):
     return '{}.{:03d}'.format(timeStampFmt(time), ms)
 
 
-def onesPositions(val):
+def splitBitVector(v):
+    i = 1
     res = []
-    idx = 0
-    while val > 0:
-        if val & 1:
-            res.append(idx)
-        idx += 1
-        val >>= 1
+    while i < v:
+        if i & v:
+            res.append(i)
+        i <<= 1
     return res
-

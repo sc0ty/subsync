@@ -5,7 +5,10 @@
 #include "stream.h"
 #include <cstdint>
 #include <vector>
+#include <map>
+#include <tuple>
 #include <memory>
+#include <functional>
 
 extern "C"
 {
@@ -16,6 +19,12 @@ extern "C"
 class Resampler : public AVOutput
 {
 	public:
+		typedef std::function<void (
+				const AudioFormat &in,
+				const AudioFormat &out)>
+			FormatChangeCallback;
+
+	public:
 		Resampler();
 		virtual ~Resampler();
 
@@ -24,7 +33,11 @@ class Resampler : public AVOutput
 				const AudioFormat &format,
 				int bufferSize = 32*1024);
 
-		void setChannelMap(const std::vector<double> &mixMap);
+		void connectFormatChangeCallback(FormatChangeCallback callback);
+
+		typedef std::tuple<uint64_t /* in */, uint64_t /* out */> ChannelPath;
+		typedef std::map<ChannelPath, double /* gain */> ChannelsMap;
+		void setChannelMap(const ChannelsMap &channelsMap);
 
 		virtual void start(const AVStream *stream);
 		virtual void stop();
@@ -41,8 +54,10 @@ class Resampler : public AVOutput
 		SwrContext *m_swr;
 		AVFrame *m_outFrame;
 		int m_bufferSize;
-		std::vector<double> m_mixMap;
 		double m_timeBase;
+
+		ChannelsMap m_channelsMap;
+		FormatChangeCallback m_formatChangeCb;
 };
 
 #endif

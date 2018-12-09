@@ -71,6 +71,8 @@ void initMediaWrapper(py::module &m)
 	audioRes.def("connectOutput", &Resampler::connectOutput,
 			py::arg("output"), py::arg("format"),
 			py::arg("bufferSize") = 32*1024);
+	audioRes.def("connectFormatChangeCallback",
+			&Resampler::connectFormatChangeCallback);
 	audioRes.def("setChannelMap", &Resampler::setChannelMap);
 
 	/*** class SpeechRecognition ***/

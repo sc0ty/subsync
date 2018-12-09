@@ -196,3 +196,12 @@ string AudioFormat::toString() const
 	return ss.str();
 }
 
+const char *AudioFormat::getChannelName(uint64_t id)
+{
+	return av_get_channel_name(id);
+}
+
+const char *AudioFormat::getChannelDescription(uint64_t id)
+{
+	return av_get_channel_description(id);
+}

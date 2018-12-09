@@ -1,17 +1,14 @@
 import gui.openwin_layout
 import wx
 from stream import Stream
-from speech import getDefaultAudioChannels
 import gui.filedlg
 import gui.filedrop
 import gui.channelssel
 import gui.busydlg
 from gui.errorwin import error_dlg
-from utils import onesPositions
 from error import Error
 from data.filetypes import subtitleWildcard, videoWildcard
 from data.languages import languages, languages2to3
-from data.audio import getAduioChannelName
 
 
 @error_dlg
@@ -91,9 +88,9 @@ class OpenWin(gui.openwin_layout.OpenWin):
         isAudio = stream.type == 'audio'
 
         if isAudio:
-            self.selectAudioChannels(getDefaultAudioChannels(stream.audio))
-        else:
             self.selectAudioChannels(None)
+        else:
+            self.m_textChannels.SetValue('')
 
         self.m_choiceEncoding.Enable(isSubText)
         self.m_textChannels.Enable(isAudio)
@@ -102,17 +99,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
     def selectAudioChannels(self, channels):
         self.stream.channels = channels
-
-        if channels:
-            ids = onesPositions(self.stream.stream().audio.channelLayout)
-            if len(channels) == len(ids):
-                self.m_textChannels.SetValue(_('all channels'))
-            else:
-                chls = [ getAduioChannelName(id) for id in channels ]
-                self.m_textChannels.SetValue(', '.join(chls))
-
-        else:
-            self.m_textChannels.SetValue('')
+        self.m_textChannels.SetValue(gui.channelssel.channelNames(channels))
 
     def onChoiceLangChoice(self, event):
         self.stream.lang = validateLang(self.m_choiceLang.GetValue())
@@ -138,8 +125,6 @@ class OpenWin(gui.openwin_layout.OpenWin):
         dlg.selectChannels(self.stream.channels)
         if dlg.ShowModal() == wx.ID_OK:
             channels = dlg.getSelectedChannels()
-            if len(channels) == 0:
-                raise Error(_('At lest one audio channel must be selected'))
             self.selectAudioChannels(channels)
 
     @error_dlg

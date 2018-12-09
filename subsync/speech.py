@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-audio_channel_center_id = 2
+audio_channel_center_id = 4
 
 _speechModels = {}
 
@@ -44,7 +44,7 @@ def createSpeechRec(model):
     return speechRec
 
 
-def getSpeechAudioFormat(speechModel, inputAudioFormat):
+def getSpeechAudioFormat(speechModel):
     try:
         sampleFormat = getattr(gizmo.AVSampleFormat,
                 speechModel.get('sampleformat', 'S16'))
@@ -53,54 +53,29 @@ def getSpeechAudioFormat(speechModel, inputAudioFormat):
         if type(sampleRate) == str:
             sampleRate = int(sampleRate)
 
-        channelLayout = 1
-        if inputAudioFormat.channelLayout:
-            channelId = utils.onesPositions(inputAudioFormat.channelLayout)[0]
-            channelLayout = 1 << channelId
-
-        return gizmo.AudioFormat(sampleFormat, sampleRate, channelLayout)
+        return gizmo.AudioFormat(sampleFormat, sampleRate, 1)
     except:
-        raise error.Error(_('Invalid speech audio format'),
-                inputFormat=str(inputAudioFormat))
+        raise error.Error(_('Invalid speech audio format'))
 
 
-def getDefaultAudioChannels(audio):
+def getDefaultChannelsMap(audio):
     ''' Center channel will be selected if available,
     otherwise all channels will be mixed together
     '''
+    channels = utils.splitBitVector(audio.channelLayout)
 
-    channels = utils.onesPositions(audio.channelLayout)
     if audio_channel_center_id in channels:
-        return [ audio_channel_center_id ]
+        return { (audio_channel_center_id, 1): 1.0 }
 
-    return channels
+    return getChannelsMap(channels)
 
 
-class MixMap:
-    def __init__(self, channelsNo = 0):
-        self.channelsNo = channelsNo
-        self.map = [ 0.0 ] * channelsNo * channelsNo
+def getChannelsMap(channels):
+    gain = 1.0 / len(channels)
+    return { (i, 1): gain for i in channels }
 
-    def setPath(self, srcNo, dstNo, gain = 1.0):
-        self.map[srcNo + dstNo*self.channelsNo] = gain
 
-    def mixAll(self, dstNo, gain = 1.0):
-        g = gain / self.channelsNo
-        for srcNo in range(self.channelsNo):
-            self.setPath(srcNo, dstNo, g)
-
-    def __repr__(self):
-        if self.channelsNo == 0:
-            return '<MixMap map=none>'
-        if self.map == [ 0.0 ] * len(self.map):
-            return '<MixMap map=zero>'
-
-        items = []
-        no = self.channelsNo
-        for dst, srcs in enumerate([ self.map[ x*no : (x+1)*no ] for x in range(no) ]):
-            if srcs == [ 0.0 ] * no:
-                items.append('[0]=>{}'.format(dst))
-            else:
-                items.append('{}=>{}'.format(srcs, dst))
-        return '<MixMap {}>'.format(', '.join(items))
+def channelsMapToString(cm):
+    return ', '.join([ '{}->{}: {:.2}'.format(*path, gain)
+        for path, gain in sorted(cm.items()) ])
 

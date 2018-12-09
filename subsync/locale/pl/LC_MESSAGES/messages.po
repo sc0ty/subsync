@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-17 17:20+0100\n"
-"PO-Revision-Date: 2018-11-17 18:35+0100\n"
+"POT-Creation-Date: 2018-12-09 18:54+0100\n"
+"PO-Revision-Date: 2018-12-09 18:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "There is no dictionary for transaltion from {} to {}"
 msgstr "Brak słownika dla translacji z {} do {}"
 
-#: pipeline.py:141
+#: pipeline.py:135
 msgid "Not supported stream type"
 msgstr "Niewspierany typ strumienia"
 
@@ -95,7 +95,7 @@ msgstr "Min współczynnik rozpoznawania mowy:"
 msgid "Extractor jobs no:"
 msgstr "Ilość wątków ekstrakcji:"
 
-#: gui/settingswin_layout.py:147
+#: gui/settingswin_layout.py:147 gui/channelssel.py:10
 msgid "auto"
 msgstr "auto"
 
@@ -256,45 +256,37 @@ msgstr "Strona programu"
 msgid "Close"
 msgstr "Zamknij"
 
-#: gui/openwin.py:24
+#: gui/openwin.py:21
 msgid "All supported files"
 msgstr "Wszystkie wspierane pliki"
 
-#: gui/openwin.py:25
+#: gui/openwin.py:22
 msgid "Subtitle files"
 msgstr "Napisy"
 
-#: gui/openwin.py:26
+#: gui/openwin.py:23
 msgid "Video files"
 msgstr "Wideo"
 
-#: gui/openwin.py:27 gui/syncwin.py:233
+#: gui/openwin.py:24 gui/syncwin.py:234
 msgid "All files"
 msgstr "Wszystkie pliki"
 
-#: gui/openwin.py:35 gui/syncwin.py:56
+#: gui/openwin.py:32 gui/syncwin.py:57
 msgid "Loading, please wait..."
 msgstr "Ładowanie, proszę czekać..."
 
-#: gui/openwin.py:68
+#: gui/openwin.py:65
 msgid "There are no usable streams"
 msgstr "Brak użytecznych strumieni"
 
-#: gui/openwin.py:109
-msgid "all channels"
-msgstr "wszystkie kanały"
-
-#: gui/openwin.py:134
+#: gui/openwin.py:121
 msgid "Select audio channels to listen:"
 msgstr "Wybierz kanały audio do nasłuchu:"
 
-#: gui/openwin.py:135
+#: gui/openwin.py:122
 msgid "Select channels"
 msgstr "Wybór kanałów"
-
-#: gui/openwin.py:142
-msgid "At lest one audio channel must be selected"
-msgstr "Przynajmniej jeden kanał audio musi być wybrany"
 
 #: gui/choiceenc.py:8
 msgid "Auto detect"
@@ -341,7 +333,7 @@ msgid "New version is ready to be installed. Upgrade now?"
 msgstr "Nowa wersja jest gotowa do instalacji. Zaktualizować teraz?"
 
 #: gui/errorwin.py:30 gui/errorwin_layout.py:21 gui/errorwin_layout.py:43
-#: gui/syncwin.py:228
+#: gui/syncwin.py:229
 msgid "Error"
 msgstr "Błąd"
 
@@ -393,60 +385,60 @@ msgstr "Pobierz"
 msgid "[details]"
 msgstr "[więcej]"
 
-#: gui/syncwin.py:69
+#: gui/syncwin.py:70
 msgid "Synchronization: {} points"
 msgstr "Synchronizacja: {} punktów"
 
-#: gui/syncwin.py:141
+#: gui/syncwin.py:142
 msgid "Subtitles synchronized"
 msgstr "Napisy zsynchronizowane"
 
-#: gui/syncwin.py:144
+#: gui/syncwin.py:145
 msgid "No need to synchronize, subtitles are good already"
 msgstr "Synchronizacja niekonieczna, napisy pasują"
 
-#: gui/syncwin.py:155
+#: gui/syncwin.py:156
 msgid "Couldn't synchronize, but you could try anyway"
 msgstr "Synchronizacja nie powiodła się, ale możesz spróbować mimo wszystko"
 
-#: gui/syncwin.py:157
+#: gui/syncwin.py:158
 msgid "Couldn't synchronize"
 msgstr "Nie można zsynchronizować"
 
-#: gui/syncwin.py:159
+#: gui/syncwin.py:160
 msgid "Subtitles not ready"
 msgstr "Napisy nie są jeszcze gotowe"
 
-#: gui/syncwin.py:172
+#: gui/syncwin.py:173
 msgid "Terminating, please wait..."
 msgstr "Kończenie, proszę czekać..."
 
-#: gui/syncwin.py:300
+#: gui/syncwin.py:301
 msgid "Some subtitles can't be decoded (invalid encoding?)"
 msgstr "Błąd dekodowania napisów (nieprawidłowe kodowanie znaków?)"
 
-#: gui/syncwin.py:302
+#: gui/syncwin.py:303
 msgid "Subtitles read failed"
 msgstr "Odczyt napisów nie powiódł się"
 
-#: gui/syncwin.py:304
+#: gui/syncwin.py:305
 msgid "Error during subtitles read"
 msgstr "Błąd odczytu napisów"
 
-#: gui/syncwin.py:307
+#: gui/syncwin.py:308
 msgid "Some reference subtitles can't be decoded (invalid encoding?)"
 msgstr ""
 "Błąd dekodowania referencyjnych napisów (nieprawidłowe kodowanie znaków?)"
 
-#: gui/syncwin.py:309
+#: gui/syncwin.py:310
 msgid "Reference read failed"
 msgstr "Odczyt referencji nie powiódł się"
 
-#: gui/syncwin.py:311
+#: gui/syncwin.py:312
 msgid "Error during reference read"
 msgstr "Błąd odczytu referencji"
 
-#: gui/syncwin.py:313
+#: gui/syncwin.py:314
 msgid "Unexpected error occurred"
 msgstr "Wystąpił niespodziewany błąd"
 
@@ -601,110 +593,6 @@ msgstr "typ"
 #: gui/streamlist.py:10
 msgid "description"
 msgstr "informacje"
-
-#: data/audio.py:4
-msgid "front left"
-msgstr "przedni lewy"
-
-#: data/audio.py:5
-msgid "front right"
-msgstr "przedni prawy"
-
-#: data/audio.py:6
-msgid "front center"
-msgstr "przedni centralny"
-
-#: data/audio.py:7
-msgid "subwoofer"
-msgstr "subwoofer"
-
-#: data/audio.py:8
-msgid "back left"
-msgstr "tylny lewy"
-
-#: data/audio.py:9
-msgid "back right"
-msgstr "tylny prawy"
-
-#: data/audio.py:10
-msgid "front left of center"
-msgstr "przedni lewy centralny"
-
-#: data/audio.py:11
-msgid "front right of center"
-msgstr "przedni prawy centralny"
-
-#: data/audio.py:12
-msgid "back center"
-msgstr "tylny centralny"
-
-#: data/audio.py:13
-msgid "side left"
-msgstr "boczny lewy"
-
-#: data/audio.py:14
-msgid "side right"
-msgstr "boczny prawy"
-
-#: data/audio.py:15
-msgid "top center"
-msgstr "górny centralny"
-
-#: data/audio.py:16
-msgid "top front left"
-msgstr "górny przedni lewy"
-
-#: data/audio.py:17
-msgid "top front center"
-msgstr "górny przedni centralny"
-
-#: data/audio.py:18
-msgid "top front right"
-msgstr "górny przedni prawy"
-
-#: data/audio.py:19
-msgid "top back left"
-msgstr "górny tylny lewy"
-
-#: data/audio.py:20
-msgid "top back center"
-msgstr "górny tylny centralny"
-
-#: data/audio.py:21
-msgid "top back right"
-msgstr "górny tylny prawy"
-
-#: data/audio.py:22
-msgid "stereo left"
-msgstr "lewy stereo"
-
-#: data/audio.py:23
-msgid "stereo right"
-msgstr "prawy stereo"
-
-#: data/audio.py:24
-msgid "wide left"
-msgstr "przestrzenny lewy"
-
-#: data/audio.py:25
-msgid "wide right"
-msgstr "przestrzenny prawy"
-
-#: data/audio.py:26
-msgid "surround direct left"
-msgstr "przestrzenny lewy bezpośredni"
-
-#: data/audio.py:27
-msgid "surround direct right"
-msgstr "przestrzenny prawy bezpośredni"
-
-#: data/audio.py:28
-msgid "second subwoofer"
-msgstr "drugi subwoofer"
-
-#: data/audio.py:33
-msgid "channel {}"
-msgstr "kanał {}"
 
 #: data/languages.py:2
 msgid "Albanian"
@@ -902,13 +790,97 @@ msgstr "Aktualizacja nie powiodła się"
 msgid "Signature verification failed"
 msgstr "Nieprawidłowa sygnatura"
 
-#: speech.py:63
+#: speech.py:58
 msgid "Invalid speech audio format"
 msgstr "Nieprawidłowy format audio"
 
 #: settings.py:63
 msgid "Cannot load settings file, {}"
 msgstr "Błąd odczytu ustawień, {}"
+
+#~ msgid "all channels"
+#~ msgstr "wszystkie kanały"
+
+#~ msgid "At lest one audio channel must be selected"
+#~ msgstr "Przynajmniej jeden kanał audio musi być wybrany"
+
+#~ msgid "front left"
+#~ msgstr "przedni lewy"
+
+#~ msgid "front right"
+#~ msgstr "przedni prawy"
+
+#~ msgid "front center"
+#~ msgstr "przedni centralny"
+
+#~ msgid "subwoofer"
+#~ msgstr "subwoofer"
+
+#~ msgid "back left"
+#~ msgstr "tylny lewy"
+
+#~ msgid "back right"
+#~ msgstr "tylny prawy"
+
+#~ msgid "front left of center"
+#~ msgstr "przedni lewy centralny"
+
+#~ msgid "front right of center"
+#~ msgstr "przedni prawy centralny"
+
+#~ msgid "back center"
+#~ msgstr "tylny centralny"
+
+#~ msgid "side left"
+#~ msgstr "boczny lewy"
+
+#~ msgid "side right"
+#~ msgstr "boczny prawy"
+
+#~ msgid "top center"
+#~ msgstr "górny centralny"
+
+#~ msgid "top front left"
+#~ msgstr "górny przedni lewy"
+
+#~ msgid "top front center"
+#~ msgstr "górny przedni centralny"
+
+#~ msgid "top front right"
+#~ msgstr "górny przedni prawy"
+
+#~ msgid "top back left"
+#~ msgstr "górny tylny lewy"
+
+#~ msgid "top back center"
+#~ msgstr "górny tylny centralny"
+
+#~ msgid "top back right"
+#~ msgstr "górny tylny prawy"
+
+#~ msgid "stereo left"
+#~ msgstr "lewy stereo"
+
+#~ msgid "stereo right"
+#~ msgstr "prawy stereo"
+
+#~ msgid "wide left"
+#~ msgstr "przestrzenny lewy"
+
+#~ msgid "wide right"
+#~ msgstr "przestrzenny prawy"
+
+#~ msgid "surround direct left"
+#~ msgstr "przestrzenny lewy bezpośredni"
+
+#~ msgid "surround direct right"
+#~ msgstr "przestrzenny prawy bezpośredni"
+
+#~ msgid "second subwoofer"
+#~ msgstr "drugi subwoofer"
+
+#~ msgid "channel {}"
+#~ msgstr "kanał {}"
 
 #~ msgid "Cannot load public key"
 #~ msgstr "Nie można załadować klucza publicznego"
