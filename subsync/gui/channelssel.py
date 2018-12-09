@@ -5,14 +5,15 @@ import gizmo
 
 def channelName(ch):
     if ch:
-        return gizmo.AudioFormat.getChannelDescription(ch)
+        return gizmo.AudioFormat.getChannelDescription(ch) or str(ch)
     else:
         return _('auto')
 
 
 def channelNames(chs):
     if chs:
-        return ', '.join([ gizmo.AudioFormat.getChannelName(ch) for ch in chs ])
+        return ', '.join([ gizmo.AudioFormat.getChannelName(ch) or str(ch)
+            for ch in chs ])
     else:
         return channelName(0)
 

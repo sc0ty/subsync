@@ -76,6 +76,9 @@ def getChannelsMap(channels):
 
 
 def channelsMapToString(cm):
-    return ', '.join([ '{}->{}: {:.2}'.format(*path, gain)
-        for path, gain in sorted(cm.items()) ])
+    def chName(ch):
+        return gizmo.AudioFormat.getChannelName(ch) or str(ch)
+
+    return ', '.join([ '{}->{}: {:.2}'.format(chName(chIn), chName(chOut), gain)
+        for (chIn, chOut), gain in sorted(cm.items()) ])
 
