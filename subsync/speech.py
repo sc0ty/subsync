@@ -70,6 +70,11 @@ def getDefaultChannelsMap(audio):
     return getChannelsMap(channels)
 
 
+def getAllChannelsMap(audio):
+    channels = utils.splitBitVector(audio.channelLayout)
+    return getChannelsMap(channels)
+
+
 def getChannelsMap(channels):
     if channels and len(channels) > 0:
         gain = 1.0 / len(channels)

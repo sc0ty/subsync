@@ -96,15 +96,14 @@ class SpeechPipeline(BasePipeline):
         self.speechRec.setMinWordLen(settings().minWordLen)
 
         self.resampler = gizmo.Resampler()
+        self.channels = stream.channels
+        self.resampler.connectFormatChangeCallback(self.onAudioFormatChanged)
 
-        if stream.channels:
+        if self.channels != None and self.channels != 'all':
             channelsMap = speech.getChannelsMap(stream.channels)
             logger.debug('audio channels mixer map %s',
                     speech.channelsMapToString(channelsMap))
             self.resampler.setChannelMap(channelsMap or {})
-
-        else:
-            self.resampler.connectFormatChangeCallback(self.onAudioFormatChanged)
 
         self.demux.connectDec(self.dec, stream.no)
         self.dec.connectOutput(self.resampler)
@@ -117,10 +116,17 @@ class SpeechPipeline(BasePipeline):
 
     def onAudioFormatChanged(self, inFormat, outFormat):
         logger.debug('input audio format %r', inFormat)
-        channelsMap = speech.getDefaultChannelsMap(inFormat)
-        logger.debug('audio channels map %s',
-                speech.channelsMapToString(channelsMap))
-        self.resampler.setChannelMap(channelsMap or {})
+        channelsMap = None
+
+        if not self.channels:
+            channelsMap = speech.getDefaultChannelsMap(inFormat) or {}
+        elif self.channels == 'all':
+            channelsMap = speech.getAllChannelsMap(inFormat) or {}
+
+        if channelsMap != None:
+            logger.debug('audio channels map %s',
+                    speech.channelsMapToString(channelsMap))
+            self.resampler.setChannelMap(channelsMap)
 
     def connectWordsCallback(self, cb):
         self.speechRec.connectWordsCallback(cb)

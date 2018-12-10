@@ -8,6 +8,7 @@ GUI_SRC = \
 		  gui/openwin.fbp \
 		  gui/syncwin.fbp \
 		  gui/fpswin.fbp \
+		  gui/channelswin.fbp \
 		  gui/settingswin.fbp \
 		  gui/downloadwin.fbp \
 		  gui/aboutwin.fbp \

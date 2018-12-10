@@ -3,7 +3,7 @@ import wx
 from stream import Stream
 import gui.filedlg
 import gui.filedrop
-import gui.channelssel
+import gui.channelswin
 import gui.busydlg
 from gui.errorwin import error_dlg
 from error import Error
@@ -99,7 +99,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
     def selectAudioChannels(self, channels):
         self.stream.channels = channels
-        self.m_textChannels.SetValue(gui.channelssel.channelNames(channels))
+        self.m_textChannels.SetValue(gui.channelswin.getChannelNames(channels))
 
     def onChoiceLangChoice(self, event):
         self.stream.lang = validateLang(self.m_choiceLang.GetValue())
@@ -117,14 +117,10 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
     @error_dlg
     def onButtonSelectChannelsClick(self, event):
-        dlg = gui.channelssel.AudioChannelsSel(self,
-                _('Select audio channels to listen:'),
-                _('Select channels'),
-                self.stream.stream().audio)
-
-        dlg.selectChannels(self.stream.channels)
+        dlg = gui.channelswin.ChannelsWin(self, self.stream.stream().audio)
+        dlg.SetValue(self.stream.channels)
         if dlg.ShowModal() == wx.ID_OK:
-            channels = dlg.getSelectedChannels()
+            channels = dlg.GetValue()
             self.selectAudioChannels(channels)
 
     @error_dlg
