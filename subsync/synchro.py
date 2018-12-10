@@ -49,22 +49,22 @@ class Synchronizer(object):
         self.subPipeline = pipeline.createProducerPipeline(subs)
         self.subPipeline.connectEosCallback(self.onSubEos)
         self.subPipeline.connectErrorCallback(self.onSubError)
-        self.subPipeline.connectSubsCallback(self.subtitlesCollector.addSubtitle, self.subtitlesCollector)
+        self.subPipeline.connectSubsCallback(self.subtitlesCollector.addSubtitle)
 
         if subs.lang and refs.lang and subs.lang != refs.lang:
             self.dictionary = dictionary.loadDictionary(subs.lang, refs.lang, settings().minWordLen)
             self.translator = gizmo.Translator(self.dictionary)
             self.translator.setMinWordsSim(settings().minWordsSim)
-            self.subPipeline.connectWordsCallback(self.translator.pushWord, self.translator)
-            self.translator.connectWordsCallback(self.correlator.pushSubWord, self.correlator)
+            self.subPipeline.connectWordsCallback(self.translator.pushWord)
+            self.translator.connectWordsCallback(self.correlator.pushSubWord)
         else:
-            self.subPipeline.connectWordsCallback(self.correlator.pushSubWord, self.correlator)
+            self.subPipeline.connectWordsCallback(self.correlator.pushSubWord)
 
         self.refPipelines = pipeline.createProducerPipelines(refs, getJobsNo())
         for p in self.refPipelines:
             p.connectEosCallback(self.onRefEos)
             p.connectErrorCallback(self.onRefError)
-            p.connectWordsCallback(self.correlator.pushRefWord, self.correlator)
+            p.connectWordsCallback(self.correlator.pushRefWord)
 
         self.pipelines = [ self.subPipeline ] + self.refPipelines
 

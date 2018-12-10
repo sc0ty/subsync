@@ -17,7 +17,7 @@ using namespace std;
 void initMediaWrapper(py::module &m)
 {
 	/*** class Demux ***/
-	py::class_<Demux, shared_ptr<Demux>> demux(m, "Demux", py::dynamic_attr());
+	py::class_<Demux, shared_ptr<Demux>> demux(m, "Demux");
 	demux.def(py::init<const string &>());
 	demux.def("getStreamsInfo", &Demux::getStreamsInfo);
 	demux.def("connectDec", &Demux::connectDec);
@@ -32,41 +32,30 @@ void initMediaWrapper(py::module &m)
 	demux.def("notifyDiscontinuity", &Demux::notifyDiscontinuity);
 
 	/*** interface Decoder ***/
-	py::class_<Decoder, shared_ptr<Decoder>>
-		decoder(m, "Decoder", py::dynamic_attr());
+	py::class_<Decoder, shared_ptr<Decoder>> decoder(m, "Decoder");
 	decoder.def("start", &Decoder::start);
 	decoder.def("stop", &Decoder::stop);
 
 	/*** class SubtitleDec ***/
 	py::class_<SubtitleDec, shared_ptr<SubtitleDec>>
-		subDec(m, "SubtitleDec", decoder, py::dynamic_attr());
+		subDec(m, "SubtitleDec", decoder);
 	subDec.def(py::init<>());
 	subDec.def("setMinWordLen", &SubtitleDec::setMinWordLen);
 	subDec.def("setEncoding", &SubtitleDec::setEncoding);
-	subDec.def("connectSubsCallback",
-			[] (SubtitleDec &s, SubtitleDec::SubsCallback cb, py::handle dst) {
-				(void) dst;
-				s.connectSubsCallback(cb);
-			}, py::arg("callback"), py::arg("dst") = NULL);
-	subDec.def("connectWordsCallback",
-			[] (SubtitleDec &s, WordsCallback cb, py::handle dst) {
-				(void) dst;
-				s.connectWordsCallback(cb);
-			}, py::arg("callback"), py::arg("dst") = NULL);
+	subDec.def("connectSubsCallback", &SubtitleDec::connectSubsCallback);
+	subDec.def("connectWordsCallback", &SubtitleDec::connectWordsCallback);
 
 	/*** class AudioDec ***/
-	py::class_<AudioDec, shared_ptr<AudioDec>>
-		audioDec(m, "AudioDec", decoder, py::dynamic_attr());
+	py::class_<AudioDec, shared_ptr<AudioDec>> audioDec(m, "AudioDec", decoder);
 	audioDec.def(py::init<>());
 	audioDec.def("connectOutput", &AudioDec::connectOutput);
 
 	/*** interface AVOutput ***/
-	py::class_<AVOutput, shared_ptr<AVOutput>>
-		audioOut(m, "AVOutput", py::dynamic_attr());
+	py::class_<AVOutput, shared_ptr<AVOutput>> audioOut(m, "AVOutput");
 
 	/*** class Resampler ***/
 	py::class_<Resampler, shared_ptr<Resampler>>
-		audioRes(m, "Resampler", audioOut, py::dynamic_attr());
+		audioRes(m, "Resampler", audioOut);
 	audioRes.def(py::init<>());
 	audioRes.def("connectOutput", &Resampler::connectOutput,
 			py::arg("output"), py::arg("format"),
@@ -77,14 +66,11 @@ void initMediaWrapper(py::module &m)
 
 	/*** class SpeechRecognition ***/
 	py::class_<SpeechRecognition, shared_ptr<SpeechRecognition>>
-		speechRec(m, "SpeechRecognition", audioOut, py::dynamic_attr());
+		speechRec(m, "SpeechRecognition", audioOut);
 	speechRec.def(py::init<>());
 	speechRec.def("setParam", &SpeechRecognition::setParam);
 	speechRec.def("setMinWordProb", &SpeechRecognition::setMinWordProb);
 	speechRec.def("setMinWordLen", &SpeechRecognition::setMinWordLen);
 	speechRec.def("connectWordsCallback",
-			[] (SpeechRecognition &sr, WordsCallback cb, py::handle dst) {
-				(void) dst;
-				sr.connectWordsCallback(cb);
-			}, py::arg("callback"), py::arg("dst") = NULL);
+			&SpeechRecognition::connectWordsCallback);
 }

@@ -27,12 +27,6 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         img.setItemBitmap(self.m_bitmapCross, 'crossmark')
 
         if settings().debugOptions:
-            try:
-                import graph
-                graph.init()
-            except ImportError:
-                pass
-
             self.m_buttonDebugMenu.Show()
 
         self.m_buttonStop.SetFocus()
@@ -259,22 +253,6 @@ class SyncWin(gui.syncwin_layout.SyncWin):
 
     def onMenuItemEnableSaveClick(self, event):
         self.m_buttonSave.Enable()
-
-    @gui.errorwin.error_dlg
-    def onMenuItemSaveGraphClick(self, event):
-        import graph
-        wildcard = 'Graphviz DOT|*.dot|PNG|*.png|GIF|*.gif|PostScript|*.ps|All files|*.*'
-        path = gui.filedlg.showSaveFileDlg(self, wildcard=wildcard)
-        if path != None:
-            graph.saveGraph(path, [ p.demux for p in self.sync.pipelines ])
-
-    @gui.errorwin.error_dlg
-    def onMenuItemShowGraphClick(self, event):
-        import graph
-        import config
-        path = os.path.join(config.assetdir, 'graph.png')
-        graph.saveGraph(path, [ p.demux for p in self.sync.pipelines ])
-        wx.LaunchDefaultApplication(path)
 
     @gui.errorwin.error_dlg
     def onMenuItemDumpSubWordsClick(self, event):

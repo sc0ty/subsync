@@ -11,7 +11,7 @@ namespace py = pybind11;
 void initCorrelatorWrapper(py::module &m)
 {
 	/*** class Correlator ***/
-	py::class_<Correlator> correlator(m, "Correlator", py::dynamic_attr());
+	py::class_<Correlator> correlator(m, "Correlator");
 	correlator.def(py::init<float, double, float, unsigned, float>());
 	correlator.def("connectStatsCallback", &Correlator::connectStatsCallback);
 	correlator.def("start", &Correlator::start);

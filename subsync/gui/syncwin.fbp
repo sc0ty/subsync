@@ -14,6 +14,7 @@
         <property name="file">syncwin_layout</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
+        <property name="indent_with_spaces"></property>
         <property name="internationalize">1</property>
         <property name="name">SyncWin</property>
         <property name="namespace"></property>
@@ -2220,40 +2221,6 @@
                                                 </object>
                                                 <object class="separator" expanded="1">
                                                     <property name="name">m_separator1</property>
-                                                    <property name="permission">none</property>
-                                                </object>
-                                                <object class="wxMenuItem" expanded="1">
-                                                    <property name="bitmap"></property>
-                                                    <property name="checked">0</property>
-                                                    <property name="enabled">1</property>
-                                                    <property name="help"></property>
-                                                    <property name="id">wxID_ANY</property>
-                                                    <property name="kind">wxITEM_NORMAL</property>
-                                                    <property name="label">Save pipeline graph</property>
-                                                    <property name="name">m_menuItemSaveGraph</property>
-                                                    <property name="permission">none</property>
-                                                    <property name="shortcut"></property>
-                                                    <property name="unchecked_bitmap"></property>
-                                                    <event name="OnMenuSelection">onMenuItemSaveGraphClick</event>
-                                                    <event name="OnUpdateUI"></event>
-                                                </object>
-                                                <object class="wxMenuItem" expanded="1">
-                                                    <property name="bitmap"></property>
-                                                    <property name="checked">0</property>
-                                                    <property name="enabled">1</property>
-                                                    <property name="help"></property>
-                                                    <property name="id">wxID_ANY</property>
-                                                    <property name="kind">wxITEM_NORMAL</property>
-                                                    <property name="label">Show pipeline graph</property>
-                                                    <property name="name">m_menuItemShowGraph</property>
-                                                    <property name="permission">none</property>
-                                                    <property name="shortcut"></property>
-                                                    <property name="unchecked_bitmap"></property>
-                                                    <event name="OnMenuSelection">onMenuItemShowGraphClick</event>
-                                                    <event name="OnUpdateUI"></event>
-                                                </object>
-                                                <object class="separator" expanded="1">
-                                                    <property name="name">m_separator2</property>
                                                     <property name="permission">none</property>
                                                 </object>
                                                 <object class="wxMenuItem" expanded="1">

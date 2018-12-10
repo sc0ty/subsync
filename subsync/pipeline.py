@@ -66,14 +66,14 @@ class SubtitlePipeline(BasePipeline):
 
     def destroy(self):
         super().destroy()
-        self.dec.connectWordsCallback(None, None)
-        self.dec.connectSubsCallback(None, None)
+        self.dec.connectWordsCallback(None)
+        self.dec.connectSubsCallback(None)
 
-    def connectWordsCallback(self, cb, dst=None):
-        self.dec.connectWordsCallback(cb, dst)
+    def connectWordsCallback(self, cb):
+        self.dec.connectWordsCallback(cb)
 
-    def connectSubsCallback(self, cb, dst=None):
-        self.dec.connectSubsCallback(cb, dst)
+    def connectSubsCallback(self, cb):
+        self.dec.connectSubsCallback(cb)
 
 
 class SpeechPipeline(BasePipeline):
@@ -112,7 +112,7 @@ class SpeechPipeline(BasePipeline):
 
     def destroy(self):
         super().destroy()
-        self.speechRec.connectWordsCallback(None, None)
+        self.speechRec.connectWordsCallback(None)
         self.resampler.connectFormatChangeCallback(None)
 
     def onAudioFormatChanged(self, inFormat, outFormat):
@@ -122,8 +122,8 @@ class SpeechPipeline(BasePipeline):
                 speech.channelsMapToString(channelsMap))
         self.resampler.setChannelMap(channelsMap or {})
 
-    def connectWordsCallback(self, cb, dst=None):
-        self.speechRec.connectWordsCallback(cb, dst)
+    def connectWordsCallback(self, cb):
+        self.speechRec.connectWordsCallback(cb)
 
 
 def createProducerPipeline(stream):
