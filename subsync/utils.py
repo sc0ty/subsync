@@ -52,7 +52,7 @@ def timeStampFractionFmt(time):
 def splitBitVector(v):
     i = 1
     res = []
-    while i < v:
+    while i <= v:
         if i & v:
             res.append(i)
         i <<= 1
