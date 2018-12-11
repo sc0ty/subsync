@@ -110,7 +110,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
             self.Layout()
 
     def setProgress(self, progress):
-        if progress != None:
+        if progress != None and 0.0 <= progress <= 1.0:
             pr = int(progress * 100)
             self.m_gaugeProgress.SetValue(pr)
             self.m_textProgress.SetLabel(' {:3} % '.format(pr))
