@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-09 18:54+0100\n"
-"PO-Revision-Date: 2018-12-09 18:55+0100\n"
+"POT-Creation-Date: 2018-12-12 18:17+0100\n"
+"PO-Revision-Date: 2018-12-12 18:19+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "There is no dictionary for transaltion from {} to {}"
 msgstr "Brak słownika dla translacji z {} do {}"
 
-#: pipeline.py:135
+#: pipeline.py:127
 msgid "Not supported stream type"
 msgstr "Niewspierany typ strumienia"
 
@@ -31,7 +31,7 @@ msgstr "Niewspierany typ strumienia"
 msgid "version "
 msgstr "wersja "
 
-#: gui/settingswin_layout.py:23 gui/mainwin.py:95 gui/mainwin_layout.py:84
+#: gui/settingswin_layout.py:23 gui/mainwin.py:101 gui/mainwin_layout.py:84
 msgid "Settings"
 msgstr "Ustawienia"
 
@@ -95,7 +95,7 @@ msgstr "Min współczynnik rozpoznawania mowy:"
 msgid "Extractor jobs no:"
 msgstr "Ilość wątków ekstrakcji:"
 
-#: gui/settingswin_layout.py:147 gui/channelssel.py:10
+#: gui/settingswin_layout.py:147 channels.py:57
 msgid "auto"
 msgstr "auto"
 
@@ -152,60 +152,62 @@ msgid "Restore defaults"
 msgstr "Domyślne ustawienia"
 
 #: gui/settingswin_layout.py:235 gui/fpswin_layout.py:69
-#: gui/downloadwin_layout.py:55 gui/openwin_layout.py:121
+#: gui/downloadwin_layout.py:55 gui/channelswin_layout.py:65
+#: gui/openwin_layout.py:121
 msgid "Cancel"
 msgstr "Anuluj"
 
 #: gui/settingswin_layout.py:238 gui/fpswin_layout.py:72
-#: gui/errorwin_layout.py:72 gui/openwin_layout.py:124
+#: gui/errorwin_layout.py:72 gui/channelswin_layout.py:68
+#: gui/openwin_layout.py:124
 msgid "OK"
 msgstr "OK"
 
-#: gui/mainwin.py:71
+#: gui/mainwin.py:77
 msgid "{} min"
 msgstr ""
 
-#: gui/mainwin.py:94
+#: gui/mainwin.py:100
 msgid "Language changes will take effect after application restart"
 msgstr "Zmiana języka odniesie skutek po restarcie aplikacji"
 
-#: gui/mainwin.py:114
+#: gui/mainwin.py:120
 msgid "Your version is up to date"
 msgstr "Twoja wersja jest aktualna"
 
-#: gui/mainwin.py:115 gui/mainwin.py:191 gui/downloadwin.py:184
+#: gui/mainwin.py:121 gui/mainwin.py:203 gui/downloadwin.py:184
 msgid "Upgrade"
 msgstr "Aktualizuj"
 
-#: gui/mainwin.py:141
+#: gui/mainwin.py:153
 msgid "Subtitles not set"
 msgstr "Napisy nie wybrane"
 
-#: gui/mainwin.py:143
+#: gui/mainwin.py:155
 msgid "Reference file not set"
 msgstr "Referencja nie wybrana"
 
-#: gui/mainwin.py:145
+#: gui/mainwin.py:157
 msgid "Subtitles can't be the same as reference"
 msgstr "Napisy i referencja nie mogą być tym samym"
 
-#: gui/mainwin.py:147
+#: gui/mainwin.py:159
 msgid "Select reference language first"
 msgstr "Wybierz najpierw język referencji"
 
-#: gui/mainwin.py:169
+#: gui/mainwin.py:181
 msgid "Following assets must be download to continue:\n"
 msgstr "Aby kontynuować trzeba pobrać następujące pakiety:\n"
 
-#: gui/mainwin.py:171
+#: gui/mainwin.py:183
 msgid "Download now?"
 msgstr "Pobrać teraz?"
 
-#: gui/mainwin.py:172
+#: gui/mainwin.py:184
 msgid "Download assets"
 msgstr "Pobieranie"
 
-#: gui/mainwin.py:190
+#: gui/mainwin.py:202
 msgid "New version is available. Update now?"
 msgstr "Nowa wersja jest dostępna. Zaktualizować?"
 
@@ -252,41 +254,33 @@ msgstr "Użyte technologie"
 msgid "Website"
 msgstr "Strona programu"
 
-#: gui/aboutwin_layout.py:91 gui/mainwin_layout.py:99 gui/syncwin_layout.py:221
+#: gui/aboutwin_layout.py:91 gui/mainwin_layout.py:99 gui/syncwin_layout.py:213
 msgid "Close"
 msgstr "Zamknij"
 
-#: gui/openwin.py:21
+#: gui/openwin.py:22
 msgid "All supported files"
 msgstr "Wszystkie wspierane pliki"
 
-#: gui/openwin.py:22
+#: gui/openwin.py:23
 msgid "Subtitle files"
 msgstr "Napisy"
 
-#: gui/openwin.py:23
+#: gui/openwin.py:24
 msgid "Video files"
 msgstr "Wideo"
 
-#: gui/openwin.py:24 gui/syncwin.py:234
+#: gui/openwin.py:25 gui/syncwin.py:235
 msgid "All files"
 msgstr "Wszystkie pliki"
 
-#: gui/openwin.py:32 gui/syncwin.py:57
+#: gui/openwin.py:33 gui/syncwin.py:51
 msgid "Loading, please wait..."
 msgstr "Ładowanie, proszę czekać..."
 
-#: gui/openwin.py:65
+#: gui/openwin.py:66
 msgid "There are no usable streams"
 msgstr "Brak użytecznych strumieni"
-
-#: gui/openwin.py:121
-msgid "Select audio channels to listen:"
-msgstr "Wybierz kanały audio do nasłuchu:"
-
-#: gui/openwin.py:122
-msgid "Select channels"
-msgstr "Wybór kanałów"
 
 #: gui/choiceenc.py:8
 msgid "Auto detect"
@@ -333,7 +327,7 @@ msgid "New version is ready to be installed. Upgrade now?"
 msgstr "Nowa wersja jest gotowa do instalacji. Zaktualizować teraz?"
 
 #: gui/errorwin.py:30 gui/errorwin_layout.py:21 gui/errorwin_layout.py:43
-#: gui/syncwin.py:229
+#: gui/syncwin.py:230
 msgid "Error"
 msgstr "Błąd"
 
@@ -385,64 +379,84 @@ msgstr "Pobierz"
 msgid "[details]"
 msgstr "[więcej]"
 
-#: gui/syncwin.py:70
+#: gui/syncwin.py:66
 msgid "Synchronization: {} points"
 msgstr "Synchronizacja: {} punktów"
 
-#: gui/syncwin.py:142
+#: gui/syncwin.py:143
 msgid "Subtitles synchronized"
 msgstr "Napisy zsynchronizowane"
 
-#: gui/syncwin.py:145
+#: gui/syncwin.py:146
 msgid "No need to synchronize, subtitles are good already"
 msgstr "Synchronizacja niekonieczna, napisy pasują"
 
-#: gui/syncwin.py:156
+#: gui/syncwin.py:157
 msgid "Couldn't synchronize, but you could try anyway"
 msgstr "Synchronizacja nie powiodła się, ale możesz spróbować mimo wszystko"
 
-#: gui/syncwin.py:158
+#: gui/syncwin.py:159
 msgid "Couldn't synchronize"
 msgstr "Nie można zsynchronizować"
 
-#: gui/syncwin.py:160
+#: gui/syncwin.py:161
 msgid "Subtitles not ready"
 msgstr "Napisy nie są jeszcze gotowe"
 
-#: gui/syncwin.py:173
+#: gui/syncwin.py:174
 msgid "Terminating, please wait..."
 msgstr "Kończenie, proszę czekać..."
 
-#: gui/syncwin.py:301
+#: gui/syncwin.py:286
 msgid "Some subtitles can't be decoded (invalid encoding?)"
 msgstr "Błąd dekodowania napisów (nieprawidłowe kodowanie znaków?)"
 
-#: gui/syncwin.py:303
+#: gui/syncwin.py:288
 msgid "Subtitles read failed"
 msgstr "Odczyt napisów nie powiódł się"
 
-#: gui/syncwin.py:305
+#: gui/syncwin.py:290
 msgid "Error during subtitles read"
 msgstr "Błąd odczytu napisów"
 
-#: gui/syncwin.py:308
+#: gui/syncwin.py:293
 msgid "Some reference subtitles can't be decoded (invalid encoding?)"
 msgstr ""
 "Błąd dekodowania referencyjnych napisów (nieprawidłowe kodowanie znaków?)"
 
-#: gui/syncwin.py:310
+#: gui/syncwin.py:295
 msgid "Reference read failed"
 msgstr "Odczyt referencji nie powiódł się"
 
-#: gui/syncwin.py:312
+#: gui/syncwin.py:297
 msgid "Error during reference read"
 msgstr "Błąd odczytu referencji"
 
-#: gui/syncwin.py:314
+#: gui/syncwin.py:299
 msgid "Unexpected error occurred"
 msgstr "Wystąpił niespodziewany błąd"
 
-#: gui/mainwin_layout.py:22 __main__.py:86
+#: gui/channelswin_layout.py:21
+msgid "Audio channels"
+msgstr "Kanały audio"
+
+#: gui/channelswin_layout.py:32
+msgid "Select audio channels to listen to:"
+msgstr "Wybierz kanały audio do nasłuchu:"
+
+#: gui/channelswin_layout.py:36
+msgid "auto select"
+msgstr "wybierz automatycznie"
+
+#: gui/channelswin_layout.py:39 channels.py:70
+msgid "all channels"
+msgstr "wszystkie kanały"
+
+#: gui/channelswin_layout.py:42
+msgid "custom selection"
+msgstr "wybór niestandardowy"
+
+#: gui/mainwin_layout.py:22 __main__.py:110
 msgid "Subtitle Speech Synchronizer"
 msgstr ""
 
@@ -527,26 +541,18 @@ msgid "Enable save button"
 msgstr ""
 
 #: gui/syncwin_layout.py:203
-msgid "Save pipeline graph"
-msgstr ""
-
-#: gui/syncwin_layout.py:206
-msgid "Show pipeline graph"
-msgstr ""
-
-#: gui/syncwin_layout.py:211
 msgid "Dump subtitle words"
 msgstr ""
 
-#: gui/syncwin_layout.py:214
+#: gui/syncwin_layout.py:206
 msgid "Dump reference words"
 msgstr ""
 
-#: gui/syncwin_layout.py:226
+#: gui/syncwin_layout.py:218
 msgid "Stop"
 msgstr "Stop"
 
-#: gui/syncwin_layout.py:229
+#: gui/syncwin_layout.py:221
 msgid "Save"
 msgstr "Zapisz"
 
@@ -790,7 +796,7 @@ msgstr "Aktualizacja nie powiodła się"
 msgid "Signature verification failed"
 msgstr "Nieprawidłowa sygnatura"
 
-#: speech.py:58
+#: speech.py:55
 msgid "Invalid speech audio format"
 msgstr "Nieprawidłowy format audio"
 
@@ -798,8 +804,11 @@ msgstr "Nieprawidłowy format audio"
 msgid "Cannot load settings file, {}"
 msgstr "Błąd odczytu ustawień, {}"
 
-#~ msgid "all channels"
-#~ msgstr "wszystkie kanały"
+#~ msgid "Select audio channels to listen:"
+#~ msgstr "Wybierz kanały audio do nasłuchu:"
+
+#~ msgid "Select channels"
+#~ msgstr "Wybór kanałów"
 
 #~ msgid "At lest one audio channel must be selected"
 #~ msgstr "Przynajmniej jeden kanał audio musi być wybrany"
