@@ -1,4 +1,5 @@
 import gizmo
+import channels
 
 
 class Stream(object):
@@ -11,7 +12,7 @@ class Stream(object):
         self.fps     = None
         self.lang    = None
         self.enc     = None
-        self.channels= None
+        self.channels = channels.AutoChannelsMap()
 
         if path != None:
             self.open(path)
@@ -31,7 +32,7 @@ class Stream(object):
         self.no = None
         self.lang = None
         self.enc = None
-        self.channels = None
+        self.channels = channels.AutoChannelsMap()
         self.fps = None
 
         for stream in ss:
@@ -63,6 +64,10 @@ class Stream(object):
         self.no = no
         self.type = stream.type
         self.lang = stream.lang
+
+        if not self.lang or self.lang.lower() == 'und':
+            self.lang = None
+
         return stream
 
     def selectFirstMachingStream(self):
@@ -82,5 +87,8 @@ class Stream(object):
         return self.path != None and self.no != None
 
     def __repr__(self):
-        return '{}:{}/{} type={} lang={} enc={}'.format(
+        res = '{}:{}/{} type={} lang={} enc={}'.format(
                 self.path, self.no, len(self.streams), self.type, self.lang, self.enc)
+        if self.channels and self.channels.type != 'auto':
+            res += ' channels={}'.format(self.channels)
+        return res

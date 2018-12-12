@@ -1,6 +1,5 @@
 import gizmo
 from assets import assets
-import utils
 import error
 import json
 import os
@@ -8,8 +7,6 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-
-audio_channel_center_id = 4
 
 _speechModels = {}
 
@@ -56,38 +53,3 @@ def getSpeechAudioFormat(speechModel):
         return gizmo.AudioFormat(sampleFormat, sampleRate, 1)
     except:
         raise error.Error(_('Invalid speech audio format'))
-
-
-def getDefaultChannelsMap(audio):
-    ''' Center channel will be selected if available,
-    otherwise all channels will be mixed together
-    '''
-    channels = utils.splitBitVector(audio.channelLayout)
-
-    if audio_channel_center_id in channels:
-        return { (audio_channel_center_id, 1): 1.0 }
-
-    return getChannelsMap(channels)
-
-
-def getAllChannelsMap(audio):
-    channels = utils.splitBitVector(audio.channelLayout)
-    return getChannelsMap(channels)
-
-
-def getChannelsMap(channels):
-    if channels and len(channels) > 0:
-        gain = 1.0 / len(channels)
-        return { (i, 1): gain for i in channels }
-
-
-def channelsMapToString(cm):
-    def chName(ch):
-        return gizmo.AudioFormat.getChannelName(ch) or str(ch)
-
-    if not cm:
-        return 'auto'
-
-    return ', '.join([ '{}->{}: {:.2}'.format(chName(chIn), chName(chOut), gain)
-        for (chIn, chOut), gain in sorted(cm.items()) ])
-

@@ -47,13 +47,3 @@ def timeStampFmt(time):
 def timeStampFractionFmt(time):
     ms = int((time % 1) * 1000)
     return '{}.{:03d}'.format(timeStampFmt(time), ms)
-
-
-def splitBitVector(v):
-    i = 1
-    res = []
-    while i <= v:
-        if i & v:
-            res.append(i)
-        i <<= 1
-    return res

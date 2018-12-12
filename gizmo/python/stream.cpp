@@ -28,8 +28,10 @@ void initStreamWrapper(py::module &m)
 	audioFormat.def_readwrite("channelsNo", &AudioFormat::channelsNo);
 	audioFormat.def_readwrite("channelLayout", &AudioFormat::channelLayout);
 	audioFormat.def("getSampleSize", &AudioFormat::getSampleSize);
+	audioFormat.def("getLayoutString", &AudioFormat::getLayoutString);
 	audioFormat.def("getChannelName", &AudioFormat::getChannelName);
 	audioFormat.def("getChannelDescription", &AudioFormat::getChannelDescription);
+	audioFormat.def("getChannelIdByName", &AudioFormat::getChannelIdByName);
 	audioFormat.def("__repr__", &AudioFormat::toString);
 
 	/*** enum AVSampleFormat ***/

@@ -1,6 +1,7 @@
 import gui.openwin_layout
 import wx
 from stream import Stream
+import channels
 import gui.filedlg
 import gui.filedrop
 import gui.channelswin
@@ -88,7 +89,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
         isAudio = stream.type == 'audio'
 
         if isAudio:
-            self.selectAudioChannels(None)
+            self.selectAudioChannels(channels.AutoChannelsMap())
         else:
             self.m_textChannels.SetValue('')
 
@@ -99,7 +100,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
     def selectAudioChannels(self, channels):
         self.stream.channels = channels
-        self.m_textChannels.SetValue(gui.channelswin.getChannelNames(channels))
+        self.m_textChannels.SetValue(channels.getDescription())
 
     def onChoiceLangChoice(self, event):
         self.stream.lang = validateLang(self.m_choiceLang.GetValue())

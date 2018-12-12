@@ -89,7 +89,7 @@ class SpeechPipeline(BasePipeline):
         self.dec = gizmo.AudioDec()
 
         speechAudioFormat = speech.getSpeechAudioFormat(speechModel)
-        logger.info('speech recognition audio format %r', speechAudioFormat)
+        logger.info('speech recognition audio format: %r', speechAudioFormat)
 
         self.speechRec = speech.createSpeechRec(speechModel)
         self.speechRec.setMinWordProb(settings().minWordProb)
@@ -98,12 +98,6 @@ class SpeechPipeline(BasePipeline):
         self.resampler = gizmo.Resampler()
         self.channels = stream.channels
         self.resampler.connectFormatChangeCallback(self.onAudioFormatChanged)
-
-        if self.channels != None and self.channels != 'all':
-            channelsMap = speech.getChannelsMap(stream.channels)
-            logger.debug('audio channels mixer map %s',
-                    speech.channelsMapToString(channelsMap))
-            self.resampler.setChannelMap(channelsMap or {})
 
         self.demux.connectDec(self.dec, stream.no)
         self.dec.connectOutput(self.resampler)
@@ -115,18 +109,10 @@ class SpeechPipeline(BasePipeline):
         self.resampler.connectFormatChangeCallback(None)
 
     def onAudioFormatChanged(self, inFormat, outFormat):
-        logger.debug('input audio format %r', inFormat)
-        channelsMap = None
-
-        if not self.channels:
-            channelsMap = speech.getDefaultChannelsMap(inFormat) or {}
-        elif self.channels == 'all':
-            channelsMap = speech.getAllChannelsMap(inFormat) or {}
-
-        if channelsMap != None:
-            logger.debug('audio channels map %s',
-                    speech.channelsMapToString(channelsMap))
-            self.resampler.setChannelMap(channelsMap)
+        logger.debug('input audio format: %r', inFormat)
+        channelsMap = self.channels.getLayoutMap(inFormat.channelLayout)
+        logger.debug('listening to channels: %s', channelsMap)
+        self.resampler.setChannelMap(channelsMap.getMap())
 
     def connectWordsCallback(self, cb):
         self.speechRec.connectWordsCallback(cb)

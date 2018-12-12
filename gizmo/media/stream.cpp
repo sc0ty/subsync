@@ -185,6 +185,29 @@ unsigned AudioFormat::getSampleSize() const
 	return av_get_bytes_per_sample(sampleFormat);
 }
 
+string AudioFormat::getLayoutString() const
+{
+	stringstream ss;
+	for (int i = 0; i <= 63; i++)
+	{
+		const uint64_t id = 1ull << i;
+		if (id & channelLayout)
+		{
+			if (ss.tellp()) ss << ',';
+
+			if (const char *name = getChannelName(id))
+				ss << name;
+			else
+				ss << id;
+		}
+	}
+
+	if (ss.tellp() == 0)
+		return string("EMPTY");
+
+	return ss.str();
+}
+
 string AudioFormat::toString() const
 {
 	stringstream ss;
@@ -192,7 +215,7 @@ string AudioFormat::toString() const
 		<< " sampleFormat=\""   << sampleFormatToName(sampleFormat) << "\""
 		<< ", sampleRate="      << sampleRate
 		<< ", channelsNo="      << channelsNo
-		<< ", channelLayout=0x" << std::hex << channelLayout << ">";
+		<< ", channelLayout="   << getLayoutString() << ">";
 	return ss.str();
 }
 
@@ -204,4 +227,16 @@ const char *AudioFormat::getChannelName(uint64_t id)
 const char *AudioFormat::getChannelDescription(uint64_t id)
 {
 	return av_get_channel_description(id);
+}
+
+uint64_t AudioFormat::getChannelIdByName(const char *name)
+{
+	for (int i = 0; i <= 63; i++)
+	{
+		const uint64_t id = 1ull << i;
+		const char *n = av_get_channel_name(id);
+		if (n && strcmp(name, n) == 0)
+			return id;
+	}
+	return 0;
 }
