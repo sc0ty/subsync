@@ -14,6 +14,7 @@ class ChannelsWin(gui.channelswin_layout.ChannelsWin):
         self.update()
         self.Fit()
         self.Layout()
+        self.m_panelCustom.Enable(False)
 
     def addChannel(self, channel):
         name = channels.getChannelDescription(channel)
