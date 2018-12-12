@@ -45,11 +45,11 @@ void Extractor::connectErrorCallback(ErrorCallback callback)
 	m_errorCb = callback;
 }
 
-void Extractor::start()
+void Extractor::start(const string &threadName)
 {
 	terminate();
 	m_running = true;
-	m_thread = thread(&Extractor::run, this);
+	m_thread = thread(&Extractor::run, this, threadName);
 }
 
 void Extractor::stop()
@@ -62,9 +62,13 @@ bool Extractor::isRunning() const
 	return m_running;
 }
 
-void Extractor::run()
+void Extractor::run(string threadName)
 {
 	lowerThreadPriority();
+
+	if (!threadName.empty())
+		renameThread(threadName);
+
 	Demux *demux = m_demux.get();
 
 	try

@@ -18,7 +18,7 @@ void initExtractorWrapper(py::module &m)
 	extractor.def("selectTimeWindow", &Extractor::selectTimeWindow);
 	extractor.def("connectEosCallback", &Extractor::connectEosCallback);
 	extractor.def("connectErrorCallback", &Extractor::connectErrorCallback);
-	extractor.def("start", &Extractor::start);
+	extractor.def("start", &Extractor::start, py::arg("threadName") = "");
 	extractor.def("stop", &Extractor::stop);
 	extractor.def("isRunning", &Extractor::isRunning);
 }

@@ -14,7 +14,7 @@ void initCorrelatorWrapper(py::module &m)
 	py::class_<Correlator> correlator(m, "Correlator");
 	correlator.def(py::init<float, double, float, unsigned, float>());
 	correlator.def("connectStatsCallback", &Correlator::connectStatsCallback);
-	correlator.def("start", &Correlator::start);
+	correlator.def("start", &Correlator::start, py::arg("threadName") = "");
 	correlator.def("stop", &Correlator::stop);
 	correlator.def("isRunning", &Correlator::isRunning);
 	correlator.def("isDone", &Correlator::isDone);

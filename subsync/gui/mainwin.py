@@ -12,6 +12,7 @@ import config
 import loggercfg
 from settings import settings
 from error import Error
+import sys
 
 import logging
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ def logRunCmd(sub, ref):
             ]
 
     cmd = [ '{}={}'.format(*arg) for arg in args if arg[1] != None ]
-    logger.info('run command: subsync %s', ' '.join(cmd))
+    logging.getLogger('RUNCMD').info('%s %s', sys.argv[0], ' '.join(cmd))
 
 
 class MainWin(gui.mainwin_layout.MainWin):

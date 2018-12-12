@@ -76,6 +76,7 @@ SOURCES = \
 		  math/linefinder.cpp \
 		  general/exception.cpp \
 		  general/logger.cpp \
+		  general/thread.cpp \
 		  python/wrapper.cpp \
 		  python/general.cpp \
 		  python/extractor.cpp \

@@ -43,7 +43,7 @@ class Correlator
 
 		void connectStatsCallback(StatsCallback callback);
 
-		void start();
+		void start(const std::string &threadName="");
 		void stop();
 
 		bool isRunning() const;
@@ -57,7 +57,7 @@ class Correlator
 		ElementsVector getRefs() const;
 
 	private:
-		void run();
+		void run(const std::string threadName);
 		void terminate();
 
 		bool addSubtitle(double time, const std::string &word);

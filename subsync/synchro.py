@@ -81,9 +81,9 @@ class Synchronizer(object):
 
     def start(self):
         logger.info('starting synchronization jobs')
-        self.correlator.start()
-        for p in self.pipelines:
-            p.start()
+        self.correlator.start('Correlator')
+        for id, p in enumerate(self.pipelines):
+            p.start('Pipeline{}'.format(id))
 
     def stop(self):
         self.correlator.stop()
@@ -128,7 +128,7 @@ class Synchronizer(object):
         return self.subtitlesCollector.getSynchronizedSubtitles(self.getStats().formula)
 
     def onStatsUpdate(self, stats):
-        logger.info(stats)
+        logger.debug(stats)
         with self.statsLock:
             self.stats = stats
 

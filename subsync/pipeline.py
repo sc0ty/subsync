@@ -26,8 +26,8 @@ class BasePipeline(object):
         self.timeWindow = window
         self.extractor.selectTimeWindow(*window)
 
-    def start(self):
-        self.extractor.start()
+    def start(self, threadName=None):
+        self.extractor.start(threadName=threadName)
 
     def stop(self):
         self.extractor.stop()
@@ -89,7 +89,7 @@ class SpeechPipeline(BasePipeline):
         self.dec = gizmo.AudioDec()
 
         speechAudioFormat = speech.getSpeechAudioFormat(speechModel)
-        logger.info('speech recognition audio format: %r', speechAudioFormat)
+        logger.info('speech recognition audio format: %s', speechAudioFormat)
 
         self.speechRec = speech.createSpeechRec(speechModel)
         self.speechRec.setMinWordProb(settings().minWordProb)
@@ -109,9 +109,9 @@ class SpeechPipeline(BasePipeline):
         self.resampler.connectFormatChangeCallback(None)
 
     def onAudioFormatChanged(self, inFormat, outFormat):
-        logger.debug('input audio format: %r', inFormat)
+        logger.info('input audio format: %s', inFormat)
         channelsMap = self.channels.getLayoutMap(inFormat.channelLayout)
-        logger.debug('listening to channels: %s', channelsMap)
+        logger.info('listening to channels: %s', channelsMap)
         self.resampler.setChannelMap(channelsMap.getMap())
 
     def connectWordsCallback(self, cb):

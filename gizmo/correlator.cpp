@@ -2,6 +2,7 @@
 #include "math/point.h"
 #include "math/line.h"
 #include "text/translator.h"
+#include "general/thread.h"
 #include "general/exception.h"
 #include <pybind11/pybind11.h>
 #include <sstream>
@@ -43,8 +44,11 @@ void Correlator::pushRefWord(const string &word, double time)
 	m_queue.push(WordId::Ref, word, time);
 }
 
-void Correlator::run()
+void Correlator::run(const string threadName)
 {
+	if (!threadName.empty())
+		renameThread(threadName);
+
 	string word;
 	double time;
 
@@ -78,12 +82,12 @@ void Correlator::terminate()
 	}
 }
 
-void Correlator::start()
+void Correlator::start(const std::string &threadName)
 {
 	terminate();
 
 	m_running = true;
-	m_thread = thread(&Correlator::run, this);
+	m_thread = thread(&Correlator::run, this, threadName);
 }
 
 void Correlator::stop()

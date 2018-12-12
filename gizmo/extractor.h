@@ -26,12 +26,12 @@ class Extractor
 		void connectEosCallback(EosCallback callback);
 		void connectErrorCallback(ErrorCallback callback);
 
-		void start();
+		void start(const std::string &threadName="");
 		void stop();
 		bool isRunning() const;
 
 	private:
-		void run();
+		void run(const std::string threadName);
 		void terminate();
 
 	private:
