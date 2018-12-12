@@ -19,7 +19,7 @@ import collections
 
 
 class SyncWin(gui.syncwin_layout.SyncWin):
-    def __init__(self, parent, subs, refs):
+    def __init__(self, parent, subs, refs, listener=None):
         gui.syncwin_layout.SyncWin.__init__(self, parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u2630')
@@ -55,6 +55,8 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         self.isRunning = True
         self.updateTimer.Start(500)
 
+        self.listener = listener
+
     def onUpdateTimerTick(self, event):
         if self.isRunning:
             stats = self.sync.getStats()
@@ -77,11 +79,16 @@ class SyncWin(gui.syncwin_layout.SyncWin):
 
                 self.Layout()
 
+                if self.listener:
+                    self.listener.onSynchronized(self, stats)
+
             if self.sync.isRunning():
                 self.setProgress(self.sync.getProgress())
             else:
                 self.stop(finished=True)
                 self.setProgress(1.0)
+                if self.listener:
+                    self.listener.onSynchronizationDone(self, stats)
 
     @thread.gui_thread
     def onSubReady(self):
@@ -188,17 +195,17 @@ class SyncWin(gui.syncwin_layout.SyncWin):
     def onButtonSaveClick(self, event):
         path = self.saveFileDlg(self.refs.path)
         if path != None:
-            enc = settings().outputCharEnc or self.subs.enc or 'UTF-8'
-
             try:
-                self.sync.getSynchronizedSubtitles().save(path, encoding=enc)
+                self.saveSynchronizedSubtitles(path)
 
             except pysubs2.exceptions.UnknownFPSError:
                 with gui.fpswin.FpsWin(self, self.subs.fps, self.refs.fps) as dlg:
                     if dlg.ShowModal() == wx.ID_OK:
-                        self.sync.getSynchronizedSubtitles().save(
-                                path, encoding=enc, fps=dlg.getFps())
+                        self.saveSynchronizedSubtitles(path, fps=dlg.getFps())
 
+    def saveSynchronizedSubtitles(self, path, enc=None, **kw):
+        enc = enc or settings().outputCharEnc or self.subs.enc or 'UTF-8'
+        self.sync.getSynchronizedSubtitles().save(path, encoding=enc, **kw)
 
     def onTextShowDetailsClick(self, event):
         self.m_panelDetails.Show()

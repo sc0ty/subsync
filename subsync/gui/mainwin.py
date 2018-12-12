@@ -18,20 +18,25 @@ logger = logging.getLogger(__name__)
 
 
 def logRunCmd(sub, ref):
-    args = [('--sub',        '"{}"'.format(sub.path)),
-            ('--sub-stream', sub.no + 1),
-            ('--sub-lang',   sub.lang),
-            ('--sub-enc',    sub.enc),
-            ('--ref',        '"{}"'.format(ref.path)),
-            ('--ref-stream', ref.no + 1),
-            ('--ref-lang',   ref.lang),
-            ('--ref-enc',    ref.enc),
-            ('--ref-fps',    ref.fps)  ]
+    def quoted(v):   return '"{}"'.format(v) if v else None
+    def nonempty(v): return v if v else None
+    def fps(v):      return '{:.5g}'.format(v) if v else None
+    def channels(v): return str(v) if (v and v.type != 'auto') else None
 
-    cmd = [ '{}={}'.format(*arg)
-            for arg in args
-            if arg[1] != None and arg[1] != '' ]
+    args = [('--sub',          quoted(sub.path)),
+            ('--sub-stream',   sub.no + 1),
+            ('--sub-lang',     nonempty(sub.lang)),
+            ('--sub-enc',      nonempty(sub.enc)),
+            ('--sub-fps',      fps(sub.fps)),
+            ('--ref',          quoted(ref.path)),
+            ('--ref-stream',   ref.no + 1),
+            ('--ref-lang',     nonempty(ref.lang)),
+            ('--ref-enc',      nonempty(ref.enc)),
+            ('--ref-fps',      fps(ref.fps)),
+            ('--ref-channels', channels(ref.channels)),
+            ]
 
+    cmd = [ '{}={}'.format(*arg) for arg in args if arg[1] != None ]
     logger.info('run command: subsync %s', ' '.join(cmd))
 
 
@@ -125,14 +130,20 @@ class MainWin(gui.mainwin_layout.MainWin):
     @error_dlg
     def onButtonStartClick(self, event):
         settings().save()
+        self.start()
+
+    def start(self, listener=None):
         self.validateSelection()
         logRunCmd(self.m_panelSub.stream, self.m_panelRef.stream)
 
         if self.validateAssets():
             sub = self.m_panelSub.stream
             ref = self.m_panelRef.stream
-            with SyncWin(self, sub, ref) as dlg:
+            with SyncWin(self, sub, ref, listener) as dlg:
                 dlg.ShowModal()
+
+            if listener:
+                listener.onSynchronizationExit(self)
 
     def validateSelection(self):
         subs = self.m_panelSub.stream
