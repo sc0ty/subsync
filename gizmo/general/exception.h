@@ -1,6 +1,8 @@
 #ifndef __EXCEPTION_H__
 #define __EXCEPTION_H__
 
+#include "current_function.h"
+
 #include <stdexcept>
 #include <string>
 #include <map>
@@ -55,7 +57,7 @@ std::string makeSourceString(const char *file, int line, const char *func);
 std::string ffmpegCodeDescription(int code);
 
 #define EXCEPTION_ADD_SOURCE \
-	add("source", makeSourceString(__FILE__, __LINE__, __PRETTY_FUNCTION__))
+	add("source", makeSourceString(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION))
 
 #define EXCEPTION(msg) \
 	Exception(msg).EXCEPTION_ADD_SOURCE
