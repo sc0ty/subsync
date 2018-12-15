@@ -148,39 +148,51 @@ string ffmpegCodeDescription(int code)
 		case AVERROR_BUG:
 		case AVERROR_BUG2:
 			res = "internal error";
+			break;
 
 		case AVERROR_BUFFER_TOO_SMALL:
 			res = "buffer too small";
+			break;
 
 		case AVERROR_DECODER_NOT_FOUND:
 			res = "decoder not found";
+			break;
 
 		case AVERROR_DEMUXER_NOT_FOUND:
 			res = "demuxer not found";
+			break;
 
 		case AVERROR_ENCODER_NOT_FOUND:
 			res = "encoder not found";
+			break;
 
 		case AVERROR_EOF:
 			res = "eof";
+			break;
 
 		case AVERROR_FILTER_NOT_FOUND:
 			res = "filter not found";
+			break;
 
 		case AVERROR_INVALIDDATA:
 			res = "invalid data";
+			break;
 
 		case AVERROR_MUXER_NOT_FOUND:
 			res = "muxer not found";
+			break;
 
 		case AVERROR_OPTION_NOT_FOUND:
 			res = "option not found";
+			break;
 
 		case AVERROR_PROTOCOL_NOT_FOUND:
 			res = "protocol not found";
+			break;
 
 		case AVERROR_STREAM_NOT_FOUND:
 			res = "stream not found";
+			break;
 	}
 
 	char buffer[1024];
