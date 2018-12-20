@@ -1,6 +1,6 @@
 import wx
 import os
-import config
+from subsync import config
 import logging
 logger = logging.getLogger(__name__)
 

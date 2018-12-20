@@ -1,15 +1,15 @@
-import gui.openwin_layout
+import subsync.gui.openwin_layout
 import wx
-from stream import Stream
-import channels
-import gui.filedlg
-import gui.filedrop
-import gui.channelswin
-import gui.busydlg
-from gui.errorwin import error_dlg
-from error import Error
-from data.filetypes import subtitleWildcard, videoWildcard
-from data.languages import languages, languages2to3
+from subsync.stream import Stream
+from subsync import channels
+from subsync.gui import filedlg
+from subsync.gui import filedrop
+from subsync.gui import channelswin
+from subsync.gui import busydlg
+from subsync.gui.errorwin import error_dlg
+from subsync.error import Error
+from subsync.data.filetypes import subtitleWildcard, videoWildcard
+from subsync.data.languages import languages, languages2to3
 
 
 @error_dlg
@@ -24,20 +24,20 @@ def showOpenFileDlg(parent, stream):
             _('Video files'), videoWildcard,
             _('All files'), '*.*' ])
 
-    path = gui.filedlg.showOpenFileDlg(parent, **props)
+    path = filedlg.showOpenFileDlg(parent, **props)
     return readStream(path, stream.types)
 
 
 def readStream(path, types):
     if path:
-        with gui.busydlg.BusyDlg(_('Loading, please wait...')):
+        with busydlg.BusyDlg(_('Loading, please wait...')):
             return Stream(path=path, types=types)
 
 
-class OpenWin(gui.openwin_layout.OpenWin):
+class OpenWin(subsync.gui.openwin_layout.OpenWin):
     def __init__(self, parent, stream):
-        gui.openwin_layout.OpenWin.__init__(self, parent)
-        gui.filedrop.setFileDropTarget(self, self.onDropFile)
+        super().__init__(parent)
+        filedrop.setFileDropTarget(self, self.onDropFile)
         self.stream = Stream(stream=stream)
         self.openStream(stream)
 
@@ -118,7 +118,7 @@ class OpenWin(gui.openwin_layout.OpenWin):
 
     @error_dlg
     def onButtonSelectChannelsClick(self, event):
-        dlg = gui.channelswin.ChannelsWin(self, self.stream.stream().audio)
+        dlg = channelswin.ChannelsWin(self, self.stream.stream().audio)
         dlg.SetValue(self.stream.channels)
         if dlg.ShowModal() == wx.ID_OK:
             channels = dlg.GetValue()

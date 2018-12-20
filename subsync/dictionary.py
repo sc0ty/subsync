@@ -1,6 +1,6 @@
 import gizmo
-from assets import assets
-from error import Error
+from subsync import assets
+from subsync.error import Error
 import os
 
 import logging

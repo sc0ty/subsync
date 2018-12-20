@@ -22,3 +22,11 @@ tags
 *.msi
 .env
 CppCheckResults.xml
+/snap/.snapcraft
+/build
+/dist
+/parts
+/prime
+/stage
+*.egg-info
+*.snap

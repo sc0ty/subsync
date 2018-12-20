@@ -1,14 +1,14 @@
-import gui.settingswin_layout
-from gui.filedlg import showSaveFileDlg
-from settings import Settings
-import config
+import subsync.gui.settingswin_layout
+from subsync.gui.filedlg import showSaveFileDlg
+from subsync.settings import Settings
+from subsync import config
 import multiprocessing
 import wx
 
 
-class SettingsWin(gui.settingswin_layout.SettingsWin):
+class SettingsWin(subsync.gui.settingswin_layout.SettingsWin):
     def __init__(self, parent, settings):
-        gui.settingswin_layout.SettingsWin.__init__(self, parent)
+        super().__init__(parent)
         self.m_outputCharEnc.SetString(0, _('same as input subtitles'))
 
         if not config.assetupd:

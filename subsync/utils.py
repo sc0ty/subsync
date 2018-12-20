@@ -1,8 +1,8 @@
-import data.languages
+from subsync.data.languages import languages
 
 
 def getLanguageName(lang):
-    name = data.languages.languages.get(lang, None)
+    name = languages.get(lang, None)
     if name:
         return name[0]
     return lang
@@ -17,7 +17,7 @@ def parseVersion(version, defaultVer=None):
 
 def getCurrentVersion(defaultVer=None):
     try:
-        from version import version_short
+        from subsync.version import version_short
         return parseVersion(version_short)
     except:
         return defaultVer

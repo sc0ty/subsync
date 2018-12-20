@@ -1,22 +1,21 @@
-import gui.downloadwin_layout
-import gui.errorwin
+import subsync.gui.downloadwin_layout
+from subsync.gui import errorwin
 import wx
 import sys
 import asyncio
 import threading
-import config
-import assets
-import assets.updater
-import assets.downloader
-import thread
-from settings import settings
-from utils import fileSizeFmt
+from subsync import config
+from subsync import assets
+from subsync.assets import SelfUpdater, AssetDownloader
+from subsync import thread
+from subsync.settings import settings
+from subsync.utils import fileSizeFmt
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-class DownloadWin(gui.downloadwin_layout.DownloadWin):
+class DownloadWin(subsync.gui.downloadwin_layout.DownloadWin):
     def __init__(self, parent, title, job):
         super().__init__(parent)
         self.m_textName.SetLabel(title)
@@ -77,7 +76,7 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
             @thread.gui_thread
             def showExceptionDlgAndQuit(excInfo):
                 if self.IsModal():
-                    gui.errorwin.showExceptionDlg(self, excInfo=excInfo,
+                    errorwin.showExceptionDlg(self, excInfo=excInfo,
                             msg=_('Operation failed'))
                     self.EndModal(wx.ID_CANCEL)
 
@@ -92,7 +91,7 @@ class DownloadWin(gui.downloadwin_layout.DownloadWin):
             stopTimerIfRunning()
 
     async def downloadJob(self, asset):
-        downloader = assets.downloader.AssetDownloader(**asset)
+        downloader = AssetDownloader(**asset)
 
         self.setStatus(_('downloading...'))
         fp, hash = await downloader.download(lambda progress:
@@ -152,7 +151,7 @@ class SelfUpdaterWin(DownloadWin):
 
     async def updateJob(self):
         logger.info('new version is available for update')
-        if not assets.updater.getLocalUpdate():
+        if not SelfUpdater.getLocalUpdate():
             asset = assets.getRemoteAsset(**config.assetupd)
             await self.downloadJob(asset)
 
@@ -166,17 +165,17 @@ class SelfUpdaterWin(DownloadWin):
 
         askForUpdateIfVisible()
 
-    @gui.errorwin.error_dlg
+    @errorwin.error_dlg
     def startUpdate(self, parent, ask=True):
         if self.thread.is_alive():
             return super().ShowModal() == wx.ID_OK
         elif ask:
             return self.askForUpdate(parent)
         else:
-            assets.updater.installLocalUpdate()
+            SelfUpdater.installLocalUpdate()
             return True
 
-    @gui.errorwin.error_dlg
+    @errorwin.error_dlg
     def askForUpdate(self, parent=None):
         dlg = wx.MessageDialog(
                 parent if parent else self,
@@ -186,7 +185,7 @@ class SelfUpdaterWin(DownloadWin):
 
         if dlg.ShowModal() == wx.ID_YES:
             self.EndModal(wx.ID_OK)
-            assets.updater.installLocalUpdate()
+            SelfUpdater.installLocalUpdate()
             return True
 
         else:

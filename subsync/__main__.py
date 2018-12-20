@@ -2,21 +2,21 @@
 import logging
 logger = logging.getLogger(__name__)
 
-import translations
+from subsync import translations
 translations.init()
 
 import wx
 import sys
 import argparse
-import error
-import loggercfg
-from settings import settings
-from stream import Stream
-import channels
+from subsync import error
+from subsync import loggercfg
+from subsync.settings import settings
+from subsync.stream import Stream
+from subsync import channels
 
 
 def subsync():
-    from gui.errorwin import showExceptionDlg
+    from subsync.gui.errorwin import showExceptionDlg
 
     subs, refs, args = parseCmdArgs(sys.argv)
     app = wx.App()
@@ -38,7 +38,7 @@ def subsync():
         settings().set(windowSize=args.window_size)
 
     try:
-        from gui.mainwin import MainWin
+        from subsync.gui.mainwin import MainWin
         win = MainWin(None, subs=subs, refs=refs)
         win.Show()
 

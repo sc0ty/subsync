@@ -1,16 +1,16 @@
-import gui.aboutwin_layout
-import img
+import subsync.gui.aboutwin_layout
+from subsync import img
 import wx
 import wx.lib.dialogs
 
 
-class AboutWin(gui.aboutwin_layout.AboutWin):
+class AboutWin(subsync.gui.aboutwin_layout.AboutWin):
     def __init__(self, parent):
-        gui.aboutwin_layout.AboutWin.__init__(self, parent)
+        super().__init__(parent)
         img.setItemBitmap(self.m_bitmapLogo, 'logo')
 
         try:
-            from version import version
+            from subsync.version import version
             self.m_textVersion.SetLabel(_('version ') + version)
         except:
             pass

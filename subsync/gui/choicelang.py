@@ -7,7 +7,7 @@ class ChoiceLang(wx.Choice):
         self.initLangs()
 
     def initLangs(self):
-        from data.languages import languages
+        from subsync.data.languages import languages
 
         self.Append(_('<other>'), None)
         self.addSortedLangs({ languages[c][0]: c for c in languages.keys() })
@@ -36,8 +36,8 @@ class ChoiceGuiLang(ChoiceLang):
         super().__init__(*args, **kwargs)
 
     def initLangs(self):
-        from data.languages import languages, languages2to3
-        from translations import listLanguages as langs
+        from subsync.data.languages import languages, languages2to3
+        from subsync.translations import listLanguages as langs
 
         self.Append(_('default'), None)
         self.addSortedLangs({

@@ -1,14 +1,16 @@
-import config
-import utils
-import assets.local
-import assets.remote
+from subsync import config
+from subsync import utils
+from subsync.assets import local
+from subsync.assets import remote
+from subsync.assets.downloader import AssetDownloader
+from subsync.assets.updater import SelfUpdater
 
 remoteAssets = None
 
 
 def init(updateCb):
     global remoteAssets
-    remoteAssets = assets.remote.RemoteAssets(updateCb)
+    remoteAssets = remote.RemoteAssets(updateCb)
 
 def terminate():
     global remoteAssets
@@ -17,7 +19,7 @@ def terminate():
         remoteAssets = None
 
 def getLocalAsset(*args, **kwargs):
-    return assets.local.getAsset(*args, **kwargs)
+    return local.getAsset(*args, **kwargs)
 
 def getRemoteAsset(*args, **kwargs):
     return remoteAssets.getAsset(*args, **kwargs)

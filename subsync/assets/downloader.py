@@ -1,7 +1,7 @@
-import config
-import utils
-import pubkey
-import error
+from subsync import config
+from subsync import utils
+from subsync import pubkey
+from subsync import error
 import aiohttp
 import tempfile
 import zipfile

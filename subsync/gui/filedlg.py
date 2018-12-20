@@ -1,6 +1,6 @@
 import wx
 import os
-from settings import settings
+from subsync.settings import settings
 
 
 def showOpenFileDlg(parent, **args):

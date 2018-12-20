@@ -1,5 +1,5 @@
 import wx
-from data.charenc import charEncodings
+from subsync.data.charenc import charEncodings
 
 
 class ChoiceCharEnc(wx.Choice):

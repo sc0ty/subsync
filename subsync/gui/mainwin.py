@@ -1,17 +1,17 @@
-import gui.mainwin_layout
+import subsync.gui.mainwin_layout
 import wx
-from gui.syncwin import SyncWin
-from gui.settingswin import SettingsWin
-from gui.downloadwin import AssetDownloadWin, SelfUpdaterWin
-from gui.aboutwin import AboutWin
-from gui.errorwin import error_dlg
-import assets
-import img
-import thread
-import config
-import loggercfg
-from settings import settings
-from error import Error
+from subsync.gui.syncwin import SyncWin
+from subsync.gui.settingswin import SettingsWin
+from subsync.gui.downloadwin import AssetDownloadWin, SelfUpdaterWin
+from subsync.gui.aboutwin import AboutWin
+from subsync.gui.errorwin import error_dlg
+from subsync import assets
+from subsync import img
+from subsync import thread
+from subsync import config
+from subsync import loggercfg
+from subsync.settings import settings
+from subsync.error import Error
 import sys
 
 import logging
@@ -41,9 +41,9 @@ def logRunCmd(sub, ref):
     logging.getLogger('RUNCMD').info('%s %s', sys.argv[0], ' '.join(cmd))
 
 
-class MainWin(gui.mainwin_layout.MainWin):
+class MainWin(subsync.gui.mainwin_layout.MainWin):
     def __init__(self, parent, subs=None, refs=None):
-        gui.mainwin_layout.MainWin.__init__(self, parent)
+        super().__init__(parent)
 
         img.setWinIcon(self)
         self.m_buttonMenu.SetLabel(u'\u2630')
@@ -175,7 +175,7 @@ class MainWin(gui.mainwin_layout.MainWin):
 
         downloadAssets = []
         for id in missingAssets:
-            asset = assets.assets.getRemoteAsset(**id, raiseIfMissing=True)
+            asset = assets.getRemoteAsset(**id, raiseIfMissing=True)
             downloadAssets.append(asset)
 
         msg = _('Following assets must be download to continue:\n')

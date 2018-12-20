@@ -1,6 +1,6 @@
-import assets
-import config
-import error
+from subsync import assets
+from subsync import config
+from subsync import error
 import os
 import itertools
 

@@ -1,0 +1,241 @@
+name: subsync
+version: git
+version-script: git describe --tag
+summary: Subtitle Speech Synchronizer
+description: >
+  TODO
+
+grade: stable
+confinement: strict
+
+apps:
+  subsync:
+    command: desktop-launch $SNAP/bin/subsync
+    desktop: usr/share/applications/subsync.desktop
+    plugs:
+      - home
+      - x11
+      - unity7
+      - network
+      - gsettings
+
+parts:
+  subsync:
+    plugin: python
+    python-version: python3
+    source: .
+    build-packages:
+      - libssl-dev
+      - libjpeg-dev
+      - libtiff-dev
+      - libsdl1.2-dev
+      - libnotify-dev
+    stage-packages:
+      - freeglut3
+      - ibus-gtk3
+      - libwebkitgtk-3.0-0
+      - zlib1g
+      - libsm6
+      - liblzma5
+      - libslang2
+      - libpcre3
+      - libhyphen0
+      - libjavascriptcoregtk-4.0-18
+      - libpython3.5
+      - libwebkit2gtk-4.0-37
+      - libwebpdemux1
+      - libcaca0
+      - libsdl1.2debian
+    after:
+      - gizmo
+      - desktop-gtk3
+    python-packages:
+      - https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04/wxPython-4.0.3-cp35-cp35m-linux_x86_64.whl
+    organize:
+      share: usr/share
+    prime:
+      - -usr/include
+
+  gizmo:
+    plugin: python
+    python-version: python3
+    source: gizmo
+    build-packages:
+      - pkg-config
+    stage-packages:
+      - libva1
+      - libva-drm1
+      - libva-x11-1
+      - libvdpau1
+    after:
+      - pybind11
+      - ffmpeg
+      - pocketsphinx
+    prime:
+      - -usr/include
+
+  pybind11:
+    plugin: python
+    python-version: python3
+    python-packages:
+      - pybind11>=2.2
+    prime:
+      - -include
+      - -usr/lib/*.a
+      - -usr/lib/**/*.a
+
+  ffmpeg:
+    plugin: autotools
+    source: https://github.com/FFmpeg/FFmpeg.git
+    source-type: git
+    source-tag: n4.1
+    build-packages:
+      - libass-dev
+      - libbz2-dev
+      - libdrm-dev
+      - liblzma-dev
+      - libmp3lame-dev
+      - libomxil-bellagio-dev
+      - libopenal-dev
+      - libopencore-amrnb-dev
+      - libopencore-amrwb-dev
+      - libopus-dev
+      - libpulse-dev
+      - libsctp-dev
+      - libsdl2-dev
+      - libspeex-dev
+      - libtheora-dev
+      - libtwolame-dev
+      - libvdpau-dev
+      - libxcb-shape0-dev
+      - libxcb-shm0-dev
+      - libxcb-xfixes0-dev
+      - libxv-dev
+      - libxvidcore-dev
+      - ocl-icd-opencl-dev
+      - opencl-headers
+      - pkg-config
+      - yasm
+      - on amd64:
+        - libcrystalhd-dev
+      - on i386:
+        - libcrystalhd-dev
+    stage-packages:
+      - i965-va-driver
+      - libass5
+      - libdrm2
+      - libmp3lame0
+      - libopenal1
+      - libopencore-amrnb0
+      - libopencore-amrwb0
+      - libopus0
+      - libpulse0
+      - libsdl2-2.0-0
+      - libspeex1
+      - libtheora0
+      - libtwolame0
+      - libva-drm1
+      - libvdpau-va-gl1
+      - libx11-6
+      - libxau6
+      - libxcb-shape0
+      - libxcb-shm0
+      - libxcb-xfixes0
+      - libxcb1
+      - libxdmcp6
+      - libxext6
+      - libxv1
+      - libxvidcore4
+      - mesa-va-drivers
+      - mesa-vdpau-drivers
+      - ocl-icd-libopencl1
+      - on amd64:
+        - libcrystalhd3
+      - on i386:
+        - libcrystalhd3
+    configflags:
+      - --prefix=/usr
+      - --disable-debug
+      - --disable-doc
+      - --disable-static
+      - --disable-programs
+      - --disable-encoders
+      - --disable-muxers
+      - --disable-devices
+      - --enable-avisynth
+      - --enable-libdrm
+      - --enable-gpl
+      - --enable-libass
+      - --enable-libmp3lame
+      - --enable-libopencore_amrnb
+      - --enable-libopencore_amrwb
+      - --enable-libopus
+      - --enable-libpulse
+      - --enable-sdl2
+      - --enable-libspeex
+      - --enable-libtheora
+      - --enable-libtwolame
+      - --enable-libvorbis
+      - --enable-libxcb
+      - --enable-libxvid
+      - --enable-nonfree
+      - --enable-omx
+      - --enable-openal
+      - --enable-opencl
+      - --enable-runtime-cpudetect
+      - --enable-shared
+      - --enable-vdpau
+      - --enable-version3
+      - --enable-xlib
+      - --enable-pic
+    prime:
+      - usr/bin
+      - usr/lib
+      - -usr/lib/pkgconfig
+      - -usr/include
+      - -usr/share/doc
+      - -usr/share/man
+
+  sphinxbase:
+    plugin: autotools
+    source: https://github.com/cmusphinx/sphinxbase.git
+    source-type: git
+    build-packages:
+      - bison
+      - libasound2-dev
+      - alsa-utils
+      - pkg-config
+    configflags:
+      - --prefix=/usr
+      - --with-python=no
+    prime:
+      - -usr/include
+      - -usr/lib/pkgconfig
+      - -usr/share/man
+      - -usr/share/sphinxbase
+      - -usr/lib/*.a
+      - -usr/lib/**/*.a
+
+  pocketsphinx:
+    plugin: autotools
+    source: https://github.com/cmusphinx/pocketsphinx.git
+    source-type: git
+    build-packages:
+      - bison
+      - libasound2-dev
+      - alsa-utils
+      - pkg-config
+    configflags:
+      - --prefix=/usr
+      - --with-python=no
+    stage-packages:
+      - libgstreamer1.0-0
+    prime:
+      - -usr/include
+      - -usr/lib/pkgconfig
+      - -usr/share/man
+      - -usr/share/pocketsphinx
+      - -usr/lib/*.a
+      - -usr/lib/**/*.a
+    after:
+      - sphinxbase

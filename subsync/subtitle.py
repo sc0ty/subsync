@@ -1,4 +1,4 @@
-import error
+from subsync import error
 import bisect
 import pysubs2
 import copy

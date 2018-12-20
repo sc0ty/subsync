@@ -1,7 +1,7 @@
-import config
+from subsync import config
+from subsync.error import Error
 import os
 import json
-from error import Error
 
 import logging
 logger = logging.getLogger(__name__)

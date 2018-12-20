@@ -1,26 +1,26 @@
-import gui.syncwin_layout
+import subsync.gui.syncwin_layout
 import wx
-import synchro
-import gui.filedlg
-import gui.fpswin
-import gui.errorwin
-import gui.busydlg
-import thread
-import data.filetypes
-import subtitle
-from settings import settings
-import utils
-import img
-import error
+from subsync import synchro
+from subsync.gui import filedlg
+from subsync.gui import fpswin
+from subsync.gui import errorwin
+from subsync.gui import busydlg
+from subsync import thread
+from subsync.data import filetypes
+from subsync import subtitle
+from subsync.settings import settings
+from subsync import utils
+from subsync import img
+from subsync import error
 import pysubs2.exceptions
 import time
 import os
 import collections
 
 
-class SyncWin(gui.syncwin_layout.SyncWin):
+class SyncWin(subsync.gui.syncwin_layout.SyncWin):
     def __init__(self, parent, subs, refs, listener=None):
-        gui.syncwin_layout.SyncWin.__init__(self, parent)
+        super().__init__(parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u2630')
         img.setItemBitmap(self.m_bitmapTick, 'tickmark')
@@ -48,7 +48,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         self.updateTimer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.onUpdateTimerTick, self.updateTimer)
 
-        with gui.busydlg.BusyDlg(_('Loading, please wait...')):
+        with busydlg.BusyDlg(_('Loading, please wait...')):
             self.sync = synchro.Synchronizer(self, self.subs, self.refs)
             self.sync.start()
 
@@ -171,7 +171,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         return res
 
     def onClose(self, event):
-        with gui.busydlg.BusyDlg(_('Terminating, please wait...')):
+        with busydlg.BusyDlg(_('Terminating, please wait...')):
             self.stop()
 
             if self.sync:
@@ -191,7 +191,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
         else:
             self.Close()
 
-    @gui.errorwin.error_dlg
+    @errorwin.error_dlg
     def onButtonSaveClick(self, event):
         path = self.saveFileDlg(self.refs.path)
         if path != None:
@@ -199,7 +199,7 @@ class SyncWin(gui.syncwin_layout.SyncWin):
                 self.saveSynchronizedSubtitles(path)
 
             except pysubs2.exceptions.UnknownFPSError:
-                with gui.fpswin.FpsWin(self, self.subs.fps, self.refs.fps) as dlg:
+                with fpswin.FpsWin(self, self.subs.fps, self.refs.fps) as dlg:
                     if dlg.ShowModal() == wx.ID_OK:
                         self.saveSynchronizedSubtitles(path, fps=dlg.getFps())
 
@@ -231,12 +231,12 @@ class SyncWin(gui.syncwin_layout.SyncWin):
 
     def saveFileDlg(self, path=None, suffix=None):
         props = {}
-        filters = '|'.join('|'.join(x) for x in data.filetypes.subtitleTypes)
+        filters = '|'.join('|'.join(x) for x in filetypes.subtitleTypes)
         props['wildcard'] = '{}|{}|*.*'.format(filters, _('All files'))
         props['defaultFile'] = self.genDefaultFileName(path, suffix)
         if path:
             props['defaultDir'] = os.path.dirname(path)
-        return gui.filedlg.showSaveFileDlg(self, **props)
+        return filedlg.showSaveFileDlg(self, **props)
 
     def genDefaultFileName(self, path, suffix=None):
         try:
@@ -261,11 +261,11 @@ class SyncWin(gui.syncwin_layout.SyncWin):
     def onMenuItemEnableSaveClick(self, event):
         self.m_buttonSave.Enable()
 
-    @gui.errorwin.error_dlg
+    @errorwin.error_dlg
     def onMenuItemDumpSubWordsClick(self, event):
         self.saveWordsDlg(self.subs.path, self.sync.correlator.getSubs())
 
-    @gui.errorwin.error_dlg
+    @errorwin.error_dlg
     def onMenuItemDumpRefWordsClick(self, event):
         self.saveWordsDlg(self.refs.path, self.sync.correlator.getRefs())
 

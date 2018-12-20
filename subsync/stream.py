@@ -1,5 +1,5 @@
 import gizmo
-import channels
+from subsync import channels
 
 
 class Stream(object):

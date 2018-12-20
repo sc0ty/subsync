@@ -1,31 +1,31 @@
-import gui.subpanel_layout
+import subsync.gui.subpanel_layout
 import wx
 import os
-from stream import Stream
-from settings import settings
-import gui.openwin
-import gui.filedrop
-from gui.errorwin import error_dlg
+from subsync.stream import Stream
+from subsync.settings import settings
+from subsync.gui import openwin
+from subsync.gui import filedrop
+from subsync.gui.errorwin import error_dlg
 
 
-class SubtitlePanel(gui.subpanel_layout.SubtitlePanel):
+class SubtitlePanel(subsync.gui.subpanel_layout.SubtitlePanel):
     ''' This is subtitle or reference panel used on MainWin
     '''
     def __init__(self, parent, *args, **kwargs):
-        gui.subpanel_layout.SubtitlePanel.__init__(self, parent)
-        gui.filedrop.setFileDropTarget(self, self.onDropSubFile)
+        super().__init__(parent)
+        filedrop.setFileDropTarget(self, self.onDropSubFile)
         self.stream = Stream()
 
     @error_dlg
     def onButtonSubOpenClick(self, event):
         stream = self.stream
         if not stream.isOpen():
-            stream = gui.openwin.showOpenFileDlg(self, self.stream)
+            stream = openwin.showOpenFileDlg(self, self.stream)
         self.showOpenWin(stream)
 
     def showOpenWin(self, stream):
         if stream != None and stream.isOpen():
-            with gui.openwin.OpenWin(self, stream) as dlg:
+            with openwin.OpenWin(self, stream) as dlg:
                 if dlg.ShowModal() == wx.ID_OK and dlg.stream.isOpen():
                     self.setStream(dlg.stream)
 
@@ -36,7 +36,7 @@ class SubtitlePanel(gui.subpanel_layout.SubtitlePanel):
 
         @error_dlg
         def showOpenWinWithFile(filename):
-            stream = gui.openwin.readStream(filename, self.stream.types)
+            stream = openwin.readStream(filename, self.stream.types)
             settings().lastdir = os.path.dirname(filename)
             self.showOpenWin(stream)
 

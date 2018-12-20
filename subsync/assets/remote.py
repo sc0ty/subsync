@@ -1,8 +1,8 @@
-import assets
-import assets.updater
-import config
-import utils
-import error
+from subsync import assets
+from subsync.assets.updater import SelfUpdater
+from subsync import config
+from subsync import utils
+from subsync import error
 import json
 import asyncio
 import aiohttp
@@ -62,7 +62,7 @@ class RemoteAssets(object):
             await self.loadList()
             await self.downloadAssets()
 
-            localUpdate = assets.updater.getLocalUpdate()
+            localUpdate = SelfUpdater.getLocalUpdate()
             if localUpdate:
                 localVer = localUpdate['version']
                 currentVer = utils.getCurrentVersion()
@@ -70,7 +70,7 @@ class RemoteAssets(object):
                         localVer, currentVer)
 
                 if currentVer == None or currentVer >= localVer:
-                    assets.updater.removeLocalUpdate()
+                    SelfUpdater.removeLocalUpdate()
 
             if updateCb:
                 updateCb()

@@ -1,9 +1,9 @@
 import gizmo
-import pipeline
-import subtitle
-from settings import settings
-import dictionary
-import encdetect
+from subsync import pipeline
+from subsync import subtitle
+from subsync.settings import settings
+from subsync import dictionary
+from subsync import encdetect
 import threading
 import multiprocessing
 

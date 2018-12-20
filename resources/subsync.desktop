@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=SubSync
+Comment=Subtitle Speech Synchronizer
+Exec=subsync
+Icon=/usr/share/icons/hicolor/scalable/apps/subsync.svg
+Terminal=false
+Type=Application
+Categories=Utility;AudioVideo;

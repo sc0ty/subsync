@@ -1,6 +1,6 @@
 import locale
-from data.languages import languages, languages2to3
-from error import Error
+from subsync.data.languages import languages, languages2to3
+from subsync.error import Error
 
 import logging
 logger = logging.getLogger(__name__)

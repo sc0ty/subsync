@@ -1,6 +1,5 @@
 import collections
 import gizmo
-import error
 
 import logging
 logger = logging.getLogger(__name__)
@@ -68,7 +67,7 @@ def formatFieldsVals(v, maxlen=4):
 def getExceptionMessage(e):
     if type(e) is gizmo.Error:
         return str(e).split('\n', 1)[0]
-    elif type(e) is error.Error:
+    elif type(e) is Error:
         return e.message
     else:
         return str(e) or repr(e)

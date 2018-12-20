@@ -1,8 +1,8 @@
 import gizmo
-import speech
-import utils
-from settings import settings
-from error import Error
+from subsync import speech
+from subsync import utils
+from subsync.settings import settings
+from subsync.error import Error
 import math
 
 import logging
