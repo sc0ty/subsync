@@ -205,7 +205,6 @@ ext_modules = [
             sources = sources,
             include_dirs = include_dirs,
             library_dirs = library_dirs,
-            runtime_library_dirs = library_dirs,
             libraries = libraries,
             define_macros = [ ('NDEBUG', '1') ],
             language = 'c++',

@@ -98,13 +98,7 @@ if sys.platform == 'win32':
 
     build_exe = {
         'packages': ['idna', 'asyncio'],
-        'excludes': ['updatelangs', 'tkinter', 'tcl', 'ttk'],
-        'include_files': [
-            os.path.join('subsync', 'img'),
-            os.path.join('subsync', 'locale'),
-            os.path.join('subsync', 'key.pub'),
-            *glob.glob('*.dll'),
-            ],
+        'excludes': ['updatelangs', 'tkinter', 'tcl', 'ttk', 'subsync.gui.layout'],
         'include_msvcr': True,
     }
 
@@ -134,7 +128,7 @@ if sys.platform == 'win32':
             os.path.join('subsync', '__main__.py'),
             base = 'Win32GUI',
             targetName = 'subsync.exe',
-            icon = os.path.join('subsync', 'img', 'icon.ico'),
+            icon = os.path.join('resources', 'icon.ico'),
         )
     ]
 

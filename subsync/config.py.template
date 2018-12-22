@@ -2,13 +2,7 @@ import os
 import sys
 
 appname = 'subsync'
-
-
-if getattr(sys, 'frozen', False):
-    datadir = os.path.dirname(sys.executable)
-else:
-    datadir = os.path.dirname(__file__)
-
+datadir = os.path.dirname(__file__)
 
 if sys.platform == 'win32':
     configdir = os.path.join(os.environ['APPDATA'], appname)

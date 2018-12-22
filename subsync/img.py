@@ -13,7 +13,7 @@ def getBitmapPath(name):
     if os.path.isfile(path):
         return path
 
-    logger.warning('cannot load image %s', name)
+    logger.warning('cannot load image %s from %s', name, path)
 
 
 def getBitmap(name):
