@@ -14,6 +14,7 @@ apps:
     desktop: usr/share/applications/subsync.desktop
     plugs:
       - home
+      - removable-media
       - x11
       - unity7
       - network
@@ -112,14 +113,11 @@ parts:
       - libxcb-xfixes0-dev
       - libxv-dev
       - libxvidcore-dev
+      - libvorbis-dev
       - ocl-icd-opencl-dev
       - opencl-headers
       - pkg-config
       - yasm
-      - on amd64:
-        - libcrystalhd-dev
-      - on i386:
-        - libcrystalhd-dev
     stage-packages:
       - i965-va-driver
       - libass5
@@ -149,10 +147,6 @@ parts:
       - mesa-va-drivers
       - mesa-vdpau-drivers
       - ocl-icd-libopencl1
-      - on amd64:
-        - libcrystalhd3
-      - on i386:
-        - libcrystalhd3
     configflags:
       - --prefix=/usr
       - --disable-debug
