@@ -46,7 +46,7 @@ class MainWin(subsync.gui.mainwin_layout.MainWin):
         super().__init__(parent)
 
         img.setWinIcon(self)
-        self.m_buttonMenu.SetLabel(u'\u2630')
+        self.m_buttonMenu.SetLabel(u'\u22ee') # 2630
         self.m_panelMain.GetSizer().SetSizeHints(self)
 
         if config.assetupd == None:

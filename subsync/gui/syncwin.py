@@ -22,7 +22,7 @@ class SyncWin(subsync.gui.syncwin_layout.SyncWin):
     def __init__(self, parent, subs, refs, listener=None):
         super().__init__(parent)
 
-        self.m_buttonDebugMenu.SetLabel(u'\u2630')
+        self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
         img.setItemBitmap(self.m_bitmapTick, 'tickmark')
         img.setItemBitmap(self.m_bitmapCross, 'crossmark')
 
