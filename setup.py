@@ -88,8 +88,11 @@ version = update_version()
 
 desc = dict(
         name = 'subsync',
-        description = 'Subtitle Speech Synchronizer',
         version = version,
+        author = 'Michał Szymaniak',
+        author_email = 'sc0typl@gmail.com',
+        url = 'https://github.com/sc0ty/subsync',
+        description = 'Subtitle Speech Synchronizer',
         )
 
 

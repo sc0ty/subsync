@@ -2,8 +2,18 @@ name: subsync
 version: git
 version-script: git describe --tag
 summary: Subtitle Speech Synchronizer
-description: >
-  TODO
+description: |
+  This is an automatic movie subtitle synchronization tool.
+  Synchronization is done by listening to the audio track. Tracks could be of different languages, it will be translated if necessary. Synchronization with another subtitles is also supported. You don’t have to adjust subtitles manually anymore!
+
+  Features:
+    - subtitle synchronization with audio track
+    - subtitle synchronization with another subtitles
+    - support for different languages for subtitles and reference track (using dictionary)
+    - character encoding auto detection
+    - easy to use graphical interface
+    - support for drag & drop
+    - auto update
 
 grade: stable
 confinement: strict
@@ -11,14 +21,31 @@ confinement: strict
 apps:
   subsync:
     command: desktop-launch $SNAP/bin/subsync
-    desktop: usr/share/applications/subsync.desktop
     plugs:
       - home
       - removable-media
+      - desktop
       - x11
+      - wayland
       - unity7
       - network
       - gsettings
+    environment:
+      XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/share/themes
+    default-provider: gtk-common-themes:gtk-3-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/share/icons
+    default-provider: gtk-common-themes:icon-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/share/sounds
+    default-provider: gtk-common-themes:sounds-themes
 
 parts:
   subsync:
