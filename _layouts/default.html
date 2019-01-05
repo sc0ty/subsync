@@ -32,7 +32,8 @@
             <ul id="menu">
               {% assign pages=site.pages | where: 'lang', page.lang | sort: 'precedence' %}
               {% for p in pages %}
-                <li><a {% if p.ref == page.ref %}id="item-selected"{% endif %} href="{{ p.url | prepend: site.baseurl }}" class="{{ p.lang }}">{{ p.title }}</a></li>
+                {% capture target %}{% if p.redirect %}{{ p.redirect }}{% else %}{{ p.url | prepend: site.baseurl }}{% endif %}{% endcapture %}
+                <li><a {% if p.ref == page.ref %}id="item-selected"{% endif %} href="{{ target }}" class="{{ p.lang }}">{{ p.title }}</a></li>
               {% endfor %}
             </ul>
           </section>

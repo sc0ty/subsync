@@ -3,17 +3,19 @@
 
 @import "{{ site.theme }}";
 
+#header_wrap .inner { padding: 50px 10px 0px 10px; overflow: hidden; }
+
 #project_tagline { margin-bottom: 40px; }
 
 #logo { float: left; border: none; margin: 0 20px 0 0; box-shadow: none; -webkit-box-shadow: none; -moz-box-shadow: none; -o-box-shadow: none; -ms-box-shadow: none; }
 
-#pages { position: absolute; z-index: 10; left: 0; }
-#pages li + li { margin-left: 10px; }
+#pages { float: left; }
+#pages li { margin-right: 10px; }
 
-#languages { position: absolute; z-index: 10; right: 0; }
-#languages li + li { margin-left: 5px; }
+#languages { float: right; }
+#languages li { margin-left: 5px; }
 
-#menu { color: #fff; font-size: 20px; text-shadow: #111 0px 0px 10px; list-style-type: none;  padding: 0 10px;}
+#menu { color: #fff; font-size: 20px; text-shadow: #111 0px 0px 0px; list-style-type: none; margin: 0; padding: 0; }
 #menu li { display: inline; }
 #menu a { color: #fff; text-shadow: #111 0px 0px 10px; }
 
