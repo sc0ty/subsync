@@ -101,7 +101,7 @@ if sys.platform == 'win32':
 
     build_exe = {
         'packages': ['idna', 'asyncio'],
-        'excludes': ['updatelangs', 'tkinter', 'tcl', 'ttk', 'subsync.gui.layout'],
+        'excludes': ['updatelangs', 'tkinter', 'tcl', 'ttk'],
         'include_msvcr': True,
     }
 
