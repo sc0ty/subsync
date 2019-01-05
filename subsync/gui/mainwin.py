@@ -1,4 +1,4 @@
-import subsync.gui.mainwin_layout
+import subsync.gui.layout.mainwin
 import wx
 from subsync.gui.syncwin import SyncWin
 from subsync.gui.settingswin import SettingsWin
@@ -41,7 +41,7 @@ def logRunCmd(sub, ref):
     logging.getLogger('RUNCMD').info('%s %s', sys.argv[0], ' '.join(cmd))
 
 
-class MainWin(subsync.gui.mainwin_layout.MainWin):
+class MainWin(subsync.gui.layout.mainwin.MainWin):
     def __init__(self, parent, subs=None, refs=None):
         super().__init__(parent)
 

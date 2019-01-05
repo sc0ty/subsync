@@ -1,4 +1,4 @@
-import subsync.gui.settingswin_layout
+import subsync.gui.layout.settingswin
 from subsync.gui.filedlg import showSaveFileDlg
 from subsync.settings import Settings
 from subsync import config
@@ -6,7 +6,7 @@ import multiprocessing
 import wx
 
 
-class SettingsWin(subsync.gui.settingswin_layout.SettingsWin):
+class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
     def __init__(self, parent, settings):
         super().__init__(parent)
         self.m_outputCharEnc.SetString(0, _('same as input subtitles'))

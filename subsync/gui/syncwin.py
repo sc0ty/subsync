@@ -1,4 +1,4 @@
-import subsync.gui.syncwin_layout
+import subsync.gui.layout.syncwin
 import wx
 from subsync import synchro
 from subsync.gui import filedlg
@@ -18,7 +18,7 @@ import os
 import collections
 
 
-class SyncWin(subsync.gui.syncwin_layout.SyncWin):
+class SyncWin(subsync.gui.layout.syncwin.SyncWin):
     def __init__(self, parent, subs, refs, listener=None):
         super().__init__(parent)
 

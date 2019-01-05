@@ -1,10 +1,10 @@
-import subsync.gui.aboutwin_layout
+import subsync.gui.layout.aboutwin
 from subsync import img
 import wx
 import wx.lib.dialogs
 
 
-class AboutWin(subsync.gui.aboutwin_layout.AboutWin):
+class AboutWin(subsync.gui.layout.aboutwin.AboutWin):
     def __init__(self, parent):
         super().__init__(parent)
         img.setItemBitmap(self.m_bitmapLogo, 'logo')

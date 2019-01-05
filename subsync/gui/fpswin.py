@@ -1,8 +1,8 @@
-import subsync.gui.fpswin_layout
+import subsync.gui.layout.fpswin
 import wx
 
 
-class FpsWin(subsync.gui.fpswin_layout.FpsWin):
+class FpsWin(subsync.gui.layout.fpswin.FpsWin):
     def __init__(self, parent, subFps=None, refFps=None):
         super().__init__(parent)
 

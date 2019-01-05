@@ -11,7 +11,7 @@
         <property name="embedded_files_path">res</property>
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
-        <property name="file">subpanel_layout</property>
+        <property name="file">subpanel</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
         <property name="internationalize">1</property>

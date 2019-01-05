@@ -1,4 +1,4 @@
-import subsync.gui.subpanel_layout
+import subsync.gui.layout.subpanel
 import wx
 import os
 from subsync.stream import Stream
@@ -8,7 +8,7 @@ from subsync.gui import filedrop
 from subsync.gui.errorwin import error_dlg
 
 
-class SubtitlePanel(subsync.gui.subpanel_layout.SubtitlePanel):
+class SubtitlePanel(subsync.gui.layout.subpanel.SubtitlePanel):
     ''' This is subtitle or reference panel used on MainWin
     '''
     def __init__(self, parent, *args, **kwargs):

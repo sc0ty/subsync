@@ -1,9 +1,9 @@
 import wx
-import subsync.gui.channelswin_layout
+import subsync.gui.layout.channelswin
 from subsync import channels
 
 
-class ChannelsWin(subsync.gui.channelswin_layout.ChannelsWin):
+class ChannelsWin(subsync.gui.layout.channelswin.ChannelsWin):
     def __init__(self, parent, audio):
         super().__init__(parent)
 

@@ -1,6 +1,6 @@
 import wx
 import wx.lib.dialogs
-import subsync.gui.errorwin_layout
+import subsync.gui.layout.errorwin
 from subsync import error
 import traceback
 import sys
@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ErrorWin(subsync.gui.errorwin_layout.ErrorWin):
+class ErrorWin(subsync.gui.layout.errorwin.ErrorWin):
     def __init__(self, parent, msg):
         super().__init__(parent)
         self.m_textMsg.SetLabel(msg)

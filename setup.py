@@ -19,13 +19,13 @@ class gen_gui(distutils.cmd.Command):
         pass
 
     def run(self):
-        files = glob.glob(os.path.join('subsync', 'gui', '*.fbp'))
+        files = glob.glob(os.path.join('subsync', 'gui', 'layout', '*.fbp'))
         excludeRe = self._mk_pattern('import gettext', '_ = gettext.gettext')
 
         for src in files:
             subprocess.check_call([self.wxformbuilder, '-g', src])
 
-            dst = src[0:-4] + '_layout.py'
+            dst = src[0:-4] + '.py'
             lines = []
 
             with open(dst, 'r') as fp:
@@ -151,7 +151,7 @@ else:
     from setuptools import setup
 
     setup(**desc,
-            packages=['subsync', 'subsync.assets', 'subsync.data', 'subsync.gui'],
+            packages=['subsync', 'subsync.assets', 'subsync.data', 'subsync.gui', 'subsync.gui.layout'],
             entry_points={'gui_scripts': ['subsync=subsync.__main__:subsync']},
             install_requires=['aiohttp', 'pysubs2', 'pycryptodome'],
             cmdclass = {

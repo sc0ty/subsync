@@ -1,4 +1,4 @@
-import subsync.gui.downloadwin_layout
+import subsync.gui.layout.downloadwin
 from subsync.gui import errorwin
 import wx
 import sys
@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class DownloadWin(subsync.gui.downloadwin_layout.DownloadWin):
+class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
     def __init__(self, parent, title, job):
         super().__init__(parent)
         self.m_textName.SetLabel(title)

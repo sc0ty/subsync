@@ -1,4 +1,4 @@
-import subsync.gui.openwin_layout
+import subsync.gui.layout.openwin
 import wx
 from subsync.stream import Stream
 from subsync import channels
@@ -34,7 +34,7 @@ def readStream(path, types):
             return Stream(path=path, types=types)
 
 
-class OpenWin(subsync.gui.openwin_layout.OpenWin):
+class OpenWin(subsync.gui.layout.openwin.OpenWin):
     def __init__(self, parent, stream):
         super().__init__(parent)
         filedrop.setFileDropTarget(self, self.onDropFile)
