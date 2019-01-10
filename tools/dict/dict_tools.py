@@ -39,10 +39,15 @@ def loadDict(fname):
     return d
 
 
-def saveDict(d, fname, banner=None):
+def saveDict(d, fname, banner=None, langs=None, version=None):
     with open(fname, 'w') as file:
+        if langs and version:
+            file.write('#dictionary/{}/{}/{}\n\n'.format(*langs, version))
+
         if banner:
             file.write(banner)
+            file.write('\n\n')
+
         for key, vals in sorted(d.items()):
             if len(vals) > 0:
                 file.write(key + '|' + '|'.join(vals) + '\n')
