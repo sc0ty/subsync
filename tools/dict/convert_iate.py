@@ -4,7 +4,14 @@ import os
 import sys
 import xml.parsers.expat
 import language_codes_2to3
-import dict_tools
+from dict_tools import Dictionary
+
+
+banner = '''
+# Data extracted from IATE (Interactive Terminology for Europe)
+# Download IATE, European Union, 2019.
+# https://iate.europa.eu
+'''.strip()
 
 
 class Parser(object):
@@ -64,38 +71,52 @@ class Parser(object):
             terms = langs[self.lang]
             terms.add(self.term)
 
-def gen_dict2(terms, lang1, lang2):
-    with open('out/{}-{}.dict'.format(lang1, lang2), 'w') as fp:
-        for term in terms.values():
-            if lang1 in term and lang2 in term:
-                for x in term[lang1]:
-                    fp.write('{}|{}\n'.format(x, '|'.join(term[lang2])))
 
-def gen_dict(terms, lang1, lang2):
-    d = {}
+def gen_dict(terms, lang1, lang2, version):
+    d = Dictionary(lang1=lang1, lang2=lang2, version=version, banner=banner)
     for term in terms.values():
         if lang1 in term and lang2 in term:
             val = term[lang2]
             for key in term[lang1]:
-                dict_tools.addToDict(d, key, val)
+                d.add(key, val)
     return d
 
 
-if __name__ == "__main__":
-    outdir = sys.argv[2]
-    os.makedirs(outdir, exist_ok=True)
-
-    fname = sys.argv[1]
-    print('reading file {}'.format(fname))
-    p = Parser(fname)
-
-    langs = sorted(p.langs)
+def iter_langs(langs):
     for lang1 in langs:
         for lang2 in langs:
             if lang1 < lang2:
-                print('generating dict {} / {}'.format(lang1, lang2))
-                d = gen_dict(p.terms, lang1, lang2)
-                print('  - got {} keys'.format(len(d)))
-                if len(d) >= 1000:
-                    dict_tools.saveDict(d, '{}/{}-{}.dict'.format(outdir, lang1, lang2))
+                yield lang1, lang2
+
+
+if __name__ == "__main__":
+    if len(sys.argv) <= 3:
+        print('Use: {} SRC_PATH DST_DIR VERSION [MIN_KEYS]'.format(sys.argv[0]))
+        exit(1)
+
+    srcpath = sys.argv[1]
+    dstdir  = sys.argv[2]
+    version = sys.argv[3]
+    minkeys = int(sys.argv[4]) if len(sys.argv) > 4 else 1
+
+    print('Reading file {}'.format(srcpath))
+    p = Parser(srcpath)
+
+    for lang1, lang2 in iter_langs(sorted(p.langs)):
+        print('')
+
+        try:
+            print('Generating dict {}/{}'.format(lang1, lang2))
+            d = gen_dict(p.terms, lang1, lang2, version)
+            d.validate()
+
+            if len(d) >= minkeys:
+                dstpath = os.path.join(dstdir, d.get_name())
+                print('Writing dict {}'.format(dstpath, len(d)))
+                d.save(dstpath)
+            else:
+                print('Got only {} keys, SKIPPING'.format(len(d)))
+
+        except Exception as e:
+            print('[!] error: ' + str(e))
 

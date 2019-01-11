@@ -4,7 +4,8 @@ import os
 import sys
 import glob
 from language_codes_2to3 import codes2to3
-from sqlite2dict import *
+from sqlite2dict import readDictFromSqliteDB
+from dict_tools import Dictionary
 
 
 banner = '''
@@ -30,58 +31,56 @@ def list_dicts(path):
     return res
 
 
-def read_sql_dict(path, transpose=False):
-    d = readDictFromSqliteDB(path)
-    validateDict(d)
+def read_sql_dict(d, path, transpose=False):
+    readDictFromSqliteDB(d, path)
+    d.validate()
     if transpose:
-        return transponseDict(d)
+        return d.transponse()
     else:
         return d
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print('Use: {} [SRC-DIR] [DST-DIR] [VERSION]'.format(sys.argv[0]))
+        print('Use: {} SRC_DIR DST_DIR VERSION [MIN_KEYS]'.format(sys.argv[0]))
         exit(1)
 
     srcdir = sys.argv[1]
     dstdir = sys.argv[2]
     version = sys.argv[3]
-
-    os.makedirs(dstdir, exist_ok=True)
+    minkeys = int(sys.argv[4]) if len(sys.argv) > 4 else 1
 
     srcs = list_dicts(srcdir)
     while srcs:
-        d1 = {}
-        d2 = {}
-
         (lang1, lang2), path = srcs.popitem()
-        transpose = lang1 > lang2
+        d = Dictionary(lang1=lang1, lang2=lang2, version=version, banner=banner)
 
         try:
             print('Reading dict {}/{} from {}'.format(lang1, lang2, path))
-            d1 = read_sql_dict(path, transpose)
+            read_sql_dict(d, path)
+            if lang1 > lang2:
+                d = d.transpose()
         except Exception as e:
             print('[!] error: ' + str(e))
 
         path = srcs.get((lang2, lang1), None)
         if path:
             try:
+                d2 = Dictionary(lang1=lang2, lang2=lang1, version=version, banner=banner)
                 print('Reading dict {}/{} from {}'.format(lang2, lang1, path))
-                d2 = read_sql_dict(path, not transpose)
+                read_sql_dict(d2, path)
+                if lang2 > lang1:
+                    d2 = d2.transpose()
+                d.merge(d2)
             except Exception as e:
                 print('[!] error: ' + str(e))
 
-        d = mergeDicts(d1, d2)
-        if transpose:
-            lang1, lang2 = lang2, lang1
-
-        if len(d) >= 10000:
-            dstpath = os.path.join(dstdir, '{}-{}.dict'.format(lang1, lang2))
-            print('Writing dict {}, keys: {}'.format(dstpath, len(d)))
+        if len(d) >= minkeys:
+            dstpath = os.path.join(dstdir, d.get_name())
+            print('Writing dict {}'.format(dstpath))
 
             try:
-                saveDict(d, dstpath, banner=banner, langs=(lang1, lang2), version=version)
+                d.save(dstpath)
             except Exception as e:
                 print('[!] error: ' + str(e))
 

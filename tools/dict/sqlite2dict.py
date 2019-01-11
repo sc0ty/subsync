@@ -2,11 +2,10 @@
 
 import sys
 import sqlite3
-from dict_tools import *
+from dict_tools import Dictionary
 
 
-def readDictFromSqliteDB(fname):
-    d = {}
+def readDictFromSqliteDB(d, fname):
     db = sqlite3.connect(fname)
     cursor = db.cursor()
     cursor.execute('select written_rep, trans_list from translation')
@@ -23,16 +22,16 @@ def readDictFromSqliteDB(fname):
         if key.find(' ') == -1:
             for val in vals:
                 val = val.strip()
-                if val.find(' ') == -1:
-                    addToDict(d, key, val)
-    return d
+                if ' ' not in val:
+                    d.add(key, val)
 
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
-        d = readDictFromSqliteDB(sys.argv[1])
-        validateDict(d)
-        saveDict(d, sys.argv[2])
+        d = Dictionary()
+        readDictFromSqliteDB(d, sys.argv[1])
+        d.validate()
+        d.save(sys.argv[2])
     else:
         print('Usage:')
         print('\t' + sys.argv[0] + ' infile.sqlite3 outfile.dict')

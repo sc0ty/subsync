@@ -2,7 +2,7 @@
 
 import sys
 import os
-from dict_tools import *
+from dict_tools import Dictionary
 
 
 banner = '''
@@ -20,23 +20,28 @@ if __name__ == "__main__":
     srcpath = sys.argv[1]
     dstdir  = sys.argv[2]
     version = sys.argv[3]
+    minkeys = int(sys.argv[4]) if len(sys.argv) > 4 else 1
 
     print('Reading dict {}'.format(srcpath))
 
-    d = {}
-    with open(srcpath, 'rt') as fp:
+    d = Dictionary(lang1='cze', lang2='eng', version=version, banner=banner)
+
+    with open(srcpath, 'rt', encoding='utf8') as fp:
         for line in fp:
             if line and line[0] != '#':
                 ent = line.split('\t')
                 if len(ent) >= 2:
-                    key = ent[0]
-                    val = ent[1]
+                    val = ent[0]
+                    key = ent[1]
 
                     if key and val and ' ' not in key and ' ' not in val:
-                        addToDict(d, key, val)
+                        d.add(key, val)
 
-    validateDict(d)
-    dstpath = os.path.join(dstdir, 'cze-eng.dict')
-    print('Writing dict {}, keys: {}'.format(dstpath, len(d)))
+    d.validate()
 
-    saveDict(d, dstpath, banner=banner, langs=('cze', 'eng'), version=version)
+    if len(d) >= minkeys:
+        dstpath = os.path.join(dstdir, d.get_name())
+        print('Writing dict {}'.format(dstpath))
+        d.save(dstpath)
+    else:
+        print('Got only {} keys, SKIPPING'.format(len(d)))
