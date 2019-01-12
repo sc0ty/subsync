@@ -31,6 +31,7 @@ Then activate your virtualenv and install required packages:
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+If during this step, wxPython fails to compile, you could try to find prebuild version for your system [here](https://extras.wxpython.org/wxPython4/extras/).
 
 If you have ffmpeg, sphinxbase and pocketsphinx libraries installed and avaiable via `pkg-config`, you could now build _gizmo_:
 ```
@@ -61,10 +62,55 @@ export POCKETSPHINX_DIR=~/projects/pocketsphinx
 export USE_PKG_CONFIG=no
 python setup.py build
 python setup.py install
-
 ```
 
 Now you could run SubSync from your virtualenv
 ```
 python subsync.py
 ```
+
+## Windows
+Building Windows version under virtualenv is similar to building POSIX version. You need a [Python runtime](https://www.python.org/downloads/windows/), then you could setup and activate environment:
+```
+python -m pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+To build gizmo, you need to provide dependencies first.
+Sphinxbase and pocketsphinx are published with Visual Studio solution file, which is [easy to use](https://github.com/cmusphinx/pocketsphinx#ms-windows-ms-visual-studio-2012-or-newer---we-test-with-vc-2012-express).
+Building ffmpeg on the other hand is not that easy. You could use [official build](https://ffmpeg.zeranoe.com/builds/) instead.
+
+With everythong prepared, gizmo can be installed now under virtualenv:
+```
+cd gizmo
+set FFMPEG_DIR=d:\projects\ffmpeg
+set SPHINXBASE_DIR=d:\projects\sphinxbase
+set POCKETSPHINX_DIR=d:\projects\pocketsphinx
+set USE_PKG_CONFIG=no
+python setup.py build
+python setup.py install
+```
+
+And SubSync is ready to be run:
+```
+python subsync.py
+```
+
+### Windows installer
+Windows binary distribution and installer are generated using cx-Freeze utility. To build executable, with gizmo installed, type:
+```
+python setup.py build_exe
+```
+And to create msi installer:
+```
+python setup.py bdist_msi
+```
+For more information, please refer to the [cx-Freeze docs](https://cx-freeze.readthedocs.io/en/latest/).
+
+## Ubuntu SNAP
+Technically [snaps](https://snapcraft.io) are universal linux packages, but it looks like they are really fully supported on Ubuntu.
+
+To build one, just type `snapcraft` in the project main directory.
+Thats it, no need to prepare virtualenv, installing dependencies nor building gizmo. Everything needed will be downloaded and built automatically.
