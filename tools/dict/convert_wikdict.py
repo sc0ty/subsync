@@ -41,7 +41,7 @@ def read_sql_dict(d, path, transpose=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
+    if len(sys.argv) <= 3:
         print('Use: {} SRC_DIR DST_DIR VERSION [MIN_KEYS]'.format(sys.argv[0]))
         exit(1)
 

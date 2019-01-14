@@ -19,9 +19,10 @@ class Dictionary(object):
             for v in val:
                 self.add(key, v)
         else:
-            if key not in self.d:
-                self.d[key] = set()
-            self.d[key].add(val)
+            if key and key[0] != '#':
+                if key not in self.d:
+                    self.d[key] = set()
+                self.d[key].add(val)
 
     def merge(self, other):
         for key, val in other.d.items():
@@ -125,7 +126,7 @@ def parse_banner(fp):
     fp.seek(0)
 
     if banner:
-        return '\n'.join(banner)
+        return '\n'.join(banner).strip()
     else:
         return None
 
