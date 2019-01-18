@@ -247,7 +247,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             if suffix:
                 res.append(suffix)
 
-            if settings().appendLangCode and self.subs.lang:
+            elif settings().appendLangCode and self.subs.lang:
                 res.append(self.subs.lang)
 
             res.append('srt')
@@ -263,18 +263,22 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     @errorwin.error_dlg
     def onMenuItemDumpSubWordsClick(self, event):
-        self.saveWordsDlg(self.subs.path, self.sync.correlator.getSubs())
+        self.saveWordsDlg(self.subs, self.sync.correlator.getSubs())
 
     @errorwin.error_dlg
     def onMenuItemDumpRefWordsClick(self, event):
-        self.saveWordsDlg(self.refs.path, self.sync.correlator.getRefs())
+        self.saveWordsDlg(self.refs, self.sync.correlator.getRefs())
 
-    def saveWordsDlg(self, path, words):
+    def saveWordsDlg(self, stream, words):
         subs = subtitle.Subtitles()
         for time, text in words:
             subs.add(time, time, text)
 
-        path = self.saveFileDlg(path, suffix='words')
+        suffix = 'words'
+        if stream.lang:
+            suffix += '.' + stream.lang
+
+        path = self.saveFileDlg(stream.path, suffix=suffix)
         if path != None:
             fps = self.subs.fps if self.subs.fps != None else self.refs.fps
             subs.save(path, fps=fps)
