@@ -19,7 +19,7 @@ import collections
 
 
 class SyncWin(subsync.gui.layout.syncwin.SyncWin):
-    def __init__(self, parent, subs, refs, listener=None):
+    def __init__(self, parent, subs, refs, refsCache=None, listener=None):
         super().__init__(parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
@@ -49,7 +49,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.Bind(wx.EVT_TIMER, self.onUpdateTimerTick, self.updateTimer)
 
         with busydlg.BusyDlg(_('Loading, please wait...')):
-            self.sync = synchro.Synchronizer(self, self.subs, self.refs)
+            self.sync = synchro.Synchronizer(self, self.subs, self.refs, refsCache)
             self.sync.start()
 
         self.isRunning = True

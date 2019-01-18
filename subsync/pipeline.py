@@ -17,14 +17,22 @@ class BasePipeline(object):
         self.duration = self.demux.getDuration()
         self.timeWindow = [0, self.duration]
 
+        self.done = False
+
     def destroy(self):
         self.extractor.connectEosCallback(None)
         self.extractor.connectErrorCallback(None)
         self.extractor.stop()
 
-    def selectTimeWindow(self, *window):
-        self.timeWindow = window
-        self.extractor.selectTimeWindow(*window)
+    def selectTimeWindow(self, begin, end, start=None):
+        if end > self.duration:
+            end = self.duration
+        if begin > end:
+            begin = end
+        self.timeWindow = (begin, end)
+        if start == None:
+            start = begin
+        self.extractor.selectTimeWindow(start, end)
 
     def start(self, threadName=None):
         self.extractor.start(threadName=threadName)
@@ -40,14 +48,21 @@ class BasePipeline(object):
             pos = self.demux.getPosition()
             if math.isclose(pos, 0.0):
                 pos = self.timeWindow[0]
-            return (pos - self.timeWindow[0]) / (self.timeWindow[1] - self.timeWindow[0])
+            if self.timeWindow[1] > self.timeWindow[0]:
+                return (pos - self.timeWindow[0]) / (self.timeWindow[1] - self.timeWindow[0])
 
-    def connectEosCallback(self, cb, dst=None):
-        self.extractor.connectEosCallback(cb)
+    def getPosition(self):
+        return max(self.timeWindow[0], min(self.demux.getPosition(), self.timeWindow[1]))
 
-    def connectErrorCallback(self, cb, dst=None):
+    def connectEosCallback(self, cb):
+        def eos(*args, **kw):
+            self.done = True
+            cb()
+
+        self.extractor.connectEosCallback(eos if cb else None)
+
+    def connectErrorCallback(self, cb):
         self.extractor.connectErrorCallback(cb)
-
 
 class SubtitlePipeline(BasePipeline):
     def __init__(self, stream):
@@ -127,18 +142,30 @@ def createProducerPipeline(stream):
         raise Error(_('Not supported stream type'), type=stream.type)
 
 
-def createProducerPipelines(stream, no):
+def createProducerPipelines(stream, no=None, timeWindows=None):
+    if timeWindows != None:
+        no = len(timeWindows)
+
     pipes = []
     for i in range(no):
         p = createProducerPipeline(stream)
         pipes.append(p)
 
         if p.duration:
-            partTime = p.duration / no
-            begin = i * partTime
-            end = begin + partTime
+            if timeWindows != None:
+                start, begin, end = timeWindows[i]
+
+            else:
+                partTime = p.duration / no
+                begin = i * partTime
+                end = begin + partTime
+                start = None
+
             logger.info('job %i/%i time window set to %.2f - %.2f', i+1, no, begin, end)
-            p.selectTimeWindow(begin, end)
+            if start != None:
+                logger.info('job %i/%i starting position set to %.2f', i+1, no, start)
+
+            p.selectTimeWindow(begin, end, start)
 
         else:
             logger.warn('cannot get duration - using single pipeline')

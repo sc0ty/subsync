@@ -4,6 +4,7 @@ from subsync import subtitle
 from subsync.settings import settings
 from subsync import dictionary
 from subsync import encdetect
+from subsync import utils
 import threading
 import multiprocessing
 
@@ -20,10 +21,11 @@ def getJobsNo():
 
 
 class Synchronizer(object):
-    def __init__(self, listener, subs, refs):
+    def __init__(self, listener, subs, refs, refsCache=None):
         self.listener = listener
         self.subs = subs
         self.refs = refs
+        self.refsCache = refsCache
 
         self.fps = refs.stream().frameRate
         if self.fps == None:
@@ -60,13 +62,32 @@ class Synchronizer(object):
         else:
             self.subPipeline.connectWordsCallback(self.correlator.pushSubWord)
 
-        self.refPipelines = pipeline.createProducerPipelines(refs, getJobsNo())
+        if refsCache and refsCache.isValid(self.refs):
+            logger.info('restoring cached reference words (%i)', len(refsCache.data))
+
+            for word, time in refsCache.data:
+                self.correlator.pushRefWord(word, time)
+
+            self.refPipelines = pipeline.createProducerPipelines(refs, timeWindows=refsCache.progress)
+
+        else:
+            if refsCache:
+                refsCache.init(refs)
+
+            self.refPipelines = pipeline.createProducerPipelines(refs, no=getJobsNo())
+
         for p in self.refPipelines:
             p.connectEosCallback(self.onRefEos)
             p.connectErrorCallback(self.onRefError)
-            p.connectWordsCallback(self.correlator.pushRefWord)
+            p.connectWordsCallback(self.onRefWord)
 
         self.pipelines = [ self.subPipeline ] + self.refPipelines
+
+    def onRefWord(self, word, time):
+        self.correlator.pushRefWord(word, time)
+
+        if self.refsCache and self.refsCache.id:
+            self.refsCache.data.append((word, time))
 
     def destroy(self):
         self.stop()
@@ -89,6 +110,11 @@ class Synchronizer(object):
         self.correlator.stop()
         for p in self.pipelines:
             p.stop()
+
+        if self.refsCache and self.refsCache.id:
+            self.refsCache.progress = [ (p.getPosition(), *p.timeWindow)
+                    for p in self.refPipelines
+                    if not p.done and p.getPosition() < p.timeWindow[1] ]
 
     def isRunning(self):
         if self.correlator.isRunning() and not self.correlator.isDone():

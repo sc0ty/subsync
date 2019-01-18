@@ -7,7 +7,7 @@ import wx
 
 
 class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
-    def __init__(self, parent, settings):
+    def __init__(self, parent, settings, cache=None):
         super().__init__(parent)
         self.m_outputCharEnc.SetString(0, _('same as input subtitles'))
 
@@ -17,6 +17,9 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
             self.m_askForUpdate.Hide()
 
         self.setSettings(settings)
+
+        self.cache = cache
+        self.m_buttonClearCache.Enable(cache and not cache.isEmpty())
 
     def setSettings(self, settings):
         self.settings = Settings(settings)
@@ -99,4 +102,9 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
 
         if dlg.ShowModal() == wx.ID_YES:
             self.setSettings(Settings())
+
+    def onButtonClearCache(self, event):
+        if self.cache:
+            self.cache.clear()
+        self.m_buttonClearCache.Disable()
 

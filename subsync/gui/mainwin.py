@@ -6,6 +6,7 @@ from subsync.gui.downloadwin import AssetDownloadWin, SelfUpdaterWin
 from subsync.gui.aboutwin import AboutWin
 from subsync.gui.errorwin import error_dlg
 from subsync import assets
+from subsync import cache
 from subsync import img
 from subsync import thread
 from subsync import config
@@ -64,6 +65,8 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.Fit()
         self.Layout()
 
+        self.refsCache = cache.WordsCache()
+
         self.selfUpdater = None
         assets.init(self.assetsUpdated)
 
@@ -81,13 +84,16 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.PopupMenu(self.m_menu)
 
     def onMenuItemSettingsClick(self, event):
-        with SettingsWin(self, settings()) as dlg:
+        with SettingsWin(self, settings(), self.refsCache) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 newSettings = dlg.getSettings()
                 if settings() != newSettings:
                     self.changeSettings(newSettings)
 
     def changeSettings(self, newSettings):
+        if not settings().refsCache:
+            self.refsCache.clear()
+
         if settings().logLevel != newSettings.logLevel:
             loggercfg.setLevel(newSettings.logLevel)
 
@@ -130,8 +136,12 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
     @error_dlg
     def onButtonStartClick(self, event):
-        settings().save()
-        self.start()
+        try:
+            settings().save()
+            self.start()
+        except:
+            self.refsCache.clear()
+            raise
 
     def start(self, listener=None):
         self.validateSelection()
@@ -140,7 +150,9 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         if self.validateAssets():
             sub = self.m_panelSub.stream
             ref = self.m_panelRef.stream
-            with SyncWin(self, sub, ref, listener) as dlg:
+            cache = self.refsCache if settings().refsCache else None
+
+            with SyncWin(self, sub, ref, cache, listener) as dlg:
                 dlg.ShowModal()
 
             if listener:

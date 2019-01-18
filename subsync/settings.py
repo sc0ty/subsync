@@ -21,6 +21,7 @@ class Settings(object):
         self.minCorrelation = 0.9999
         self.minWordsSim = 0.6
         self.lastdir = ''
+        self.refsCache = True
         self.autoUpdate = True
         self.askForUpdate = True
         self.debugOptions = False

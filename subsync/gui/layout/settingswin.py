@@ -81,6 +81,20 @@ class SettingsWin ( wx.Dialog ):
 		self.m_askForUpdate.SetValue(True) 
 		fgSizer4.Add( self.m_askForUpdate, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
+		self.staticText5 = wx.StaticText( self.m_panelGeneral, wx.ID_ANY, _(u"Cache:"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.staticText5.Wrap( -1 )
+		fgSizer4.Add( self.staticText5, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_refsCache = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"use RAM cache for references"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_refsCache.SetValue(True) 
+		fgSizer4.Add( self.m_refsCache, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		
+		
+		fgSizer4.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.m_buttonClearCache = wx.Button( self.m_panelGeneral, wx.ID_ANY, _(u"Clear cache"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer4.Add( self.m_buttonClearCache, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
 		
 		self.m_panelGeneral.SetSizer( fgSizer4 )
 		self.m_panelGeneral.Layout()
@@ -256,6 +270,7 @@ class SettingsWin ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.m_buttonClearCache.Bind( wx.EVT_BUTTON, self.onButtonClearCache )
 		self.m_checkAutoJobsNo.Bind( wx.EVT_CHECKBOX, self.onCheckAutoJobsNoCheck )
 		self.m_checkLogToFile.Bind( wx.EVT_CHECKBOX, self.onCheckLogToFileCheck )
 		self.m_buttonLogFileSelect.Bind( wx.EVT_BUTTON, self.onButtonLogFileSelectClick )
@@ -266,6 +281,9 @@ class SettingsWin ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def onButtonClearCache( self, event ):
+		event.Skip()
+	
 	def onCheckAutoJobsNoCheck( self, event ):
 		event.Skip()
 	
