@@ -1,7 +1,6 @@
 import gizmo
 from subsync import assets
 from subsync.error import Error
-import os
 
 import logging
 logger = logging.getLogger(__name__)
@@ -10,20 +9,20 @@ logger = logging.getLogger(__name__)
 def loadDictionary(lang1, lang2, minLen=0):
     dictionary = gizmo.Dictionary()
 
-    dictPath = assets.getLocalAsset('dict', (lang1, lang2))
-    if dictPath:
-        for key, val in loadDictionaryFromFile(dictPath):
+    asset = assets.getAsset('dict', (lang1, lang2))
+    if asset.isLocal():
+        for key, val in loadDictionaryFromFile(asset.path):
             if len(key) >= minLen and len(val) >= minLen:
                 dictionary.add(key, val)
 
     else:
-        dictPath = assets.getLocalAsset('dict', (lang2, lang1))
-        if dictPath:
-            for key, val in loadDictionaryFromFile(dictPath):
+        asset = assets.getAsset('dict', (lang2, lang1))
+        if asset.isLocal():
+            for key, val in loadDictionaryFromFile(asset.path):
                 if len(key) >= minLen and len(val) >= minLen:
                     dictionary.add(val, key)
 
-    if not dictPath:
+    if not asset.isLocal():
         raise Error(_('There is no dictionary for transaltion from {} to {}')
                     .format(lang1, lang2)) \
                     .add('language1', lang1) \

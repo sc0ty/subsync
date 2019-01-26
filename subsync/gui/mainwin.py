@@ -2,13 +2,13 @@ import subsync.gui.layout.mainwin
 import wx
 from subsync.gui.syncwin import SyncWin
 from subsync.gui.settingswin import SettingsWin
-from subsync.gui.downloadwin import AssetDownloadWin, SelfUpdaterWin
+from subsync.gui.downloadwin import DownloadWin, SelfUpdateWin
 from subsync.gui.aboutwin import AboutWin
+from subsync.gui.busydlg import BusyDlg
 from subsync.gui.errorwin import error_dlg
-from subsync import assets
+from subsync.assets import assetManager
 from subsync import cache
 from subsync import img
-from subsync import thread
 from subsync import config
 from subsync import loggercfg
 from subsync.settings import settings
@@ -66,14 +66,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.Layout()
 
         self.refsCache = cache.WordsCache()
-
-        self.selfUpdater = None
-        assets.init(self.assetsUpdated)
-
-    @thread.gui_thread
-    def assetsUpdated(self):
-        if settings().autoUpdate and assets.isUpdateAvailable():
-            self.selfUpdater = SelfUpdaterWin(self)
+        assetManager.updateTask.start()
 
     def onSliderMaxDistScroll(self, event):
         val = self.m_sliderMaxDist.GetValue()
@@ -113,12 +106,19 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
 
     def onMenuItemCheckUpdateClick(self, event):
-        if self.selfUpdater == None and assets.isUpdateAvailable():
-            self.selfUpdater = SelfUpdaterWin(self)
+        updAsset = assetManager.getSelfUpdaterAsset()
+        hasLocalUpdate = updAsset and updAsset.hasLocalUpdate()
 
-        if self.selfUpdater:
-            if self.selfUpdater.startUpdate(self):
-                self.Close(force=True)
+        if not assetManager.updateTask.isRunning() and not hasLocalUpdate:
+            assetManager.updateTask.start()
+
+        if assetManager.updateTask.isRunning():
+            with BusyDlg(_('Checking for update...')):
+                while assetManager.updateTask.isRunning():
+                    wx.Yield()
+
+        if self.runUpdater():
+            self.Close(force=True)
 
         else:
             dlg = wx.MessageDialog(
@@ -176,49 +176,93 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
         needAssets = []
         if refs.type == 'audio':
-            needAssets.append(dict(type='speech', params=[refs.lang]))
+            needAssets.append(assetManager.getAsset('speech', [refs.lang]))
         if subs.lang and refs.lang and subs.lang != refs.lang:
-            needAssets.append(dict(type='dict', params=[subs.lang, refs.lang],
-                permutable=True))
+            langs = sorted([subs.lang, refs.lang])
+            needAssets.append(assetManager.getAsset('dict', langs))
 
-        missingAssets = [ a for a in needAssets if assets.getLocalAsset(**a) == None ]
-        if len(missingAssets) == 0:
-            return True
+        missingAssets  = [ a for a in needAssets if not a.isLocal() ]
+        downloadAssets = [ a for a in missingAssets if a.isRemote() ]
+        if downloadAssets:
+            if not self.askForDownloadAssets(downloadAssets):
+                return False
 
-        downloadAssets = []
-        for id in missingAssets:
-            asset = assets.getRemoteAsset(**id, raiseIfMissing=True)
-            downloadAssets.append(asset)
+        updateAssets = [ a for a in needAssets if a.remoteVersion() > a.localVersion() ]
+        if updateAssets:
+            self.askForUpdateAssets(updateAssets)
 
-        msg = _('Following assets must be download to continue:\n')
-        msg += '\n'.join([' - ' + asset['title'] for asset in downloadAssets])
-        msg += '\n\n' + _('Download now?')
+        return True
+
+    def askForDownloadAssets(self, assetList):
+        msg = [ _('Following assets must be download to continue:') ]
+        msg += [ ' - ' + a.getPrettyName() for a in assetList ]
+        msg += [ '', ('Download now?') ]
         title = _('Download assets')
-        with wx.MessageDialog(self, msg, title, wx.YES_NO | wx.ICON_QUESTION) as dlg:
+        flags = wx.YES_NO | wx.ICON_QUESTION
+        with wx.MessageDialog(self, '\n'.join(msg), title, flags) as dlg:
             if dlg.ShowModal() == wx.ID_YES:
-                return self.downloadAssets(downloadAssets)
+                return self.downloadAssets(assetList)
+        return False
 
-    def downloadAssets(self, assetsl):
-        for asset in assetsl:
-            with AssetDownloadWin(self, asset) as dlg:
+    def askForUpdateAssets(self, assetList):
+        msg = [ _('Following assets could be updated:') ]
+        msg += [ ' - ' + a.getPrettyName() for a in assetList ]
+        msg += [ '', ('Update now?') ]
+        title = _('Update assets')
+        flags = wx.YES_NO | wx.ICON_QUESTION
+        with wx.MessageDialog(self, '\n'.join(msg), title, flags) as dlg:
+            if dlg.ShowModal() == wx.ID_YES:
+                self.refsCache.clear()
+                return self.downloadAssets(assetList)
+        return False
+
+    def downloadAssets(self, assetList):
+        for asset in assetList:
+            upd = asset.getUpdater()
+            if not upd:
+                return False
+
+            upd.start()
+            with DownloadWin(self, asset.getPrettyName(), upd) as dlg:
                 if dlg.ShowModal() != wx.ID_OK:
                     return False
         return True
 
     @error_dlg
     def onClose(self, event):
-        if self.selfUpdater:
-            if event.CanVeto() and settings().askForUpdate:
+        if event.CanVeto() and settings().askForUpdate:
+            updAsset = assetManager.getSelfUpdaterAsset()
+
+            if updAsset and updAsset.hasUpdate():
                 dlg = wx.MessageDialog(
                         self,
                         _('New version is available. Update now?'),
                         _('Upgrade'),
                         wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
+
                 if dlg.ShowModal() == wx.ID_YES:
-                    self.selfUpdater.startUpdate(self, ask=False)
+                    self.runUpdater(False)
 
-            self.selfUpdater.stop()
-
-        assets.terminate()
+        assetManager.updateTask.stop()
         event.Skip()
+
+    def runUpdater(self, askForUpdate=True):
+        updAsset = assetManager.getSelfUpdaterAsset()
+        if updAsset and updAsset.hasUpdate():
+            if not updAsset.hasLocalUpdate():
+                SelfUpdateWin(self).ShowModal()
+
+                if askForUpdate:
+                    dlg = wx.MessageDialog(
+                            parent if parent else self,
+                            _('New version is ready to be installed. Upgrade now?'),
+                            _('Upgrade'),
+                            wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
+                    if dlg.ShowModal != wx.ID_YES:
+                        return False
+
+            if updAsset.hasLocalUpdate():
+                updAsset.installUpdate()
+                return True
+        return False
 

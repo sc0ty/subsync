@@ -15,6 +15,13 @@ def parseVersion(version, defaultVer=None):
         return defaultVer
 
 
+def versionToString(version, defaultVer=None):
+    try:
+        return '.'.join([ str(v) for v in version ])
+    except:
+        return defaultVer
+
+
 def getCurrentVersion(defaultVer=None):
     try:
         from subsync.version import version_short

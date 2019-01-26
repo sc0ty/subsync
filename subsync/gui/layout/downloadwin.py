@@ -71,16 +71,8 @@ class DownloadWin ( wx.Dialog ):
 		bSizer1.Fit( self )
 		
 		self.Centre( wx.BOTH )
-		
-		# Connect Events
-		self.m_buttonCancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
 	
 	def __del__( self ):
 		pass
-	
-	
-	# Virtual event handlers, overide them in your derived class
-	def onButtonCancelClick( self, event ):
-		event.Skip()
 	
 
