@@ -25,12 +25,12 @@ def showOpenFileDlg(parent, stream):
             _('All files'), '*.*' ])
 
     path = filedlg.showOpenFileDlg(parent, **props)
-    return readStream(path, stream.types)
+    return readStream(parent, path, stream.types)
 
 
-def readStream(path, types):
+def readStream(parent, path, types):
     if path:
-        with busydlg.BusyDlg(_('Loading, please wait...')):
+        with busydlg.BusyDlg(parent, _('Loading, please wait...')):
             return Stream(path=path, types=types)
 
 
@@ -44,7 +44,7 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
     @error_dlg
     def openStream(self, stream=None, path=None):
         if path:
-            return readStream(path, self.stream.types)
+            return readStream(self, path, self.stream.types)
 
         self.stream = stream
         self.m_textPath.SetValue(self.stream.path)

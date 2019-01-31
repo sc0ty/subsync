@@ -48,7 +48,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.updateTimer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.onUpdateTimerTick, self.updateTimer)
 
-        with busydlg.BusyDlg(_('Loading, please wait...')):
+        with busydlg.BusyDlg(self, _('Loading, please wait...')):
             self.sync = synchro.Synchronizer(self, self.subs, self.refs, refsCache)
             self.sync.start()
 
@@ -171,7 +171,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         return res
 
     def onClose(self, event):
-        with busydlg.BusyDlg(_('Terminating, please wait...')):
+        with busydlg.BusyDlg(self, _('Terminating, please wait...')):
             self.stop()
 
             if self.sync:

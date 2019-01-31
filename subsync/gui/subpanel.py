@@ -36,7 +36,7 @@ class SubtitlePanel(subsync.gui.layout.subpanel.SubtitlePanel):
 
         @error_dlg
         def showOpenWinWithFile(filename):
-            stream = openwin.readStream(filename, self.stream.types)
+            stream = openwin.readStream(self, filename, self.stream.types)
             settings().lastdir = os.path.dirname(filename)
             self.showOpenWin(stream)
 

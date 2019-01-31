@@ -113,7 +113,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
             assetManager.updateTask.start()
 
         if assetManager.updateTask.isRunning():
-            with BusyDlg(_('Checking for update...')):
+            with BusyDlg(self, _('Checking for update...')):
                 while assetManager.updateTask.isRunning():
                     wx.Yield()
 
@@ -181,21 +181,23 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
             langs = sorted([subs.lang, refs.lang])
             needAssets.append(assetManager.getAsset('dict', langs))
 
-        missingAssets  = [ a for a in needAssets if not a.isLocal() ]
-        downloadAssets = [ a for a in missingAssets if a.isRemote() ]
+        missingAssets  = [ asset for asset in needAssets if not asset.isLocal() ]
+        downloadAssets = [ asset for asset in missingAssets if asset.isRemote() ]
         if downloadAssets:
             if not self.askForDownloadAssets(downloadAssets):
                 return False
 
-        updateAssets = [ a for a in needAssets if a.remoteVersion() > a.localVersion() ]
+        updateAssets = [ asset for asset in needAssets
+                if asset.remoteVersion() > asset.localVersion()
+                and asset not in downloadAssets ]
         if updateAssets:
             self.askForUpdateAssets(updateAssets)
 
         return True
 
     def askForDownloadAssets(self, assetList):
-        msg = [ _('Following assets must be download to continue:') ]
-        msg += [ ' - ' + a.getPrettyName() for a in assetList ]
+        msg  = [ _('Following assets must be download to continue:') ]
+        msg += [ ' - ' + asset.getPrettyName() for asset in assetList ]
         msg += [ '', ('Download now?') ]
         title = _('Download assets')
         flags = wx.YES_NO | wx.ICON_QUESTION
@@ -205,8 +207,8 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         return False
 
     def askForUpdateAssets(self, assetList):
-        msg = [ _('Following assets could be updated:') ]
-        msg += [ ' - ' + a.getPrettyName() for a in assetList ]
+        msg  = [ _('Following assets could be updated:') ]
+        msg += [ ' - ' + asset.getPrettyName() for asset in assetList ]
         msg += [ '', ('Update now?') ]
         title = _('Update assets')
         flags = wx.YES_NO | wx.ICON_QUESTION
@@ -254,7 +256,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
                 if askForUpdate:
                     dlg = wx.MessageDialog(
-                            parent if parent else self,
+                            self,
                             _('New version is ready to be installed. Upgrade now?'),
                             _('Upgrade'),
                             wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)

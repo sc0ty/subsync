@@ -148,6 +148,8 @@ def createProducerPipelines(stream, no=None, timeWindows=None):
 
     pipes = []
     for i in range(no):
+        processPendingEvents()
+
         p = createProducerPipeline(stream)
         pipes.append(p)
 
@@ -172,4 +174,13 @@ def createProducerPipelines(stream, no=None, timeWindows=None):
             break
 
     return pipes
+
+
+def processPendingEvents():
+    try:
+        import wx
+        if wx.App.Get() and wx.IsMainThread():
+            wx.Yield()
+    except:
+        pass
 
