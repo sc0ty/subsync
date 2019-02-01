@@ -35,24 +35,11 @@ class SyncWin ( wx.Dialog ):
 		self.m_textStatus.Wrap( -1 )
 		fgSizer6.Add( self.m_textStatus, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		fgSizer7 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer7.AddGrowableCol( 0 )
-		fgSizer7.AddGrowableRow( 0 )
-		fgSizer7.SetFlexibleDirection( wx.BOTH )
-		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-		
 		self.m_gaugeProgress = wx.Gauge( self.m_panel1, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
 		self.m_gaugeProgress.SetValue( 0 ) 
-		self.m_gaugeProgress.SetMinSize( wx.Size( 280,-1 ) )
+		self.m_gaugeProgress.SetMinSize( wx.Size( 320,-1 ) )
 		
-		fgSizer7.Add( self.m_gaugeProgress, 0, wx.ALL|wx.EXPAND, 5 )
-		
-		self.m_textProgress = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"    0 % "), wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_textProgress.Wrap( -1 )
-		fgSizer7.Add( self.m_textProgress, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		
-		fgSizer6.Add( fgSizer7, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.BOTTOM, 10 )
+		fgSizer6.Add( self.m_gaugeProgress, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_panelError = wx.Panel( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_panelError.Hide()

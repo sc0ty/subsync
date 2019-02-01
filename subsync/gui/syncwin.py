@@ -120,7 +120,6 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         if progress != None and 0.0 <= progress <= 1.0:
             pr = int(progress * 100)
             self.m_gaugeProgress.SetValue(pr)
-            self.m_textProgress.SetLabel(' {:3} % '.format(pr))
         else:
             self.m_gaugeProgress.Pulse()
 
@@ -142,8 +141,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                 if abs(self.sync.getMaxChange()) > 0.3:
                     self.m_textStatus.SetLabel(_('Subtitles synchronized'))
                 else:
-                    self.m_textStatus.SetLabel(
-                            _('No need to synchronize, subtitles are good already'))
+                    self.m_textStatus.SetLabel(_('No need to synchronize'))
             else:
                 self.m_bitmapTick.Hide()
                 self.m_bitmapCross.Show()
@@ -153,8 +151,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                             stats.factor > settings().minCorrelation**10 and
                             stats.maxDistance < 2*settings().maxPointDist):
                         self.m_buttonSave.Enable()
-                        self.m_textStatus.SetLabel(
-                                _('Couldn\'t synchronize, but you could try anyway'))
+                        self.m_textStatus.SetLabel(_('Synchronization inconclusive'))
                     else:
                         self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
                 else:
