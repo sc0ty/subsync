@@ -198,7 +198,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     def askForDownloadAssets(self, assetList):
         msg  = [ _('Following assets must be download to continue:') ]
         msg += [ ' - ' + asset.getPrettyName() for asset in assetList ]
-        msg += [ '', ('Download now?') ]
+        msg += [ '', _('Download now?') ]
         title = _('Download assets')
         flags = wx.YES_NO | wx.ICON_QUESTION
         with wx.MessageDialog(self, '\n'.join(msg), title, flags) as dlg:
@@ -209,7 +209,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     def askForUpdateAssets(self, assetList):
         msg  = [ _('Following assets could be updated:') ]
         msg += [ ' - ' + asset.getPrettyName() for asset in assetList ]
-        msg += [ '', ('Update now?') ]
+        msg += [ '', _('Update now?') ]
         title = _('Update assets')
         flags = wx.YES_NO | wx.ICON_QUESTION
         with wx.MessageDialog(self, '\n'.join(msg), title, flags) as dlg:

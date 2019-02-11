@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-10 18:32+0100\n"
-"PO-Revision-Date: 2019-02-10 18:47+0100\n"
+"POT-Creation-Date: 2019-02-11 11:43+0100\n"
+"PO-Revision-Date: 2019-02-11 11:45+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -670,6 +670,10 @@ msgstr "Wybierz najpierw język referencji"
 msgid "Following assets must be download to continue:"
 msgstr "Wymagane są następujące składniki:"
 
+#: subsync/gui/mainwin.py:201
+msgid "Download now?"
+msgstr "Pobrać teraz?"
+
 #: subsync/gui/mainwin.py:202
 msgid "Download assets"
 msgstr "Pobieranie"
@@ -677,6 +681,10 @@ msgstr "Pobieranie"
 #: subsync/gui/mainwin.py:210
 msgid "Following assets could be updated:"
 msgstr "Dostępna jest aktualizacja następujących składników:"
+
+#: subsync/gui/mainwin.py:212
+msgid "Update now?"
+msgstr "Zaktualizować teraz?"
 
 #: subsync/gui/mainwin.py:213
 msgid "Update assets"
@@ -809,9 +817,6 @@ msgstr "Nieprawidłowy format audio"
 
 #~ msgid "Following assets must be download to continue:\n"
 #~ msgstr "Aby kontynuować trzeba pobrać następujące pakiety:\n"
-
-#~ msgid "Download now?"
-#~ msgstr "Pobrać teraz?"
 
 #~ msgid "Operation failed"
 #~ msgstr "Operacja nie powiodła się"
