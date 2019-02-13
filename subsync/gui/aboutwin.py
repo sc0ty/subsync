@@ -19,6 +19,9 @@ class AboutWin(subsync.gui.layout.aboutwin.AboutWin):
         self.Fit()
         self.Layout()
 
+        # workaround for buttons cut in half
+        wx.CallAfter(self.Fit)
+
     def onButtonLicenseClick(self, event):
         dlg = wx.lib.dialogs.ScrolledMessageDialog(self, license, 'License',
                 size=(500, 800))

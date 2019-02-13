@@ -65,6 +65,11 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.Fit()
         self.Layout()
 
+        # allow only to resize horizontally
+        size = self.GetSize()
+        self.SetSizeHints(minW=size.GetWidth(), minH=size.GetHeight(),
+                maxH=size.GetHeight())
+
         self.refsCache = cache.WordsCache()
         assetManager.updateTask.start()
 
