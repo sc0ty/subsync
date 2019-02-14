@@ -52,14 +52,22 @@ float compareWords(const string &word1, const string &word2)
 	Utf8::iterator w1(word1);
 	Utf8::iterator w2(word2);
 	float sim = 0.f;
+	float len = 0.f;
 
-	while (*w1 && *w1 == *w2)
+	while (*w1)
 	{
-		sim += 2.f;
+		if (*w1 == *w2)
+			sim += 2.0f;
+		else if (w1.toLower() == w2.toLower())
+			sim += 1.5f;
+		else
+			break;
+
+		len += 2.f;
 		++w1;
 		++w2;
 	}
 
-	return sim / (sim + (float)(w1.size() + w2.size()));
+	return sim / (len + w1.size() + w2.size());
 }
 
