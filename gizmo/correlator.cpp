@@ -164,7 +164,7 @@ bool Correlator::addReference(double time, const string &word)
 	return newBestLine;
 }
 
-void Correlator::correlate() const
+Points Correlator::correlate() const
 {
 	double cor;
 
@@ -199,6 +199,8 @@ void Correlator::correlate() const
 		if (m_running)
 			m_statsCb(stats);
 	}
+
+	return hits;
 }
 
 static Correlator::ElementsVector entrysToVector(Correlator::Entrys entrys)
@@ -230,6 +232,16 @@ Correlator::ElementsVector Correlator::getRefs() const
 			.module("Correlator");
 
 	return entrysToVector(m_refs);
+}
+
+Points Correlator::getAllPoints() const
+{
+	return m_lineFinder.getPoints();
+}
+
+Points Correlator::getUsedPoints() const
+{
+	return correlate();
 }
 
 

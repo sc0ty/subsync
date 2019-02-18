@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec  3 2017)
+## Python code generated with wxFormBuilder (version Nov 16 2018)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -193,6 +193,14 @@ class SyncWin ( wx.Dialog ):
 		self.m_menuItemDumpRefWords = wx.MenuItem( self.m_menuDebug, wx.ID_ANY, _(u"Dump reference words"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuDebug.Append( self.m_menuItemDumpRefWords )
 		
+		self.m_menuDebug.AppendSeparator()
+		
+		self.m_menuItemDumpAllSyncPoints = wx.MenuItem( self.m_menuDebug, wx.ID_ANY, _(u"Dump all synchronization points"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuDebug.Append( self.m_menuItemDumpAllSyncPoints )
+		
+		self.m_menuItemDumpUsedSyncPoints = wx.MenuItem( self.m_menuDebug, wx.ID_ANY, _(u"Dump used synchronization points"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuDebug.Append( self.m_menuItemDumpUsedSyncPoints )
+		
 		self.m_buttonDebugMenu.Bind( wx.EVT_RIGHT_DOWN, self.m_buttonDebugMenuOnContextMenu ) 
 		
 		fgSizer81.Add( self.m_buttonDebugMenu, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -236,6 +244,8 @@ class SyncWin ( wx.Dialog ):
 		self.Bind( wx.EVT_MENU, self.onMenuItemEnableSaveClick, id = self.m_menuItemEnableSave.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemDumpSubWordsClick, id = self.m_menuItemDumpSubWords.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemDumpRefWordsClick, id = self.m_menuItemDumpRefWords.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemDumpAllSyncPointsClick, id = self.m_menuItemDumpAllSyncPoints.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemDumpUsedSyncPointsClick, id = self.m_menuItemDumpUsedSyncPoints.GetId() )
 		self.m_buttonStop.Bind( wx.EVT_BUTTON, self.onButtonStopClick )
 		self.m_buttonSave.Bind( wx.EVT_BUTTON, self.onButtonSaveClick )
 	
@@ -266,6 +276,12 @@ class SyncWin ( wx.Dialog ):
 		event.Skip()
 	
 	def onMenuItemDumpRefWordsClick( self, event ):
+		event.Skip()
+	
+	def onMenuItemDumpAllSyncPointsClick( self, event ):
+		event.Skip()
+	
+	def onMenuItemDumpUsedSyncPointsClick( self, event ):
 		event.Skip()
 	
 	def onButtonStopClick( self, event ):

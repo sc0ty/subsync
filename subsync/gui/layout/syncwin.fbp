@@ -2152,6 +2152,40 @@
                                                     <event name="OnMenuSelection">onMenuItemDumpRefWordsClick</event>
                                                     <event name="OnUpdateUI"></event>
                                                 </object>
+                                                <object class="separator" expanded="1">
+                                                    <property name="name">m_separator2</property>
+                                                    <property name="permission">none</property>
+                                                </object>
+                                                <object class="wxMenuItem" expanded="1">
+                                                    <property name="bitmap"></property>
+                                                    <property name="checked">0</property>
+                                                    <property name="enabled">1</property>
+                                                    <property name="help"></property>
+                                                    <property name="id">wxID_ANY</property>
+                                                    <property name="kind">wxITEM_NORMAL</property>
+                                                    <property name="label">Dump all synchronization points</property>
+                                                    <property name="name">m_menuItemDumpAllSyncPoints</property>
+                                                    <property name="permission">none</property>
+                                                    <property name="shortcut"></property>
+                                                    <property name="unchecked_bitmap"></property>
+                                                    <event name="OnMenuSelection">onMenuItemDumpAllSyncPointsClick</event>
+                                                    <event name="OnUpdateUI"></event>
+                                                </object>
+                                                <object class="wxMenuItem" expanded="1">
+                                                    <property name="bitmap"></property>
+                                                    <property name="checked">0</property>
+                                                    <property name="enabled">1</property>
+                                                    <property name="help"></property>
+                                                    <property name="id">wxID_ANY</property>
+                                                    <property name="kind">wxITEM_NORMAL</property>
+                                                    <property name="label">Dump used synchronization points</property>
+                                                    <property name="name">m_menuItemDumpUsedSyncPoints</property>
+                                                    <property name="permission">none</property>
+                                                    <property name="shortcut"></property>
+                                                    <property name="unchecked_bitmap"></property>
+                                                    <event name="OnMenuSelection">onMenuItemDumpUsedSyncPointsClick</event>
+                                                    <event name="OnUpdateUI"></event>
+                                                </object>
                                             </object>
                                         </object>
                                     </object>

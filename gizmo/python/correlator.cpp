@@ -1,6 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
+#include <vector>
+#include <tuple>
 
 #include "correlator.h"
 #include "math/line.h"
@@ -8,11 +10,17 @@
 namespace py = pybind11;
 
 
+typedef std::vector<std::tuple<float, float>> PointsList;
+static PointsList convertPointsList(const Points &pts);
+
+
 void initCorrelatorWrapper(py::module &m)
 {
 	/*** class Correlator ***/
 	py::class_<Correlator> correlator(m, "Correlator");
-	correlator.def(py::init<float, double, float, unsigned, float>());
+	correlator.def(py::init<float, double, float, unsigned, float>(),
+			py::arg("windowSize"), py::arg("minCorrelation"),
+			py::arg("maxDist"), py::arg("minPointsNo"), py::arg("minWordsSim"));
 	correlator.def("connectStatsCallback", &Correlator::connectStatsCallback);
 	correlator.def("start", &Correlator::start, py::arg("threadName") = "");
 	correlator.def("stop", &Correlator::stop);
@@ -23,6 +31,12 @@ void initCorrelatorWrapper(py::module &m)
 	correlator.def("pushRefWord", &Correlator::pushRefWord);
 	correlator.def("getSubs", &Correlator::getSubs);
 	correlator.def("getRefs", &Correlator::getRefs);
+	correlator.def("getAllPoints", [](const Correlator &c) {
+			return convertPointsList(c.getAllPoints());
+	});
+	correlator.def("getUsedPoints", [](const Correlator &c) {
+			return convertPointsList(c.getUsedPoints());
+	});
 
 	/*** struct CorrelationStats ***/
 	py::class_<CorrelationStats> corrStats(m, "CorrelationStats");
@@ -45,4 +59,13 @@ void initCorrelatorWrapper(py::module &m)
 	line.def("getX", &Line::getX);
 	line.def("getY", &Line::getY);
 	line.def("__repr__", &Line::toString);
+}
+
+
+PointsList convertPointsList(const Points &pts)
+{
+	PointsList res;
+	for (const Point &p: pts)
+		res.push_back(std::make_tuple(p.x, p.y));
+	return res;
 }

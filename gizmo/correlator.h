@@ -56,6 +56,9 @@ class Correlator
 		ElementsVector getSubs() const;
 		ElementsVector getRefs() const;
 
+		Points getAllPoints() const;
+		Points getUsedPoints() const;
+
 	private:
 		void run(const std::string threadName);
 		void terminate();
@@ -63,7 +66,7 @@ class Correlator
 		bool addSubtitle(double time, const std::string &word);
 		bool addReference(double time, const std::string &word);
 
-		void correlate() const;
+		Points correlate() const;
 
 	private:
 		Entrys m_subs;

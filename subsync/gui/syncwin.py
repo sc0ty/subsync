@@ -280,6 +280,21 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             fps = self.subs.fps if self.subs.fps != None else self.refs.fps
             subs.save(path, fps=fps)
 
+    @errorwin.error_dlg
+    def onMenuItemDumpAllSyncPointsClick(self, event):
+        self.saveSyncPoints(self.sync.correlator.getAllPoints())
+
+    def onMenuItemDumpUsedSyncPointsClick(self, event):
+        self.saveSyncPoints(self.sync.correlator.getUsedPoints())
+
+    def saveSyncPoints(self, pts):
+        wildcard = '*.csv|*.csv|{}|*.*'.format(_('All files'))
+        path = filedlg.showSaveFileDlg(self, wildcard=wildcard)
+        if path:
+            with open(path, 'w') as fp:
+                for x, y in pts:
+                    fp.write('{:.3f},{:.3f}\n'.format(x, y))
+
 
 def errorToString(source, err):
     if source == 'sub':
