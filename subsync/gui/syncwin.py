@@ -17,6 +17,9 @@ import time
 import os
 import collections
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class SyncWin(subsync.gui.layout.syncwin.SyncWin):
     def __init__(self, parent, subs, refs, refsCache=None, listener=None):

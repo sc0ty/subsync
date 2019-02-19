@@ -2,7 +2,6 @@ import wx
 from functools import wraps
 import threading
 import asyncio
-import aiohttp
 
 
 class AtomicValue(object):
@@ -103,9 +102,3 @@ class AsyncJob(object):
         asyncio.set_event_loop(self.loop)
         self.task = asyncio.ensure_future(job())
         self.loop.run_until_complete(self.task)
-
-
-def repeateCancelledError(e):
-    if isinstance(e, asyncio.CancelledError):
-        raise
-

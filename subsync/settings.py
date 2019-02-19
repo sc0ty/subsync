@@ -71,7 +71,7 @@ class Settings(object):
             logger.info('configuration saved to %s', config.configpath)
             logger.debug('configuration: %r', self.items())
         except Exception as e:
-            logger.warning('cannot save configuration to %s: %r', config.configpaths, e)
+            logger.warning('cannot save configuration to %s: %r', config.configpath, e)
 
 
 _settings = Settings()

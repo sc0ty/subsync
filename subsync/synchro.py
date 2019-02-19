@@ -4,7 +4,6 @@ from subsync import subtitle
 from subsync.settings import settings
 from subsync import dictionary
 from subsync import encdetect
-from subsync import utils
 import threading
 import multiprocessing
 

@@ -46,9 +46,9 @@ def timeStampFmt(time):
     s = int(t % 60)
 
     if t < 3600:
-        return '{:d}:{:02d}'.format(m, s);
+        return '{:d}:{:02d}'.format(m, s)
     else:
-        return '{:d}:{:02d}:{:02d}'.format(h, m, s);
+        return '{:d}:{:02d}:{:02d}'.format(h, m, s)
 
 
 def timeStampFractionFmt(time):

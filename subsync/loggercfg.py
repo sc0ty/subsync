@@ -4,6 +4,7 @@ import gizmo
 
 class BlacklistFilter(logging.Filter):
     def __init__(self, names):
+        super().__init__()
         self.blacklist = set(names)
 
     def filter(self, record):

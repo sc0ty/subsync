@@ -32,9 +32,6 @@ class ChoiceLang(wx.Choice):
 
 
 class ChoiceGuiLang(ChoiceLang):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def initLangs(self):
         from subsync.data.languages import languages, languages2to3
         from subsync.translations import listLanguages as langs
