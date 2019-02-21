@@ -14,13 +14,18 @@ TEST_TARGET = $(TEST_DIR)/tests
 TEST_SOURCES = \
 			   $(TEST_DIR)/core.cpp \
 			   $(TEST_DIR)/utf8.cpp \
+			   $(TEST_DIR)/line.cpp \
+			   $(TEST_DIR)/linefinder.cpp \
 
 TEST_OBJECTS = $(TEST_SOURCES:.cpp=.o)
 
 TEST_DEPENDS = $(TEST_SOURCES:.cpp=.d)
 
 TESTEE_OBJECTS = \
-				 text/utf8.o
+				 text/utf8.o \
+				 math/point.o \
+				 math/line.o \
+				 math/linefinder.o \
 
 
 #####################

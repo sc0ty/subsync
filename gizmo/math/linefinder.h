@@ -19,7 +19,7 @@ class LineFinder
 		bool addPoint(float x, float y);
 		const Points &getPoints() const;
 
-		const Line &getBestLine(size_t *pointsNo=NULL) const;
+		const Line &getBestLine() const;
 		size_t getAlignedPointsNo() const;
 
 	private:

@@ -47,17 +47,18 @@ bool LineFinder::addPoint(const Point &point)
 		for (const auto &col : m_quadrants)
 		{
 			const int qx = col.first;
-			const float y1 = line.getY((float) qx * QUADRANT_LEN);
-			const float y2 = line.getY((float) (qx + 1) * QUADRANT_LEN);
-			const int qy1 = floor((y1 - m_maxError) / QUADRANT_LEN);
-			const int qy2 = floor((y2 + m_maxError) / QUADRANT_LEN);
+
+			const float y1 = line.getY(qx * QUADRANT_LEN);
+			const float y2 = line.getY((qx + 1) * QUADRANT_LEN);
+			const int qy1 = (y1 - m_maxError) / QUADRANT_LEN;
+			const int qy2 = (y2 + m_maxError) / QUADRANT_LEN;
 
 			const auto &row = col.second;
-			auto it = row.upper_bound(qy1);
+			auto it = row.lower_bound(qy1);
 
 			while (it != row.end() && it->first <= qy2)
 			{
-				for (const auto &p2 : it->second)
+				for (const Point &p2 : it->second)
 				{
 					if (line.getDistanceSqr(p2) <= maxErrorSquared)
 						pointsNo++;
@@ -94,10 +95,8 @@ bool LineFinder::addPoint(float x, float y)
 	return addPoint(Point(x, y));
 }
 
-const Line &LineFinder::getBestLine(size_t *pointsNo) const
+const Line &LineFinder::getBestLine() const
 {
-	if (pointsNo)
-		*pointsNo = m_bestPointsNo;
 	return m_bestLine;
 }
 
