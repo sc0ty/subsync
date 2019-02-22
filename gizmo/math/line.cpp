@@ -33,16 +33,16 @@ Line::Line(const Points &points, double *da, double *db, double *cor)
 			*cor = 0.0f;
 	}
 
-	double sx  = 0.0f;	// sum of x
-	double sy  = 0.0f;	// sum of y
-	double sxy = 0.0f;	// sum of x*y
-	double sx2 = 0.0f;	// sum of x^2
-	double sy2 = 0.0f;	// sum of y^2
+	double sx  = 0.0;	// sum of x
+	double sy  = 0.0;	// sum of y
+	double sxy = 0.0;	// sum of x*y
+	double sx2 = 0.0;	// sum of x^2
+	double sy2 = 0.0;	// sum of y^2
 
-	for (auto &point : points)
+	for (const Point &point : points)
 	{
-		double x = point.x;
-		double y = point.y;
+		const double x = point.x;
+		const double y = point.y;
 		sx += x;
 		sy += y;
 		sxy += x*y;
@@ -50,11 +50,11 @@ Line::Line(const Points &points, double *da, double *db, double *cor)
 		sy2 += y*y;
 	}
 
-	double n = points.size();
+	const double n = points.size();
 
-	double txy = n*sxy - sx*sy;
-	double tx = n*sx2 - sx*sx;
-	double ty = n*sy2 - sy*sy;
+	const double txy = n*sxy - sx*sy;
+	const double tx = n*sx2 - sx*sx;
+	const double ty = n*sy2 - sy*sy;
 
 	if ((tx == 0.0) || (ty == 0.0))
 	{
@@ -68,7 +68,7 @@ Line::Line(const Points &points, double *da, double *db, double *cor)
 
 	if (da && db)
 	{
-		double t3 = sy2 - a*sxy - b*sy;
+		const double t3 = sy2 - a*sxy - b*sy;
 
 		*da = sqrt(n/(n-2) * t3/tx);
 		*db = *da * sqrt(sx2/n);
@@ -85,14 +85,14 @@ float Line::getDistance(const Point &point) const
 
 float Line::getDistanceSqr(const Point &point) const
 {
-	float t = b + a*point.x - point.y;
+	const float t = b + a*point.x - point.y;
 	return (t*t) / (a*a + 1.0f);
 }
 
 Points Line::getPointsInLine(const Points &pts) const
 {
 	Points res;
-	for (auto point : pts)
+	for (const Point &point : pts)
 	{
 		if (point.y == a*point.x + b)
 			res.insert(point);
@@ -100,12 +100,11 @@ Points Line::getPointsInLine(const Points &pts) const
 	return res;
 }
 
-Points Line::getPointsInLine(const Points &points, float maxDist) const
+Points Line::getPointsInLine(const Points &points, float maxDistSqr) const
 {
 	Points res;
-	float maxDistSqr = maxDist * maxDist;
 
-	for (auto point : points)
+	for (const Point &point : points)
 	{
 		if (getDistanceSqr(point) <= maxDistSqr)
 			res.insert(point);
@@ -116,7 +115,7 @@ Points Line::getPointsInLine(const Points &points, float maxDist) const
 size_t Line::countPointsInLine(const Points &points) const
 {
 	size_t cnt = 0;
-	for (auto point : points)
+	for (const Point &point : points)
 	{
 		if (point.y == a*point.x + b)
 			cnt++;
@@ -124,12 +123,11 @@ size_t Line::countPointsInLine(const Points &points) const
 	return cnt;
 }
 
-size_t Line::countPointsInLine(const Points &points, float maxDist) const
+size_t Line::countPointsInLine(const Points &points, float maxDistSqr) const
 {
 	size_t cnt = 0;
-	float maxDistSqr = maxDist * maxDist;
 
-	for (auto point : points)
+	for (const Point &point : points)
 	{
 		if (getDistanceSqr(point) <= maxDistSqr)
 			cnt++;
@@ -137,39 +135,39 @@ size_t Line::countPointsInLine(const Points &points, float maxDist) const
 	return cnt;
 }
 
-float Line::findFurthestPoint(Points &points) const
+float Line::findFurthestPoint(const Points &points) const
 {
-	float furthestDist = 0.0f;
+	float furthestDistSqr = 0.0f;
 
-	for (auto point=points.begin(); point!=points.end(); ++point)
+	for (const Point &point : points)
 	{
-		float dist = getDistanceSqr(*point);
-		if (dist > furthestDist)
-			furthestDist = dist;
+		const float distSqr = getDistanceSqr(point);
+		if (distSqr > furthestDistSqr)
+			furthestDistSqr = distSqr;
 	}
 
-	return sqrt(furthestDist);
+	return furthestDistSqr;
 }
 
 float Line::removeFurthestPoint(Points &points) const
 {
 	Points::iterator furthestPoint;
-	float furthestDist = 0.0f;
+	float furthestDistSqr = 0.0f;
 
 	for (auto point=points.begin(); point!=points.end(); ++point)
 	{
-		float dist = getDistanceSqr(*point);
-		if (dist > furthestDist)
+		float distSqr = getDistanceSqr(*point);
+		if (distSqr > furthestDistSqr)
 		{
 			furthestPoint = point;
-			furthestDist = dist;
+			furthestDistSqr = distSqr;
 		}
 	}
 
-	if (furthestDist > 0.0f)
+	if (furthestDistSqr > 0.0f)
 		points.erase(furthestPoint);
 
-	return sqrt(furthestDist);
+	return furthestDistSqr;
 }
 
 string Line::toString() const

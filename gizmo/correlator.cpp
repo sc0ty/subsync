@@ -23,7 +23,7 @@ Correlator::Correlator(
 	m_lineFinder(5.0f, windowSize),
 	m_windowSize(windowSize),
 	m_minCorrelation(minCorrelation),
-	m_maxDistance(maxDistance),
+	m_maxDistanceSqr(maxDistance * maxDistance),
 	m_minPointsNo(minPointsNo),
 	m_minWordsSim(minWordsSim)
 {
@@ -34,12 +34,12 @@ Correlator::~Correlator()
 	terminate();
 }
 
-void Correlator::pushSubWord(const string &word, double time)
+void Correlator::pushSubWord(const string &word, float time)
 {
 	m_queue.push(WordId::Sub, word, time);
 }
 
-void Correlator::pushRefWord(const string &word, double time)
+void Correlator::pushRefWord(const string &word, float time)
 {
 	m_queue.push(WordId::Ref, word, time);
 }
@@ -50,7 +50,7 @@ void Correlator::run(const string threadName)
 		renameThread(threadName);
 
 	string word;
-	double time;
+	float time;
 
 	while (m_running)
 	{
@@ -118,7 +118,7 @@ void Correlator::connectStatsCallback(StatsCallback callback)
 	m_statsCb = callback;
 }
 
-bool Correlator::addSubtitle(double time, const string &word)
+bool Correlator::addSubtitle(float time, const string &word)
 {
 	m_subs.insert(make_pair(time, word));
 
@@ -141,7 +141,7 @@ bool Correlator::addSubtitle(double time, const string &word)
 	return newBestLine;
 }
 
-bool Correlator::addReference(double time, const string &word)
+bool Correlator::addReference(float time, const string &word)
 {
 	m_refs.insert(make_pair(time, word));
 
@@ -170,15 +170,15 @@ Points Correlator::correlate() const
 
 	Line bestLine = m_lineFinder.getBestLine();
 	const Points &points = m_lineFinder.getPoints();
-	Points hits = bestLine.getPointsInLine(points, 5.0f);
+	Points hits = bestLine.getPointsInLine(points, m_maxDistanceSqr);
 
 	Line line(hits, NULL, NULL, &cor);
-	float dist = line.findFurthestPoint(hits);
+	float distSqr = line.findFurthestPoint(hits);
 
-	while ((cor < m_minCorrelation || dist > m_maxDistance)
+	while ((cor < m_minCorrelation || distSqr > m_maxDistanceSqr)
 			&& (hits.size() > m_minPointsNo))
 	{
-		dist = line.removeFurthestPoint(hits);
+		distSqr = line.removeFurthestPoint(hits);
 		line = Line(hits, NULL, NULL, &cor);
 	}
 
@@ -189,11 +189,11 @@ Points Correlator::correlate() const
 		stats.correlated =
 			cor >= m_minCorrelation &&
 			hits.size() >= m_minPointsNo &&
-			dist <= m_maxDistance;
+			distSqr <= m_maxDistanceSqr;
 
 		stats.factor = cor;
 		stats.points = hits.size();
-		stats.maxDistance = dist;
+		stats.maxDistance = sqrt(distSqr);
 		stats.formula = line;
 
 		if (m_running)
@@ -210,7 +210,7 @@ static Correlator::ElementsVector entrysToVector(Correlator::Entrys entrys)
 
 	for (auto &element : entrys)
 	{
-		auto p = pair<double, string>(element.first, element.second);
+		auto p = pair<float, string>(element.first, element.second);
 		res.push_back(p);
 	}
 	return res;

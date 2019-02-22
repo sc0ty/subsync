@@ -43,7 +43,7 @@ class SubtitleDec : public Decoder
 
 	private:
 		bool feedOutput(AVSubtitle &sub, double duration);
-		void feedWordsOutput(double begin, double end, const char *text);
+		void feedWordsOutput(float begin, float end, const char *text);
 
 	private:
 		AVCodecContext *m_codecCtx;

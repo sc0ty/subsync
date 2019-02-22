@@ -117,7 +117,7 @@ bool SubtitleDec::feedOutput(AVSubtitle &sub, double duration)
 	return gotSub;
 }
 
-void SubtitleDec::feedWordsOutput(double begin, double end, const char *data)
+void SubtitleDec::feedWordsOutput(float begin, float end, const char *data)
 {
 	const char *text = data;
 	unsigned commas = 0;
@@ -131,7 +131,7 @@ void SubtitleDec::feedWordsOutput(double begin, double end, const char *data)
 	if (commas < 8)
 		text = data;
 
-	double delta = (end - begin) / (double) strlen(text);
+	float delta = (end - begin) / (float) strlen(text);
 	const char *p = text;
 
 	while (*p != '\0')
@@ -168,7 +168,7 @@ void SubtitleDec::feedWordsOutput(double begin, double end, const char *data)
 
 		if (word.size() >= m_minWordLen)
 		{
-			double time = begin + delta * (double) (beg + end) / 2.0;
+			float time = begin + delta * (float) (beg + end) / 2.0;
 			m_wordsCb(word, time);
 		}
 	}

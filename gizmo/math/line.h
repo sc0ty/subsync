@@ -25,12 +25,12 @@ class Line
 		float getDistance(const Point &point) const;
 
 		Points getPointsInLine(const Points &points) const;
-		Points getPointsInLine(const Points &points, float maxDist) const;
+		Points getPointsInLine(const Points &points, float maxDistSqr) const;
 
 		size_t countPointsInLine(const Points &points) const;
-		size_t countPointsInLine(const Points &points, float maxDist) const;
+		size_t countPointsInLine(const Points &points, float maxDistSqr) const;
 
-		float findFurthestPoint(Points &points) const;
+		float findFurthestPoint(const Points &points) const;
 		float removeFurthestPoint(Points &points) const;
 
 		std::string toString() const;

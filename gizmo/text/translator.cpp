@@ -18,7 +18,7 @@ void Translator::setMinWordsSim(float minSim)
 	m_minSim = minSim;
 }
 
-void Translator::pushWord(const string &word, double time)
+void Translator::pushWord(const string &word, float time)
 {
 	const string lword = Utf8::toLower(word);
 	auto it1 = m_dict.bestGuess(lword);

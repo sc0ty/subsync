@@ -10,7 +10,7 @@ WordsQueue::~WordsQueue()
 	release();
 }
 
-void WordsQueue::push(WordId id, const string &word, double time)
+void WordsQueue::push(WordId id, const string &word, float time)
 {
 	{
 		unique_lock<mutex> lock(m_mutex);
@@ -19,7 +19,7 @@ void WordsQueue::push(WordId id, const string &word, double time)
 	m_sem.post();
 }
 
-WordId WordsQueue::pop(string &word, double &time)
+WordId WordsQueue::pop(string &word, float &time)
 {
 	WordId id = WordId::None;
 
@@ -63,7 +63,7 @@ bool WordsQueue::empty() const
 WordsQueue::Entry::Entry() : id(WordId::None)
 {}
 
-WordsQueue::Entry::Entry(WordId id, const string &word, double time)
+WordsQueue::Entry::Entry(WordId id, const string &word, float time)
 	: id(id), word(word), time(time)
 {}
 

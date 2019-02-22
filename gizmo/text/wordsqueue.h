@@ -14,18 +14,18 @@ class WordsQueue
 		{
 			WordId id;
 			std::string word;
-			double time;
+			float time;
 
 			Entry();
-			Entry(WordId id, const std::string &word, double time);
+			Entry(WordId id, const std::string &word, float time);
 		};
 
 	public:
 		WordsQueue();
 		~WordsQueue();
 
-		void push(WordId id, const std::string &word, double time);
-		WordId pop(std::string &word, double &time);
+		void push(WordId id, const std::string &word, float time);
+		WordId pop(std::string &word, float &time);
 		void release();
 
 		size_t size() const;

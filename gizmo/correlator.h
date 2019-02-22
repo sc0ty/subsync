@@ -50,8 +50,8 @@ class Correlator
 		bool isDone() const;
 		float getProgress() const;
 
-		void pushSubWord(const std::string &word, double time);
-		void pushRefWord(const std::string &word, double time);
+		void pushSubWord(const std::string &word, float time);
+		void pushRefWord(const std::string &word, float time);
 
 		ElementsVector getSubs() const;
 		ElementsVector getRefs() const;
@@ -63,8 +63,8 @@ class Correlator
 		void run(const std::string threadName);
 		void terminate();
 
-		bool addSubtitle(double time, const std::string &word);
-		bool addReference(double time, const std::string &word);
+		bool addSubtitle(float time, const std::string &word);
+		bool addReference(float time, const std::string &word);
 
 		Points correlate() const;
 
@@ -84,9 +84,9 @@ class Correlator
 		StatsCallback m_statsCb;
 		CorrelationStats m_stats;
 
-		double   m_windowSize;
+		float   m_windowSize;
 		double   m_minCorrelation;
-		float    m_maxDistance;
+		float    m_maxDistanceSqr;
 		unsigned m_minPointsNo;
 		float    m_minWordsSim;
 };
