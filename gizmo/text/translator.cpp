@@ -18,9 +18,9 @@ void Translator::setMinWordsSim(float minSim)
 	m_minSim = minSim;
 }
 
-void Translator::pushWord(const string &word, float time)
+void Translator::pushWord(const Word &word)
 {
-	const string lword = Utf8::toLower(word);
+	const string lword = Utf8::toLower(word.text);
 	auto it1 = m_dict.bestGuess(lword);
 	auto it2 = it1;
 
@@ -34,7 +34,7 @@ void Translator::pushWord(const string &word, float time)
 			break;
 
 		for (auto &tr : it1->second)
-			m_wordsCb(tr, time);
+			m_wordsCb(Word(tr, word.time, word.score*sim));
 	}
 
 	for (++it2; it2 != m_dict.end(); ++it2)
@@ -44,6 +44,6 @@ void Translator::pushWord(const string &word, float time)
 			break;
 
 		for (auto &tr : it2->second)
-			m_wordsCb(tr, time);
+			m_wordsCb(Word(tr, word.time, word.score*sim));
 	}
 }

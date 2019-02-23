@@ -169,7 +169,7 @@ void SubtitleDec::feedWordsOutput(float begin, float end, const char *data)
 		if (word.size() >= m_minWordLen)
 		{
 			float time = begin + delta * (float) (beg + end) / 2.0;
-			m_wordsCb(word, time);
+			m_wordsCb(Word(word, time));
 		}
 	}
 }

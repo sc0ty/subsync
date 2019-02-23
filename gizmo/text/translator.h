@@ -11,7 +11,7 @@ class Translator
 	public:
 		Translator(const Dictionary &dictionary);
 
-		void pushWord(const std::string &word, float time);
+		void pushWord(const Word &word);
 
 		void connectWordsCallback(WordsCallback m_wordsCb);
 		void setMinWordsSim(float minSim);

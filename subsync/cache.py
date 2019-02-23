@@ -7,7 +7,13 @@ class WordsCache(object):
 
     def mkId(self, stream):
         if stream:
-            return (stream.path, stream.no, settings().minWordProb, settings().minWordLen)
+            return (
+                    stream.path,
+                    stream.no,
+                    stream.lang,
+                    stream.enc,
+                    settings().minWordProb,
+                    settings().minWordLen)
 
     def init(self, id):
         self.id = self.mkId(id)

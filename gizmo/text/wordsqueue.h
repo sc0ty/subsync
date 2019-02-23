@@ -13,19 +13,18 @@ class WordsQueue
 		struct Entry
 		{
 			WordId id;
-			std::string word;
-			float time;
+			Word word;
 
 			Entry();
-			Entry(WordId id, const std::string &word, float time);
+			Entry(WordId id, const Word &word);
 		};
 
 	public:
 		WordsQueue();
 		~WordsQueue();
 
-		void push(WordId id, const std::string &word, float time);
-		WordId pop(std::string &word, float &time);
+		void push(WordId id, const Word &word);
+		WordId pop(Word &word);
 		void release();
 
 		size_t size() const;

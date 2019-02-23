@@ -69,6 +69,7 @@ SOURCES = \
 		  media/speechrec.cpp \
 		  text/translator.cpp \
 		  text/dictionary.cpp \
+		  text/words.cpp \
 		  text/utf8.cpp \
 		  text/wordsqueue.cpp \
 		  math/point.cpp \

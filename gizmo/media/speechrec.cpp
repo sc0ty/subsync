@@ -179,16 +179,12 @@ void SpeechRecognition::discontinuity()
 
 void SpeechRecognition::parseUtterance()
 {
-	const char *text;
-	int begin, end, pprob;
-	string word;
-
 	for (ps_seg_t *it=ps_seg_iter(m_ps); it!=NULL; it=ps_seg_next(it))
 	{
-		text = ps_seg_word(it);
+		const char *text = ps_seg_word(it);
 		if (text && text[0] != '<' && text[0] != '[')
 		{
-			word = text;
+			string word = text;
 			if ((word.size() > 3) && (word.back() == ')'))
 			{
 				size_t pos = word.size() - 2;
@@ -199,14 +195,15 @@ void SpeechRecognition::parseUtterance()
 					word.resize(pos);
 			}
 
+			int begin, end;
 			ps_seg_frames(it, &begin, &end);
-			double time = ((double)begin+(double)end) * m_framePeriod / 2.0;
+			const double time = ((double)begin+(double)end) * m_framePeriod / 2.0;
 
-			pprob = ps_seg_prob(it, NULL, NULL, NULL);
-			float prob = logmath_exp(ps_get_logmath(m_ps), pprob);
+			const int pprob = ps_seg_prob(it, NULL, NULL, NULL);
+			const float prob = logmath_exp(ps_get_logmath(m_ps), pprob);
 
 			if (m_wordsCb && word.size() >= m_minLen && prob >= m_minProb)
-				m_wordsCb(word, time + m_deltaTime);
+				m_wordsCb(Word(word, time + m_deltaTime, prob));
 		}
 	}
 }

@@ -7,6 +7,7 @@
 #include <pybind11/pybind11.h>
 #include <sstream>
 #include <iomanip>
+#include <cmath>
 
 using namespace std;
 namespace py = pybind11;
@@ -34,14 +35,14 @@ Correlator::~Correlator()
 	terminate();
 }
 
-void Correlator::pushSubWord(const string &word, float time)
+void Correlator::pushSubWord(const Word &word)
 {
-	m_queue.push(WordId::Sub, word, time);
+	m_queue.push(WordId::SUB, word);
 }
 
-void Correlator::pushRefWord(const string &word, float time)
+void Correlator::pushRefWord(const Word &word)
 {
-	m_queue.push(WordId::Ref, word, time);
+	m_queue.push(WordId::REF, word);
 }
 
 void Correlator::run(const string threadName)
@@ -49,20 +50,19 @@ void Correlator::run(const string threadName)
 	if (!threadName.empty())
 		renameThread(threadName);
 
-	string word;
-	float time;
+	Word word;
 
 	while (m_running)
 	{
-		WordId id = m_queue.pop(word, time);
+		WordId id = m_queue.pop(word);
 		m_wordsNo++;
 
 		bool newBestLine = false;
 
-		if (id == WordId::Sub)
-			newBestLine = addSubtitle(time, word);
-		else if (id == WordId::Ref)
-			newBestLine = addReference(time, word);
+		if (id == WordId::SUB)
+			newBestLine = addSubtitle(word);
+		else if (id == WordId::REF)
+			newBestLine = addReference(word);
 
 		if (newBestLine)
 			correlate();
@@ -118,46 +118,46 @@ void Correlator::connectStatsCallback(StatsCallback callback)
 	m_statsCb = callback;
 }
 
-bool Correlator::addSubtitle(float time, const string &word)
+bool Correlator::addSubtitle(const Word &sub)
 {
-	m_subs.insert(make_pair(time, word));
+	m_subs.insert(sub);
 
-	auto first = m_refs.lower_bound(time - m_windowSize);
-	auto last  = m_refs.upper_bound(time + m_windowSize);
+	auto first = m_refs.lower_bound(Word(sub.time - m_windowSize, 0.0f));
+	auto last  = m_refs.upper_bound(Word(sub.time + m_windowSize, 1.0f));
 	if (first == m_refs.end())
 		first = m_refs.begin();
 
 	bool newBestLine = false;
 
-	for (auto it = first; it != last; ++it)
+	for (auto ref = first; ref != last; ++ref)
 	{
-		float sim = compareWords(word, it->second);
+		float sim = compareWords(sub.text, ref->text);// * sub.score * ref->score;
 		if (sim >= m_minWordsSim)
 		{
-			newBestLine |= m_lineFinder.addPoint(time, it->first);
+			newBestLine |= m_lineFinder.addPoint(sub.time, ref->time);
 		}
 	}
 
 	return newBestLine;
 }
 
-bool Correlator::addReference(float time, const string &word)
+bool Correlator::addReference(const Word &ref)
 {
-	m_refs.insert(make_pair(time, word));
+	m_refs.insert(ref);
 
-	auto first = m_subs.lower_bound(time - m_windowSize);
-	auto last  = m_subs.upper_bound(time + m_windowSize);
+	auto first = m_subs.lower_bound(Word(ref.time - m_windowSize, 0.0f));
+	auto last  = m_subs.upper_bound(Word(ref.time + m_windowSize, 1.0f));
 	if (first == m_subs.end())
 		first = m_subs.begin();
 
 	bool newBestLine = false;
 
-	for (auto it = first; it != last; ++it)
+	for (auto sub = first; sub != last; ++sub)
 	{
-		float sim = compareWords(word, it->second);
+		float sim = compareWords(ref.text, sub->text);// * ref.score * sub->score;
 		if (sim >= m_minWordsSim)
 		{
-			newBestLine |= m_lineFinder.addPoint(it->first, time);
+			newBestLine |= m_lineFinder.addPoint(sub->time, ref.time);
 		}
 	}
 
@@ -170,7 +170,7 @@ Points Correlator::correlate() const
 
 	Line bestLine = m_lineFinder.getBestLine();
 	const Points &points = m_lineFinder.getPoints();
-	Points hits = bestLine.getPointsInLine(points, m_maxDistanceSqr);
+	Points hits = bestLine.getPointsInLine(points, 10.0f*m_maxDistanceSqr);
 
 	Line line(hits, NULL, NULL, &cor);
 	float distSqr = line.findFurthestPoint(hits);
@@ -203,35 +203,22 @@ Points Correlator::correlate() const
 	return hits;
 }
 
-static Correlator::ElementsVector entrysToVector(Correlator::Entrys entrys)
-{
-	Correlator::ElementsVector res;
-	res.reserve(entrys.size());
-
-	for (auto &element : entrys)
-	{
-		auto p = pair<float, string>(element.first, element.second);
-		res.push_back(p);
-	}
-	return res;
-}
-
-Correlator::ElementsVector Correlator::getSubs() const
+Correlator::Entrys Correlator::getSubs() const
 {
 	if (m_running)
 		throw EXCEPTION("subtitle words cannot be obtained when the correlator is running")
 			.module("Correlator");
 
-	return entrysToVector(m_subs);
+	return m_subs;
 }
 
-Correlator::ElementsVector Correlator::getRefs() const
+Correlator::Entrys Correlator::getRefs() const
 {
 	if (m_running)
 		throw EXCEPTION("reference words cannot be obtained when the correlator is running")
 			.module("Correlator");
 
-	return entrysToVector(m_refs);
+	return m_refs;
 }
 
 Points Correlator::getAllPoints() const

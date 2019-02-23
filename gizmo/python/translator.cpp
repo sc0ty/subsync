@@ -4,6 +4,7 @@
 
 #include "text/translator.h"
 #include "text/dictionary.h"
+#include "text/words.h"
 
 namespace py = pybind11;
 
@@ -21,4 +22,9 @@ void initTranslatorWrapper(py::module &m)
 	translator.def("setMinWordsSim", &Translator::setMinWordsSim);
 	translator.def("pushWord", &Translator::pushWord);
 	translator.def("connectWordsCallback", &Translator::connectWordsCallback);
+
+	py::class_<Word> word(m, "Word");
+	word.def_readwrite("text", &Word::text);
+	word.def_readwrite("time", &Word::time);
+	word.def_readwrite("score", &Word::score);
 }

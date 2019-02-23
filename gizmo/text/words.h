@@ -5,17 +5,28 @@
 #include <string>
 
 
-typedef std::function<void (
-		const std::string & /* word */,
-		double /* timestamp */ )>
-WordsCallback;
+struct Word
+{
+	std::string text;
+	float time;
+	float score;
+
+	Word();
+	Word(float time, float score);
+	Word(const std::string &text, float time, float score=1.0f);
+
+	bool operator< (const Word &w) const;
+};
+
+
+typedef std::function<void (const Word &)> WordsCallback;
 
 
 enum class WordId
 {
-	None = -1,
-	Sub = 0,
-	Ref = 1,
+	NONE = -1,
+	SUB = 0,
+	REF = 1,
 };
 
 #endif

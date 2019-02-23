@@ -3,6 +3,7 @@
 
 #include "math/linefinder.h"
 #include "text/wordsqueue.h"
+#include <set>
 #include <string>
 #include <thread>
 #include <atomic>
@@ -28,8 +29,7 @@ class Correlator
 {
 	public:
 		typedef std::function<void (CorrelationStats)> StatsCallback;
-		typedef std::multimap<double /* time */, std::string /* word */> Entrys;
-		typedef std::vector<std::pair<double, std::string>> ElementsVector;
+		typedef std::set<Word> Entrys;
 
 	public:
 		Correlator(
@@ -50,11 +50,11 @@ class Correlator
 		bool isDone() const;
 		float getProgress() const;
 
-		void pushSubWord(const std::string &word, float time);
-		void pushRefWord(const std::string &word, float time);
+		void pushSubWord(const Word &word);
+		void pushRefWord(const Word &word);
 
-		ElementsVector getSubs() const;
-		ElementsVector getRefs() const;
+		Entrys getSubs() const;
+		Entrys getRefs() const;
 
 		Points getAllPoints() const;
 		Points getUsedPoints() const;
@@ -63,8 +63,8 @@ class Correlator
 		void run(const std::string threadName);
 		void terminate();
 
-		bool addSubtitle(float time, const std::string &word);
-		bool addReference(float time, const std::string &word);
+		bool addSubtitle(const Word &word);
+		bool addReference(const Word &word);
 
 		Points correlate() const;
 

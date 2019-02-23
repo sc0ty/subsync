@@ -271,8 +271,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     def saveWordsDlg(self, stream, words):
         subs = subtitle.Subtitles()
-        for time, text in words:
-            subs.add(time, time, text)
+        for word in words:
+            subs.add(word.time, word.time, word.text)
 
         suffix = 'words'
         if stream.lang:

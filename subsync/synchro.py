@@ -51,21 +51,22 @@ class Synchronizer(object):
         self.subPipeline.connectEosCallback(self.onSubEos)
         self.subPipeline.connectErrorCallback(self.onSubError)
         self.subPipeline.connectSubsCallback(self.subtitlesCollector.addSubtitle)
+        self.subPipeline.connectWordsCallback(self.correlator.pushSubWord)
 
         if subs.lang and refs.lang and subs.lang != refs.lang:
-            self.dictionary = dictionary.loadDictionary(subs.lang, refs.lang, settings().minWordLen)
+            self.dictionary = dictionary.loadDictionary(refs.lang, subs.lang, settings().minWordLen)
             self.translator = gizmo.Translator(self.dictionary)
             self.translator.setMinWordsSim(settings().minWordsSim)
-            self.subPipeline.connectWordsCallback(self.translator.pushWord)
-            self.translator.connectWordsCallback(self.correlator.pushSubWord)
+            self.translator.connectWordsCallback(self.correlator.pushRefWord)
+            self.refWordsSink = self.translator.pushWord
         else:
-            self.subPipeline.connectWordsCallback(self.correlator.pushSubWord)
+            self.refWordsSink = self.correlator.pushRefWord
 
         if refsCache and refsCache.isValid(self.refs):
             logger.info('restoring cached reference words (%i)', len(refsCache.data))
 
-            for word, time in refsCache.data:
-                self.correlator.pushRefWord(word, time)
+            for word in refsCache.data:
+                self.refWordsSink(word)
 
             self.refPipelines = pipeline.createProducerPipelines(refs, timeWindows=refsCache.progress)
 
@@ -82,11 +83,11 @@ class Synchronizer(object):
 
         self.pipelines = [ self.subPipeline ] + self.refPipelines
 
-    def onRefWord(self, word, time):
-        self.correlator.pushRefWord(word, time)
+    def onRefWord(self, word):
+        self.refWordsSink(word)
 
         if self.refsCache and self.refsCache.id:
-            self.refsCache.data.append((word, time))
+            self.refsCache.data.append((word))
 
     def destroy(self):
         self.stop()
