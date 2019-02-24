@@ -23,6 +23,10 @@ class LineFinder
 		size_t getAlignedPointsNo() const;
 
 	private:
+		bool findBestLineWithPoint(const Point &point);
+		bool isBestLine(const Line &line);
+
+	private:
 		Points m_points;
 		Line m_bestLine;
 		size_t m_bestPointsNo;

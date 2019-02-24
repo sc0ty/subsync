@@ -57,6 +57,10 @@ TEST_CASE("LineFinder")
 	pts1.insert( Point(4.0, 4.0) );
 	pts1.insert( Point(7.0, 7.0) );
 	pts1.insert( Point(15.5, 15.5) );
+	pts1.insert( Point(20.0, 20.0) );
+	pts1.insert( Point(24.0, 24.0) );
+	pts1.insert( Point(60.0, 60.0) );
+	pts1.insert( Point(100.0, 100.0) );
 
 	Points pts2, pts3, pts4, pts5, pts6;
 	for (float i = 10.0; i < 1000; i+=10.0)
