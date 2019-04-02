@@ -301,17 +301,13 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
 def errorToString(source, err):
     if source == 'sub':
-        if err.fields['module'].startswith('SubtitleDec.decode'):
+        if err.fields.get('module', '').startswith('SubtitleDec.decode'):
             return _('Some subtitles can\'t be decoded (invalid encoding?)')
-        elif 'terminated' in err.fields:
-            return _('Subtitles read failed')
         else:
             return _('Error during subtitles read')
     elif source == 'ref':
-        if err.fields['module'].startswith('SubtitleDec.decode'):
+        if err.fields.get('module', '').startswith('SubtitleDec.decode'):
             return _('Some reference subtitles can\'t be decoded (invalid encoding?)')
-        elif 'terminated' in err.fields:
-            return _('Reference read failed')
         else:
             return _('Error during reference read')
     else:

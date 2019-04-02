@@ -76,23 +76,20 @@ void Extractor::run(string threadName)
 		demux->seek(m_beginTime);
 		demux->start();
 	}
-	catch (Exception &ex)
+	catch (const Exception &ex)
 	{
 		m_running = false;
-
-		if (m_errorCb)
-		{
-			ex.add("terminated", 1);
-			m_errorCb(ex);
-		}
+		m_errorCb(ex);
 	}
 	catch (const std::exception& ex)
 	{
-		m_errorCb(EXCEPTION(ex.what()).module("extractor").add("terminated", 1));
+		m_running = false;
+		m_errorCb(EXCEPTION(ex.what()).module("extractor"));
 	}
 	catch (...)
 	{
-		m_errorCb(EXCEPTION("fatal error").module("extractor").add("terminated", 1));
+		m_running = false;
+		m_errorCb(EXCEPTION("fatal error").module("extractor"));
 	}
 
 	while (m_running)

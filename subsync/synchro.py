@@ -161,14 +161,10 @@ class Synchronizer(object):
     def onSubError(self, err):
         logger.warning('SUB: %r', str(err).replace('\n', '; '))
         self.listener.onError('sub', err)
-        if 'terminated' in err.fields:
-            self.stop()
 
     def onRefError(self, err):
         logger.warning('REF: %r', str(err).replace('\n', '; '))
         self.listener.onError('ref', err)
-        if 'terminated' in err.fields:
-            self.stop()
 
     def onSubEos(self):
         logger.info('subtitle job terminated')
