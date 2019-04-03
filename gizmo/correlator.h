@@ -39,7 +39,7 @@ class Correlator
 				unsigned minPointsNo    = 0,
 				float    minWordsSim    = 0.5);
 
-		virtual ~Correlator();
+		~Correlator();
 
 		void connectStatsCallback(StatsCallback callback);
 
@@ -84,7 +84,7 @@ class Correlator
 		StatsCallback m_statsCb;
 		CorrelationStats m_stats;
 
-		float   m_windowSize;
+		float    m_windowSize;
 		double   m_minCorrelation;
 		float    m_maxDistanceSqr;
 		unsigned m_minPointsNo;

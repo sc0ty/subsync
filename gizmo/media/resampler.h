@@ -28,6 +28,11 @@ class Resampler : public AVOutput
 		Resampler();
 		virtual ~Resampler();
 
+		Resampler(const Resampler&) = delete;
+		Resampler(Resampler&&) = delete;
+		Resampler& operator= (const Resampler&) = delete;
+		Resampler& operator= (Resampler&&) = delete;
+
 		void connectOutput(
 				std::shared_ptr<AVOutput> output,
 				const AudioFormat &format,

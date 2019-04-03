@@ -13,6 +13,11 @@ class SpeechRecognition : public AVOutput
 		SpeechRecognition();
 		virtual ~SpeechRecognition();
 
+		SpeechRecognition(const SpeechRecognition&) = delete;
+		SpeechRecognition(SpeechRecognition&&) = delete;
+		SpeechRecognition& operator= (const SpeechRecognition&) = delete;
+		SpeechRecognition& operator= (SpeechRecognition&&) = delete;
+
 		virtual void start(const AVStream *stream);
 		virtual void stop();
 

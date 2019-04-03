@@ -18,6 +18,11 @@ class Demux
 		Demux(const std::string &fileName);
 		~Demux();
 
+		Demux(const Demux&) = delete;
+		Demux(Demux&&) = delete;
+		Demux& operator= (const Demux&) = delete;
+		Demux& operator= (Demux&&) = delete;
+
 		const StreamsFormat &getStreamsInfo() const;
 
 		void connectDec(std::shared_ptr<Decoder> dec, unsigned streamId);

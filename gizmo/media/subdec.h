@@ -12,8 +12,6 @@ extern "C"
 #include <libavformat/avformat.h>
 }
 
-class Demux;
-
 
 class SubtitleDec : public Decoder
 {
@@ -27,6 +25,11 @@ class SubtitleDec : public Decoder
 	public:
 		SubtitleDec();
 		virtual ~SubtitleDec();
+
+		SubtitleDec(const SubtitleDec&) = delete;
+		SubtitleDec(SubtitleDec&&) = delete;
+		SubtitleDec& operator= (const SubtitleDec&) = delete;
+		SubtitleDec& operator= (SubtitleDec&&) = delete;
 
 		virtual void start(const AVStream *stream);
 		virtual void stop();

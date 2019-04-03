@@ -6,7 +6,6 @@
 #include "avout.h"
 #include <memory>
 
-class Demux;
 class AVOutput;
 
 
@@ -15,6 +14,11 @@ class AudioDec : public Decoder
 	public:
 		AudioDec();
 		virtual ~AudioDec();
+
+		AudioDec(const AudioDec&) = delete;
+		AudioDec(AudioDec&&) = delete;
+		AudioDec& operator= (const AudioDec&) = delete;
+		AudioDec& operator= (AudioDec&&) = delete;
 
 		virtual void start(const AVStream *stream);
 		virtual void stop();
