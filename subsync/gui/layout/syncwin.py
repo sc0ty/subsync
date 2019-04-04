@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Nov 16 2018)
+## Python code generated with wxFormBuilder (version Dec  3 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -24,91 +24,91 @@ class SyncWin ( wx.Dialog ):
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_panel1 = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer6 = wx.FlexGridSizer( 0, 1, 0, 0 )
-		fgSizer6.AddGrowableCol( 0 )
-		fgSizer6.AddGrowableRow( 4 )
-		fgSizer6.SetFlexibleDirection( wx.BOTH )
-		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		self.m_panelMain = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		fgSizer2 = wx.FlexGridSizer( 0, 1, 0, 0 )
+		fgSizer2.AddGrowableCol( 0 )
+		fgSizer2.AddGrowableRow( 4 )
+		fgSizer2.SetFlexibleDirection( wx.BOTH )
+		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_textStatus = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"Synchronizing..."), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textStatus = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Synchronizing..."), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textStatus.Wrap( -1 )
-		fgSizer6.Add( self.m_textStatus, 0, wx.ALL|wx.EXPAND, 5 )
+		fgSizer2.Add( self.m_textStatus, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_gaugeProgress = wx.Gauge( self.m_panel1, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
+		self.m_gaugeProgress = wx.Gauge( self.m_panelMain, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
 		self.m_gaugeProgress.SetValue( 0 ) 
 		self.m_gaugeProgress.SetMinSize( wx.Size( 320,-1 ) )
 		
-		fgSizer6.Add( self.m_gaugeProgress, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer2.Add( self.m_gaugeProgress, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_panelError = wx.Panel( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panelError = wx.Panel( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_panelError.Hide()
 		
-		fgSizer82 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer82.AddGrowableCol( 1 )
-		fgSizer82.AddGrowableRow( 0 )
-		fgSizer82.SetFlexibleDirection( wx.BOTH )
-		fgSizer82.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer3 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer3.AddGrowableCol( 1 )
+		fgSizer3.AddGrowableRow( 0 )
+		fgSizer3.SetFlexibleDirection( wx.BOTH )
+		fgSizer3.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_bitmapErrorIcon = wx.StaticBitmap( self.m_panelError, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_WARNING, wx.ART_CMN_DIALOG ), wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer82.Add( self.m_bitmapErrorIcon, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+		fgSizer3.Add( self.m_bitmapErrorIcon, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
 		
-		fgSizer83 = wx.FlexGridSizer( 0, 1, 0, 0 )
-		fgSizer83.AddGrowableCol( 0 )
-		fgSizer83.AddGrowableRow( 0 )
-		fgSizer83.AddGrowableRow( 1 )
-		fgSizer83.SetFlexibleDirection( wx.BOTH )
-		fgSizer83.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer4 = wx.FlexGridSizer( 0, 1, 0, 0 )
+		fgSizer4.AddGrowableCol( 0 )
+		fgSizer4.AddGrowableRow( 0 )
+		fgSizer4.AddGrowableRow( 1 )
+		fgSizer4.SetFlexibleDirection( wx.BOTH )
+		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_textErrorMsg = wx.StaticText( self.m_panelError, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textErrorMsg.Wrap( -1 )
-		fgSizer83.Add( self.m_textErrorMsg, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer4.Add( self.m_textErrorMsg, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_textErrorDetails = wx.StaticText( self.m_panelError, wx.ID_ANY, _(u"[details]"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textErrorDetails.Wrap( -1 )
 		self.m_textErrorDetails.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_HIGHLIGHT ) )
 		
-		fgSizer83.Add( self.m_textErrorDetails, 0, wx.ALIGN_CENTER_VERTICAL|wx.BOTTOM|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer4.Add( self.m_textErrorDetails, 0, wx.ALIGN_CENTER_VERTICAL|wx.BOTTOM|wx.RIGHT|wx.LEFT, 5 )
 		
 		
-		fgSizer82.Add( fgSizer83, 1, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		fgSizer3.Add( fgSizer4, 1, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		
-		self.m_panelError.SetSizer( fgSizer82 )
+		self.m_panelError.SetSizer( fgSizer3 )
 		self.m_panelError.Layout()
-		fgSizer82.Fit( self.m_panelError )
-		fgSizer6.Add( self.m_panelError, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		fgSizer3.Fit( self.m_panelError )
+		fgSizer2.Add( self.m_panelError, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
-		fgSizer8 = wx.FlexGridSizer( 1, 0, 0, 0 )
-		fgSizer8.AddGrowableCol( 2 )
-		fgSizer8.AddGrowableRow( 0 )
-		fgSizer8.SetFlexibleDirection( wx.BOTH )
-		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer5 = wx.FlexGridSizer( 1, 0, 0, 0 )
+		fgSizer5.AddGrowableCol( 2 )
+		fgSizer5.AddGrowableRow( 0 )
+		fgSizer5.SetFlexibleDirection( wx.BOTH )
+		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_bitmapTick = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TICK_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_bitmapTick = wx.StaticBitmap( self.m_panelMain, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TICK_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_bitmapTick.Hide()
 		
-		fgSizer8.Add( self.m_bitmapTick, 0, wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+		fgSizer5.Add( self.m_bitmapTick, 0, wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
 		
-		self.m_bitmapCross = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_CROSS_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_bitmapCross = wx.StaticBitmap( self.m_panelMain, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_CROSS_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_bitmapCross.Hide()
 		
-		fgSizer8.Add( self.m_bitmapCross, 0, wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+		fgSizer5.Add( self.m_bitmapCross, 0, wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
 		
-		self.m_textSync = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"Synchronization: 0 points"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textSync = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Synchronization: 0 points"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textSync.Wrap( -1 )
-		fgSizer8.Add( self.m_textSync, 0, wx.ALL|wx.EXPAND, 5 )
+		fgSizer5.Add( self.m_textSync, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_textShowDetails = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"[show more]"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textShowDetails = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"[show more]"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textShowDetails.Wrap( -1 )
 		self.m_textShowDetails.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_HIGHLIGHT ) )
 		
-		fgSizer8.Add( self.m_textShowDetails, 0, wx.ALL|wx.EXPAND, 5 )
+		fgSizer5.Add( self.m_textShowDetails, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		
-		fgSizer6.Add( fgSizer8, 1, wx.EXPAND|wx.TOP, 5 )
+		fgSizer2.Add( fgSizer5, 1, wx.EXPAND|wx.TOP, 5 )
 		
-		self.m_panelDetails = wx.Panel( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panelDetails = wx.Panel( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_panelDetails.Hide()
 		
 		fgSizer61 = wx.FlexGridSizer( 0, 2, 0, 0 )
@@ -169,16 +169,22 @@ class SyncWin ( wx.Dialog ):
 		self.m_panelDetails.SetSizer( fgSizer61 )
 		self.m_panelDetails.Layout()
 		fgSizer61.Fit( self.m_panelDetails )
-		fgSizer6.Add( self.m_panelDetails, 1, wx.EXPAND|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer2.Add( self.m_panelDetails, 1, wx.EXPAND|wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_staticline1 = wx.StaticLine( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		fgSizer6.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
+		self.m_textInitialSyncInfo = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Initial synchronization is done.\nYou could save subtitles already.\nIf they don't match, wait for a better result."), wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTRE )
+		self.m_textInitialSyncInfo.Wrap( -1 )
+		self.m_textInitialSyncInfo.Hide()
 		
-		fgSizer81 = wx.FlexGridSizer( 1, 0, 0, 0 )
-		fgSizer81.SetFlexibleDirection( wx.BOTH )
-		fgSizer81.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer2.Add( self.m_textInitialSyncInfo, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 10 )
 		
-		self.m_buttonDebugMenu = wx.Button( self.m_panel1, wx.ID_ANY, _(u"Debug"), wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
+		self.m_staticline1 = wx.StaticLine( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer2.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		fgSizer6 = wx.FlexGridSizer( 1, 0, 0, 0 )
+		fgSizer6.SetFlexibleDirection( wx.BOTH )
+		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_buttonDebugMenu = wx.Button( self.m_panelMain, wx.ID_ANY, _(u"Debug"), wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
 		self.m_buttonDebugMenu.Hide()
 		
 		self.m_menuDebug = wx.Menu()
@@ -203,30 +209,30 @@ class SyncWin ( wx.Dialog ):
 		
 		self.m_buttonDebugMenu.Bind( wx.EVT_RIGHT_DOWN, self.m_buttonDebugMenuOnContextMenu ) 
 		
-		fgSizer81.Add( self.m_buttonDebugMenu, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer6.Add( self.m_buttonDebugMenu, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_buttonClose = wx.Button( self.m_panel1, wx.ID_CANCEL, _(u"Close"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonClose = wx.Button( self.m_panelMain, wx.ID_CANCEL, _(u"Close"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_buttonClose.Hide()
 		
-		fgSizer81.Add( self.m_buttonClose, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		fgSizer6.Add( self.m_buttonClose, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
-		self.m_buttonStop = wx.Button( self.m_panel1, wx.ID_STOP, _(u"Stop"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer81.Add( self.m_buttonStop, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		self.m_buttonStop = wx.Button( self.m_panelMain, wx.ID_STOP, _(u"Stop"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer6.Add( self.m_buttonStop, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
-		self.m_buttonSave = wx.Button( self.m_panel1, wx.ID_SAVE, _(u"Save"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonSave = wx.Button( self.m_panelMain, wx.ID_SAVE, _(u"Save"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_buttonSave.SetDefault() 
 		self.m_buttonSave.Enable( False )
 		
-		fgSizer81.Add( self.m_buttonSave, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		fgSizer6.Add( self.m_buttonSave, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		
-		fgSizer6.Add( fgSizer81, 1, wx.ALIGN_RIGHT, 5 )
+		fgSizer2.Add( fgSizer6, 1, wx.ALIGN_RIGHT, 5 )
 		
 		
-		self.m_panel1.SetSizer( fgSizer6 )
-		self.m_panel1.Layout()
-		fgSizer6.Fit( self.m_panel1 )
-		bSizer1.Add( self.m_panel1, 1, wx.EXPAND |wx.ALL, 5 )
+		self.m_panelMain.SetSizer( fgSizer2 )
+		self.m_panelMain.Layout()
+		fgSizer2.Fit( self.m_panelMain )
+		bSizer1.Add( self.m_panelMain, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		
 		self.SetSizer( bSizer1 )

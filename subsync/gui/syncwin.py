@@ -78,7 +78,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                 self.m_bitmapTick.Show()
 
                 if self.isSubReady:
-                    self.m_buttonSave.Enable()
+                    self.onSubReady()
 
                 self.Layout()
 
@@ -98,6 +98,12 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.isSubReady = True
         if self.isCorrelated:
             self.m_buttonSave.Enable()
+
+            if self.isRunning:
+                self.m_textInitialSyncInfo.Show()
+
+            self.Fit()
+            self.Layout()
 
     @thread.gui_thread_cnt('pendingErrorsNo')
     def onError(self, source, err):
@@ -131,6 +137,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.m_buttonStop.Show(False)
         self.m_buttonClose.Enable(True)
         self.m_buttonClose.Show(True)
+        self.m_textInitialSyncInfo.Show(False)
 
         if self.isRunning:
             self.isRunning = False
@@ -141,7 +148,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                 self.m_buttonSave.Enable()
                 self.m_bitmapTick.Show()
                 self.m_bitmapCross.Hide()
-                if abs(self.sync.getMaxChange()) > 0.3:
+                if abs(self.sync.getMaxChange()) > 0.5:
                     self.m_textStatus.SetLabel(_('Subtitles synchronized'))
                 else:
                     self.m_textStatus.SetLabel(_('No need to synchronize'))
