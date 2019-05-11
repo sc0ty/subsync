@@ -7,13 +7,18 @@ logger = logging.getLogger(__name__)
 
 
 def detectEncoding(path, lang, probeSize=32*1024):
-    dlang, denc = locale.getdefaultlocale()
-    if not lang:
+    try:
+        dlang, denc = locale.getdefaultlocale()
+    except Exception as e:
+        logger.warn('getdefaultlocale failed, %r', e)
+        dlang, denc = None, None
+
+    if not lang and dlang:
         lang2 = dlang.split('_', 1)[0]
         lang = languages2to3.get(lang2)
 
     encs = [ 'UTF-8' ] + languages.get(lang, (None, []))[1]
-    if denc not in encs:
+    if denc and denc not in encs:
         encs.append(denc)
 
     try:
