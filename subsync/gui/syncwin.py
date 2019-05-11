@@ -43,7 +43,6 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.sync = None
 
         self.isRunning = False
-        self.isCorrelated = False
         self.isSubReady = False
 
         self.errors = collections.OrderedDict()
@@ -52,7 +51,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.Bind(wx.EVT_TIMER, self.onUpdateTimerTick, self.updateTimer)
 
         with busydlg.BusyDlg(self, _('Loading, please wait...')):
-            self.sync = synchro.Synchronizer(self, self.subs, self.refs, refsCache)
+            self.sync = synchro.Synchronizer(self.subs, self.refs, refsCache)
+            self.sync.onError = self.onError
             self.sync.start()
 
         self.isRunning = True
@@ -63,6 +63,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
     def onUpdateTimerTick(self, event):
         if self.isRunning:
             stats = self.sync.getStats()
+            isSubReady = self.sync.isSubReady()
             elapsed = time.time() - self.startTime
             maxChange = self.sync.getMaxChange()
 
@@ -72,14 +73,17 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.m_textFormula.SetLabel(str(stats.formula))
             self.m_textMaxChange.SetLabel(utils.timeStampFractionFmt(maxChange))
 
-            if not self.isCorrelated and stats.correlated:
-                self.isCorrelated = stats.correlated
+            if not self.isSubReady and isSubReady:
+                self.isSubReady = isSubReady
+
                 self.m_bitmapCross.Hide()
                 self.m_bitmapTick.Show()
+                self.m_buttonSave.Enable()
 
-                if self.isSubReady:
-                    self.onSubReady()
+                if self.isRunning:
+                    self.m_textInitialSyncInfo.Show()
 
+                self.Fit()
                 self.Layout()
 
                 if self.listener:
@@ -92,18 +96,6 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                 self.setProgress(1.0)
                 if self.listener:
                     self.listener.onSynchronizationDone(self, stats)
-
-    @thread.gui_thread
-    def onSubReady(self):
-        self.isSubReady = True
-        if self.isCorrelated:
-            self.m_buttonSave.Enable()
-
-            if self.isRunning:
-                self.m_textInitialSyncInfo.Show()
-
-            self.Fit()
-            self.Layout()
 
     @thread.gui_thread_cnt('pendingErrorsNo')
     def onError(self, source, err):
@@ -144,7 +136,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.updateTimer.Stop()
             self.sync.stop()
 
-            if self.isCorrelated and self.isSubReady:
+            if self.isSubReady:
                 self.m_buttonSave.Enable()
                 self.m_bitmapTick.Show()
                 self.m_bitmapCross.Hide()

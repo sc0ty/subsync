@@ -20,11 +20,12 @@ def getJobsNo():
 
 
 class Synchronizer(object):
-    def __init__(self, listener, subs, refs, refsCache=None):
-        self.listener = listener
+    def __init__(self, subs, refs, refsCache=None):
         self.subs = subs
         self.refs = refs
         self.refsCache = refsCache
+
+        self.onError = lambda src, err: None
 
         self.fps = refs.stream().frameRate
         if self.fps == None:
@@ -48,7 +49,6 @@ class Synchronizer(object):
                 stream.enc = encdetect.detectEncoding(stream.path, stream.lang)
 
         self.subPipeline = pipeline.createProducerPipeline(subs)
-        self.subPipeline.connectEosCallback(self.onSubEos)
         self.subPipeline.connectErrorCallback(self.onSubError)
         self.subPipeline.connectSubsCallback(self.subtitlesCollector.addSubtitle)
         self.subPipeline.connectWordsCallback(self.correlator.pushSubWord)
@@ -77,7 +77,6 @@ class Synchronizer(object):
             self.refPipelines = pipeline.createProducerPipelines(refs, no=getJobsNo())
 
         for p in self.refPipelines:
-            p.connectEosCallback(self.onRefEos)
             p.connectErrorCallback(self.onRefError)
             p.connectWordsCallback(self.onRefWord)
 
@@ -126,6 +125,10 @@ class Synchronizer(object):
 
         return False
 
+    def isSubReady(self):
+        with self.statsLock:
+            return self.subPipeline.done and self.stats.correlated
+
     def getProgress(self):
         psum = 0.0
         plen = 0
@@ -160,16 +163,9 @@ class Synchronizer(object):
 
     def onSubError(self, err):
         logger.warning('SUB: %r', str(err).replace('\n', '; '))
-        self.listener.onError('sub', err)
+        self.onError('sub', err)
 
     def onRefError(self, err):
         logger.warning('REF: %r', str(err).replace('\n', '; '))
-        self.listener.onError('ref', err)
-
-    def onSubEos(self):
-        logger.info('subtitle job terminated')
-        self.listener.onSubReady()
-
-    def onRefEos(self):
-        logger.info('reference job terminated')
+        self.onError('ref', err)
 

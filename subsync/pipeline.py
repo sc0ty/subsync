@@ -18,6 +18,12 @@ class BasePipeline(object):
 
         self.done = False
 
+        def eos():
+            logger.info('job terminated')
+            self.done = True
+
+        self.extractor.connectEosCallback(eos)
+
     def destroy(self):
         self.extractor.connectEosCallback(None)
         self.extractor.connectErrorCallback(None)
@@ -53,15 +59,9 @@ class BasePipeline(object):
     def getPosition(self):
         return max(self.timeWindow[0], min(self.demux.getPosition(), self.timeWindow[1]))
 
-    def connectEosCallback(self, cb):
-        def eos(*args, **kw):
-            self.done = True
-            cb()
-
-        self.extractor.connectEosCallback(eos if cb else None)
-
     def connectErrorCallback(self, cb):
         self.extractor.connectErrorCallback(cb)
+
 
 class SubtitlePipeline(BasePipeline):
     def __init__(self, stream):
