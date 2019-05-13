@@ -7,9 +7,9 @@
 ## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
-from subsync.gui.streamlist import StreamList
-from subsync.gui.choicelang import ChoiceLang
-from subsync.gui.choiceenc import ChoiceCharEnc
+from subsync.gui.components.streamlist import StreamList
+from subsync.gui.components.choicelang import ChoiceLang
+from subsync.gui.components.choiceenc import ChoiceCharEnc
 import wx
 import wx.xrc
 

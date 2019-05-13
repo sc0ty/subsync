@@ -7,7 +7,7 @@
 ## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
-from subsync.gui.combofps import ComboFps
+from subsync.gui.components.combofps import ComboFps
 import wx
 import wx.xrc
 

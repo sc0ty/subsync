@@ -2,8 +2,8 @@ import subsync.gui.layout.openwin
 import wx
 from subsync.stream import Stream
 from subsync import channels
-from subsync.gui import filedlg
-from subsync.gui import filedrop
+from subsync.gui.components import filedlg
+from subsync.gui.components import filedrop
 from subsync.gui import channelswin
 from subsync.gui import busydlg
 from subsync.gui.errorwin import error_dlg
@@ -37,7 +37,7 @@ def readStream(parent, path, types):
 class OpenWin(subsync.gui.layout.openwin.OpenWin):
     def __init__(self, parent, stream):
         super().__init__(parent)
-        filedrop.setFileDropTarget(self, self.onDropFile)
+        filedrop.setFileDropTarget(self, OnDropFile=self.onDropFile)
         self.stream = Stream(stream=stream)
         self.openStream(stream)
 
@@ -130,7 +130,7 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
         if stream != None and stream.isOpen():
             self.openStream(stream)
 
-    def onDropFile(self, filename):
+    def onDropFile(self, x, y, filename):
         self.openStream(path=filename)
         return True
 

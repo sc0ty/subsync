@@ -1,5 +1,5 @@
 import gizmo
-from subsync import speech
+from subsync.synchro import speech
 from subsync.settings import settings
 from subsync.error import Error
 import math

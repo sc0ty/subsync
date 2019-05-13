@@ -1,8 +1,8 @@
 import gizmo
-from subsync import pipeline
+from subsync.synchro import pipeline
 from subsync import subtitle
 from subsync.settings import settings
-from subsync import dictionary
+from subsync.synchro import dictionary
 from subsync import encdetect
 import threading
 import multiprocessing

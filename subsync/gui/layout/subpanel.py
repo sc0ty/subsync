@@ -7,7 +7,7 @@
 ## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
-from subsync.gui.choicelang import ChoiceLang
+from subsync.gui.components.choicelang import ChoiceLang
 import wx
 import wx.xrc
 

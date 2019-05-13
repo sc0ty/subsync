@@ -14,7 +14,6 @@
         <property name="file">aboutwin</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
-        <property name="indent_with_spaces"></property>
         <property name="internationalize">1</property>
         <property name="name">AbutWin</property>
         <property name="namespace"></property>
@@ -202,7 +201,7 @@
                                     <property name="vgap">0</property>
                                     <object class="sizeritem" expanded="0">
                                         <property name="border">5</property>
-                                        <property name="flag">wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND</property>
+                                        <property name="flag">wxALL|wxALIGN_CENTER_VERTICAL|wxEXPAND|wxALIGN_RIGHT</property>
                                         <property name="proportion">0</property>
                                         <object class="wxStaticBitmap" expanded="0">
                                             <property name="BottomDockable">1</property>
@@ -299,7 +298,7 @@
                                             <property name="vgap">0</property>
                                             <object class="sizeritem" expanded="0">
                                                 <property name="border">5</property>
-                                                <property name="flag">wxALL|wxALIGN_CENTER_HORIZONTAL</property>
+                                                <property name="flag">wxALL</property>
                                                 <property name="proportion">0</property>
                                                 <object class="wxStaticText" expanded="0">
                                                     <property name="BottomDockable">1</property>

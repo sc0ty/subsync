@@ -1,5 +1,5 @@
 import subsync.gui.layout.settingswin
-from subsync.gui.filedlg import showSaveFileDlg
+from subsync.gui.components.filedlg import showSaveFileDlg
 from subsync.settings import Settings
 from subsync import config
 import multiprocessing

@@ -3,16 +3,25 @@ import os
 from subsync.settings import settings
 
 
-def showOpenFileDlg(parent, **args):
+def showOpenFileDlg(parent, multiple=False, **args):
     style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+    if multiple:
+        style |= wx.FD_MULTIPLE
+
     if 'defaultFile' not in args:
         args['defaultDir'] = settings().lastdir
 
     with wx.FileDialog(parent, _('Select file'), style=style, **args) as fileDialog:
         if fileDialog.ShowModal() == wx.ID_OK:
-            path = fileDialog.GetPath()
-            settings().lastdir = os.path.dirname(path)
-            return path
+            if multiple:
+                paths = fileDialog.GetPaths()
+                if paths:
+                    settings().lastdir = os.path.dirname(paths[0])
+                return paths
+            else:
+                path = fileDialog.GetPath()
+                settings().lastdir = os.path.dirname(path)
+                return path
 
 
 def appendExtensionToPath(dlg):

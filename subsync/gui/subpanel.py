@@ -4,7 +4,7 @@ import os
 from subsync.stream import Stream
 from subsync.settings import settings
 from subsync.gui import openwin
-from subsync.gui import filedrop
+from subsync.gui.components import filedrop
 from subsync.gui.errorwin import error_dlg
 
 
@@ -13,7 +13,7 @@ class SubtitlePanel(subsync.gui.layout.subpanel.SubtitlePanel):
     '''
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent)
-        filedrop.setFileDropTarget(self, self.onDropSubFile)
+        filedrop.setFileDropTarget(self, OnDropFile=self.onDropSubFile)
         self.stream = Stream()
 
     @error_dlg
@@ -32,7 +32,7 @@ class SubtitlePanel(subsync.gui.layout.subpanel.SubtitlePanel):
     def onChoiceSubLang(self, event):
         self.stream.lang = self.m_choiceSubLang.GetValue()
 
-    def onDropSubFile(self, filename):
+    def onDropSubFile(self, x, y, filename):
 
         @error_dlg
         def showOpenWinWithFile(filename):

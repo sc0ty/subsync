@@ -39,7 +39,7 @@ class AboutWin ( wx.Dialog ):
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_bitmapLogo = wx.StaticBitmap( self.m_panelMain, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer2.Add( self.m_bitmapLogo, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
+		fgSizer2.Add( self.m_bitmapLogo, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALIGN_RIGHT, 5 )
 		
 		fgSizer3 = wx.FlexGridSizer( 0, 1, 0, 0 )
 		fgSizer3.SetFlexibleDirection( wx.BOTH )
@@ -49,7 +49,7 @@ class AboutWin ( wx.Dialog ):
 		self.m_staticText5.Wrap( -1 )
 		self.m_staticText5.SetFont( wx.Font( 24, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
 		
-		fgSizer3.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		fgSizer3.Add( self.m_staticText5, 0, wx.ALL, 5 )
 		
 		self.m_textVersion = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"custom build"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textVersion.Wrap( -1 )

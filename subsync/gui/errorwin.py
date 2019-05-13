@@ -19,6 +19,9 @@ class ErrorWin(subsync.gui.layout.errorwin.ErrorWin):
         self.Layout()
         self.Centre(wx.BOTH)
 
+        # workaround for window not resized
+        wx.CallAfter(self.Fit)
+
         self.msg = msg
         self.details = [ msg, '\n\n' ]
 

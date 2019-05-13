@@ -1,7 +1,7 @@
 import subsync.gui.layout.syncwin
 import wx
-from subsync import synchro
-from subsync.gui import filedlg
+from subsync.synchro import synchronizer
+from subsync.gui.components import filedlg
 from subsync.gui import fpswin
 from subsync.gui import errorwin
 from subsync.gui import busydlg
@@ -51,7 +51,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.Bind(wx.EVT_TIMER, self.onUpdateTimerTick, self.updateTimer)
 
         with busydlg.BusyDlg(self, _('Loading, please wait...')):
-            self.sync = synchro.Synchronizer(self.subs, self.refs, refsCache)
+            self.sync = synchronizer.Synchronizer(self.subs, self.refs, refsCache)
             self.sync.onError = self.onError
             self.sync.start()
 
