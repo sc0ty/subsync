@@ -198,6 +198,16 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         if updateAssets:
             self.askForUpdateAssets(updateAssets)
 
+        missingAssets = [ asset for asset in needAssets if not asset.isLocal() ]
+        if missingAssets:
+            assetManager.updateTask.getResult()
+            msg = []
+            if not assetManager.remoteAssetListReady:
+                msg += [ _('Couldn\'t download asset list from remote server.'), '' ]
+            msg += [ _('Following assets are missing:') ]
+            msg += [ ' - ' + asset.getPrettyName() for asset in missingAssets ]
+            raise Error('\n'.join(msg))
+
         return True
 
     def askForDownloadAssets(self, assetList):
