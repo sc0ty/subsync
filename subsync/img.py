@@ -32,6 +32,12 @@ def setItemBitmap(item, name, *args, **kwargs):
         item.SetBitmap(img, *args, **kwargs)
 
 
+def setToolBitmap(toolbar, tool, name):
+    img = getBitmap(name)
+    if img != None:
+        toolbar.SetToolNormalBitmap(tool.GetId(), img)
+
+
 def setWinIcon(win, name='icon'):
     try:
         path = getBitmapPath(name)

@@ -1,6 +1,8 @@
 import subsync.gui.layout.mainwin
 import wx
 from subsync.gui.syncwin import SyncWin
+from subsync.gui.batchwin import BatchWin
+from subsync.gui.batchsyncwin import BatchSyncWin
 from subsync.gui.settingswin import SettingsWin
 from subsync.gui.downloadwin import SelfUpdateWin
 from subsync.gui.aboutwin import AboutWin
@@ -116,6 +118,20 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         settings().set(**newSettings.items())
         settings().save()
 
+    def onMenuItemBatchProcessingClick(self, event):
+        self.showBatchWin()
+
+    def showBatchWin(self, tasks=None, auto=None):
+        try:
+            self.Hide()
+            if tasks and auto:
+                BatchSyncWin(self, tasks, auto=auto).ShowModal()
+            else:
+                BatchWin(self, tasks).ShowModal()
+        finally:
+            self.Show()
+            if auto == 'done':
+                self.Close()
 
     def onMenuItemCheckUpdateClick(self, event):
         updAsset = assetManager.getSelfUpdaterAsset()
@@ -204,4 +220,3 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
                 updAsset.installUpdate()
                 return True
         return False
-

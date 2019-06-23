@@ -13,7 +13,8 @@ pydot==1.4.1
 pyparsing==2.4.0
 Pypubsub==4.0.3
 pysubs2==0.2.3
+PyYAML==5.1.1
 six==1.12.0
 urllib3==1.25.2
-wxPython==4.0.4
+wxPython==4.0.6
 yarl==1.3.0

@@ -56,6 +56,23 @@ def timeStampFractionFmt(time):
     return '{}.{:03d}'.format(timeStampFmt(time), ms)
 
 
+def timeStampApproxFmt(time):
+    h = time / 3600
+    if h >= 0.9:
+        return _('{} hours').format(round(max(h, 1)))
+    m = time / 60
+    if m <= 1:
+        return _('less than minute')
+    if m >= 15:
+        m = round(m / 5) * 5
+    else:
+        m = round(m)
+    if m == 1:
+        return _('1 minute')
+    else:
+        return _('{} minutes').format(m)
+
+
 def repr(name, *args, **kw):
     items  = [ str(arg) for arg in args if arg is not None ]
     items += [ '{}={}'.format(k, v) for k, v in kw.items() if v is not None ]

@@ -42,7 +42,9 @@ def subsync():
         win = MainWin(None, sub=sub, ref=ref)
         win.Show()
 
-        if tasks and args.auto:
+        if args.batch:
+            wx.CallAfter(win.showBatchWin, tasks=tasks, auto=args.auto)
+        elif tasks and args.auto:
             wx.CallAfter(win.start, task=tasks[0], auto=args.auto)
 
         app.MainLoop()
@@ -102,6 +104,7 @@ def parseCmdArgs(argv):
     parser.add_argument('--out-enc', type=str, help='output character encoding')
     parser.add_argument('--effort', type=float, default=None, help='how hard to try (0.0 - 1.0)')
 
+    parser.add_argument('--batch', type=str, help='batch processing yaml description')
     parser.add_argument('--loglevel', type=str, help='set logging level, numerically or by name')
     parser.add_argument('--logfile', type=str, help='dump logs to specified file')
 
@@ -134,6 +137,9 @@ def parseCmdArgs(argv):
             task.out = OutputFile(path=args.out, fps=args.out_fps, enc=args.out_enc)
 
         tasks = [ task ]
+
+    if args.batch:
+        tasks = SyncTaskList.load(args.batch)
 
     if args.effort is not None:
         settings().set(minEffort = args.effort)

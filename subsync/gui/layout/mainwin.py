@@ -82,6 +82,11 @@ class MainWin ( wx.Frame ):
 		
 		self.m_buttonMenu = wx.Button( self.m_panel2, wx.ID_ANY, _(u"Menu"), wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
 		self.m_menu = wx.Menu()
+		self.m_menuItemBatchProcessing = wx.MenuItem( self.m_menu, wx.ID_ANY, _(u"Batch processing"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu.Append( self.m_menuItemBatchProcessing )
+		
+		self.m_menu.AppendSeparator()
+		
 		self.m_menuItemSettings = wx.MenuItem( self.m_menu, wx.ID_PROPERTIES, _(u"Settings"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu.Append( self.m_menuItemSettings )
 		
@@ -130,6 +135,7 @@ class MainWin ( wx.Frame ):
 		self.Bind( wx.EVT_CLOSE, self.onClose )
 		self.m_sliderMaxDist.Bind( wx.EVT_SCROLL, self.onSliderMaxDistScroll )
 		self.m_buttonMenu.Bind( wx.EVT_BUTTON, self.onButtonMenuClick )
+		self.Bind( wx.EVT_MENU, self.onMenuItemBatchProcessingClick, id = self.m_menuItemBatchProcessing.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemSettingsClick, id = self.m_menuItemSettings.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemCheckUpdateClick, id = self.m_menuItemCheckUpdate.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemAboutClick, id = self.m_menuItemAbout.GetId() )
@@ -148,6 +154,9 @@ class MainWin ( wx.Frame ):
 		event.Skip()
 	
 	def onButtonMenuClick( self, event ):
+		event.Skip()
+	
+	def onMenuItemBatchProcessingClick( self, event ):
 		event.Skip()
 	
 	def onMenuItemSettingsClick( self, event ):
