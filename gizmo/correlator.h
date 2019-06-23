@@ -44,10 +44,9 @@ class Correlator
 		void connectStatsCallback(StatsCallback callback);
 
 		void start(const std::string &threadName="");
-		void stop();
+		void stop(bool force=false);
 
 		bool isRunning() const;
-		bool isDone() const;
 		float getProgress() const;
 
 		void pushSubWord(const Word &word);
@@ -69,12 +68,20 @@ class Correlator
 		Points correlate() const;
 
 	private:
+		enum class State
+		{
+			running,    // normal operation
+			finishing,  // will stop after pending words queue exhaustion
+			stopping,   // terminating
+			idle,       // thread is not running
+		};
+
+	private:
 		Entrys m_subs;
 		Entrys m_refs;
 
-		std::atomic_bool m_running;
+		std::atomic<State> m_state;
 		std::thread m_thread;
-		Semaphore m_threadEndSem;
 
 		WordsQueue m_queue;
 		std::atomic_size_t m_wordsNo;

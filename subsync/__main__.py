@@ -8,17 +8,15 @@ translations.init()
 import wx
 import sys
 import argparse
-from subsync import error
 from subsync import loggercfg
 from subsync.settings import settings
-from subsync.stream import Stream
-from subsync import channels
+from subsync.synchro import SyncTask, SyncTaskList, SubFile, RefFile, OutputFile, ChannelsMap
 
 
 def subsync():
     from subsync.gui.errorwin import showExceptionDlg
 
-    subs, refs, args = parseCmdArgs(sys.argv)
+    tasks, args = parseCmdArgs(sys.argv)
     app = wx.App()
 
     try:
@@ -39,42 +37,22 @@ def subsync():
 
     try:
         from subsync.gui.mainwin import MainWin
-        win = MainWin(None, subs=subs, refs=refs)
+        sub = tasks and tasks[0].sub
+        ref = tasks and tasks[0].ref
+        win = MainWin(None, sub=sub, ref=ref)
         win.Show()
 
-        if args.auto:
-            autoRun(win, args)
+        if tasks and args.auto:
+            wx.CallAfter(win.start, task=tasks[0], auto=args.auto)
 
         app.MainLoop()
 
-    except error.Error as e:
+    except Exception as err:
+        logger.warning('startup failed, %r', err, exc_info=True)
         showExceptionDlg()
 
     settings().save()
     loggercfg.terminate()
-
-
-def autoRun(mainWin, args):
-    class Listener(object):
-        def onSynchronized(self, win, stats):
-            self.save(win, stats)
-            if args.auto == 'sync':
-                win.Close()
-
-        def onSynchronizationDone(self, win, stats):
-            self.save(win, stats)
-            if args.auto in ['sync', 'done']:
-                win.Close()
-
-        def onSynchronizationExit(self, win):
-            if args.auto in ['sync', 'done']:
-                mainWin.Close()
-
-        def save(self, win, stats):
-            if args.out and stats.correlated:
-                win.saveSynchronizedSubtitles(args.out, fps=args.out_fps)
-
-    mainWin.start(Listener())
 
 
 def setupLogger(args):
@@ -104,9 +82,6 @@ def parseLogLevel(level, default=logging.WARNING):
 
 
 def parseCmdArgs(argv):
-    subs = None
-    refs = None
-
     parser = argparse.ArgumentParser(description=_('Subtitle Speech Synchronizer'))
 
     parser.add_argument('--sub', '--sub-file', type=str, help='subtitle file')
@@ -124,6 +99,8 @@ def parseCmdArgs(argv):
 
     parser.add_argument('--out', '--out-file', type=str, help='output file (used with --auto)')
     parser.add_argument('--out-fps', type=float, help='output framerate (for fps-based subtitles)')
+    parser.add_argument('--out-enc', type=str, help='output character encoding')
+    parser.add_argument('--effort', type=float, default=None, help='how hard to try (0.0 - 1.0)')
 
     parser.add_argument('--loglevel', type=str, help='set logging level, numerically or by name')
     parser.add_argument('--logfile', type=str, help='dump logs to specified file')
@@ -133,23 +110,35 @@ def parseCmdArgs(argv):
             help='start synchronization automatically')
 
     args = parser.parse_args()
+    tasks = None
 
-    if args.sub:
-        subs = Stream(path=args.sub, types=('subtitle/text',))
-        if args.sub_stream != None:
-            subs.select(args.sub_stream - 1)
-        subs.setNotNone(lang=args.sub_lang, enc=args.sub_enc, fps=args.sub_fps)
+    if args.sub or args.ref or args.out:
+        task = SyncTask()
 
-    if args.ref:
-        refs = Stream(path=args.ref, types=('subtitle/text', 'audio'))
-        if args.ref_stream != None:
-            refs.select(args.ref_stream - 1)
-        refs.setNotNone(lang=args.ref_lang, enc=args.ref_enc, fps=args.ref_fps)
+        if args.sub:
+            task.sub = SubFile(path=args.sub)
+            if args.sub_stream != None:
+                task.sub.select(args.sub_stream - 1)
+            task.sub.setNotNone(lang=args.sub_lang, enc=args.sub_enc, fps=args.sub_fps)
 
-        if args.ref_channels != None:
-            refs.channels = channels.getChannelsMap(args.ref_channels)
+        if args.ref:
+            task.ref = RefFile(path=args.ref)
+            if args.ref_stream != None:
+                task.ref.select(args.ref_stream - 1)
+            task.ref.setNotNone(lang=args.ref_lang, enc=args.ref_enc, fps=args.ref_fps)
 
-    return subs, refs, args
+            if args.ref_channels != None:
+                task.ref.channels = ChannelsMap.deserialize(args.ref_channels)
+
+        if args.out:
+            task.out = OutputFile(path=args.out, fps=args.out_fps, enc=args.out_enc)
+
+        tasks = [ task ]
+
+    if args.effort is not None:
+        settings().set(minEffort = args.effort)
+
+    return tasks, args
 
 
 if __name__ == "__main__":

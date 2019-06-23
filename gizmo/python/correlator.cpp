@@ -23,9 +23,8 @@ void initCorrelatorWrapper(py::module &m)
 			py::arg("maxDist"), py::arg("minPointsNo"), py::arg("minWordsSim"));
 	correlator.def("connectStatsCallback", &Correlator::connectStatsCallback);
 	correlator.def("start", &Correlator::start, py::arg("threadName") = "");
-	correlator.def("stop", &Correlator::stop);
+	correlator.def("stop", &Correlator::stop, py::arg("force") = false);
 	correlator.def("isRunning", &Correlator::isRunning);
-	correlator.def("isDone", &Correlator::isDone);
 	correlator.def("getProgress", &Correlator::getProgress);
 	correlator.def("pushSubWord", &Correlator::pushSubWord);
 	correlator.def("pushRefWord", &Correlator::pushRefWord);

@@ -54,3 +54,9 @@ def timeStampFmt(time):
 def timeStampFractionFmt(time):
     ms = int((time % 1) * 1000)
     return '{}.{:03d}'.format(timeStampFmt(time), ms)
+
+
+def repr(name, *args, **kw):
+    items  = [ str(arg) for arg in args if arg is not None ]
+    items += [ '{}={}'.format(k, v) for k, v in kw.items() if v is not None ]
+    return '{}({})'.format(name, ', '.join(items))

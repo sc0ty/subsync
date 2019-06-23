@@ -1,8 +1,7 @@
 import collections
 import gizmo
-
-import logging
-logger = logging.getLogger(__name__)
+import traceback
+import sys
 
 
 class Error(Exception):
@@ -36,13 +35,28 @@ class ErrorsGroup(object):
         self.errors = []
         self.fields = collections.defaultdict(set)
 
-    def add(self, error):
-        self.errors.append(error)
-        if hasattr(error, 'message'):
-            self.descriptions.add(error.message)
-        if hasattr(error, 'fields'):
-            for key, val in error.fields.items():
-                self.fields[key].add(val)
+    def add(self, err):
+        self.errors.append(err)
+        msg = None
+        fields = []
+        if type(err) is gizmo.Error:
+            try:
+                lines = str(err).split('\n')
+                msg = lines[0]
+                fields = [ v.strip().split(':', 1) for v in lines[1:] ]
+            except:
+                pass
+        if hasattr(err, 'message'):
+            msg = err.message
+            self.descriptions.add(err.message)
+        if hasattr(err, 'fields'):
+            fields = err.fields.items()
+        if not msg:
+            msg = str(err) or repr(str)
+
+        self.descriptions.add(msg)
+        for key, val in fields:
+            self.fields[key.strip()].add(val.strip())
 
     def __repr__(self):
         fields = [ ' - {}: {}'.format(k, formatFieldsVals(v))
@@ -57,6 +71,33 @@ class ErrorsGroup(object):
         return len(self.errors)
 
 
+class ErrorsCollector(object):
+    def __init__(self):
+        self.groups = collections.OrderedDict()
+
+    def __bool__(self):
+        return bool(self.groups)
+
+    def add(self, msg, src, err):
+        if msg not in self.groups:
+            self.groups[msg] = ErrorsGroup(msg)
+        self.groups[msg].add(err)
+
+    def getMessages(self, separator='\n'):
+        msgs = [ err.message for err in self.groups.values() ]
+        return separator.join(msgs)
+
+    def getDetails(self):
+        msgs = []
+        for err in self.groups.values():
+            msgs.append(err.message)
+            msgs += list(err.descriptions)
+            items = sorted(err.fields.items())
+            msgs += [ '{}: {}'.format(k, formatFieldsVals(v, 10)) for k, v in items ]
+            msgs.append('')
+        return '\n'.join(msgs)
+
+
 def formatFieldsVals(v, maxlen=4):
     res = '; '.join(sorted(v)[:maxlen])
     if len(v) > maxlen:
@@ -64,7 +105,10 @@ def formatFieldsVals(v, maxlen=4):
     return res
 
 
-def getExceptionMessage(e):
+def getExceptionMessage(e=None):
+    if e is None:
+        _, e, _ = sys.exc_info()
+
     if type(e) is gizmo.Error:
         return str(e).split('\n', 1)[0]
     elif type(e) is Error:
@@ -72,3 +116,12 @@ def getExceptionMessage(e):
     else:
         return str(e) or repr(e)
 
+
+def getExceptionDetails(excInfo=None):
+    if excInfo:
+        type, exc, tb = excInfo
+    else:
+        type, exc, tb = sys.exc_info()
+
+    if exc:
+        return ''.join(traceback.format_exception(type, exc, tb))

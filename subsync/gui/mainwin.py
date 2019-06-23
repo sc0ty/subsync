@@ -2,40 +2,50 @@ import subsync.gui.layout.mainwin
 import wx
 from subsync.gui.syncwin import SyncWin
 from subsync.gui.settingswin import SettingsWin
-from subsync.gui.downloadwin import DownloadWin, SelfUpdateWin
+from subsync.gui.downloadwin import SelfUpdateWin
 from subsync.gui.aboutwin import AboutWin
+from subsync.gui.components import assetsdlg
 from subsync.gui.busydlg import BusyDlg
 from subsync.gui.errorwin import error_dlg
+from subsync.synchro import SyncTask
 from subsync.assets import assetManager
 from subsync import cache
 from subsync import img
 from subsync import config
 from subsync import loggercfg
 from subsync.settings import settings
-from subsync.error import Error
 import sys
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-def logRunCmd(sub, ref):
+def logRunCmd(task):
     def quoted(v):   return '"{}"'.format(v) if v else None
     def nonempty(v): return v if v else None
     def fps(v):      return '{:.5g}'.format(v) if v else None
-    def channels(v): return str(v) if (v and v.type != 'auto') else None
+    def channels(v): return v.serialize() if (v and v.type != 'auto') else None
 
-    args = [('--sub',          quoted(sub.path)),
-            ('--sub-stream',   sub.no + 1),
-            ('--sub-lang',     nonempty(sub.lang)),
-            ('--sub-enc',      nonempty(sub.enc)),
-            ('--sub-fps',      fps(sub.fps)),
-            ('--ref',          quoted(ref.path)),
-            ('--ref-stream',   ref.no + 1),
-            ('--ref-lang',     nonempty(ref.lang)),
-            ('--ref-enc',      nonempty(ref.enc)),
-            ('--ref-fps',      fps(ref.fps)),
-            ('--ref-channels', channels(ref.channels)),
+    args = []
+    if task.sub: args += [
+            ('--sub',          quoted(task.sub.path)),
+            ('--sub-stream',   task.sub.no + 1),
+            ('--sub-lang',     nonempty(task.sub.lang)),
+            ('--sub-enc',      nonempty(task.sub.enc)),
+            ('--sub-fps',      fps(task.sub.fps)),
+            ]
+    if task.ref: args += [
+            ('--ref',          quoted(task.ref.path)),
+            ('--ref-stream',   task.ref.no + 1),
+            ('--ref-lang',     nonempty(task.ref.lang)),
+            ('--ref-enc',      nonempty(task.ref.enc)),
+            ('--ref-fps',      fps(task.ref.fps)),
+            ('--ref-channels', channels(task.ref.channels)),
+            ]
+    if task.out: args += [
+            ('--out',          quoted(task.out.path)),
+            ('--out-enc',      nonempty(task.out.enc)),
+            ('--out-fps',      fps(task.out.fps)),
             ]
 
     cmd = [ '{}={}'.format(*arg) for arg in args if arg[1] != None ]
@@ -43,7 +53,7 @@ def logRunCmd(sub, ref):
 
 
 class MainWin(subsync.gui.layout.mainwin.MainWin):
-    def __init__(self, parent, subs=None, refs=None):
+    def __init__(self, parent, sub=None, ref=None):
         super().__init__(parent)
 
         img.setWinIcon(self)
@@ -53,11 +63,8 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         if config.assetupd == None:
             self.m_menu.Remove(self.m_menuItemCheckUpdate.GetId())
 
-        self.m_panelSub.setStream(subs)
-        self.m_panelSub.stream.types = ('subtitle/text',)
-
-        self.m_panelRef.setStream(refs)
-        self.m_panelRef.stream.types = ('subtitle/text', 'audio')
+        self.m_panelSub.setStream(sub)
+        self.m_panelRef.setStream(ref)
 
         self.m_sliderMaxDist.SetValue(settings().windowSize / 60.0)
         self.onSliderMaxDistScroll(None)
@@ -118,9 +125,9 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
             assetManager.updateTask.start()
 
         if assetManager.updateTask.isRunning():
-            with BusyDlg(self, _('Checking for update...')):
-                while assetManager.updateTask.isRunning():
-                    wx.Yield()
+            # TODO: update to new BusyDlg
+            with BusyDlg(self, _('Checking for update...')) as dlg:
+                dlg.ShowModalWhile(assetManager.updateTask.isRunning)
 
         if self.runUpdater():
             self.Close(force=True)
@@ -143,107 +150,22 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     def onButtonStartClick(self, event):
         try:
             settings().save()
-            self.start()
+            task = SyncTask(self.m_panelSub.stream, self.m_panelRef.stream)
+            self.start(task)
         except:
             self.refsCache.clear()
             raise
 
-    def start(self, listener=None):
-        self.validateSelection()
-        logRunCmd(self.m_panelSub.stream, self.m_panelRef.stream)
-
-        if self.validateAssets():
-            sub = self.m_panelSub.stream
-            ref = self.m_panelRef.stream
+    def start(self, task, auto=None):
+        if assetsdlg.validateAssets(self, [task]):
+            logRunCmd(task)
             cache = self.refsCache if settings().refsCache else None
 
-            with SyncWin(self, sub, ref, cache, listener) as dlg:
+            with SyncWin(self, task, auto=auto, refCache=cache) as dlg:
                 dlg.ShowModal()
 
-            if listener:
-                listener.onSynchronizationExit(self)
-
-    def validateSelection(self):
-        subs = self.m_panelSub.stream
-        refs = self.m_panelRef.stream
-        if subs.path == None or subs.no == None:
-            raise Error(_('Subtitles not set'))
-        if refs.path == None or refs.no == None:
-            raise Error(_('Reference file not set'))
-        if subs.path == refs.path and subs.no == refs.no:
-            raise Error(_('Subtitles can\'t be the same as reference'))
-        if refs.type == 'audio' and not refs.lang:
-            raise Error(_('Select reference language first'))
-
-    def validateAssets(self):
-        subs = self.m_panelSub.stream
-        refs = self.m_panelRef.stream
-
-        needAssets = []
-        if refs.type == 'audio':
-            needAssets.append(assetManager.getAsset('speech', [refs.lang]))
-        if subs.lang and refs.lang and subs.lang != refs.lang:
-            langs = sorted([subs.lang, refs.lang])
-            needAssets.append(assetManager.getAsset('dict', langs))
-
-        missingAssets  = [ asset for asset in needAssets if not asset.isLocal() ]
-        downloadAssets = [ asset for asset in missingAssets if asset.isRemote() ]
-        if downloadAssets:
-            if not self.askForDownloadAssets(downloadAssets):
-                return False
-
-        updateAssets = [ asset for asset in needAssets
-                if asset.remoteVersion() > asset.localVersion()
-                and asset not in downloadAssets ]
-        if updateAssets:
-            self.askForUpdateAssets(updateAssets)
-
-        missingAssets = [ asset for asset in needAssets if not asset.isLocal() ]
-        if missingAssets:
-            assetManager.updateTask.getResult()
-            msg = []
-            if not assetManager.remoteAssetListReady:
-                msg += [ _('Couldn\'t download asset list from remote server.'), '' ]
-            msg += [ _('Following assets are missing:') ]
-            msg += [ ' - ' + asset.getPrettyName() for asset in missingAssets ]
-            raise Error('\n'.join(msg))
-
-        return True
-
-    def askForDownloadAssets(self, assetList):
-        msg  = [ _('Following assets must be download to continue:') ]
-        msg += [ ' - ' + asset.getPrettyName() for asset in assetList ]
-        msg += [ '', _('Download now?') ]
-        title = _('Download assets')
-        flags = wx.YES_NO | wx.ICON_QUESTION
-        with wx.MessageDialog(self, '\n'.join(msg), title, flags) as dlg:
-            if dlg.ShowModal() == wx.ID_YES:
-                return self.downloadAssets(assetList)
-        return False
-
-    def askForUpdateAssets(self, assetList):
-        msg  = [ _('Following assets could be updated:') ]
-        msg += [ ' - ' + asset.getPrettyName() for asset in assetList ]
-        msg += [ '', _('Update now?') ]
-        title = _('Update assets')
-        flags = wx.YES_NO | wx.ICON_QUESTION
-        with wx.MessageDialog(self, '\n'.join(msg), title, flags) as dlg:
-            if dlg.ShowModal() == wx.ID_YES:
-                self.refsCache.clear()
-                return self.downloadAssets(assetList)
-        return False
-
-    def downloadAssets(self, assetList):
-        for asset in assetList:
-            upd = asset.getUpdater()
-            if not upd:
-                return False
-
-            upd.start()
-            with DownloadWin(self, asset.getPrettyName(), upd) as dlg:
-                if dlg.ShowModal() != wx.ID_OK:
-                    return False
-        return True
+        if auto == 'done':
+            self.Close()
 
     @error_dlg
     def onClose(self, event):

@@ -1,6 +1,6 @@
 import wx
 import subsync.gui.layout.channelswin
-from subsync import channels
+from subsync.synchro import ChannelsMap
 
 
 class ChannelsWin(subsync.gui.layout.channelswin.ChannelsWin):
@@ -8,7 +8,7 @@ class ChannelsWin(subsync.gui.layout.channelswin.ChannelsWin):
         super().__init__(parent)
 
         self.channels = {}
-        for channel in channels.layoutToIds(audio.channelLayout):
+        for channel in ChannelsMap.layoutToIds(audio.channelLayout):
             self.addChannel(channel)
 
         self.update()
@@ -17,7 +17,7 @@ class ChannelsWin(subsync.gui.layout.channelswin.ChannelsWin):
         self.m_panelCustom.Enable(False)
 
     def addChannel(self, channel):
-        name = channels.getChannelDescription(channel)
+        name = ChannelsMap.getChannelDescription(channel)
         box = wx.CheckBox(self.m_panelCustom, wx.ID_ANY, name)
         self.m_panelCustom.GetSizer().Add(box, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
         box.Bind(wx.EVT_CHECKBOX, self.onCheckCustomChannelCheck)
@@ -81,12 +81,11 @@ class ChannelsWin(subsync.gui.layout.channelswin.ChannelsWin):
     def GetValue(self):
         if self.isValid():
             if self.m_radioAuto.GetValue():
-                return channels.AutoChannelsMap()
+                return ChannelsMap.auto()
             elif self.m_radioAllChannels.GetValue():
-                return channels.AllChannelsMap()
+                return ChannelsMap.all()
             else:
                 chs = [ c for c in self.channels if self.channels[c].GetValue() ]
-                return channels.CustomChannelsMap(chs)
+                return ChannelsMap.custom(chs)
         else:
-            return channels.AutoChannelsMap()
-
+            return ChannelsMap.auto()

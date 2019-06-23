@@ -1,7 +1,13 @@
 import wx
+import gizmo
+from subsync.gui.errorwin import showExceptionDlg
+import sys
+
+import logging
+logger = logging.getLogger(__name__)
 
 
-class BusyDlg(wx.Frame):
+class BusyDlg(wx.Dialog):
     def __init__(self, parent, msg):
         style = wx.BORDER_SIMPLE | wx.FRAME_TOOL_WINDOW
         if parent:
@@ -9,7 +15,6 @@ class BusyDlg(wx.Frame):
 
         super().__init__(parent, style=style)
 
-        self.disabler = None
         panel = wx.Panel(self)
         text = wx.StaticText(panel, label=msg)
 
@@ -27,17 +32,36 @@ class BusyDlg(wx.Frame):
         text.Center()
         self.Center()
 
-    def __enter__(self):
-        self.disabler = wx.WindowDisabler(self)
-        self.Show()
-        self.Refresh()
-        self.Update()
-        wx.Yield()
+    def ShowModalWhile(self, condCb, checkInterval=0.1):
+        self.condCb = condCb
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.checkCond, self.timer)
+        self.timer.Start(checkInterval * 1000)
+        return self.ShowModal()
 
-    def __exit__(self, type, value, traceback):
-        self.Close()
+    def checkCond(self, event):
+        if not self.condCb():
+            self.timer.Stop()
+            self.EndModal(wx.ID_OK)
 
-        if self.disabler:
-            del self.disabler
-            self.disabler = None
 
+def showBusyDlgAsyncJob(parent, msg, job, *args, **kwargs):
+    res = None
+    exc = None
+
+    def runJob():
+        nonlocal res, exc
+        try:
+            res = job(*args, **kwargs)
+        except Exception as err:
+            logger.warn('showBusyDlgAsyncJob: %r', err, exc_info=True)
+            exc = sys.exc_info()
+
+    thread = gizmo.Thread(runJob, name=getattr(job, '__name__', 'BusyJob'))
+    with BusyDlg(parent, msg) as dlg:
+        dlg.ShowModalWhile(thread.isRunning)
+
+    if exc:
+        showExceptionDlg(parent, exc)
+
+    return res

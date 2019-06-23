@@ -31,7 +31,7 @@ class SyncWin ( wx.Dialog ):
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_textStatus = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Synchronizing..."), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textStatus = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Initializing..."), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textStatus.Wrap( -1 )
 		fgSizer2.Add( self.m_textStatus, 0, wx.ALL|wx.EXPAND, 5 )
 		
@@ -126,35 +126,35 @@ class SyncWin ( wx.Dialog ):
 		
 		self.m_textElapsedTimeTitle = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"elapsed time:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textElapsedTimeTitle.Wrap( -1 )
-		fgSizer16.Add( self.m_textElapsedTimeTitle, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textElapsedTimeTitle, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textElapsedTime = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"0:00"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textElapsedTime = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"-"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textElapsedTime.Wrap( -1 )
-		fgSizer16.Add( self.m_textElapsedTime, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textElapsedTime, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_textCorrelationTitle = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"correlation:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textCorrelationTitle.Wrap( -1 )
-		fgSizer16.Add( self.m_textCorrelationTitle, 0, wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textCorrelationTitle, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCorrelation = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"0.00 %"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCorrelation = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"-"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textCorrelation.Wrap( -1 )
-		fgSizer16.Add( self.m_textCorrelation, 0, wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textCorrelation, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_textFormulaTitle = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"formula:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textFormulaTitle.Wrap( -1 )
-		fgSizer16.Add( self.m_textFormulaTitle, 0, wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textFormulaTitle, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_textFormula = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"-"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textFormula.Wrap( -1 )
-		fgSizer16.Add( self.m_textFormula, 0, wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textFormula, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_textMaxChangeTitle = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"max change:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textMaxChangeTitle.Wrap( -1 )
-		fgSizer16.Add( self.m_textMaxChangeTitle, 0, wx.BOTTOM|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textMaxChangeTitle, 0, wx.BOTTOM|wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_textMaxChange = wx.StaticText( self.m_panelDetails, wx.ID_ANY, _(u"-"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textMaxChange.Wrap( -1 )
-		fgSizer16.Add( self.m_textMaxChange, 0, wx.BOTTOM|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer16.Add( self.m_textMaxChange, 0, wx.BOTTOM|wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
 		fgSizer61.Add( fgSizer16, 1, wx.RIGHT|wx.LEFT, 5 )

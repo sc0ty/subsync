@@ -1,28 +1,27 @@
 import subsync.gui.layout.syncwin
 import wx
-from subsync.synchro import synchronizer
+from subsync.synchro import Synchronizer
 from subsync.gui.components import filedlg
 from subsync.gui import fpswin
 from subsync.gui import errorwin
 from subsync.gui import busydlg
-from subsync import thread
+from subsync.thread import gui_thread
 from subsync.data import filetypes
 from subsync import subtitle
 from subsync.settings import settings
 from subsync import utils
 from subsync import img
 from subsync import error
+import gizmo
 import pysubs2.exceptions
-import time
 import os
-import collections
 
 import logging
 logger = logging.getLogger(__name__)
 
 
 class SyncWin(subsync.gui.layout.syncwin.SyncWin):
-    def __init__(self, parent, subs, refs, refsCache=None, listener=None):
+    def __init__(self, parent, task, auto=None, refCache=None):
         super().__init__(parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
@@ -36,133 +35,159 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.Fit()
         self.Layout()
 
-        self.subs = subs
-        self.refs = refs
+        self.errors = error.ErrorsCollector()
+        self.pendingErrors = False
 
-        self.startTime = time.time()
-        self.sync = None
+        self.task = task
+        self.auto = auto
 
-        self.isRunning = False
-        self.isSubReady = False
+        self.sync = Synchronizer(task.sub, task.ref)
+        self.sync.refCache = refCache
+        self.sync.onError = self.onError
 
-        self.errors = collections.OrderedDict()
+        self.running = True
+        self.closing = False
+        self.runTime = wx.StopWatch()
 
-        self.updateTimer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.onUpdateTimerTick, self.updateTimer)
+        self.sleeper = gizmo.Sleeper()
+        self.thread = gizmo.Thread(self.syncJob, name='Synchro')
 
-        with busydlg.BusyDlg(self, _('Loading, please wait...')):
-            self.sync = synchronizer.Synchronizer(self.subs, self.refs, refsCache)
+    def stop(self):
+        self.running = False
+        self.sleeper.wake()
+
+    def syncJob(self):
+        try:
             self.sync.onError = self.onError
-            self.sync.start()
+            self.sync.init(runCb=lambda: self.running)
+            if self.running:
+                self.sync.start()
+            self.updateStatusStarted()
 
-        self.isRunning = True
-        self.updateTimer.Start(500)
+            while self.running and self.sync.isRunning():
+                self.updateStatus(self.sync.getStatus())
+                self.sleeper.sleep(0.5)
+        except Exception as err:
+            logger.warning('%r', err, exc_info=True)
+            self.onError('core', err)
 
-        self.listener = listener
+        try:
+            self.sync.stop()
+        except Exception as err:
+            logger.warning('%r', err, exc_info=True)
+            self.onError('core', err)
+        finally:
+            self.updateStatusDone(self.sync.getStatus(), self.running)
+            self.running = False
+            self.sync.destroy()
+            logger.info('thread terminated')
 
-    def onUpdateTimerTick(self, event):
-        if self.isRunning:
-            stats = self.sync.getStats()
-            isSubReady = self.sync.isSubReady()
-            elapsed = time.time() - self.startTime
-            maxChange = self.sync.getMaxChange()
+    @gui_thread
+    def updateStatusStarted(self):
+        self.m_textStatus.SetLabel(_('Synchronizing...'))
 
-            self.m_textSync.SetLabel(_('Synchronization: {} points').format(stats.points))
-            self.m_textElapsedTime.SetLabel(utils.timeStampFmt(elapsed))
-            self.m_textCorrelation.SetLabel('{:.2f} %'.format(100.0 * stats.factor))
-            self.m_textFormula.SetLabel(str(stats.formula))
-            self.m_textMaxChange.SetLabel(utils.timeStampFractionFmt(maxChange))
+    @gui_thread
+    def updateStatus(self, status, finished=False):
+        elapsed = self.runTime.Time() / 1000
+        self.m_textElapsedTime.SetLabel(utils.timeStampFmt(elapsed))
 
-            if not self.isSubReady and isSubReady:
-                self.isSubReady = isSubReady
+        if status:
+            self.m_textSync.SetLabel(_('Synchronization: {} points').format(status.points))
+            self.m_textCorrelation.SetLabel('{:.2f} %'.format(100 * status.factor))
+            self.m_textFormula.SetLabel(str(status.formula))
+            self.m_textMaxChange.SetLabel(utils.timeStampFractionFmt(status.maxChange))
+            if finished:
+                self.m_gaugeProgress.SetValue(100)
+            else:
+                self.m_gaugeProgress.SetValue(100 * status.progress)
 
+            if status.subReady and not self.m_bitmapTick.IsShown():
                 self.m_bitmapCross.Hide()
                 self.m_bitmapTick.Show()
                 self.m_buttonSave.Enable()
-
-                if self.isRunning:
+                if status.running:
                     self.m_textInitialSyncInfo.Show()
-
                 self.Fit()
                 self.Layout()
 
-                if self.listener:
-                    self.listener.onSynchronized(self, stats)
+        self.handleOutput(status)
+        self.updateStatusErrors()
 
-            if self.sync.isRunning():
-                self.setProgress(self.sync.getProgress())
+    @gui_thread
+    def updateStatusDone(self, status=None, finished=False):
+        self.runTime.Pause()
+        self.showCloseButton()
+
+        if status:
+            self.updateStatus(status, finished)
+
+        if status and status.subReady:
+            self.m_buttonSave.Enable()
+            self.m_bitmapTick.Show()
+            self.m_bitmapCross.Hide()
+            if abs(status.maxChange) > 0.5:
+                self.m_textStatus.SetLabel(_('Subtitles synchronized'))
             else:
-                self.stop(finished=True)
-                self.setProgress(1.0)
-                if self.listener:
-                    self.listener.onSynchronizationDone(self, stats)
+                self.m_textStatus.SetLabel(_('No need to synchronize'))
+        else:
+            self.m_bitmapTick.Hide()
+            self.m_bitmapCross.Show()
+            if (finished and status.points > settings().minPointsNo/2 and
+                    status.factor > settings().minCorrelation**10 and
+                    status.maxDistance < 2*settings().maxPointDist):
+                self.m_buttonSave.Enable()
+                self.m_textStatus.SetLabel(_('Synchronization inconclusive'))
+            else:
+                self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
 
-    @thread.gui_thread_cnt('pendingErrorsNo')
+        self.handleOutput(status)
+        self.updateStatusErrors()
+
+        self.Fit()
+        self.Layout()
+
+    def handleOutput(self, status, finished=False):
+        if self.task.out and status and (finished or status.effort >= settings().minEffort):
+            if self.auto in [ 'sync', 'done' ]:
+                try:
+                    self.saveSynchronizedSubtitles(self.task.out.getPath(),
+                            enc=self.task.out.enc, fps=self.task.out.fps)
+                except Exception as err:
+                    logger.warning('%r', err, exc_info=True)
+                    self.onError('out', err)
+
+            if self.auto == 'done':
+                self.EndModal(wx.ID_OK)
+
+            self.auto = None
+
+    @gui_thread
     def onError(self, source, err):
-        msg = errorToString(source, err)
-        self.addError(source, err, msg, self.pendingErrorsNo.get() <= 0)
+        msg = errorwin.syncErrorToString(source, err)
+        self.errors.add(msg, source, err)
+        self.pendingErrors = True
 
-    def addError(self, source, err, msg, update=True):
-        if len(self.errors) == 0:
-            self.m_panelError.Show()
-
-        if msg not in self.errors:
-            self.errors[msg] = error.ErrorsGroup(msg)
-        self.errors[msg].add(err)
-
-        if update:
-            msgs = [ err.message for err in self.errors.values() ]
-            self.m_textErrorMsg.SetLabelText('\n'.join(msgs))
-
+    def updateStatusErrors(self):
+        if self.pendingErrors:
+            self.pendingErrors = False
+            self.m_textErrorMsg.SetLabelText(self.errors.getMessages())
+            if not self.m_panelError.IsShown():
+                self.m_panelError.Show()
             self.Fit()
             self.Layout()
 
-    def setProgress(self, progress):
-        if progress != None and 0.0 <= progress <= 1.0:
-            pr = int(progress * 100)
-            self.m_gaugeProgress.SetValue(pr)
-        else:
-            self.m_gaugeProgress.Pulse()
+    def showCloseButton(self):
+        if not self.m_buttonClose.IsShown():
+            self.m_buttonStop.Disable()
+            self.m_buttonStop.Hide()
+            self.m_buttonClose.Enable()
+            self.m_buttonClose.Show()
+            self.m_textInitialSyncInfo.Hide()
+            self.m_buttonClose.SetFocus()
+            self.m_buttonSave.SetFocus()
 
-    def stop(self, finished=False):
-        self.m_buttonStop.Enable(False)
-        self.m_buttonStop.Show(False)
-        self.m_buttonClose.Enable(True)
-        self.m_buttonClose.Show(True)
-        self.m_textInitialSyncInfo.Show(False)
-
-        if self.isRunning:
-            self.isRunning = False
-            self.updateTimer.Stop()
-            self.sync.stop()
-
-            if self.isSubReady:
-                self.m_buttonSave.Enable()
-                self.m_bitmapTick.Show()
-                self.m_bitmapCross.Hide()
-                if abs(self.sync.getMaxChange()) > 0.5:
-                    self.m_textStatus.SetLabel(_('Subtitles synchronized'))
-                else:
-                    self.m_textStatus.SetLabel(_('No need to synchronize'))
-            else:
-                self.m_bitmapTick.Hide()
-                self.m_bitmapCross.Show()
-                if self.isSubReady:
-                    stats = self.sync.getStats()
-                    if (finished and stats.points > settings().minPointsNo/2 and
-                            stats.factor > settings().minCorrelation**10 and
-                            stats.maxDistance < 2*settings().maxPointDist):
-                        self.m_buttonSave.Enable()
-                        self.m_textStatus.SetLabel(_('Synchronization inconclusive'))
-                    else:
-                        self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
-                else:
-                    self.m_textStatus.SetLabel(_('Subtitles not ready'))
-
-        self.m_buttonClose.SetFocus()
-        self.m_buttonSave.SetFocus()
-        self.Fit()
-        self.Layout()
+            self.Fit()
+            self.Layout()
 
     def ShowModal(self):
         res = super().ShowModal()
@@ -170,40 +195,35 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         return res
 
     def onClose(self, event):
-        with busydlg.BusyDlg(self, _('Terminating, please wait...')):
+        if not self.closing:
+            self.closing = True
             self.stop()
 
-            if self.sync:
-                self.sync.stop()
-
-                while self.sync.isRunning():
-                    wx.Yield()
-
-                self.sync.destroy()
+            if self.thread.isRunning():
+                with busydlg.BusyDlg(self, _('Terminating, please wait...')) as dlg:
+                    dlg.ShowModalWhile(self.thread.isRunning)
 
         if event:
             event.Skip()
 
     def onButtonStopClick(self, event):
-        if self.isRunning:
-            self.stop()
-        else:
-            self.Close()
+        self.stop()
+        self.showCloseButton()
 
     @errorwin.error_dlg
     def onButtonSaveClick(self, event):
-        path = self.saveFileDlg(self.refs.path)
+        path = self.saveFileDlg(self.task.ref.path)
         if path != None:
             try:
                 self.saveSynchronizedSubtitles(path)
 
             except pysubs2.exceptions.UnknownFPSError:
-                with fpswin.FpsWin(self, self.subs.fps, self.refs.fps) as dlg:
+                with fpswin.FpsWin(self, self.task.sub.fps, self.task.ref.fps) as dlg:
                     if dlg.ShowModal() == wx.ID_OK:
                         self.saveSynchronizedSubtitles(path, fps=dlg.getFps())
 
     def saveSynchronizedSubtitles(self, path, enc=None, **kw):
-        enc = enc or settings().outputCharEnc or self.subs.enc or 'UTF-8'
+        enc = enc or settings().outputCharEnc or self.task.sub.enc or 'UTF-8'
         self.sync.getSynchronizedSubtitles().save(path, encoding=enc, **kw)
 
     def onTextShowDetailsClick(self, event):
@@ -219,14 +239,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.Layout()
 
     def onTextErrorDetailsClick(self, event):
-        msgs = []
-        for err in self.errors.values():
-            msgs.append(err.message)
-            msgs += list(err.descriptions)
-            items = sorted(err.fields.items())
-            msgs += [ '{}: {}'.format(k, error.formatFieldsVals(v, 10)) for k, v in items ]
-            msgs.append('')
-        showDetailsWin(self, '\n'.join(msgs), _('Error'))
+        errorwin.showErrorDetailsDlg(self, self.errors.getDetails(), _('Error'))
 
     def saveFileDlg(self, path=None, suffix=None):
         props = {}
@@ -246,13 +259,16 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             if suffix:
                 res.append(suffix)
 
-            elif settings().appendLangCode and self.subs.lang:
-                res.append(self.subs.lang)
+            elif settings().appendLangCode and self.task.sub.lang:
+                res.append(self.task.sub.lang)
 
             res.append('srt')
             return '.'.join(res)
         except Exception as e:
             logger.warning('%r', e)
+
+
+    ##### DEBUG UTILS #####
 
     def onButtonDebugMenuClick(self, event):
         self.PopupMenu(self.m_menuDebug)
@@ -262,11 +278,11 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     @errorwin.error_dlg
     def onMenuItemDumpSubWordsClick(self, event):
-        self.saveWordsDlg(self.subs, self.sync.correlator.getSubs())
+        self.saveWordsDlg(self.task.sub, self.sync.correlator.getSubs())
 
     @errorwin.error_dlg
     def onMenuItemDumpRefWordsClick(self, event):
-        self.saveWordsDlg(self.refs, self.sync.correlator.getRefs())
+        self.saveWordsDlg(self.task.ref, self.sync.correlator.getRefs())
 
     def saveWordsDlg(self, stream, words):
         subs = subtitle.Subtitles()
@@ -279,7 +295,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
         path = self.saveFileDlg(stream.path, suffix=suffix)
         if path != None:
-            fps = self.subs.fps if self.subs.fps != None else self.refs.fps
+            fps = self.task.sub.fps if self.task.sub.fps != None else self.task.ref.fps
             subs.save(path, fps=fps)
 
     @errorwin.error_dlg
@@ -296,28 +312,3 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             with open(path, 'w') as fp:
                 for x, y in pts:
                     fp.write('{:.3f},{:.3f}\n'.format(x, y))
-
-
-def errorToString(source, err):
-    if source == 'sub':
-        if err.fields.get('module', '').startswith('SubtitleDec.decode'):
-            return _('Some subtitles can\'t be decoded (invalid encoding?)')
-        else:
-            return _('Error during subtitles read')
-    elif source == 'ref':
-        if err.fields.get('module', '').startswith('SubtitleDec.decode'):
-            return _('Some reference subtitles can\'t be decoded (invalid encoding?)')
-        else:
-            return _('Error during reference read')
-    else:
-        return _('Unexpected error occurred')
-
-
-def showDetailsWin(parent, msg, title):
-    dlg = wx.lib.dialogs.ScrolledMessageDialog(parent, msg, title,
-            size=(800, 500), style=wx.DEFAULT_FRAME_STYLE)
-    font = wx.Font(wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE,
-            wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False)
-    dlg.SetFont(font)
-    dlg.ShowModal()
-

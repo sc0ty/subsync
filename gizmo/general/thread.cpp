@@ -1,74 +1,45 @@
-#include "thread.h"
-#include <pybind11/embed.h>
-#include <memory>
-#include <string>
+#include "general/thread.h"
+#include "general/scope.h"
 
-namespace py = pybind11;
+using namespace std;
 
 
-static void renamePythonThread(const std::string &name)
+Thread::Thread(Runnable runnable, const string &name) :
+	m_thread(&Thread::run, this, runnable, name),
+	m_running(true)
+{ }
+
+Thread::~Thread()
 {
-	try
-	{
-		py::gil_scoped_acquire guard;
-		py::module threading = py::module::import("threading");
-		auto current_thread = threading.attr("current_thread")();
-		current_thread.attr("setName")(name);
-	}
-	catch (...)
-	{
-	}
+	if (m_thread.joinable())
+		m_thread.join();
+}
+
+bool Thread::isRunning() const
+{
+	return m_running;
+}
+
+void Thread::run(Runnable runnable, const string &name)
+{
+	ScopeExit done([this](){ m_running = false; });
+
+	if (!name.empty())
+		renameThread(name);
+
+	runnable();
 }
 
 
-#if defined(__linux__)
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#include <pthread.h>
-
-void lowerThreadPriority()
+bool Sleeper::sleep(float time)
 {
-	struct sched_param param;
-	param.sched_priority = 0;
-	pthread_setschedparam(pthread_self(), SCHED_BATCH, &param);
+	unique_lock<std::mutex> lock(m_mutex);
+	auto ms = chrono::milliseconds((int)(time * 1000.f));
+	return m_cond.wait_for(lock, ms) == cv_status::timeout;
 }
 
-void renameThread(const std::string &name)
+void Sleeper::wake()
 {
-#if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 12
-	pthread_setname_np(pthread_self(), name.c_str());
-#endif
-
-	renamePythonThread(name);
+	unique_lock<std::mutex> lock(m_mutex);
+	m_cond.notify_all();
 }
-
-#elif defined(_WIN32)
-
-#include <windows.h>
-
-void lowerThreadPriority()
-{
-	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
-}
-
-void renameThread(const std::string &name)
-{
-	renamePythonThread(name);
-}
-
-#else
-
-#pragma message("warning: Unknown platform, thread priority control not supported")
-
-void lowerThreadPriority()
-{
-}
-
-void renameThread(const std::string &name)
-{
-	renamePythonThread(name);
-}
-
-#endif

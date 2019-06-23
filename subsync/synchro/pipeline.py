@@ -17,10 +17,12 @@ class BasePipeline(object):
         self.timeWindow = [0, self.duration]
 
         self.done = False
+        self.eosCallback = lambda: None
 
         def eos():
             logger.info('job terminated')
             self.done = True
+            self.eosCallback()
 
         self.extractor.connectEosCallback(eos)
 
@@ -61,6 +63,9 @@ class BasePipeline(object):
 
     def connectErrorCallback(self, cb):
         self.extractor.connectErrorCallback(cb)
+
+    def connectEosCallback(self, cb):
+        self.eosCallback = cb
 
 
 class SubtitlePipeline(BasePipeline):
@@ -141,13 +146,15 @@ def createProducerPipeline(stream):
         raise Error(_('Not supported stream type'), type=stream.type)
 
 
-def createProducerPipelines(stream, no=None, timeWindows=None):
+def createProducerPipelines(stream, no=None, timeWindows=None, runCb=lambda: True):
     if timeWindows != None:
         no = len(timeWindows)
 
     pipes = []
     for i in range(no):
-        processPendingEvents()
+
+        if not runCb():
+            return pipes
 
         p = createProducerPipeline(stream)
         pipes.append(p)
@@ -173,13 +180,3 @@ def createProducerPipelines(stream, no=None, timeWindows=None):
             break
 
     return pipes
-
-
-def processPendingEvents():
-    try:
-        import wx
-        if wx.App.Get() and wx.IsMainThread():
-            wx.Yield()
-    except:
-        pass
-

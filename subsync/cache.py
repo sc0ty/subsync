@@ -12,6 +12,7 @@ class WordsCache(object):
                     stream.no,
                     stream.lang,
                     stream.enc,
+                    stream.channels,
                     settings().minWordProb,
                     settings().minWordLen)
 

@@ -120,6 +120,7 @@ sources = [
         'general/exception.cpp',
         'general/logger.cpp',
         'general/thread.cpp',
+        'general/platform.cpp',
         'python/wrapper.cpp',
         'python/general.cpp',
         'python/extractor.cpp',

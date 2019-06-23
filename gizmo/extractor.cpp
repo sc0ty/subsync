@@ -1,5 +1,6 @@
 #include "extractor.h"
 #include "general/thread.h"
+#include "general/scope.h"
 #include "general/exception.h"
 #include <pybind11/pybind11.h>
 #include <cfloat>
@@ -9,7 +10,7 @@ namespace py = pybind11;
 
 
 Extractor::Extractor(shared_ptr<Demux> demux) :
-	m_running(false),
+	m_state(State::idle),
 	m_demux(demux),
 	m_beginTime(0.0),
 	m_endTime(DBL_MAX)
@@ -48,22 +49,25 @@ void Extractor::connectErrorCallback(ErrorCallback callback)
 void Extractor::start(const string &threadName)
 {
 	terminate();
-	m_running = true;
+	m_state = State::running;
 	m_thread = thread(&Extractor::run, this, threadName);
 }
 
 void Extractor::stop()
 {
-	m_running = false;
+	if (m_state == State::running)
+		m_state = State::stopping;
 }
 
 bool Extractor::isRunning() const
 {
-	return m_running;
+	return m_state != State::idle;
 }
 
 void Extractor::run(string threadName)
 {
+	ScopeExit done([this](){ m_state = State::idle; });
+
 	lowerThreadPriority();
 
 	if (!threadName.empty())
@@ -78,29 +82,26 @@ void Extractor::run(string threadName)
 	}
 	catch (const Exception &ex)
 	{
-		m_running = false;
 		m_errorCb(ex);
 	}
 	catch (const std::exception& ex)
 	{
-		m_running = false;
 		m_errorCb(EXCEPTION(ex.what()).module("extractor"));
 	}
 	catch (...)
 	{
-		m_running = false;
 		m_errorCb(EXCEPTION("fatal error").module("extractor"));
 	}
 
-	while (m_running)
+	while (m_state == State::running)
 	{
 		try
 		{
-			while (m_running)
+			while (m_state == State::running)
 			{
 				if (!demux->step() || (demux->getPosition() >= m_endTime))
 				{
-					m_running = false;
+					m_state = State::stopping;
 					if (m_eosCb)
 						m_eosCb();
 				}
@@ -108,7 +109,7 @@ void Extractor::run(string threadName)
 		}
 		catch (const Exception &ex)
 		{
-			if (m_running)
+			if (m_state == State::running)
 				demux->notifyDiscontinuity();
 
 			if (m_errorCb)
@@ -136,12 +137,15 @@ void Extractor::run(string threadName)
 
 void Extractor::terminate()
 {
-	m_running = false;
+	if (m_state != State::idle)
+		m_state = State::stopping;
 
 	if (m_thread.joinable())
 	{
 		py::gil_scoped_release release;
 		m_thread.join();
 	}
+
+	m_state = State::idle;
 }
 

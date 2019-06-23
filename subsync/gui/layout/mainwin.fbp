@@ -399,7 +399,7 @@
                                                 <property name="resize">Resizable</property>
                                                 <property name="show">1</property>
                                                 <property name="size"></property>
-                                                <property name="subclass">SubtitlePanel; subsync.gui.subpanel; forward_declare</property>
+                                                <property name="subclass">SubPanel; subsync.gui.subpanel; forward_declare</property>
                                                 <property name="toolbar_pane">0</property>
                                                 <property name="tooltip"></property>
                                                 <property name="window_extra_style"></property>
@@ -562,7 +562,7 @@
                                                 <property name="resize">Resizable</property>
                                                 <property name="show">1</property>
                                                 <property name="size"></property>
-                                                <property name="subclass">SubtitlePanel; subsync.gui.subpanel; forward_declare</property>
+                                                <property name="subclass">RefPanel; subsync.gui.subpanel; forward_declare</property>
                                                 <property name="toolbar_pane">0</property>
                                                 <property name="tooltip"></property>
                                                 <property name="window_extra_style"></property>

@@ -1,5 +1,6 @@
 #include "subdec.h"
 #include "demux.h"
+#include "general/scope.h"
 #include "general/exception.h"
 
 using namespace std;
@@ -78,8 +79,7 @@ bool SubtitleDec::feed(const AVPacket *packet)
 	if (!gotSub)
 		return false;
 
-	unique_ptr<AVSubtitle, void(*)(AVSubtitle*)>
-		scopedSubFreeGuard(&sub, &avsubtitle_free);
+	ScopeExit scopedSubFreeGuard([&sub](){ avsubtitle_free(&sub); });
 
 	m_position = (double)packet->pts * m_timeBase;
 	double duration = (double)packet->duration * m_timeBase;

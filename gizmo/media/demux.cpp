@@ -1,4 +1,5 @@
 #include "demux.h"
+#include "general/scope.h"
 #include "general/exception.h"
 
 using namespace std;
@@ -129,8 +130,7 @@ bool Demux::step()
 
 	if (res >= 0)
 	{
-		unique_ptr<AVPacket, void(*)(AVPacket*)>
-			scopedPacketUnrefGuard(&packet, &av_packet_unref);
+		ScopeExit scopedPacketUnrefGuard([&packet](){ av_packet_unref(&packet); });
 
 		unsigned streamID = packet.stream_index;
 		if (streamID < m_streamsNo)

@@ -35,9 +35,17 @@ class Extractor
 		void terminate();
 
 	private:
-		std::thread m_thread;
+		enum class State
+		{
+			running,    // normal operation
+			stopping,   // terminating
+			idle,       // thread is not running
+		};
 
-		std::atomic_bool m_running;
+	private:
+		std::thread m_thread;
+		std::atomic<State> m_state;
+
 		std::shared_ptr<Demux> m_demux;
 
 		double m_beginTime;

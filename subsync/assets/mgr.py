@@ -16,6 +16,7 @@ class AssetManager(object):
         self.assets = {}
         self.lock = threading.Lock()
         self.updateTask = thread.AsyncJob(self.updateJob, name='AssetsUpdater')
+        self.remoteAssetListReady = False
 
         self.removeOldInstaller()
 
@@ -47,6 +48,7 @@ class AssetManager(object):
                 if assets:
                     await async_utils.writeJsonFile(config.assetspath, assets)
                     self.updateRemoteAssetsData(assets)
+                    self.remoteAssetListReady = True
 
         except asyncio.CancelledError:
             raise

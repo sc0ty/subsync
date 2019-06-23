@@ -7,7 +7,8 @@
 ## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
-from subsync.gui.subpanel import SubtitlePanel
+from subsync.gui.subpanel import SubPanel
+from subsync.gui.subpanel import RefPanel
 import wx
 import wx.xrc
 
@@ -39,14 +40,14 @@ class MainWin ( wx.Frame ):
 		self.m_staticText3.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText3, 0, wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_panelSub = SubtitlePanel( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panelSub = SubPanel( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.m_panelSub, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		self.m_staticText31 = wx.StaticText( self.m_panel2, wx.ID_ANY, _(u"References (your video):"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText31.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText31, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
 		
-		self.m_panelRef = SubtitlePanel( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panelRef = RefPanel( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.m_panelRef, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		fgSizer5 = wx.FlexGridSizer( 1, 0, 0, 0 )

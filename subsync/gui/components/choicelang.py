@@ -1,41 +1,50 @@
 import wx
 
 
-class ChoiceLang(wx.Choice):
+class ChoiceCustomLang(wx.Choice):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.initLangs()
-
-    def initLangs(self):
-        from subsync.data.languages import languages
-
-        self.Append(_('<other>'), None)
-        self.addSortedLangs({ languages[c][0]: c for c in languages.keys() })
 
     def addSortedLangs(self, langs):
         for name in sorted(langs):
             self.Append(name, langs[name])
 
     def SetValue(self, lang):
-        if lang != None:
+        if lang == wx.NOT_FOUND:
+            self.SetSelection(lang)
+            return False
+
+        elif lang != None:
             lang = lang.lower()
             for i in range(1, self.GetCount()):
                 if self.GetClientData(i) == lang:
                     self.SetSelection(i)
                     return True
+
         self.SetSelection(0)
         return False
 
     def GetValue(self):
         i = self.GetSelection()
-        return self.GetClientData(i) if i != -1 else None
+        if i != wx.NOT_FOUND:
+            return self.GetClientData(i)
 
 
-class ChoiceGuiLang(ChoiceLang):
-    def initLangs(self):
+class ChoiceLang(ChoiceCustomLang):
+    def __init__(self, *args, **kwargs):
+        from subsync.data.languages import languages
+
+        super().__init__(*args, **kwargs)
+        self.Append(_('<other>'), None)
+        self.addSortedLangs({ languages[c][0]: c for c in languages.keys() })
+
+
+class ChoiceGuiLang(ChoiceCustomLang):
+    def __init__(self, *args, **kwargs):
         from subsync.data.languages import languages, languages2to3
         from subsync.translations import listLanguages as langs
 
+        super().__init__(*args, **kwargs)
         self.Append(_('default'), None)
         self.addSortedLangs({
             languages.get(languages2to3.get(x), [x])[0]: x for x in langs()})

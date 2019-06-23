@@ -1,20 +1,20 @@
 import subsync.gui.layout.subpanel
 import wx
 import os
-from subsync.stream import Stream
+from subsync.synchro import SubFile, RefFile
 from subsync.settings import settings
 from subsync.gui import openwin
 from subsync.gui.components import filedrop
 from subsync.gui.errorwin import error_dlg
 
 
-class SubtitlePanel(subsync.gui.layout.subpanel.SubtitlePanel):
+class InputPanel(subsync.gui.layout.subpanel.SubtitlePanel):
     ''' This is subtitle or reference panel used on MainWin
     '''
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent)
         filedrop.setFileDropTarget(self, OnDropFile=self.onDropSubFile)
-        self.stream = Stream()
+        self.stream = None
 
     @error_dlg
     def onButtonSubOpenClick(self, event):
@@ -26,8 +26,8 @@ class SubtitlePanel(subsync.gui.layout.subpanel.SubtitlePanel):
     def showOpenWin(self, stream):
         if stream != None and stream.isOpen():
             with openwin.OpenWin(self, stream) as dlg:
-                if dlg.ShowModal() == wx.ID_OK and dlg.stream.isOpen():
-                    self.setStream(dlg.stream)
+                if dlg.ShowModal() == wx.ID_OK and dlg.file.isOpen():
+                    self.setStream(dlg.file)
 
     def onChoiceSubLang(self, event):
         self.stream.lang = self.m_choiceSubLang.GetValue()
@@ -52,3 +52,14 @@ class SubtitlePanel(subsync.gui.layout.subpanel.SubtitlePanel):
             self.m_textSubPath.SetInsertionPoint(self.m_textSubPath.GetLastPosition())
             self.m_choiceSubLang.SetValue(self.stream.lang)
 
+
+class SubPanel(InputPanel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.stream = SubFile()
+
+
+class RefPanel(InputPanel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.stream = RefFile()

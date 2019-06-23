@@ -3,6 +3,7 @@
 #include "math/line.h"
 #include "text/translator.h"
 #include "general/thread.h"
+#include "general/scope.h"
 #include "general/exception.h"
 #include <pybind11/pybind11.h>
 #include <sstream>
@@ -19,7 +20,7 @@ Correlator::Correlator(
 		float maxDistance,
 		unsigned minPointsNo,
 		float minWordsSim) :
-	m_running(false),
+	m_state(State::idle),
 	m_wordsNo(0),
 	m_lineFinder(5.0f, windowSize),
 	m_windowSize(windowSize),
@@ -47,16 +48,25 @@ void Correlator::pushRefWord(const Word &word)
 
 void Correlator::run(const string threadName)
 {
+	ScopeExit done([this](){ m_state = State::idle; });
+
 	if (!threadName.empty())
 		renameThread(threadName);
 
 	Word word;
 
-	while (m_running)
+	while (m_state == State::running || m_state == State::finishing)
 	{
 		WordId id = m_queue.pop(word);
-		m_wordsNo++;
+		if (id == WordId::NONE)
+		{
+			if (m_state == State::running)
+				continue;
+			else
+				break;
+		}
 
+		m_wordsNo++;
 		bool newBestLine = false;
 
 		if (id == WordId::SUB)
@@ -71,7 +81,8 @@ void Correlator::run(const string threadName)
 
 void Correlator::terminate()
 {
-	m_running = false;
+	if (m_state != State::idle)
+		m_state = State::stopping;
 
 	if (m_thread.joinable())
 	{
@@ -80,29 +91,30 @@ void Correlator::terminate()
 		py::gil_scoped_release release;
 		m_thread.join();
 	}
+
+	m_state = State::idle;
 }
 
 void Correlator::start(const std::string &threadName)
 {
 	terminate();
 
-	m_running = true;
+	m_state = State::running;
 	m_thread = thread(&Correlator::run, this, threadName);
 }
 
-void Correlator::stop()
+void Correlator::stop(bool force)
 {
-	m_running = false;
+	if (force && m_state != State::idle)
+		m_state = State::stopping;
+	if (!force && m_state == State::running)
+		m_state = State::finishing;
+	m_queue.release();
 }
 
 bool Correlator::isRunning() const
 {
-	return m_running;
-}
-
-bool Correlator::isDone() const
-{
-	return m_queue.empty();
+	return m_state != State::idle;
 }
 
 float Correlator::getProgress() const
@@ -196,7 +208,7 @@ Points Correlator::correlate() const
 		stats.maxDistance = sqrt(distSqr);
 		stats.formula = line;
 
-		if (m_running)
+		if (m_state == State::running || m_state == State::finishing)
 			m_statsCb(stats);
 	}
 
@@ -205,7 +217,7 @@ Points Correlator::correlate() const
 
 Correlator::Entrys Correlator::getSubs() const
 {
-	if (m_running)
+	if (m_state != State::idle)
 		throw EXCEPTION("subtitle words cannot be obtained when the correlator is running")
 			.module("Correlator");
 
@@ -214,7 +226,7 @@ Correlator::Entrys Correlator::getSubs() const
 
 Correlator::Entrys Correlator::getRefs() const
 {
-	if (m_running)
+	if (m_state != State::idle)
 		throw EXCEPTION("reference words cannot be obtained when the correlator is running")
 			.module("Correlator");
 

@@ -51,31 +51,6 @@ def gui_thread(func):
     return wrapper
 
 
-def gui_thread_cnt(counter_name):
-    '''Run in GUI thread, count pending actions with counter_name
-    Wraps object methods
-    If function is called from main GUI thread, it is called immediately.
-    Otherwise it will be scheduled with wx.CallAfter
-    self.counter_name will count scheduled actions
-    '''
-    def decorator(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            if not hasattr(self, counter_name):
-                setattr(self, counter_name, AtomicInt())
-
-            if wx.IsMainThread():
-                func(self, *args, **kwargs)
-            else:
-                counter = getattr(self, counter_name)
-                counter.up()
-                wx.CallAfter(lambda self, args, kwargs, counter:
-                        [ counter.down(), func(self, *args, **kwargs) ],
-                        self, args, kwargs, counter)
-        return wrapper
-    return decorator
-
-
 class AsyncJob(object):
     def __init__(self, job, name=None):
         self.loop = None
@@ -96,6 +71,13 @@ class AsyncJob(object):
 
     def isRunning(self):
         return self.thread and self.thread.isAlive()
+
+    def getResult(self):
+        if self.task:
+            try:
+                return self.task.result()
+            except CancelledError or InvalidStateError:
+                pass
 
     def _run(self, job):
         self.loop = asyncio.new_event_loop()

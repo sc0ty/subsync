@@ -2,6 +2,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
+#include "general/thread.h"
 #include "general/exception.h"
 #include "general/logger.h"
 
@@ -12,6 +13,20 @@ using namespace std;
 
 void initGeneralWrapper(py::module &m)
 {
+	/*** class Thread ***/
+	py::class_<Thread> thread(m, "Thread");
+	thread.def(py::init<Thread::Runnable, const string&>(),
+			py::arg("target"), py::arg("name")="");
+	thread.def("isRunning", &Thread::isRunning);
+
+
+	/*** class Sleeper ***/
+	py::class_<Sleeper> sleeper(m, "Sleeper");
+	sleeper.def(py::init<>());
+	sleeper.def("sleep", &Sleeper::sleep, py::call_guard<py::gil_scoped_release>());
+	sleeper.def("wake", &Sleeper::wake, py::call_guard<py::gil_scoped_release>());
+
+
 	/*** class Exception ***/
 	py::register_exception<Exception>(m, "Error");
 

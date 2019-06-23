@@ -3,7 +3,7 @@ import wx
 
 class StreamList(wx.ListCtrl):
     def __init__(self, *args, **kwargs):
-        wx.ListBox.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.InsertColumn(0, _('id'), format=wx.LIST_FORMAT_RIGHT, width=40)
         self.InsertColumn(1, _('language'), width=80)
         self.InsertColumn(2, _('type'), width=120)
@@ -27,7 +27,7 @@ class StreamList(wx.ListCtrl):
 
     def selectStream(self, no):
         sel = self.GetFirstSelected()
-        if sel != -1 and no == self.GetItemData(sel):
+        if sel != wx.NOT_FOUND and no == self.GetItemData(sel):
             return True
 
         for sel in range(self.GetItemCount()):
@@ -39,4 +39,4 @@ class StreamList(wx.ListCtrl):
 
     def getSelectedStream(self):
         sel = self.GetFirstSelected()
-        return self.GetItemData(sel) if sel != -1 else None
+        return self.GetItemData(sel) if sel != wx.NOT_FOUND else None

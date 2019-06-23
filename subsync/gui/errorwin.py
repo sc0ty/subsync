@@ -2,8 +2,6 @@ import wx
 import wx.lib.dialogs
 import subsync.gui.layout.errorwin
 from subsync import error
-import traceback
-import sys
 from functools import wraps
 
 import logging
@@ -26,7 +24,10 @@ class ErrorWin(subsync.gui.layout.errorwin.ErrorWin):
         self.details = [ msg, '\n\n' ]
 
     def addDetails(self, *args):
-        self.details += args
+        for arg in args:
+            self.details += arg
+            if arg and arg[-1] not in [ '\n', '\r' ]:
+                self.details += '\n'
 
     def onTextDetailsClick(self, event):
         dlg = wx.lib.dialogs.ScrolledMessageDialog(self, ''.join(self.details),
@@ -35,26 +36,33 @@ class ErrorWin(subsync.gui.layout.errorwin.ErrorWin):
                 wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False)
         dlg.SetFont(font)
         dlg.ShowModal()
+        self.EndModal(wx.ID_OK)
 
 
 def showExceptionDlg(parent=None, excInfo=None, msg=None):
-    def showDlg(msg):
-        if not msg:
-            msg = error.getExceptionMessage(exc)
+    def showDlg(msg, details):
         with ErrorWin(parent, msg) as dlg:
-            dlg.addDetails(*traceback.format_exception(type, exc, tb))
+            dlg.addDetails(details)
             dlg.ShowModal()
 
-    if excInfo:
-        type, exc, tb = excInfo
-    else:
-        type, exc, tb = sys.exc_info()
+    if not msg:
+        msg = error.getExceptionMessage(excInfo and excInfo[1])
 
-    if exc:
-        if wx.IsMainThread():
-            showDlg(msg)
-        else:
-            wx.CallAfter(showDlg, msg)
+    details = error.getExceptionDetails(excInfo)
+
+    if wx.IsMainThread():
+        showDlg(msg, details)
+    else:
+        wx.CallAfter(showDlg, msg, details)
+
+
+def showErrorDetailsDlg(parent, msg, title, size=(800, 500)):
+    dlg = wx.lib.dialogs.ScrolledMessageDialog(parent, msg, title,
+            size=size, style=wx.DEFAULT_FRAME_STYLE)
+    font = wx.Font(wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE,
+            wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False)
+    dlg.SetFont(font)
+    dlg.ShowModal()
 
 
 def error_dlg(func):
@@ -76,3 +84,19 @@ def error_dlg(func):
             showExceptionDlg(parent)
     return wrapper
 
+
+def syncErrorToString(source, err):
+    if source == 'sub':
+        if err.fields.get('module', '').startswith('SubtitleDec.decode'):
+            return _('Some subtitles can\'t be decoded (invalid encoding?)')
+        else:
+            return _('Error during subtitles read')
+    elif source == 'ref':
+        if err.fields.get('module', '').startswith('SubtitleDec.decode'):
+            return _('Some reference subtitles can\'t be decoded (invalid encoding?)')
+        else:
+            return _('Error during reference read')
+    elif source == 'out':
+        return _('Couldn\'t save synchronized subtitles')
+    else:
+        return _('Unexpected error occurred')
