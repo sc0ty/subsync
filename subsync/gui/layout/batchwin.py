@@ -10,6 +10,7 @@
 from subsync.gui.components.multicolview import MultiColumnView
 from subsync.gui.components.choicelang import ChoiceLang
 from subsync.gui.components.choiceenc import ChoiceCharEnc
+from subsync.gui.components.popups import PopupInfoButton
 import wx
 import wx.xrc
 
@@ -142,14 +143,17 @@ class BatchWin ( wx.Dialog ):
 		self.m_staticline3 = wx.StaticLine( self.m_panelSettings, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_VERTICAL )
 		fgSizer4.Add( self.m_staticline3, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		fgSizer6 = wx.FlexGridSizer( 0, 3, 0, 0 )
-		fgSizer6.AddGrowableCol( 1 )
+		fgSizer6 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer6.AddGrowableCol( 2 )
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
 		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_textMaxDistLabel = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"Max adjustment:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textMaxDistLabel.Wrap( -1 )
 		fgSizer6.Add( self.m_textMaxDistLabel, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		
+		self.m_buttonMaxDistInfo = PopupInfoButton( self.m_panelSettings, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.NO_BORDER )
+		fgSizer6.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		self.m_sliderMaxDist = wx.Slider( self.m_panelSettings, wx.ID_ANY, 30, 5, 180, wx.DefaultPosition, wx.DefaultSize, wx.SL_HORIZONTAL )
 		fgSizer6.Add( self.m_sliderMaxDist, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
@@ -160,10 +164,13 @@ class BatchWin ( wx.Dialog ):
 		
 		self.m_textEffortLabel = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"Effort:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textEffortLabel.Wrap( -1 )
-		fgSizer6.Add( self.m_textEffortLabel, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
+		fgSizer6.Add( self.m_textEffortLabel, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.m_buttonEffortInfo = PopupInfoButton( self.m_panelSettings, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.NO_BORDER )
+		fgSizer6.Add( self.m_buttonEffortInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
 		
 		self.m_sliderEffort = wx.Slider( self.m_panelSettings, wx.ID_ANY, 50, 0, 100, wx.DefaultPosition, wx.DefaultSize, wx.SL_HORIZONTAL )
-		fgSizer6.Add( self.m_sliderEffort, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		fgSizer6.Add( self.m_sliderEffort, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, 5 )
 		
 		self.m_textEffort = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"0.50"), wx.DefaultPosition, wx.DefaultSize, wx.ST_NO_AUTORESIZE )
 		self.m_textEffort.Wrap( -1 )

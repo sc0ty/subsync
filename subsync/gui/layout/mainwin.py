@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec  3 2017)
+## Python code generated with wxFormBuilder (version Nov  6 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -9,6 +9,7 @@
 
 from subsync.gui.subpanel import SubPanel
 from subsync.gui.subpanel import RefPanel
+from subsync.gui.components.popups import PopupInfoButton
 import wx
 import wx.xrc
 
@@ -51,21 +52,24 @@ class MainWin ( wx.Frame ):
 		fgSizer1.Add( self.m_panelRef, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		fgSizer5 = wx.FlexGridSizer( 1, 0, 0, 0 )
-		fgSizer5.AddGrowableCol( 1 )
+		fgSizer5.AddGrowableCol( 2 )
 		fgSizer5.AddGrowableRow( 0 )
 		fgSizer5.SetFlexibleDirection( wx.BOTH )
 		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText32 = wx.StaticText( self.m_panel2, wx.ID_ANY, _(u"Max adjustment"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText32 = wx.StaticText( self.m_panel2, wx.ID_ANY, _(u"Max adjustment:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText32.Wrap( -1 )
-		fgSizer5.Add( self.m_staticText32, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer5.Add( self.m_staticText32, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_buttonMaxDistInfo = PopupInfoButton( self.m_panel2, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.NO_BORDER )
+		fgSizer5.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
 		
 		self.m_sliderMaxDist = wx.Slider( self.m_panel2, wx.ID_ANY, 30, 5, 180, wx.DefaultPosition, wx.DefaultSize, wx.SL_HORIZONTAL )
-		fgSizer5.Add( self.m_sliderMaxDist, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		fgSizer5.Add( self.m_sliderMaxDist, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_textMaxDist = wx.StaticText( self.m_panel2, wx.ID_ANY, _(u"999 min"), wx.DefaultPosition, wx.DefaultSize, wx.ST_NO_AUTORESIZE )
 		self.m_textMaxDist.Wrap( -1 )
-		fgSizer5.Add( self.m_textMaxDist, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL|wx.EXPAND|wx.FIXED_MINSIZE, 5 )
+		fgSizer5.Add( self.m_textMaxDist, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL|wx.FIXED_MINSIZE, 5 )
 		
 		
 		fgSizer1.Add( fgSizer5, 1, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )

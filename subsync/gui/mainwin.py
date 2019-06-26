@@ -16,6 +16,7 @@ from subsync import img
 from subsync import config
 from subsync import loggercfg
 from subsync.settings import settings
+from subsync.data import descriptions
 import sys
 
 import logging
@@ -61,6 +62,8 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         img.setWinIcon(self)
         self.m_buttonMenu.SetLabel(u'\u22ee') # 2630
         self.m_panelMain.GetSizer().SetSizeHints(self)
+
+        self.m_buttonMaxDistInfo.message = descriptions.maxDistInfo
 
         if config.assetupd == None:
             self.m_menu.Remove(self.m_menuItemCheckUpdate.GetId())

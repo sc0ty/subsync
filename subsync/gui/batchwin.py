@@ -11,6 +11,7 @@ from subsync.settings import settings
 from subsync import img
 from subsync.error import Error
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
+from subsync.data import descriptions
 import wx
 import os
 
@@ -27,6 +28,9 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         img.setToolBitmap(self.m_toolBarRef, self.m_toolRefRemove, 'file-remove')
         img.setToolBitmap(self.m_toolBarRef, self.m_toolRefSelStream, 'props')
         img.setToolBitmap(self.m_toolBarOut, self.m_toolOutPattern, 'props')
+
+        self.m_buttonMaxDistInfo.message = descriptions.maxDistInfo
+        self.m_buttonEffortInfo.message = descriptions.effortInfo
 
         if settings().debugOptions:
             self.m_buttonDebugMenu.Show()
