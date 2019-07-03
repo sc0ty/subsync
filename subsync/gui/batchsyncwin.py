@@ -2,9 +2,9 @@ import subsync.gui.layout.batchsyncwin
 from subsync.synchro import Synchronizer, SyncTask
 from subsync.gui import busydlg
 from subsync.gui import errorwin
+from subsync.gui.components.thread import gui_thread
 from subsync import utils
 from subsync import img
-from subsync.thread import gui_thread
 from subsync.settings import settings
 from subsync import error
 import gizmo
@@ -29,14 +29,14 @@ class TaskState(object):
 
 
 class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
-    def __init__(self, parent, tasks, auto=None):
+    def __init__(self, parent, tasks, mode=None):
         super().__init__(parent)
 
         self.currentTask = None
         self.selectedTask = None
 
         self.tasks = [ TaskState(task) for task in tasks ]
-        self.auto = auto
+        self.mode = mode
 
         img.setItemBitmap(self.m_bitmapTick, 'tickmark')
         img.setItemBitmap(self.m_bitmapCross, 'crossmark')
@@ -167,7 +167,7 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
 
         self.Layout()
 
-        if self.auto == 'done':
+        if self.mode and self.mode.autoClose:
             self.Close()
 
     def updateTimer(self, progress=None):

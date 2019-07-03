@@ -1,6 +1,7 @@
 import os
 import aiohttp
 import json
+from subsync.error import Error
 
 import logging
 logger = logging.getLogger(__name__)
@@ -9,20 +10,22 @@ logger = logging.getLogger(__name__)
 async def downloadRaw(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            assert response.status == 200
+            checkResponseCode(url, response)
             return await response.read()
 
 
 async def downloadJson(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            assert response.status == 200
+            checkResponseCode(url, response)
             return await response.json(content_type=None)
 
 
 async def downloadFileProgress(url, fp, size=None, chunkCb=None):
     async with aiohttp.ClientSession(read_timeout=None, raise_for_status=True) as session:
         async with session.get(url) as response:
+            checkResponseCode(url, response)
+
             pos = 0
             try:
                 size = int(response.headers.get('content-length', size))
@@ -35,6 +38,14 @@ async def downloadFileProgress(url, fp, size=None, chunkCb=None):
 
                 if chunkCb:
                     chunkCb(chunk, (pos, size))
+
+
+def checkResponseCode(url, response):
+    if response.status < 200 or response.status >= 300:
+        code = response.status
+        reason = response.reason
+        raise Error(_('Got response {}: {}').format(code, reason),
+                code=code, reason=reason, url=url)
 
 
 async def readJsonFile(path):

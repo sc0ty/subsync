@@ -71,8 +71,16 @@ class DownloadWin ( wx.Dialog ):
 		bSizer1.Fit( self )
 		
 		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.onClose )
 	
 	def __del__( self ):
 		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def onClose( self, event ):
+		event.Skip()
 	
 

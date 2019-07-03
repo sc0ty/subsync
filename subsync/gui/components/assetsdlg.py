@@ -1,12 +1,10 @@
 import wx
 from subsync.gui.downloadwin import DownloadWin
-from subsync.assets import assetManager
+from subsync.assets import assetManager, assetListUpdater
 from subsync.error import Error
 
 
-def validateAssets(parent, tasks, update=True):
-    needAssets = set()
-
+def validateAssets(parent, tasks, updateAssets=True):
     for task in tasks:
         sub = task.sub
         ref = task.ref
@@ -21,32 +19,37 @@ def validateAssets(parent, tasks, update=True):
         if ref.type == 'audio' and not ref.lang:
             raise Error(_('Select reference language first')).add('ref', ref)
 
-        if ref.type == 'audio':
-            needAssets.add(assetManager.getAsset('speech', [ref.lang]))
-        if sub.lang and ref.lang and sub.lang != ref.lang:
-            langs = sorted([sub.lang, ref.lang])
-            needAssets.add(assetManager.getAsset('dict', langs))
+    assetListNotReady = assetListUpdater.isRunning()
 
-    missingAssets  = [ asset for asset in needAssets if not asset.isLocal() ]
-    downloadAssets = [ asset for asset in missingAssets if asset.isRemote() ]
-    if downloadAssets:
-        if not askForDownloadAssets(parent, downloadAssets):
+    needed = set()
+    for task in tasks:
+        needed |= assetManager.getAssetsForTask(task)
+    missing = [ asset for asset in needed if asset.isMissing() ]
+
+    if assetListNotReady and missing:
+        with BusyDlg(self, _('Downloading assets list...')) as dlg:
+            dlg.ShowModalWhile(assetListUpdater.isRunning)
+        missing = [ asset for asset in needed if asset.isMissing() ]
+
+    if missing:
+        msg = [ _('Following assets are missing on server:'), '' ]
+        msg += [ ' - ' + asset.getPrettyName() for asset in missing ]
+        raise Error('\n'.join(msg))
+
+    nonLocal = [ asset for asset in needed if not asset.isLocal() ]
+    if nonLocal:
+        if not askForDownloadAssets(parent, nonLocal):
             return False
 
-    if update:
-        updateAssets = [ asset for asset in needAssets
-                if asset.remoteVersion() > asset.localVersion()
-                and asset not in downloadAssets ]
-        if updateAssets:
-            askForUpdateAssets(parent, updateAssets)
+    if updateAssets:
+        update = [ asset for asset in needed if asset.isUpgradable() ]
+        if update:
+            askForUpdateAssets(parent, update)
 
-    missingAssets = [ asset for asset in needAssets if not asset.isLocal() ]
-    if missingAssets:
-        msg = []
-        if not assetManager.remoteAssetListReady:
-            msg += [ _('Couldn\'t download asset list from remote server.'), '' ]
-        msg += [ _('Following assets are missing:') ]
-        msg += [ ' - ' + asset.getPrettyName() for asset in missingAssets ]
+    missing = [ asset for asset in needed if not asset.isLocal() ]
+    if missing:
+        msg = [ _('Following assets are missing:') ]
+        msg += [ ' - ' + asset.getPrettyName() for asset in missing ]
         raise Error('\n'.join(msg))
 
     return True

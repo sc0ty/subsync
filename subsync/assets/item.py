@@ -61,11 +61,17 @@ class Asset(object):
     def isRemote(self):
         return bool(self.getRemote())
 
+    def isMissing(self):
+        return not self.isLocal() and not self.isRemote()
+
     def localVersion(self, defaultVersion=(0, 0, 0)):
         return utils.parseVersion(self.getLocal('version'), defaultVersion)
 
     def remoteVersion(self, defaultVersion=(0, 0, 0)):
         return utils.parseVersion(self.getRemote('version'), defaultVersion)
+
+    def isUpgradable(self):
+        return self.remoteVersion() > self.localVersion()
 
     def validateLocal(self):
         pass
@@ -164,8 +170,9 @@ class UpdateAsset(Asset):
 
     def updateLocal(self):
         try:
-            with open(self.path, encoding='utf8') as fp:
-                self.local = json.load(fp)
+            if os.path.isfile(self.path):
+                with open(self.path, encoding='utf8') as fp:
+                    self.local = json.load(fp)
 
         except Exception as e:
             logger.warn('cannot load %s: %r', self.getPrettyName(), e)
@@ -182,6 +189,7 @@ class UpdateAsset(Asset):
 
         except Exception as e:
             logger.error('cannot install update %s: %r', self.path, e, exc_info=True)
+            self.removeLocal()
             raise Error(_('Update instalation failed miserably'))
 
     def hasUpdate(self):

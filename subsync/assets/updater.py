@@ -10,9 +10,18 @@ import asyncio
 import tempfile
 import zipfile
 import Crypto
+from collections import namedtuple
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+UpdaterStatus = namedtuple('UpdaterStatus', [
+    'state',
+    'detail',
+    'progress',
+    'error'
+])
 
 
 class Updater(thread.AsyncJob):
@@ -20,8 +29,9 @@ class Updater(thread.AsyncJob):
         self.asset = asset
 
         self.lock = threading.Lock()
-        self.done = False
-        self.progress = 0
+        self.state = 'idle'
+        self.detail = None
+        self.progress = None
         self.error = None
 
         super().__init__(self.job, name='Download')
@@ -31,41 +41,54 @@ class Updater(thread.AsyncJob):
                 raise Error('Invalid asset data, missing parameter', key=key)
 
     def start(self):
-        self.setState(done=False, progress=0.0, error=None)
+        self.setStatus(state='run')
         super().start()
 
-    def setState(self, **kw):
+    def setStatus(self, state=None, detail=None, progress=None, error=None):
         with self.lock:
-            for key, value in kw.items():
-                setattr(self, key, value)
+            if state is not None:
+                self.state = state
+                self.detail = detail
+            if progress is not None:
+                self.progress = progress
+            if error is not None:
+                self.error = error
 
-    def getState(self):
+    def getStatus(self):
         with self.lock:
-            return self.done, self.progress, self.error
+            return UpdaterStatus(
+                    state=self.state,
+                    detail=self.detail,
+                    progress=self.progress,
+                    error=self.error)
 
     async def job(self):
         logger.info('downloading asset %s', self.asset.getPrettyName())
+        installing = False
         try:
             with tempfile.TemporaryFile() as fp:
+                self.setStatus(state='run', detail='download')
                 fp, hash = await self.download(fp)
-                self.setState(progress=1.0)
+                self.setStatus(state='run', detail='install')
                 await self.verify(hash)
                 self.asset.removeLocal()
+                installing = True
                 await self.install(fp)
                 self.asset.updateLocal()
+                installing = False
+                self.setStatus(state='done', detail='success')
 
         except asyncio.CancelledError:
             logger.info('operation cancelled by user')
-            self.asset.removeLocal()
-            self.setState(result=False)
+            if installing:
+                self.asset.removeLocal()
+            self.setStatus(state='done', detail='cancel')
 
         except Exception as e:
             logger.error('download failed, %r', e, exc_info=True)
-            self.asset.removeLocal()
-            self.setState(error=sys.exc_info())
-
-        finally:
-            self.setState(done=True)
+            if installing:
+                self.asset.removeLocal()
+            self.setStatus(state='done', detail='fail', error=sys.exc_info())
 
     async def download(self, fp):
         url = self.asset.getRemote('url')
@@ -75,7 +98,7 @@ class Updater(thread.AsyncJob):
         hash = Crypto.Hash.SHA256.new()
 
         def onNewChunk(chunk, progress):
-            self.setState(progress=progress)
+            self.setStatus(progress=progress)
             hash.update(chunk)
 
         await async_utils.downloadFileProgress(url, fp, size, chunkCb=onNewChunk)
@@ -106,4 +129,3 @@ class Updater(thread.AsyncJob):
             raise Error('Invalid asset type',
                     type=assetType,
                     url=self.asset.getRemote('url'))
-

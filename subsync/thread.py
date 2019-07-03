@@ -1,5 +1,3 @@
-import wx
-from functools import wraps
 import threading
 import asyncio
 
@@ -37,31 +35,26 @@ class AtomicInt(AtomicValue):
             self.value -= num
 
 
-def gui_thread(func):
-    '''Run in GUI thread
-    If function is called from main GUI thread, it is called immediately.
-    Otherwise it will be scheduled with wx.CallAfter
-    '''
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if wx.IsMainThread():
-            func(*args, **kwargs)
-        else:
-            wx.CallAfter(lambda args, kwargs: func(*args, **kwargs), args, kwargs)
-    return wrapper
-
-
 class AsyncJob(object):
     def __init__(self, job, name=None):
         self.loop = None
         self.task = None
         self.thread = None
-        self.params = dict(name=name, args=[job])
+        self.name = name
+        self.job = job
 
-    def start(self):
-        thread = threading.Thread(**self.params, target=self._run)
+    def start(self, *args, **kwargs):
+        thread = threading.Thread(
+                name=self.name,
+                args=[self.job] + list(args),
+                kwargs=kwargs,
+                target=self._run)
+
         thread.start()
         self.thread = thread
+
+    def startSynchronous(self, *args, **kwargs):
+        self._run(self.job, *args, **kwargs)
 
     def stop(self):
         if self.loop:
@@ -79,8 +72,8 @@ class AsyncJob(object):
             except CancelledError or InvalidStateError:
                 pass
 
-    def _run(self, job):
+    def _run(self, job, *args, **kwargs):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
-        self.task = asyncio.ensure_future(job())
+        self.task = asyncio.ensure_future(job(*args, **kwargs))
         self.loop.run_until_complete(self.task)

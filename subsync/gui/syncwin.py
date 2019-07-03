@@ -5,7 +5,7 @@ from subsync.gui.components import filedlg
 from subsync.gui import fpswin
 from subsync.gui import errorwin
 from subsync.gui import busydlg
-from subsync.thread import gui_thread
+from subsync.gui.components.thread import gui_thread
 from subsync.data import filetypes
 from subsync import subtitle
 from subsync.settings import settings
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class SyncWin(subsync.gui.layout.syncwin.SyncWin):
-    def __init__(self, parent, task, auto=None, refCache=None):
+    def __init__(self, parent, task, mode=None, refCache=None):
         super().__init__(parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
@@ -39,7 +39,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.pendingErrors = False
 
         self.task = task
-        self.auto = auto
+        self.mode = mode
+        self.outSaved = False
 
         self.sync = Synchronizer(task.sub, task.ref)
         self.sync.refCache = refCache
@@ -147,8 +148,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.Layout()
 
     def handleOutput(self, status, finished=False):
-        if self.task.out and status and (finished or status.effort >= settings().minEffort):
-            if self.auto in [ 'sync', 'done' ]:
+        if status and (finished or status.effort >= settings().minEffort):
+            if self.task.out and not self.outSaved:
                 try:
                     self.saveSynchronizedSubtitles(self.task.out.getPath(),
                             enc=self.task.out.enc, fps=self.task.out.fps)
@@ -156,10 +157,17 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                     logger.warning('%r', err, exc_info=True)
                     self.onError('out', err)
 
-            if self.auto == 'done':
-                self.EndModal(wx.ID_OK)
+                self.outSaved = True
 
-            self.auto = None
+            if self.mode and self.mode.autoClose:
+                if self.IsModal():
+                    self.EndModal(wx.ID_OK)
+                else:
+                    self.Close()
+
+            elif self.mode and self.mode.autoStart:
+                self.stop()
+                self.showCloseButton()
 
     @gui_thread
     def onError(self, source, err):

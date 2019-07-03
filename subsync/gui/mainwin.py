@@ -10,7 +10,7 @@ from subsync.gui.components import assetsdlg
 from subsync.gui.busydlg import BusyDlg
 from subsync.gui.errorwin import error_dlg
 from subsync.synchro import SyncTask
-from subsync.assets import assetManager
+from subsync.assets import assetManager, assetListUpdater
 from subsync import cache
 from subsync import img
 from subsync import config
@@ -52,7 +52,7 @@ def logRunCmd(task):
             ]
 
     cmd = [ '{}={}'.format(*arg) for arg in args if arg[1] != None ]
-    logging.getLogger('RUNCMD').info('%s %s', sys.argv[0], ' '.join(cmd))
+    logging.getLogger('RUNCMD').info('%s sync %s', sys.argv[0], ' '.join(cmd))
 
 
 class MainWin(subsync.gui.layout.mainwin.MainWin):
@@ -83,7 +83,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
                 maxH=size.GetHeight())
 
         self.refsCache = cache.WordsCache()
-        assetManager.updateTask.start()
+        assetListUpdater.start(autoUpdate=settings().autoUpdate)
 
     def onSliderMaxDistScroll(self, event):
         val = self.m_sliderMaxDist.GetValue()
@@ -121,36 +121,11 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         settings().set(**newSettings.items())
         settings().save()
 
-    def onMenuItemBatchProcessingClick(self, event):
-        self.showBatchWin()
-
-    def showBatchWin(self, tasks=None, auto=None):
-        try:
-            self.Hide()
-            if tasks and auto:
-                BatchSyncWin(self, tasks, auto=auto).ShowModal()
-            else:
-                BatchWin(self, tasks).ShowModal()
-        finally:
-            self.Show()
-            if auto == 'done':
-                self.Close()
-
+    @error_dlg
     def onMenuItemCheckUpdateClick(self, event):
-        updAsset = assetManager.getSelfUpdaterAsset()
-        hasLocalUpdate = updAsset and updAsset.hasLocalUpdate()
-
-        if not assetManager.updateTask.isRunning() and not hasLocalUpdate:
-            assetManager.updateTask.start()
-
-        if assetManager.updateTask.isRunning():
-            # TODO: update to new BusyDlg
-            with BusyDlg(self, _('Checking for update...')) as dlg:
-                dlg.ShowModalWhile(assetManager.updateTask.isRunning)
-
-        if self.runUpdater():
-            self.Close(force=True)
-
+        if self.checkForUpdate():
+            if self.runUpdater():
+                self.Close(force=True)
         else:
             dlg = wx.MessageDialog(
                     self,
@@ -175,51 +150,69 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
             self.refsCache.clear()
             raise
 
-    def start(self, task, auto=None):
+    def start(self, task, mode=None):
         if assetsdlg.validateAssets(self, [task]):
             logRunCmd(task)
             cache = self.refsCache if settings().refsCache else None
 
-            with SyncWin(self, task, auto=auto, refCache=cache) as dlg:
+            with SyncWin(self, task, mode=mode, refCache=cache) as dlg:
                 dlg.ShowModal()
 
-        if auto == 'done':
-            self.Close()
+        if mode and mode.autoClose:
+            self.Close(force=True)
+
+    @error_dlg
+    def onMenuItemBatchProcessingClick(self, event):
+        self.showBatchWin()
+
+    def showBatchWin(self, tasks=None, mode=None):
+        try:
+            self.Hide()
+            if mode and mode.autoStart and tasks:
+                BatchSyncWin(self, tasks, mode=mode).ShowModal()
+            else:
+                BatchWin(self, tasks, mode=mode).ShowModal()
+
+        finally:
+            self.Show()
+            if mode and mode.autoClose:
+                self.Close(force=True)
 
     @error_dlg
     def onClose(self, event):
         if event.CanVeto() and settings().askForUpdate:
-            updAsset = assetManager.getSelfUpdaterAsset()
+            self.runUpdater()
 
-            if updAsset and updAsset.hasUpdate():
-                dlg = wx.MessageDialog(
-                        self,
-                        _('New version is available. Update now?'),
-                        _('Upgrade'),
-                        wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
-
-                if dlg.ShowModal() == wx.ID_YES:
-                    self.runUpdater(False)
-
-        assetManager.updateTask.stop()
+        assetListUpdater.stop()
         event.Skip()
 
-    def runUpdater(self, askForUpdate=True):
+    def checkForUpdate(self):
+        updAsset = assetManager.getSelfUpdaterAsset()
+        if updAsset:
+            if not assetListUpdater.isRunning() and not updAsset.hasUpdate():
+                assetListUpdater.start(updateList=True, autoUpdate=True)
+
+            if assetListUpdater.isRunning():
+                with BusyDlg(self, _('Checking for update...')) as dlg:
+                    dlg.ShowModalWhile(assetListUpdater.isRunning)
+
+            return updAsset.hasUpdate()
+        return False
+
+    def runUpdater(self):
         updAsset = assetManager.getSelfUpdaterAsset()
         if updAsset and updAsset.hasUpdate():
-            if not updAsset.hasLocalUpdate():
-                SelfUpdateWin(self).ShowModal()
+            dlg = wx.MessageDialog(
+                    self,
+                    _('New version is available. Update now?'),
+                    _('Upgrade'),
+                    wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
+            if dlg.ShowModal() == wx.ID_YES:
 
-                if askForUpdate:
-                    dlg = wx.MessageDialog(
-                            self,
-                            _('New version is ready to be installed. Upgrade now?'),
-                            _('Upgrade'),
-                            wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
-                    if dlg.ShowModal != wx.ID_YES:
-                        return False
+                if not updAsset.hasLocalUpdate():
+                    SelfUpdateWin(self).ShowModal()
 
-            if updAsset.hasLocalUpdate():
-                updAsset.installUpdate()
-                return True
+                if updAsset.hasLocalUpdate():
+                    updAsset.installUpdate()
+                    return True
         return False

@@ -17,7 +17,7 @@ import os
 
 
 class BatchWin(subsync.gui.layout.batchwin.BatchWin):
-    def __init__(self, parent, tasks=None):
+    def __init__(self, parent, tasks=None, mode=None):
         super().__init__(parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
@@ -50,6 +50,8 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
             self.subs.addItems([ InputItem(file=t.sub, types=SubFile.types) for t in tasks ], 0)
             self.refs.addItems([ InputItem(file=t.ref, types=RefFile.types) for t in tasks ], 0)
             self.outs.addItems([ OutputItem(file=t.out) for t in tasks ], 0)
+
+        self.mode = mode
 
         self.m_items.onItemsChange = self.onItemsChange
         self.m_items.onSelection = self.onSelection
@@ -139,7 +141,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
             else:
                 self.Close()
 
-            with BatchSyncWin(self.GetParent(), tasks) as dlg:
+            with BatchSyncWin(self.GetParent(), tasks, mode=self.mode) as dlg:
                 dlg.ShowModal()
 
     def getTasks(self):
