@@ -12,6 +12,9 @@ class SyncTask(object):
         self.ref = ref
         self.out = out
 
+    def getOutputPath(self):
+        return self.out and self.out.getPath(self.sub, self.ref)
+
     def getOutputEnc(self):
         return (self.out and self.out.enc) or settings().outputCharEnc or \
                 (self.sub and self.sub.enc) or 'UTF-8'
@@ -32,10 +35,10 @@ class SyncTask(object):
             return res
 
     def __repr__(self):
-        return utils.repr(self.__class__.__name__,
-                sub = self.sub,
-                ref = self.ref,
-                out = self.out,
+        return utils.fmtobj(self.__class__.__name__,
+                sub = repr(self.sub),
+                ref = repr(self.ref),
+                out = repr(self.out),
                 )
 
 

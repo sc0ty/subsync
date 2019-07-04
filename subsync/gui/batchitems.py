@@ -7,6 +7,7 @@ from subsync.gui.errorwin import ErrorWin
 from subsync.synchro import InputFile, OutputFile
 from subsync import error
 from subsync import img
+import os
 
 
 class BaseItem(object):
@@ -220,25 +221,26 @@ class InputCol(MultiColumnCol):
 
 
 class OutputItem(BaseItem):
-    def __init__(self, path=None, file=None):
+    def __init__(self, file=None, path=None):
         super().__init__()
-        if path:
-            file = OutputFile(path=path)
-        self.file = file
+        self.file = file or OutputFile()
+        self.path = None
+
+    def setPattern(self, pattern):
+        if self.file.path != pattern:
+            self.file.path = pattern
+            self.setPath(None)
 
     def setPath(self, path):
-        if self.file is None:
-            self.file = OutputFile(path=path)
-            self.clear()
-        elif path != self.file.path:
-            self.file.path = path
+        if path != self.path:
+            self.path = path
             self.clear()
 
     def getName(self):
-        return self.file.getBaseName()
+        return self.path and os.path.basename(self.path)
 
     def drawDescription(self, dc, x, y, w, h):
-        text = self.file.getDirectory()
+        text = self.path and os.path.dirname(self.path)
         if text:
             dc.drawTextLimited(text, x, y, w)
 
@@ -257,8 +259,9 @@ class OutputCol(MultiColumnCol):
     def canAddItems(self, items, index):
         return [ item for item in items if isinstance(item, OutputItem) ]
 
-    def resize(self, size):
+    def resize(self, size, pattern=None):
         if len(self.items) > size:
             self.items = self.items[0:size]
         while len(self.items) < size:
-            self.items.append(OutputItem())
+            file = OutputFile(pattern)
+            self.items.append(OutputItem(file))

@@ -36,8 +36,7 @@ class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
         if self.progressTimer.IsRunning():
             self.progressTimer.Stop()
 
-        if event:
-            event.Skip()
+        return res
 
     def onProgressTimerTick(self, event):
         status = self.updater.getStatus()
@@ -89,7 +88,7 @@ class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
         else:
             pos, size = progress, 1
 
-        if pos is None or size is None:
+        if size is None:
             self.m_gaugeProgress.Pulse()
         else:
             p = max(min(pos / size, 1.0), 0.0)

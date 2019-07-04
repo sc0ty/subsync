@@ -1,5 +1,5 @@
 import subsync.gui.layout.batchwin
-from subsync.gui.batchitems import InputCol, OutputCol, InputItem, OutputItem
+from subsync.gui.batchitems import InputCol, OutputCol, InputItem
 from subsync.gui.outpatternwin import OutputPatternWin
 from subsync.gui.streamselwin import StreamSelectionWin
 from subsync.gui.batchsyncwin import BatchSyncWin
@@ -39,17 +39,18 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.refs = InputCol(self, RefFile.types)
         self.outs = OutputCol()
 
-        self.outPattern = '{ref_dir}/{ref_name}.{ref_lang}.srt'
+        self.outPattern = os.path.join('{ref_dir}', '{ref_name}{if:ref_lang:.}{ref_lang}.srt')
 
         itemHeight = InputCol.getHeight()
         self.m_items.addCol(self.subs, itemHeight)
         self.m_items.addCol(self.refs, itemHeight)
         self.m_items.addCol(self.outs, itemHeight)
 
+        self.tasks = []
         if tasks:
             self.subs.addItems([ InputItem(file=t.sub, types=SubFile.types) for t in tasks ], 0)
             self.refs.addItems([ InputItem(file=t.ref, types=RefFile.types) for t in tasks ], 0)
-            self.outs.addItems([ OutputItem(file=t.out) for t in tasks ], 0)
+        self.updateTasks()
 
         self.mode = mode
 
@@ -66,9 +67,10 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.Layout()
 
     def onItemsChange(self):
-        self.updateOutputs()
+        self.updateTasks()
         canStart = len(self.subs) and len(self.subs) == len(self.refs) == len(self.outs)
         self.m_buttonStart.Enable(canStart)
+        self.onSelection()
 
     def onSelection(self):
         subs = self.m_items.getSelectionInCol(self.subs)
@@ -92,28 +94,17 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_choiceEnc.Enable(bool(encs))
         self.m_choiceEnc.SetValue(getSingleVal(encs))
 
+    def updateTasks(self):
+        size = max(len(self.subs), len(self.refs))
+        self.outs.resize(size, self.outPattern)
+        self.tasks = []
 
-    def updateOutputs(self):
-        self.outs.resize(min(len(self.subs), len(self.refs)))
-
-        cols = zip(self.subs, self.refs, self.outs)
-        for index, (sub, ref, out) in enumerate(cols):
-            path = self.getOutputPath(sub.file, ref.file)
-            out.setPath(path)
-
-    def getOutputPath(self, sub, ref):
-        try:
-            d = {}
-            for prefix, item in [ ('sub_', sub), ('ref_', ref) ]:
-                d[ prefix + 'path' ] = item.path
-                d[ prefix + 'no'   ] = item.no + 1
-                d[ prefix + 'lang' ] = item.lang or ''
-                d[ prefix + 'name' ] = os.path.splitext(os.path.basename(item.path))[0]
-                d[ prefix + 'dir'  ] = os.path.dirname(item.path)
-
-            return self.outPattern.format(**d)
-        except:
-            return None
+        for i in range(size):
+            task = SyncTask(out=self.outs[i].file)
+            if i < len(self.subs): task.sub = self.subs[i].file
+            if i < len(self.refs): task.ref = self.refs[i].file
+            self.outs[i].setPath(task.getOutputPath())
+            self.tasks.append(task)
 
     def onSliderMaxDistScroll(self, event):
         val = self.m_sliderMaxDist.GetValue()
@@ -134,18 +125,16 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.start()
 
     def start(self):
-        tasks = self.getTasks()
+        tasks = self.tasks
         if assetsdlg.validateAssets(self, tasks):
             if self.IsModal():
                 self.EndModal(wx.ID_OK)
             else:
                 self.Close()
 
+            self.updateTasks()
             with BatchSyncWin(self.GetParent(), tasks, mode=self.mode) as dlg:
                 dlg.ShowModal()
-
-    def getTasks(self):
-        return [ SyncTask(sub.file, ref.file, out.file) for sub, ref, out in self.m_items ]
 
     @error_dlg
     def onSubAddClick(self, event):
@@ -187,19 +176,11 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     @error_dlg
     def onSubSelStreamClick(self, event):
         items = self.m_items.getSelectionInCol(self.subs)
-        if not items:
-            self.m_items.setSelection(self.subs)
-            self.Refresh()
-            items = self.m_items.getSelection()
         self.showStreamSelectionWindow(items, self.subs.types)
 
     @error_dlg
     def onRefSelStreamClick(self, event):
         items = self.m_items.getSelectionInCol(self.refs)
-        if not items:
-            self.m_items.setSelection(self.refs)
-            self.Refresh()
-            items = self.m_items.getSelection()
         self.showStreamSelectionWindow(items, self.refs.types)
 
     def showStreamSelectionWindow(self, items, types):
@@ -212,15 +193,19 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                     if selection != None:
                         item.selectStream(selection)
                 self.onSelection()
+                self.updateTasks()
                 self.m_items.Refresh()
 
     @error_dlg
     def onOutPatternClick(self, event):
         with OutputPatternWin(self) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
-                self.outPattern = dlg.getPattern()
-                self.updateOutputs()
-                self.m_items.setSelection(self.outs)
+                pattern = dlg.getPattern()
+                items = self.m_items.getSelectionInCol(self.outs)
+                self.outPattern = pattern
+                for item in items:
+                    item.setPattern(pattern)
+                self.updateTasks()
                 self.m_items.Refresh()
 
     @error_dlg
@@ -232,9 +217,10 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.setStreamParams(enc=self.m_choiceEnc.GetValue())
 
     def setStreamParams(self, lang=False, enc=False):
-        for item in self.m_items.getSelection():
-            if isinstance(item, InputItem):
-                item.setStreamParams(lang=lang, enc=enc)
+        items = self.m_items.getSelectionInCol(self.subs) + self.m_items.getSelectionInCol(self.refs)
+        for item in items:
+            item.setStreamParams(lang=lang, enc=enc)
+        self.updateTasks()
         self.m_items.Refresh()
 
     def onButtonDebugMenuClick(self, event):
@@ -245,7 +231,8 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         wildcard = '*.yaml|*.yaml|{}|*.*'.format(_('All files'))
         path = filedlg.showSaveFileDlg(self, wildcard=wildcard)
         if path:
-            SyncTaskList.save(self.getTasks(), path)
+            self.updateTasks()
+            SyncTaskList.save(self.tasks, path)
 
 
 def getSingleVal(items, defaultVal=wx.NOT_FOUND):

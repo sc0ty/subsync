@@ -73,7 +73,11 @@ def timeStampApproxFmt(time):
         return _('{} minutes').format(m)
 
 
-def repr(name, *args, **kw):
-    items  = [ str(arg) for arg in args if arg is not None ]
-    items += [ '{}={}'.format(k, v) for k, v in kw.items() if v is not None ]
-    return '{}({})'.format(name, ', '.join(items))
+def fmtobj(name, *args, **kw):
+    return '{}({})'.format(name, fmtstr(*args, **kw))
+
+
+def fmtstr(*args, **kw):
+    items  = [ str(arg) for arg in args if arg ]
+    items += [ '{}={}'.format(k, v) for k, v in kw.items() if v ]
+    return ', '.join(items)

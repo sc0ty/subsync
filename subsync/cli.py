@@ -157,6 +157,12 @@ class App(object):
             pr.println(0, '[!] select reference language')
             return False
 
+        try:
+            out.validateOutputPattern()
+        except Exception as e:
+            pr.println(0, '[!] {}'.format(e))
+            return False
+
         return True
 
     def synchronize(self, task):
@@ -179,11 +185,14 @@ class App(object):
 
             if status and status.subReady:
                 self.printStats(status, endline=True)
-                path = task.out.getPath()
-                pr.println(1, '[+] done, saving to {}'.format(path))
-                enc = task.getOutputEnc()
-                fps = task.out.fps
-                sync.getSynchronizedSubtitles().save(path, encoding=enc, fps=fps)
+                path = task.getOutputPath()
+                pr.println(1, '[+] saving to {}'.format(path))
+                sync.getSynchronizedSubtitles().save(
+                        path=path,
+                        encoding=task.getOutputEnc(),
+                        fps=task.out.fps,
+                        overwrite=task.out.overwrite)
+                pr.println(1, '[+] done')
 
             else:
                 pr.println(0, '[-] couldn\'t synchronize!')

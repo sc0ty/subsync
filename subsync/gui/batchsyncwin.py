@@ -9,23 +9,24 @@ from subsync.settings import settings
 from subsync import error
 import gizmo
 import wx
+import os
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-class TaskState(object):
+class TaskState(SyncTask):
     def __init__(self, task):
-        self.sub = task.sub
-        self.ref = task.ref
-        self.out = task.out
-
+        super().__init__(task.sub, task.ref, task.out)
         self.state = 'idle'
         self.status = None
         self.errors = error.ErrorsCollector()
 
     def getTask(self):
         return SyncTask(self.sub, self.ref, self.out)
+
+    def __repr__(self):
+        return repr(self.getTask())
 
 
 class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
@@ -54,7 +55,8 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
         })
 
         for task in self.tasks:
-            self.m_items.InsertItem(task.out.getBaseName(), icon='idle', item=task)
+            name = os.path.basename(task.getOutputPath())
+            self.m_items.InsertItem(name, icon='idle', item=task)
 
         self.running = True
         self.closing = False
@@ -106,10 +108,12 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
             succeeded = self.running and status and status.subReady
             if succeeded:
                 try:
-                    path = task.out.getPath()
-                    enc = task.getTask().getOutputEnc()
-                    fps = task.out.fps
-                    sync.getSynchronizedSubtitles().save(path, encoding=enc, fps=fps)
+                    sync.getSynchronizedSubtitles().save(
+                            path=task.getOutputPath(),
+                            encoding=task.getOutputEnc(),
+                            fps=task.out.fps,
+                            overwrite=task.out.overwrite)
+
                 except Exception as err:
                     logger.warning('%r', err, exc_info=True)
                     self.onError('out', err)

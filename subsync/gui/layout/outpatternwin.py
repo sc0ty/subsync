@@ -225,7 +225,7 @@ class OutputPatternWin ( wx.Dialog ):
 		self.m_buttonCancel = wx.Button( self.m_panel1, wx.ID_CANCEL, _(u"Cancel"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.m_buttonCancel, 0, wx.ALL, 5 )
 		
-		self.m_buttonOK = wx.Button( self.m_panel1, wx.ID_OK, _(u"OK"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonOK = wx.Button( self.m_panel1, wx.ID_ANY, _(u"OK"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_buttonOK.SetDefault() 
 		fgSizer2.Add( self.m_buttonOK, 0, wx.ALL, 5 )
 		
@@ -259,6 +259,7 @@ class OutputPatternWin ( wx.Dialog ):
 		self.m_radioTypeSsa.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
 		self.m_radioTypeAss.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
 		self.m_radioCustom.Bind( wx.EVT_RADIOBUTTON, self.onModeSel )
+		self.m_buttonOK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
 	
 	def __del__( self ):
 		pass
@@ -283,5 +284,8 @@ class OutputPatternWin ( wx.Dialog ):
 	
 	
 	
+	
+	def onButtonOkClick( self, event ):
+		event.Skip()
 	
 

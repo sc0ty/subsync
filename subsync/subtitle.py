@@ -1,8 +1,10 @@
 from subsync import error
+from subsync import utils
 import bisect
 import pysubs2
 import copy
 import threading
+import os
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,12 +30,16 @@ class Subtitles(pysubs2.SSAFile):
         res.shift(s=formula.b)
         return res
 
-    def save(self, path, encoding=u'utf-8', fmt=None, fps=None):
+    def save(self, path, encoding=u'utf-8', fmt=None, fps=None, overwrite=False):
         if fmt == None and path.endswith('.txt'):
             fmt = 'microdvd'
 
-        logger.info('save subtitles, enc=%r format=%r fps=%r path=%s',
-                encoding, fmt, fps, path)
+        if not overwrite and os.path.exists(path):
+            logger.info('file "%s" exists, generating new path', path)
+            path = genUniquePath(path)
+
+        logger.info('saving subtitles to "%s", %s', path,
+                utils.fmtstr(enc=encoding, fmt=fmt, fps=fps))
         try:
             super().save(path, encoding=encoding, format_=fmt, fps=fps)
         except pysubs2.exceptions.UnknownFileExtensionError as err:
@@ -52,6 +58,19 @@ class Subtitles(pysubs2.SSAFile):
                     (self.events[0].start/1000.0, self.events[-1].end/1000.0))
         else:
             return 0.0
+
+
+def genUniquePath(path):
+    prefix, ext = os.path.splitext(path)
+    if not prefix.endswith('.'):
+        prefix += '.'
+
+    i = 0
+    while os.path.exists(path):
+        i += 1
+        path = '{}{}{}'.format(prefix, i, ext)
+
+    return path
 
 
 class SubtitlesCollector(object):

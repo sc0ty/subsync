@@ -123,15 +123,22 @@ class InputFile(object):
             return res
 
     def __repr__(self):
-        return utils.repr(self.__class__.__name__,
+        return utils.fmtobj(self.__class__.__name__,
                 path = '{}:{}/{}'.format(self.path, self.no, len(self.streams)),
                 type = self.type,
                 lang = self.lang,
                 enc = self.enc,
                 fps = self.fps,
-                channels = self.channels if self.channels.type != 'auto' else None
-                )
-        return res
+                channels = self.channels if self.channels.type != 'auto' else None)
+
+    def __str__(self):
+        return utils.fmtstr(
+                '{}:{}/{}'.format(self.path, self.no, len(self.streams)),
+                type = self.type,
+                lang = self.lang,
+                enc = self.enc,
+                fps = self.fps,
+                channels = self.channels if self.channels.type != 'auto' else None)
 
 
 class SubFile(InputFile):

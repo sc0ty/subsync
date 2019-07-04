@@ -1,5 +1,6 @@
 import subsync.gui.layout.outpatternwin
 from subsync.gui.errorwin import error_dlg
+from subsync.synchro import OutputFile
 import wx
 import os
 
@@ -32,18 +33,18 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
             name.append('{ref_name}')
 
         if self.m_checkFileAppendLang.GetValue():
-            name.append('{ref_lang}')
+            name.append('{if:ref_lang:.}{ref_lang}')
         if self.m_checkFileAppendStreamNo.GetValue():
-            name.append('{ref_no}')
+            name.append('.{ref_no}')
 
         if self.m_radioTypeAss.GetValue():
-            name.append('ass')
+            name.append('.ass')
         elif self.m_radioTypeSsa.GetValue():
-            name.append('ssa')
+            name.append('.ssa')
         else:
-            name.append('srt')
+            name.append('.srt')
 
-        pattern = os.path.join(folder, '.'.join(name))
+        pattern = os.path.join(folder, ''.join(name))
         self.m_textPattern.SetValue(pattern)
 
     def getPattern(self):
@@ -76,4 +77,9 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
     def onButtonFolderCustomClick(self, event):
         self.selectCustomFolder()
         self.updatePattern()
+
+    @error_dlg
+    def onButtonOkClick(self, event):
+        OutputFile(self.getPattern()).validateOutputPattern()
+        self.EndModal(wx.ID_OK)
 

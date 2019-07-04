@@ -18,6 +18,8 @@ def validateAssets(parent, tasks, updateAssets=True):
                     .add('sub', sub).add('ref', ref)
         if ref.type == 'audio' and not ref.lang:
             raise Error(_('Select reference language first')).add('ref', ref)
+        if task.out and task.out.path:
+            task.out.validateOutputPattern()
 
     assetListNotReady = assetListUpdater.isRunning()
 

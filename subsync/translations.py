@@ -27,7 +27,7 @@ def setLanguage(lang):
             tr.install()
 
     except Exception as e:
-        logger.warning('translation language setup failed, %r', e, exc_info=True)
+        logger.warning('translation language setup failed, %r', e, exc_info=False)
 
 def listLanguages():
     try:

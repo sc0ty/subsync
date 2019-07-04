@@ -151,8 +151,11 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         if status and (finished or status.effort >= settings().minEffort):
             if self.task.out and not self.outSaved:
                 try:
-                    self.saveSynchronizedSubtitles(self.task.out.getPath(),
-                            enc=self.task.out.enc, fps=self.task.out.fps)
+                    self.saveSynchronizedSubtitles(
+                            path=self.task.getOutputPath(),
+                            enc=self.task.out.enc,
+                            fps=self.task.out.fps,
+                            overwrite=self.task.out.overwrite)
                 except Exception as err:
                     logger.warning('%r', err, exc_info=True)
                     self.onError('out', err)
@@ -223,12 +226,12 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         path = self.saveFileDlg(self.task.ref.path)
         if path != None:
             try:
-                self.saveSynchronizedSubtitles(path)
+                self.saveSynchronizedSubtitles(path, overwrite=True)
 
             except pysubs2.exceptions.UnknownFPSError:
                 with fpswin.FpsWin(self, self.task.sub.fps, self.task.ref.fps) as dlg:
                     if dlg.ShowModal() == wx.ID_OK:
-                        self.saveSynchronizedSubtitles(path, fps=dlg.getFps())
+                        self.saveSynchronizedSubtitles(path, fps=dlg.getFps(), overwrite=True)
 
     def saveSynchronizedSubtitles(self, path, enc=None, **kw):
         enc = enc or settings().outputCharEnc or self.task.sub.enc or 'UTF-8'
