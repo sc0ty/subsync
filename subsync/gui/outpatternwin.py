@@ -2,50 +2,29 @@ import subsync.gui.layout.outpatternwin
 from subsync.gui.errorwin import error_dlg
 from subsync.synchro import OutputFile
 import wx
+import re
 import os
 
 
-def chooseOption(options, defaultValue=None):
-    for value, selected in options.items():
-        if selected:
-            return value
-    return defaultValue
-
-
 class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
-    def __init__(self, parent):
+    def __init__(self, parent, pattern=None):
         super().__init__(parent)
+        self.m_panelCustom.Disable()
         self.customFolder = ''
-        self.updatePattern()
+        if pattern:
+            self.setPattern(pattern)
+        self.onModeSel(None)
 
     def updatePattern(self):
-        if self.m_radioFolderSub.GetValue():
-            folder = '{sub_dir}'
-        elif self.m_radioFolderRef.GetValue():
-            folder = '{ref_dir}'
+        pattern = self.serializePredefinedPattern()
+        self.m_textPattern.SetValue(''.join(pattern))
+
+    def setPattern(self, pattern):
+        if pattern and self.deserializePredefinedPattern(pattern):
+            self.updatePattern()
         else:
-            folder = self.customFolder
-
-        name = []
-        if self.m_radioFileSub.GetValue():
-            name.append('{sub_name}')
-        else:
-            name.append('{ref_name}')
-
-        if self.m_checkFileAppendLang.GetValue():
-            name.append('{if:ref_lang:.}{ref_lang}')
-        if self.m_checkFileAppendStreamNo.GetValue():
-            name.append('.{ref_no}')
-
-        if self.m_radioTypeAss.GetValue():
-            name.append('.ass')
-        elif self.m_radioTypeSsa.GetValue():
-            name.append('.ssa')
-        else:
-            name.append('.srt')
-
-        pattern = os.path.join(folder, ''.join(name))
-        self.m_textPattern.SetValue(pattern)
+            self.m_radioCustom.SetValue(True)
+            self.m_textPattern.SetValue(pattern)
 
     def getPattern(self):
         return self.m_textPattern.GetValue()
@@ -57,6 +36,82 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
         with wx.DirDialog(self, title, '', style) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 self.customFolder = dlg.GetPath()
+
+    def serializePredefinedPattern(self):
+        res = []
+        if self.m_radioFolderSub.GetValue():
+            res.append('{sub_dir}')
+        elif self.m_radioFolderRef.GetValue():
+            res.append('{ref_dir}')
+        else:
+            res.append(self.customFolder)
+
+        res.append(os.path.sep)
+
+        if self.m_radioFileSub.GetValue():
+            res.append('{sub_name}')
+        else:
+            res.append('{ref_name}')
+
+        if self.m_checkFileAppendLang.GetValue():
+            res.append('{if:sub_lang:.}{sub_lang}')
+
+        if self.m_checkFileAppendStreamNo.GetValue():
+            res.append('.{ref_no}')
+
+        if self.m_radioTypeAss.GetValue():
+            res.append('.ass')
+        elif self.m_radioTypeSsa.GetValue():
+            res.append('.ssa')
+        else:
+            res.append('.srt')
+        return ''.join(res)
+
+    def deserializePredefinedPattern(self, pattern):
+        try:
+            p = re.findall(r'{[^}]*}|[^{]+', pattern)
+            if p[0].endswith(os.path.sep):
+                p = [ p[0][:-1], os.path.sep ] + p[1:]
+
+            if p and len(p) >= 3:
+                folder = p[0]
+                if folder == '{sub_dir}':
+                    self.m_radioFolderSub.SetValue(True)
+                elif folder == '{ref_dir}':
+                    self.m_radioFolderRef.SetValue(True)
+                elif folder and not folder[0] == '{':
+                    self.m_radioFolderCustom.SetValue(True)
+                    self.m_buttonFolderCustom.Enable(True)
+                    self.customFolder = folder
+                else:
+                    return False
+
+                ext = p[-1]
+                if ext == '.srt':
+                    self.m_radioTypeSrt.SetValue(True)
+                elif ext == '.ass':
+                    self.m_radioTypeAss.SetValue(True)
+                elif ext == '.ssa':
+                    self.m_radioTypeSsa.SetValue(True)
+                else:
+                    return False
+
+                items = set(p)
+                if '{sub_name}' in items:
+                    self.m_radioFileSub.SetValue(True)
+                elif '{ref_name}' in items:
+                    self.m_radioFileRef.SetValue(True)
+                else:
+                    return False
+
+                self.m_checkFileAppendLang.SetValue('{sub_lang}' in items)
+                self.m_checkFileAppendStreamNo.SetValue('{ref_no}' in items)
+                return self.serializePredefinedPattern() == pattern
+
+        except:
+            return False
+
+        return False
 
     def onModeSel(self, event):
         predef = self.m_radioPredef.GetValue()

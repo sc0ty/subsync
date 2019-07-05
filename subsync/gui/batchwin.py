@@ -40,7 +40,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.refs = InputCol(self, RefFile.types)
         self.outs = OutputCol()
 
-        self.outPattern = os.path.join('{ref_dir}', '{ref_name}{if:ref_lang:.}{ref_lang}.srt')
+        self.outPattern = os.path.join('{ref_dir}', '{ref_name}{if:sub_lang:.}{sub_lang}.srt')
 
         itemHeight = InputCol.getHeight()
         self.m_items.addCol(self.subs, itemHeight)
@@ -200,10 +200,14 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     @error_dlg
     def onOutPatternClick(self, event):
-        with OutputPatternWin(self) as dlg:
+        items = self.m_items.getSelectionInCol(self.outs)
+        pattern = self.outPattern
+        if items:
+            pattern = items[0].file.path
+
+        with OutputPatternWin(self, pattern) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 pattern = dlg.getPattern()
-                items = self.m_items.getSelectionInCol(self.outs)
                 self.outPattern = pattern
                 for item in items:
                     item.setPattern(pattern)
