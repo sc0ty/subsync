@@ -354,11 +354,11 @@ class BatchWin ( wx.Dialog ):
 		self.SetSizer( bSizer1 )
 		self.Layout()
 		self.m_menuItems = wx.Menu()
-		self.m_menuItemRemove = wx.MenuItem( self.m_menuItems, wx.ID_ANY, _(u"Remove"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItems.Append( self.m_menuItemRemove )
+		self.m_menuItemsRemove = wx.MenuItem( self.m_menuItems, wx.ID_ANY, _(u"Remove"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItems.Append( self.m_menuItemsRemove )
 		
-		self.m_menuItemProps = wx.MenuItem( self.m_menuItems, wx.ID_ANY, _(u"Properties"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItems.Append( self.m_menuItemProps )
+		self.m_menuItemsProps = wx.MenuItem( self.m_menuItems, wx.ID_ANY, _(u"Properties"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItems.Append( self.m_menuItemsProps )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.BatchWinOnContextMenu ) 
 		
@@ -381,8 +381,8 @@ class BatchWin ( wx.Dialog ):
 		self.m_buttonDebugMenu.Bind( wx.EVT_BUTTON, self.onButtonDebugMenuClick )
 		self.Bind( wx.EVT_MENU, self.onMenuItemDumpListClick, id = self.m_menuItemDumpList.GetId() )
 		self.m_buttonStart.Bind( wx.EVT_BUTTON, self.onButtonStartClick )
-		self.Bind( wx.EVT_MENU, self.onMenuItemRemoveClick, id = self.m_menuItemRemove.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuItemPropsClick, id = self.m_menuItemProps.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemsRemoveClick, id = self.m_menuItemsRemove.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemsPropsClick, id = self.m_menuItemsProps.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -434,10 +434,10 @@ class BatchWin ( wx.Dialog ):
 	def onButtonStartClick( self, event ):
 		event.Skip()
 	
-	def onMenuItemRemoveClick( self, event ):
+	def onMenuItemsRemoveClick( self, event ):
 		event.Skip()
 	
-	def onMenuItemPropsClick( self, event ):
+	def onMenuItemsPropsClick( self, event ):
 		event.Skip()
 	
 	def m_buttonDebugMenuOnContextMenu( self, event ):

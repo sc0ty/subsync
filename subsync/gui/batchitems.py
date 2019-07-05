@@ -1,7 +1,6 @@
 import wx
 from subsync.gui.components.multicolview import MultiColumnCol
 from subsync.gui.components.dc import BitmapMemoryDC
-from subsync.gui.openwin import OpenWin
 from subsync.gui.busydlg import showBusyDlgAsyncJob
 from subsync.gui.errorwin import ErrorWin
 from subsync.synchro import InputFile, OutputFile
@@ -190,34 +189,6 @@ class InputCol(MultiColumnCol):
         except:
             textHeight = 15
         return max(2 * textHeight + 8, 40)
-
-    def getContextMenu(self, parent, item):
-        menu = wx.Menu()
-
-        remove = wx.MenuItem(menu, wx.ID_ANY, _('Remove'))
-        menu.Append(remove)
-        menu.Bind(wx.EVT_MENU,
-                lambda evt: self.onMenuRemoveClick(parent, item),
-                id=remove.GetId())
-
-        props = wx.MenuItem(menu, wx.ID_ANY, _('Properties'))
-        menu.Append(props)
-        menu.Bind(wx.EVT_MENU,
-                lambda evt: self.onMenuPropsClick(parent, item),
-                id=props.GetId())
-
-        return menu
-
-    def onMenuRemoveClick(self, parent, item):
-        parent.removeItems([item])
-        parent.Refresh()
-
-    def onMenuPropsClick(self, parent, item):
-        with OpenWin(parent, item.file, allowOpen=False) as dlg:
-            if dlg.ShowModal() == wx.ID_OK:
-                item.setStream(dlg.file)
-                parent.setSelection(parent.getSelection())
-                parent.Refresh()
 
 
 class OutputItem(BaseItem):

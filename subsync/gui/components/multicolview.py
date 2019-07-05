@@ -41,9 +41,6 @@ class MultiColumnCol(object):
     def getItemBitmap(self, index, width, height, selected):
         return wx.NullBitmap
 
-    def getContextMenu(self, parent, item):
-        return None
-
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, self.items)
 
@@ -60,7 +57,7 @@ class MultiColumnView(wx.ScrolledWindow):
         self.Bind(wx.EVT_LEFT_DOWN, self.onMouseLeftDown)
         self.Bind(wx.EVT_LEFT_UP, self.onMouseLeftUp)
         self.Bind(wx.EVT_MOTION, self.onMouseMove)
-        self.Bind(wx.EVT_CONTEXT_MENU, self.onContextMenuShow)
+        self.Bind(wx.EVT_CONTEXT_MENU, self.onContextMenuProcess)
 
         self.itemHeight = 0
 
@@ -76,6 +73,7 @@ class MultiColumnView(wx.ScrolledWindow):
 
         self.onItemsChange = lambda: None
         self.onSelection = lambda: None
+        self.onContextMenu = lambda col, item, index: None
 
         filedrop.setFileDropTarget(
                 self,
@@ -212,7 +210,7 @@ class MultiColumnView(wx.ScrolledWindow):
         if event.Dragging() and not event.ControlDown() and not event.ShiftDown():
             pos = self.CalcUnscrolledPosition(event.GetPosition())
             col = self.getColAt(pos)
-            index = self.getDragItemIndex(pos, col)
+            index = self.getItemIndex(pos, col)
             if col:
                 dragPos = (int(pos[0] / self.colWidth), index)
                 if dragPos != self.dragPos:
@@ -273,17 +271,14 @@ class MultiColumnView(wx.ScrolledWindow):
             self.dragPos = None
             self.Refresh()
 
-    def onContextMenuShow(self, event):
+    def onContextMenuProcess(self, event):
         pos = self.CalcUnscrolledPosition(event.GetPosition() - self.GetScreenPosition())
         item, col, index = self.getItemAt(pos)
         if item and col:
             self.setSelection([item])
             self.markedRow = index
             self.Refresh()
-
-            menu = col.getContextMenu(self, item)
-            if menu:
-                self.PopupMenu(menu)
+        self.onContextMenu(col, item, index)
 
     def onResize(self, event):
         virtual = self.GetVirtualSize()

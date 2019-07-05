@@ -14,6 +14,7 @@
         <property name="file">batchwin</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
+        <property name="indent_with_spaces"></property>
         <property name="internationalize">1</property>
         <property name="name">BatchWin</property>
         <property name="namespace"></property>
@@ -3894,11 +3895,11 @@
                     <property name="id">wxID_ANY</property>
                     <property name="kind">wxITEM_NORMAL</property>
                     <property name="label">Remove</property>
-                    <property name="name">m_menuItemRemove</property>
+                    <property name="name">m_menuItemsRemove</property>
                     <property name="permission">none</property>
                     <property name="shortcut"></property>
                     <property name="unchecked_bitmap"></property>
-                    <event name="OnMenuSelection">onMenuItemRemoveClick</event>
+                    <event name="OnMenuSelection">onMenuItemsRemoveClick</event>
                     <event name="OnUpdateUI"></event>
                 </object>
                 <object class="wxMenuItem" expanded="1">
@@ -3909,11 +3910,11 @@
                     <property name="id">wxID_ANY</property>
                     <property name="kind">wxITEM_NORMAL</property>
                     <property name="label">Properties</property>
-                    <property name="name">m_menuItemProps</property>
+                    <property name="name">m_menuItemsProps</property>
                     <property name="permission">none</property>
                     <property name="shortcut"></property>
                     <property name="unchecked_bitmap"></property>
-                    <event name="OnMenuSelection">onMenuItemPropsClick</event>
+                    <event name="OnMenuSelection">onMenuItemsPropsClick</event>
                     <event name="OnUpdateUI"></event>
                 </object>
             </object>

@@ -2,6 +2,7 @@ import subsync.gui.layout.batchwin
 from subsync.gui.batchitems import InputCol, OutputCol, InputItem
 from subsync.gui.outpatternwin import OutputPatternWin
 from subsync.gui.streamselwin import StreamSelectionWin
+from subsync.gui.openwin import OpenWin
 from subsync.gui.batchsyncwin import BatchSyncWin
 from subsync.gui.components import assetsdlg
 from subsync.gui.components import filedlg
@@ -56,6 +57,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
         self.m_items.onItemsChange = self.onItemsChange
         self.m_items.onSelection = self.onSelection
+        self.m_items.onContextMenu = self.onContextMenu
 
         self.m_sliderMaxDist.SetValue(settings().windowSize / 60)
         self.m_sliderEffort.SetValue(settings().minEffort * 100)
@@ -222,6 +224,23 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
             item.setStreamParams(lang=lang, enc=enc)
         self.updateTasks()
         self.m_items.Refresh()
+
+    def onContextMenu(self, col, item, index):
+        if item and col in (self.subs, self.refs):
+            self.PopupMenu(self.m_menuItems)
+
+    @error_dlg
+    def onMenuItemsRemoveClick(self, event):
+        self.removeItems(self.m_items.getSelection())
+
+    @error_dlg
+    def onMenuItemsPropsClick(self, event):
+        item = next(iter(self.m_items.getSelection()))
+        with OpenWin(self, item.file, allowOpen=False) as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                item.setFile(dlg.file)
+                self.updateTasks()
+                self.m_items.Refresh()
 
     def onButtonDebugMenuClick(self, event):
         self.PopupMenu(self.m_menuDebug)

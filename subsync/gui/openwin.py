@@ -36,7 +36,7 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
     def __init__(self, parent, file, allowOpen=True):
         super().__init__(parent)
         self.file = InputFile(stream=file)
-        self.openStream(file)
+        self.openStream(self.file)
 
         self.m_buttonOpen.Show(allowOpen)
         if allowOpen:
