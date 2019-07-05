@@ -58,11 +58,42 @@ class StreamSelectionWin ( wx.Dialog ):
 		self.m_choiceSelLang.SetSelection( 0 )
 		fgSizer3.Add( self.m_choiceSelLang, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.m_textSelTitle = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"Select stream by title:"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textSelTitle.Wrap( -1 )
+		fgSizer3.Add( self.m_textSelTitle, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		m_choiceSelTitleChoices = []
+		self.m_choiceSelTitle = wx.Choice( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choiceSelTitleChoices, 0 )
+		self.m_choiceSelTitle.SetSelection( 0 )
+		fgSizer3.Add( self.m_choiceSelTitle, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		
 		
 		fgSizer1.Add( fgSizer3, 1, wx.EXPAND, 5 )
 		
 		self.m_items = IconList( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_ALIGN_LEFT|wx.LC_NO_HEADER|wx.LC_NO_SORT_HEADER|wx.LC_REPORT )
 		fgSizer1.Add( self.m_items, 0, wx.ALL|wx.EXPAND, 5 )
+		
+		fgSizer4 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer4.AddGrowableCol( 1 )
+		fgSizer4.SetFlexibleDirection( wx.BOTH )
+		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_bitmapTick = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer4.Add( self.m_bitmapTick, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.m_textTickInfo = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"files with matching streams"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textTickInfo.Wrap( -1 )
+		fgSizer4.Add( self.m_textTickInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.m_bitmapCross = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer4.Add( self.m_bitmapCross, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
+		
+		self.m_textCrossInfo = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"files without matching streams"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCrossInfo.Wrap( -1 )
+		fgSizer4.Add( self.m_textCrossInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		
+		fgSizer1.Add( fgSizer4, 1, wx.EXPAND, 5 )
 		
 		self.m_staticline1 = wx.StaticLine( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer1.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
@@ -96,6 +127,7 @@ class StreamSelectionWin ( wx.Dialog ):
 		# Connect Events
 		self.m_choiceSelType.Bind( wx.EVT_CHOICE, self.onSelChange )
 		self.m_choiceSelLang.Bind( wx.EVT_CHOICE, self.onSelChange )
+		self.m_choiceSelTitle.Bind( wx.EVT_CHOICE, self.onSelChange )
 	
 	def __del__( self ):
 		pass
@@ -104,6 +136,7 @@ class StreamSelectionWin ( wx.Dialog ):
 	# Virtual event handlers, overide them in your derived class
 	def onSelChange( self, event ):
 		event.Skip()
+	
 	
 	
 
