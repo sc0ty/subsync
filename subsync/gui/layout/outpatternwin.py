@@ -52,10 +52,10 @@ class OutputPatternWin ( wx.Dialog ):
 		self.m_radioFolderCustom = wx.RadioButton( self.m_panelPredef, wx.ID_ANY, _(u"select custom folder"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		gbSizer1.Add( self.m_radioFolderCustom, wx.GBPosition( 3, 0 ), wx.GBSpan( 1, 1 ), wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_buttonFolderCustom = wx.BitmapButton( self.m_panelPredef, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_FOLDER_OPEN, wx.ART_BUTTON ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.m_buttonFolderCustom = wx.BitmapButton( self.m_panelPredef, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_FILE_OPEN, wx.ART_BUTTON ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		self.m_buttonFolderCustom.Enable( False )
 		
-		gbSizer1.Add( self.m_buttonFolderCustom, wx.GBPosition( 3, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, 5 )
+		gbSizer1.Add( self.m_buttonFolderCustom, wx.GBPosition( 3, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_staticText2 = wx.StaticText( self.m_panelPredef, wx.ID_ANY, _(u"File name:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText2.Wrap( -1 )

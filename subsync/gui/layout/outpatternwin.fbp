@@ -349,7 +349,7 @@
                                     <event name="OnSetFocus"></event>
                                     <event name="OnSize"></event>
                                     <event name="OnUpdateUI"></event>
-                                    <object class="wxGridBagSizer" expanded="0">
+                                    <object class="wxGridBagSizer" expanded="1">
                                         <property name="empty_cell_size"></property>
                                         <property name="flexible_direction">wxBOTH</property>
                                         <property name="growablecols"></property>
@@ -723,7 +723,7 @@
                                             <property name="border">5</property>
                                             <property name="colspan">1</property>
                                             <property name="column">1</property>
-                                            <property name="flag">wxALIGN_CENTER_VERTICAL|wxEXPAND|wxALL</property>
+                                            <property name="flag">wxALIGN_CENTER_VERTICAL|wxRIGHT|wxLEFT</property>
                                             <property name="row">3</property>
                                             <property name="rowspan">1</property>
                                             <object class="wxBitmapButton" expanded="1">
@@ -737,7 +737,7 @@
                                                 <property name="aui_row"></property>
                                                 <property name="best_size"></property>
                                                 <property name="bg"></property>
-                                                <property name="bitmap">Load From Art Provider; wxART_FOLDER_OPEN; wxART_BUTTON</property>
+                                                <property name="bitmap">Load From Art Provider; wxART_FILE_OPEN; wxART_BUTTON</property>
                                                 <property name="caption"></property>
                                                 <property name="caption_visible">1</property>
                                                 <property name="center_pane">0</property>
