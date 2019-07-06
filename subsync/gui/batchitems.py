@@ -151,9 +151,9 @@ class InputCol(MultiColumnCol):
 
         if len(paths) > len(added):
             msg = [ _('Following files could not be added:') ]
-            msg += list(sorted(set(paths) - set(added)))
+            msg += list(sorted(set(paths) - set(x.file.path for x in added)))
 
-            with ErrorWin(self.parent, '\n - '.join(msg)) as dlg:
+            with ErrorWin(self.parent, '\n    '.join(msg)) as dlg:
                 for path in sorted(set([i.file.path for i in items]) - set([a.file.path for a in added])):
                     dlg.addDetails('# {}'.format(path))
                     dlg.addDetails(_('There are no usable streams'))
