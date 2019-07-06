@@ -10,14 +10,13 @@ def validateAssets(parent, tasks, updateAssets=True):
         ref = task.ref
 
         if sub == None or sub.path == None or sub.no == None:
-            raise Error(_('Subtitles not set')).add('ref', ref)
+            raise raiseTaskError(task, _('Subtitles not set'))
         if ref == None or ref.path == None or ref.no == None:
-            raise Error(_('Reference file not set')).add('sub', sub)
+            raise raiseTaskError(task, _('Reference file not set'))
         if sub.path == ref.path and sub.no == ref.no:
-            raise Error(_('Subtitles can\'t be the same as reference')) \
-                    .add('sub', sub).add('ref', ref)
+            raise raiseTaskError(task, _('Subtitles can\'t be the same as reference'))
         if ref.type == 'audio' and not ref.lang:
-            raise Error(_('Select reference language first')).add('ref', ref)
+            raise raiseTaskError(task, _('Select reference language first'))
         if task.out and task.out.path:
             task.out.validateOutputPattern()
 
@@ -89,3 +88,17 @@ def downloadAssets(parent, assetList):
             if dlg.ShowModal() != wx.ID_OK:
                 return False
     return True
+
+def raiseTaskError(task, msg):
+    msgs = [ msg, '' ]
+    if task.sub and task.sub.path:
+        msgs.append(_('subtitles: ') + task.sub.path)
+    if task.ref and task.ref.path:
+        msgs.append(_('references: ') + task.ref.path)
+    if task.out and task.out.path:
+        msgs.append(_('output: ') + task.out.path)
+
+    raise Error('\n'.join(msgs)) \
+            .addn('sub', task.sub) \
+            .addn('ref', task.ref) \
+            .addn('out', task.out)
