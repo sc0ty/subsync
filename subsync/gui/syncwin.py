@@ -141,15 +141,20 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             else:
                 self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
 
-        self.handleOutput(status)
+        self.handleOutput(status, finished=finished)
         self.updateStatusErrors()
 
         self.Fit()
         self.Layout()
 
+        if self.mode and self.mode.autoClose and not self.outSaved:
+            self.EndModal(wx.ID_OK)
+
     def handleOutput(self, status, finished=False):
-        if status and (finished or status.effort >= settings().minEffort):
-            if self.task.out and not self.outSaved:
+        if not self.outSaved and status and status.subReady and (finished or status.effort >= settings().minEffort):
+            self.outSaved = True
+
+            if self.task.out:
                 try:
                     self.saveSynchronizedSubtitles(
                             path=self.task.getOutputPath(),
@@ -160,15 +165,10 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                     logger.warning('%r', err, exc_info=True)
                     self.onError('out', err)
 
-                self.outSaved = True
-
             if self.mode and self.mode.autoClose:
-                if self.IsModal():
-                    self.EndModal(wx.ID_OK)
-                else:
-                    self.Close()
+                self.EndModal(wx.ID_OK)
 
-            elif self.mode and self.mode.autoStart:
+            if self.mode and self.mode.autoStart:
                 self.stop()
                 self.showCloseButton()
 
@@ -218,6 +218,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             event.Skip()
 
     def onButtonStopClick(self, event):
+        self.mode = None
         self.stop()
         self.showCloseButton()
 
