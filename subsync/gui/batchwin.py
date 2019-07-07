@@ -4,13 +4,14 @@ from subsync.gui.outpatternwin import OutputPatternWin
 from subsync.gui.streamselwin import StreamSelectionWin
 from subsync.gui.openwin import OpenWin
 from subsync.gui.batchsyncwin import BatchSyncWin
+from subsync.gui import busydlg
 from subsync.gui.components import assetsdlg
 from subsync.gui.components import filedlg
-from subsync.gui.errorwin import error_dlg
+from subsync.gui.errorwin import ErrorWin, error_dlg
 from subsync.synchro import SyncTask, SyncTaskList, SubFile, RefFile
 from subsync.settings import settings
 from subsync import img
-from subsync.error import Error
+from subsync import error
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
 from subsync.data import descriptions
 import wx
@@ -36,8 +37,8 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         if settings().debugOptions:
             self.m_buttonDebugMenu.Show()
 
-        self.subs = InputCol(self, SubFile.types)
-        self.refs = InputCol(self, RefFile.types)
+        self.subs = InputCol(SubFile.types)
+        self.refs = InputCol(RefFile.types)
         self.outs = OutputCol()
 
         self.outPattern = os.path.join('{ref_dir}', '{ref_name}{if:sub_lang:.}{sub_lang}.srt')
@@ -58,6 +59,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_items.onItemsChange = self.onItemsChange
         self.m_items.onSelection = self.onSelection
         self.m_items.onContextMenu = self.onContextMenu
+        self.m_items.onFilesDrop = self.onFilesDrop
 
         self.m_sliderMaxDist.SetValue(settings().windowSize / 60)
         self.m_sliderEffort.SetValue(settings().minEffort * 100)
@@ -139,6 +141,26 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                 dlg.ShowModal()
 
     @error_dlg
+    def onFilesDrop(self, col, paths, index):
+        if col and col in (self.subs, self.refs):
+            sort = settings().batchSortFiles
+
+            if settings().showBatchDropTargetPopup:
+                msg = _('Do you want to sort files between subtitles and references automatically?')
+                title = _('Sort dropped files')
+                flags = wx.YES_NO | wx.ICON_QUESTION
+                with wx.RichMessageDialog(self, msg, title, flags) as dlg:
+                    dlg.ShowCheckBox(_('don\'t show this message again (could be changed in settings)'))
+                    sort = dlg.ShowModal() == wx.ID_YES
+
+                    if dlg.IsCheckBoxChecked():
+                        settings().showBatchDropTargetPopup = True
+                        settings().batchSortFiles = sort
+                        settings().save()
+
+            self.addFiles(col, paths, index, sort=sort)
+
+    @error_dlg
     def onSubAddClick(self, event):
         paths = self.showOpenFileDlg()
         if paths:
@@ -159,6 +181,58 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
         return filedlg.showOpenFileDlg(self, multiple=True, wildcard=wildcard)
 
+    def addFiles(self, col, paths, index=None, sort=False):
+        msg = _('Loading, please wait...')
+        types = self.refs.types
+        if col and not sort:
+            types = col.types
+        items, errors = busydlg.showBusyDlgAsyncJob(self, msg, self.loadFiles, paths, types)
+        if sort:
+            subsIndex, refsIndex = len(self.subs), len(self.refs)
+            if index is not None:
+                subsIndex = min(index, subsIndex)
+                refsIndex = min(index, refsIndex)
+            subs, refs = sortInputFiles(items)
+            added  = self.subs.addItems(subs, subsIndex)
+            added += self.refs.addItems(refs, refsIndex)
+        else:
+            added = col.addItems(items, index or len(col))
+
+        if len(paths) > len(added):
+            msg = [ _('Following files could not be added:') ]
+            msg += list(sorted(set(paths) - set(item.file.path for item in added)))
+
+            with ErrorWin(self, '\n'.join(msg)) as dlg:
+                for path in sorted(set([i.file.path for i in items]) - set([a.file.path for a in added])):
+                    dlg.addDetails('# {}'.format(path))
+                    dlg.addDetails(_('There are no usable streams'))
+                    dlg.addDetails('\n')
+                dlg.addDetails(*errors)
+                dlg.ShowModal()
+        elif errors:
+            with ErrorWin(self, _('Unexpected error occured')) as dlg:
+                dlg.addDetails(*errors)
+                dlg.ShowModal()
+
+        if added:
+            self.m_items.updateSize()
+            self.m_items.setSelection(added)
+            self.m_items.Refresh()
+            self.onItemsChange()
+
+    def loadFiles(self, paths, types=None):
+        items = []
+        errors = []
+        for path in paths:
+            try:
+                items.append(InputItem(path=path, types=types))
+            except Exception as err:
+                errors.append('# {}'.format(path))
+                errors.append(error.getExceptionMessage(err))
+                errors.append(error.getExceptionDetails())
+                errors.append('\n')
+        return items, errors
+
     @error_dlg
     def onSubRemoveClick(self, event):
         items = self.m_items.getSelectionInCol(self.subs)
@@ -171,7 +245,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     def removeItems(self, items):
         if not items:
-            raise Error(_('Select files first'))
+            raise error.Error(_('Select files first'))
         self.m_items.removeItems(items)
         self.m_items.Refresh()
 
@@ -187,7 +261,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     def showStreamSelectionWindow(self, items, types):
         if not items:
-            raise Error(_('Select files first'))
+            raise error.Error(_('Select files first'))
         files = [ item.file for item in items ]
         with StreamSelectionWin(self, files, types) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
@@ -229,6 +303,12 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.updateTasks()
         self.m_items.Refresh()
 
+    @error_dlg
+    def onItemsLeftDClick(self, event):
+        item = self.m_items.getFirstSelectedItem()
+        if item and isinstance(item, InputItem):
+            self.showInputPropsWin(item)
+
     def onContextMenu(self, col, item, index):
         if item and col in (self.subs, self.refs):
             self.PopupMenu(self.m_menuItems)
@@ -239,7 +319,11 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     @error_dlg
     def onMenuItemsPropsClick(self, event):
-        item = next(iter(self.m_items.getSelection()))
+        item = self.m_items.getFirstSelectedItem()
+        if item and isinstance(item, InputItem):
+            self.showInputPropsWin(item)
+
+    def showInputPropsWin(self, item):
         with OpenWin(self, item.file, allowOpen=False) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 item.setFile(dlg.file)
@@ -263,3 +347,16 @@ def getSingleVal(items, defaultVal=wx.NOT_FOUND):
         return next(iter(items))
     else:
         return defaultVal
+
+
+def sortInputFiles(items):
+    subs = []
+    refs = []
+    for item in sorted(items):
+        if [ s for s in item.file.streams.values() if s.type not in SubFile.types ]:
+            item.file.types = RefFile.types
+            refs.append(item)
+        else:
+            item.file.types = SubFile.types
+            subs.append(item)
+    return subs, refs

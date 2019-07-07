@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 class Settings(object):
     def __init__(self, settings=None, **kw):
         self.language = None
+
         self.maxPointDist = 2.0
         self.minPointsNo = 20
         self.appendLangCode = True
@@ -21,11 +22,17 @@ class Settings(object):
         self.minCorrelation = 0.9999
         self.minWordsSim = 0.6
         self.minEffort = 0.5
+
         self.lastdir = ''
         self.refsCache = True
+
         self.autoUpdate = True
         self.askForUpdate = True
+
         self.showLanguageNotSelectedPopup = True
+        self.showBatchDropTargetPopup = True
+        self.batchSortFiles = False
+
         self.debugOptions = False
         self.logLevel = logging.WARNING
         self.logFile = None

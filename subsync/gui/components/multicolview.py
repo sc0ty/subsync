@@ -22,9 +22,6 @@ class MultiColumnCol(object):
     def canAddFiles(self, index):
         return False
 
-    def addFiles(self, paths, index):
-        return []
-
     def canAddItems(self, items, index):
         return []
 
@@ -74,10 +71,11 @@ class MultiColumnView(wx.ScrolledWindow):
         self.onItemsChange = lambda: None
         self.onSelection = lambda: None
         self.onContextMenu = lambda col, item, index: None
+        self.onFilesDrop = lambda col, paths, index: None
 
         filedrop.setFileDropTarget(
                 self,
-                OnDropFiles=self.onFilesDrop,
+                OnDropFiles=self.onFilesDropProcess,
                 OnDragOver=self.onFilesDrag,
                 OnLeave=self.onFilesDragLeave,
                 children=False)
@@ -96,20 +94,6 @@ class MultiColumnView(wx.ScrolledWindow):
         self.itemHeight = max(self.itemHeight, itemHeight)
         self.cols.append(col)
         self.onResize(None)
-
-    def addFiles(self, col, paths, index=None):
-        if index == None:
-            index = len(col)
-
-        added = col.addFiles(paths, index)
-        if added:
-            self.updateSize()
-            self.selectedItems = set(added)
-            self.markedRow = index
-
-            self.onItemsChange()
-            self.Refresh()
-        return added
 
     def removeItems(self, items, keepSelection=False):
         for col in self.cols:
@@ -160,6 +144,10 @@ class MultiColumnView(wx.ScrolledWindow):
 
     def getSelectionInCol(self, col):
         return [ item for item in col if item in self.selectedItems ]
+
+    def getFirstSelectedItem(self):
+        if self.selectedItems:
+            return next(iter(self.selectedItems))
 
     def updateSize(self):
         size = self.GetClientSize()
@@ -231,23 +219,12 @@ class MultiColumnView(wx.ScrolledWindow):
                     self.dragPos = dragPos
                     self.dragSource = col
 
-    def onFilesDrop(self, x, y, paths):
+    def onFilesDropProcess(self, x, y, paths):
         pos = self.CalcUnscrolledPosition(x, y)
         col = self.getColAt(pos)
         index = self.getDragItemIndex(pos, col)
-        if col:
-            addedItems = self.addFiles(col, paths, index)
-            if addedItems:
-                self.drawDragPos = False
-                self.dragPos = None
-
-                self.updateSize()
-                self.setSelection(addedItems)
-
-                self.onItemsChange()
-                self.Refresh()
-                return True
-        return False
+        wx.CallAfter(self.onFilesDrop, col, paths, index)
+        return True
 
     def onFilesDrag(self, x, y, result):
         pos = self.CalcUnscrolledPosition(x, y)

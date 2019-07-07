@@ -373,6 +373,7 @@ class BatchWin ( wx.Dialog ):
 		self.Bind( wx.EVT_TOOL, self.onRefRemoveClick, id = self.m_toolRefRemove.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onRefSelStreamClick, id = self.m_toolRefSelStream.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onOutPatternClick, id = self.m_toolOutPattern.GetId() )
+		self.m_items.Bind( wx.EVT_LEFT_DCLICK, self.onItemsLeftDClick )
 		self.m_choiceLang.Bind( wx.EVT_CHOICE, self.onChoiceLangChoice )
 		self.m_choiceEnc.Bind( wx.EVT_CHOICE, self.onChoiceEncChoice )
 		self.m_sliderMaxDist.Bind( wx.EVT_SCROLL, self.onSliderMaxDistScroll )
@@ -408,6 +409,9 @@ class BatchWin ( wx.Dialog ):
 		event.Skip()
 	
 	def onOutPatternClick( self, event ):
+		event.Skip()
+	
+	def onItemsLeftDClick( self, event ):
 		event.Skip()
 	
 	def onChoiceLangChoice( self, event ):

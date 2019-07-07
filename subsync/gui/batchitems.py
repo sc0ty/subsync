@@ -1,10 +1,7 @@
 import wx
 from subsync.gui.components.multicolview import MultiColumnCol
 from subsync.gui.components.dc import BitmapMemoryDC
-from subsync.gui.busydlg import showBusyDlgAsyncJob
-from subsync.gui.errorwin import ErrorWin
 from subsync.synchro import InputFile, OutputFile
-from subsync import error
 from subsync import img
 import os
 
@@ -67,6 +64,9 @@ class InputItem(BaseItem):
             file = InputFile(types=types, path=path)
         self.file = file
 
+    def __lt__(self, other):
+        return self.file.path < other.file.path
+
     def getIconBitmap(self):
         iconName = (self.file.filetype or 'unknown').split('/')[0] + '-file'
         return img.getBitmap(iconName)
@@ -121,48 +121,12 @@ class InputItem(BaseItem):
 
 
 class InputCol(MultiColumnCol):
-    def __init__(self, parent, types):
+    def __init__(self, types):
         super().__init__()
-        self.parent = parent
         self.types = types
 
     def canAddFiles(self, index):
         return True
-
-    def addFiles(self, paths, index):
-
-        def loadFiles(paths):
-            items = []
-            errors = []
-            for path in paths:
-                try:
-                    items.append(InputItem(path=path, types=self.types))
-                except Exception as err:
-                    errors.append('# {}'.format(path))
-                    errors.append(error.getExceptionMessage(err))
-                    errors.append(error.getExceptionDetails())
-                    errors.append('\n')
-            return items, errors
-
-        msg = _('Loading, please wait...')
-        items, errors = showBusyDlgAsyncJob(self.parent, msg, loadFiles, paths)
-
-        added = super().addItems(items, index)
-
-        if len(paths) > len(added):
-            msg = [ _('Following files could not be added:') ]
-            msg += list(sorted(set(paths) - set(x.file.path for x in added)))
-
-            with ErrorWin(self.parent, '\n    '.join(msg)) as dlg:
-                for path in sorted(set([i.file.path for i in items]) - set([a.file.path for a in added])):
-                    dlg.addDetails('# {}'.format(path))
-                    dlg.addDetails(_('There are no usable streams'))
-                    dlg.addDetails('\n')
-
-                dlg.addDetails(*errors)
-                dlg.ShowModal()
-
-        return added
 
     def canAddItems(self, items, index):
         return [ i for i in items if isinstance(i, InputItem) and i.hasStreamType(self.types) ]
@@ -174,7 +138,7 @@ class InputCol(MultiColumnCol):
             if file.type not in self.types:
                 file.selectFirstMachingStream()
                 item.clear()
-        super().addItems(items, index)
+        return super().addItems(items, index)
 
     def getItemBitmap(self, index, width, height, selected):
         if index < len(self.items):

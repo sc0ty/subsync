@@ -14,7 +14,6 @@
         <property name="file">batchwin</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
-        <property name="indent_with_spaces"></property>
         <property name="internationalize">1</property>
         <property name="name">BatchWin</property>
         <property name="namespace"></property>
@@ -917,7 +916,7 @@
                                     <event name="OnKeyUp"></event>
                                     <event name="OnKillFocus"></event>
                                     <event name="OnLeaveWindow"></event>
-                                    <event name="OnLeftDClick"></event>
+                                    <event name="OnLeftDClick">onItemsLeftDClick</event>
                                     <event name="OnLeftDown"></event>
                                     <event name="OnLeftUp"></event>
                                     <event name="OnMiddleDClick"></event>
