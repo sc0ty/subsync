@@ -343,6 +343,11 @@ class BatchWin ( wx.Frame ):
 		
 		self.m_buttonMenu = wx.Button( self.m_panelMain, wx.ID_ANY, _(u"Menu"), wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
 		self.m_menu = wx.Menu()
+		self.m_menuItemAddFiles = wx.MenuItem( self.m_menu, wx.ID_ANY, _(u"Add files"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu.Append( self.m_menuItemAddFiles )
+		
+		self.m_menu.AppendSeparator()
+		
 		self.m_menuItemImportList = wx.MenuItem( self.m_menu, wx.ID_ANY, _(u"Import file list"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu.Append( self.m_menuItemImportList )
 		
@@ -408,6 +413,7 @@ class BatchWin ( wx.Frame ):
 		self.m_sliderEffort.Bind( wx.EVT_SCROLL, self.onSliderEffortScroll )
 		self.m_textErrorDetails.Bind( wx.EVT_LEFT_UP, self.onTextErrorDetailsClick )
 		self.m_buttonMenu.Bind( wx.EVT_BUTTON, self.onButtonMenuClick )
+		self.Bind( wx.EVT_MENU, self.onMenuItemAddFilesClick, id = self.m_menuItemAddFiles.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemImportListClick, id = self.m_menuItemImportList.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemExportListClick, id = self.m_menuItemExportList.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemClearListClick, id = self.m_menuItemClearList.GetId() )
@@ -467,6 +473,9 @@ class BatchWin ( wx.Frame ):
 		event.Skip()
 	
 	def onButtonMenuClick( self, event ):
+		event.Skip()
+	
+	def onMenuItemAddFilesClick( self, event ):
 		event.Skip()
 	
 	def onMenuItemImportListClick( self, event ):

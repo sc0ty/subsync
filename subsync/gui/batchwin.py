@@ -77,6 +77,9 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     def onItemsChange(self):
         self.updateTasks()
+        self.m_items.updateSize()
+        self.m_items.Refresh()
+
         canStart = len(self.subs) and len(self.subs) == len(self.refs) == len(self.outs)
         self.m_buttonStart.Enable(canStart)
         self.onSelection()
@@ -182,19 +185,13 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     def onSubAddClick(self, event):
         paths = self.showOpenFileDlg()
         if paths:
-            self.m_items.addFiles(self.subs, paths)
+            self.addFiles(self.subs, paths)
 
     @error_dlg
     def onRefAddClick(self, event):
         paths = self.showOpenFileDlg()
         if paths:
-            self.m_items.addFiles(self.refs, paths)
-
-    @error_dlg
-    def onButtonAddFilesClick(self, event):
-        paths = self.showOpenFileDlg()
-        if paths:
-            self.m_items.addFiles(None, paths, sort=True)
+            self.addFiles(self.refs, paths)
 
     def showOpenFileDlg(self):
         wildcard = '|'.join([
@@ -367,6 +364,12 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     def onButtonMenuClick(self, event):
         self.PopupMenu(self.m_menu)
+
+    @error_dlg
+    def onMenuItemAddFilesClick(self, event):
+        paths = self.showOpenFileDlg()
+        if paths:
+            self.addFiles(None, paths, sort=True)
 
     @error_dlg
     def onMenuItemImportListClick(self, event):
