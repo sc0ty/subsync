@@ -151,7 +151,7 @@ else:
     from setuptools import setup
 
     setup(**desc,
-            packages=['subsync', 'subsync.assets', 'subsync.data', 'subsync.gui', 'subsync.gui.layout'],
+            packages=['subsync', 'subsync.synchro', 'subsync.assets', 'subsync.data', 'subsync.gui', 'subsync.gui.layout', 'subsync.gui.components'],
             entry_points={'gui_scripts': ['subsync=subsync.__main__:subsync']},
             install_requires=['aiohttp', 'pysubs2', 'pycryptodome'],
             cmdclass = {
