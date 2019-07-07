@@ -62,7 +62,7 @@ def startGui(mode, args):
             win.Show()
 
             if mode.autoStart:
-                wx.CallAfter(win.start, task=task, mode=mode)
+                wx.CallAfter(win.start, task=task, mode=mode, askForLang=False)
 
         elif mode.mode == 'batch':
             tasks = cmdargs.parseBatchArgs(args)

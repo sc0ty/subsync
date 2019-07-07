@@ -1,10 +1,12 @@
 import wx
 from subsync.gui.downloadwin import DownloadWin
 from subsync.assets import assetManager, assetListUpdater
+from subsync.data import descriptions
+from subsync.settings import settings
 from subsync.error import Error
 
 
-def validateAssets(parent, tasks, updateAssets=True):
+def validateAssets(parent, tasks, updateAssets=True, askForLang=True):
     for task in tasks:
         sub = task.sub
         ref = task.ref
@@ -19,6 +21,10 @@ def validateAssets(parent, tasks, updateAssets=True):
             raise raiseTaskError(task, _('Select reference language first'))
         if task.out and task.out.path:
             task.out.validateOutputPattern()
+
+    if askForLang and not settings().showLanguageNotSelectedPopup:
+        if not askForLangSelection(parent, tasks):
+            return False
 
     assetListNotReady = assetListUpdater.isRunning()
 
@@ -87,6 +93,31 @@ def downloadAssets(parent, assetList):
         with DownloadWin(parent, asset.getPrettyName(), upd) as dlg:
             if dlg.ShowModal() != wx.ID_OK:
                 return False
+    return True
+
+def askForLangSelection(parent, tasks):
+    msg = [ _('No language selected for:') ]
+    missingLang = False
+    for task in tasks:
+        if not task.sub.lang:
+            msg.append(_('subtitles: ') + task.sub.path)
+            missingLang = True
+        if not task.ref.lang:
+            msg.append(_('references: ') + task.ref.path)
+            missingLang = True
+
+    if missingLang:
+        msg += [ '', descriptions.noLanguageSelectedQuestion ]
+        title = _('No language selected')
+        flags = wx.YES_NO | wx.ICON_QUESTION
+        with wx.RichMessageDialog(parent, '\n'.join(msg), title, flags) as dlg:
+            dlg.ShowCheckBox(_('don\'t show this message again (could be changed in settings)'))
+            res = dlg.ShowModal() == wx.ID_YES
+            if res and dlg.IsCheckBoxChecked():
+                settings().showLanguageNotSelectedPopup = True
+                settings().save()
+            return res
+
     return True
 
 def raiseTaskError(task, msg):

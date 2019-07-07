@@ -25,6 +25,7 @@ class Settings(object):
         self.refsCache = True
         self.autoUpdate = True
         self.askForUpdate = True
+        self.showLanguageNotSelectedPopup = True
         self.debugOptions = False
         self.logLevel = logging.WARNING
         self.logFile = None

@@ -145,13 +145,13 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         try:
             settings().save()
             task = SyncTask(self.m_panelSub.stream, self.m_panelRef.stream)
-            self.start(task)
+            self.start(task, askForLang=True)
         except:
             self.refsCache.clear()
             raise
 
-    def start(self, task, mode=None):
-        if assetsdlg.validateAssets(self, [task]):
+    def start(self, task, mode=None, askForLang=True):
+        if assetsdlg.validateAssets(self, [task], askForLang=askForLang):
             logRunCmd(task)
             cache = self.refsCache if settings().refsCache else None
 
