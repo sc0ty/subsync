@@ -1,5 +1,4 @@
 import argparse
-from subsync.settings import settings
 from subsync.synchro import SyncTask, SyncTaskList, SyncMode, SubFile, RefFile, OutputFile, ChannelsMap
 
 
@@ -8,23 +7,26 @@ def parseCmdArgs(argv=None):
     args = parser.parse_args(argv)
     vargs = vars(args)
 
-    settingKeys = set( s[0] for s in settingsArgs )
-    newSettings = { k: v for k, v in vargs.items() if k in settingKeys and v is not None }
-
-    if args.effort is not None:
-        newSettings['minEffort'] = args.effort
-    if args.jobs is not None:
-        newSettings['jobsNo'] = args.jobs or None
-
-    if newSettings:
-        settings().set(**newSettings)
-
     mode = SyncMode(
             mode = vargs.get('mode', None),
             autoStart = not vargs.get('no_start', False),
             autoClose = not vargs.get('no_close', False))
 
     return mode, args
+
+
+def parseSettingsArgs(args):
+    vargs = vars(args)
+
+    settingKeys = set( s[0] for s in settingsArgs )
+    settings = { k: v for k, v in vargs.items() if k in settingKeys and v is not None }
+
+    if args.effort is not None:
+        settings['minEffort'] = args.effort
+    if args.jobs is not None:
+        settings['jobsNo'] = args.jobs or None
+
+    return settings
 
 
 def parseSyncArgs(args):
@@ -40,17 +42,13 @@ def parseSyncArgs(args):
     if args.ref_channels is not None:
         ref.channels = ChannelsMap.deserialize(args.ref_channels)
 
-    out = OutputFile(path=args.out, fps=args.out_fps, enc=args.out_enc)
+    out = args.out and OutputFile(path=args.out, fps=args.out_fps, enc=args.out_enc)
 
     return SyncTask(sub, ref, out)
 
 
 def parseBatchArgs(args):
     return SyncTaskList.load(args.batch)
-
-
-def parseSyncMode(args):
-    vargs = vars(args)
 
 
 def getParser():

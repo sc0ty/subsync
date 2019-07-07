@@ -2052,7 +2052,7 @@
                                             <property name="font"></property>
                                             <property name="gripper">0</property>
                                             <property name="hidden">1</property>
-                                            <property name="id">wxID_OK</property>
+                                            <property name="id">wxID_ANY</property>
                                             <property name="label">Fix failed</property>
                                             <property name="max_size"></property>
                                             <property name="maximize_button">0</property>

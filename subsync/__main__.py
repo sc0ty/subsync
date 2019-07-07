@@ -21,6 +21,7 @@ def subsync():
     except Exception as e:
         logger.warning('settings load failed, %r', e, exc_info=True)
 
+    settings().set(**cmdargs.parseSettingsArgs(args))
     setupLogger(args)
 
     if len(sys.argv) > 1:

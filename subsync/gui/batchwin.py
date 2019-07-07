@@ -48,14 +48,6 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_items.addCol(self.refs, itemHeight)
         self.m_items.addCol(self.outs, itemHeight)
 
-        self.tasks = []
-        if tasks:
-            self.subs.addItems([ InputItem(file=t.sub, types=SubFile.types) for t in tasks ], 0)
-            self.refs.addItems([ InputItem(file=t.ref, types=RefFile.types) for t in tasks ], 0)
-        self.updateTasks()
-
-        self.mode = mode
-
         self.m_items.onItemsChange = self.onItemsChange
         self.m_items.onSelection = self.onSelection
         self.m_items.onContextMenu = self.onContextMenu
@@ -66,9 +58,25 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.onSliderMaxDistScroll(None)
         self.onSliderEffortScroll(None)
 
+        self.setTasks(tasks)
+        self.Layout()
+
+        self.mode = mode
+        if mode and mode.autoStart:
+            self.start()
+
+    def setTasks(self, tasks):
+        self.tasks = []
+        self.subs.clear()
+        self.refs.clear()
+
+        if tasks:
+            self.subs.addItems([ InputItem(file=t.sub, types=SubFile.types) for t in tasks ], 0)
+            self.refs.addItems([ InputItem(file=t.ref, types=RefFile.types) for t in tasks ], 0)
+
+        self.updateTasks()
         self.onItemsChange()
         self.onSelection()
-        self.Layout()
 
     def onItemsChange(self):
         self.updateTasks()
@@ -130,15 +138,21 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     def start(self):
         tasks = self.tasks
-        if assetsdlg.validateAssets(self, tasks):
-            if self.IsModal():
-                self.EndModal(wx.ID_OK)
-            else:
-                self.Close()
-
+        askForLang = not (self.mode and self.mode.autoStart)
+        if assetsdlg.validateAssets(self, tasks, askForLang=askForLang):
             self.updateTasks()
-            with BatchSyncWin(self.GetParent(), tasks, mode=self.mode) as dlg:
-                dlg.ShowModal()
+
+            try:
+                self.Hide()
+                with BatchSyncWin(self.GetParent(), tasks, mode=self.mode) as dlg:
+                    res = dlg.ShowModal()
+                    if res == wx.ID_RETRY:
+                        self.setTasks(dlg.getFailedTasks())
+                    else:
+                        self.Close()
+
+            finally:
+                self.Show()
 
     @error_dlg
     def onFilesDrop(self, col, paths, index):
@@ -340,6 +354,20 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         if path:
             self.updateTasks()
             SyncTaskList.save(self.tasks, path)
+
+    def onButtonCloseClick(self, event):
+        self.Close()
+
+    def onClose(self, event):
+        parent = self.GetParent()
+        if parent:
+            if self.mode and self.mode.autoClose:
+                parent.Close(force=True)
+            else:
+                parent.Show()
+
+        if event:
+            event.Skip()
 
 
 def getSingleVal(items, defaultVal=wx.NOT_FOUND):

@@ -19,10 +19,10 @@ import wx.xrc
 ## Class BatchWin
 ###########################################################################
 
-class BatchWin ( wx.Dialog ):
+class BatchWin ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"Batch Processing"), pos = wx.DefaultPosition, size = wx.Size( 900,600 ), style = wx.CAPTION|wx.CLOSE_BOX|wx.DEFAULT_DIALOG_STYLE|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.RESIZE_BORDER )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"Batch Processing"), pos = wx.DefaultPosition, size = wx.Size( 900,600 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.Size( 900,500 ), wx.DefaultSize )
 		
@@ -35,30 +35,30 @@ class BatchWin ( wx.Dialog ):
 		fgSizer1.SetFlexibleDirection( wx.BOTH )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		fgSizer2 = wx.FlexGridSizer( 0, 3, 0, 0 )
-		fgSizer2.AddGrowableCol( 0 )
-		fgSizer2.AddGrowableCol( 1 )
-		fgSizer2.AddGrowableCol( 2 )
-		fgSizer2.SetFlexibleDirection( wx.VERTICAL )
-		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer21 = wx.FlexGridSizer( 0, 3, 0, 0 )
+		fgSizer21.AddGrowableCol( 0 )
+		fgSizer21.AddGrowableCol( 1 )
+		fgSizer21.AddGrowableCol( 2 )
+		fgSizer21.SetFlexibleDirection( wx.VERTICAL )
+		fgSizer21.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_textSubs = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Subtitles:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textSubs.Wrap( -1 )
 		self.m_textSubs.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
 		
-		fgSizer2.Add( self.m_textSubs, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer21.Add( self.m_textSubs, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
 		
 		self.m_textRefs = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"References:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textRefs.Wrap( -1 )
 		self.m_textRefs.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
 		
-		fgSizer2.Add( self.m_textRefs, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer21.Add( self.m_textRefs, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
 		
 		self.m_textOuts = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Outputs:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textOuts.Wrap( -1 )
 		self.m_textOuts.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
 		
-		fgSizer2.Add( self.m_textOuts, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
+		fgSizer21.Add( self.m_textOuts, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
 		
 		self.m_toolBarSub = wx.ToolBar( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
 		self.m_toolSubAdd = self.m_toolBarSub.AddLabelTool( wx.ID_ANY, _(u"Add files"), wx.ArtProvider.GetBitmap( wx.ART_PLUS, wx.ART_TOOLBAR ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"Add files"), wx.EmptyString, None ) 
@@ -69,7 +69,7 @@ class BatchWin ( wx.Dialog ):
 		
 		self.m_toolBarSub.Realize() 
 		
-		fgSizer2.Add( self.m_toolBarSub, 0, wx.EXPAND, 5 )
+		fgSizer21.Add( self.m_toolBarSub, 0, wx.EXPAND, 5 )
 		
 		self.m_toolBarRef = wx.ToolBar( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
 		self.m_toolRefAdd = self.m_toolBarRef.AddLabelTool( wx.ID_ANY, _(u"Add files"), wx.ArtProvider.GetBitmap( wx.ART_PLUS, wx.ART_TOOLBAR ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"Add files"), wx.EmptyString, None ) 
@@ -80,17 +80,17 @@ class BatchWin ( wx.Dialog ):
 		
 		self.m_toolBarRef.Realize() 
 		
-		fgSizer2.Add( self.m_toolBarRef, 0, wx.EXPAND, 5 )
+		fgSizer21.Add( self.m_toolBarRef, 0, wx.EXPAND, 5 )
 		
 		self.m_toolBarOut = wx.ToolBar( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
 		self.m_toolOutPattern = self.m_toolBarOut.AddLabelTool( wx.ID_ANY, _(u"Set file names"), wx.ArtProvider.GetBitmap( wx.ART_LIST_VIEW, wx.ART_TOOLBAR ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"Set file names"), wx.EmptyString, None ) 
 		
 		self.m_toolBarOut.Realize() 
 		
-		fgSizer2.Add( self.m_toolBarOut, 0, wx.EXPAND, 5 )
+		fgSizer21.Add( self.m_toolBarOut, 0, wx.EXPAND, 5 )
 		
 		
-		fgSizer1.Add( fgSizer2, 1, wx.EXPAND, 5 )
+		fgSizer1.Add( fgSizer21, 1, wx.EXPAND, 5 )
 		
 		self.m_items = MultiColumnView( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.FULL_REPAINT_ON_RESIZE|wx.VSCROLL )
 		self.m_items.SetScrollRate( 5, 5 )
@@ -105,84 +105,84 @@ class BatchWin ( wx.Dialog ):
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_panelSettings = wx.Panel( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer4 = wx.FlexGridSizer( 0, 3, 0, 0 )
-		fgSizer4.AddGrowableCol( 2 )
-		fgSizer4.SetFlexibleDirection( wx.BOTH )
-		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer41 = wx.FlexGridSizer( 0, 3, 0, 0 )
+		fgSizer41.AddGrowableCol( 2 )
+		fgSizer41.SetFlexibleDirection( wx.BOTH )
+		fgSizer41.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		fgSizer5 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer5.AddGrowableCol( 1 )
-		fgSizer5.SetFlexibleDirection( wx.BOTH )
-		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer51 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer51.AddGrowableCol( 1 )
+		fgSizer51.SetFlexibleDirection( wx.BOTH )
+		fgSizer51.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_textLang = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"Language:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textLang.Wrap( -1 )
-		fgSizer5.Add( self.m_textLang, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer51.Add( self.m_textLang, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		m_choiceLangChoices = []
 		self.m_choiceLang = ChoiceLang( self.m_panelSettings, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choiceLangChoices, 0 )
 		self.m_choiceLang.SetSelection( 0 )
 		self.m_choiceLang.Enable( False )
 		
-		fgSizer5.Add( self.m_choiceLang, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer51.Add( self.m_choiceLang, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_textEnc = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"Character encoding:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textEnc.Wrap( -1 )
-		fgSizer5.Add( self.m_textEnc, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer51.Add( self.m_textEnc, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
 		m_choiceEncChoices = []
 		self.m_choiceEnc = ChoiceCharEnc( self.m_panelSettings, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choiceEncChoices, 0 )
 		self.m_choiceEnc.SetSelection( 0 )
 		self.m_choiceEnc.Enable( False )
 		
-		fgSizer5.Add( self.m_choiceEnc, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		fgSizer51.Add( self.m_choiceEnc, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
 		
-		fgSizer4.Add( fgSizer5, 1, wx.EXPAND, 5 )
+		fgSizer41.Add( fgSizer51, 1, wx.EXPAND, 5 )
 		
 		self.m_staticline3 = wx.StaticLine( self.m_panelSettings, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_VERTICAL )
-		fgSizer4.Add( self.m_staticline3, 0, wx.EXPAND |wx.ALL, 5 )
+		fgSizer41.Add( self.m_staticline3, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		fgSizer6 = wx.FlexGridSizer( 0, 4, 0, 0 )
-		fgSizer6.AddGrowableCol( 2 )
-		fgSizer6.SetFlexibleDirection( wx.BOTH )
-		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer61 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer61.AddGrowableCol( 2 )
+		fgSizer61.SetFlexibleDirection( wx.BOTH )
+		fgSizer61.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_textMaxDistLabel = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"Max adjustment:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textMaxDistLabel.Wrap( -1 )
-		fgSizer6.Add( self.m_textMaxDistLabel, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer61.Add( self.m_textMaxDistLabel, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_buttonMaxDistInfo = PopupInfoButton( self.m_panelSettings, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.NO_BORDER )
-		fgSizer6.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		fgSizer61.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		self.m_sliderMaxDist = wx.Slider( self.m_panelSettings, wx.ID_ANY, 30, 5, 180, wx.DefaultPosition, wx.DefaultSize, wx.SL_HORIZONTAL )
-		fgSizer6.Add( self.m_sliderMaxDist, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer61.Add( self.m_sliderMaxDist, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_textMaxDist = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"999 min"), wx.DefaultPosition, wx.DefaultSize, wx.ST_NO_AUTORESIZE )
 		self.m_textMaxDist.Wrap( -1 )
-		fgSizer6.Add( self.m_textMaxDist, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer61.Add( self.m_textMaxDist, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_textEffortLabel = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"Effort:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textEffortLabel.Wrap( -1 )
-		fgSizer6.Add( self.m_textEffortLabel, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		fgSizer61.Add( self.m_textEffortLabel, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
 		self.m_buttonEffortInfo = PopupInfoButton( self.m_panelSettings, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.NO_BORDER )
-		fgSizer6.Add( self.m_buttonEffortInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
+		fgSizer61.Add( self.m_buttonEffortInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
 		
 		self.m_sliderEffort = wx.Slider( self.m_panelSettings, wx.ID_ANY, 50, 0, 100, wx.DefaultPosition, wx.DefaultSize, wx.SL_HORIZONTAL )
-		fgSizer6.Add( self.m_sliderEffort, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, 5 )
+		fgSizer61.Add( self.m_sliderEffort, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, 5 )
 		
 		self.m_textEffort = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"0.50"), wx.DefaultPosition, wx.DefaultSize, wx.ST_NO_AUTORESIZE )
 		self.m_textEffort.Wrap( -1 )
-		fgSizer6.Add( self.m_textEffort, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer61.Add( self.m_textEffort, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		fgSizer4.Add( fgSizer6, 1, wx.EXPAND, 5 )
+		fgSizer41.Add( fgSizer61, 1, wx.EXPAND, 5 )
 		
 		
-		self.m_panelSettings.SetSizer( fgSizer4 )
+		self.m_panelSettings.SetSizer( fgSizer41 )
 		self.m_panelSettings.Layout()
-		fgSizer4.Fit( self.m_panelSettings )
+		fgSizer41.Fit( self.m_panelSettings )
 		fgSizer2.Add( self.m_panelSettings, 0, wx.EXPAND, 5 )
 		
 		self.m_panelDrop = wx.Panel( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -332,7 +332,7 @@ class BatchWin ( wx.Dialog ):
 		
 		fgSizer3.Add( self.m_buttonDebugMenu, 1, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_buttonClose = wx.Button( self.m_panelMain, wx.ID_CANCEL, _(u"Close"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonClose = wx.Button( self.m_panelMain, wx.ID_CLOSE, _(u"Close"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer3.Add( self.m_buttonClose, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_buttonStart = wx.Button( self.m_panelMain, wx.ID_OK, _(u"Start"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -348,7 +348,7 @@ class BatchWin ( wx.Dialog ):
 		self.m_panelMain.SetSizer( fgSizer1 )
 		self.m_panelMain.Layout()
 		fgSizer1.Fit( self.m_panelMain )
-		bSizer1.Add( self.m_panelMain, 1, wx.EXPAND |wx.ALL, 5 )
+		bSizer1.Add( self.m_panelMain, 1, wx.EXPAND, 5 )
 		
 		
 		self.SetSizer( bSizer1 )
@@ -366,6 +366,7 @@ class BatchWin ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.onClose )
 		self.Bind( wx.EVT_TOOL, self.onSubAddClick, id = self.m_toolSubAdd.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onSubRemoveClick, id = self.m_toolSubRemove.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onSubSelStreamClick, id = self.m_toolSubSelStream.GetId() )
@@ -381,6 +382,7 @@ class BatchWin ( wx.Dialog ):
 		self.m_textErrorDetails.Bind( wx.EVT_LEFT_UP, self.onTextErrorDetailsClick )
 		self.m_buttonDebugMenu.Bind( wx.EVT_BUTTON, self.onButtonDebugMenuClick )
 		self.Bind( wx.EVT_MENU, self.onMenuItemDumpListClick, id = self.m_menuItemDumpList.GetId() )
+		self.m_buttonClose.Bind( wx.EVT_BUTTON, self.onButtonCloseClick )
 		self.m_buttonStart.Bind( wx.EVT_BUTTON, self.onButtonStartClick )
 		self.Bind( wx.EVT_MENU, self.onMenuItemsRemoveClick, id = self.m_menuItemsRemove.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemsPropsClick, id = self.m_menuItemsProps.GetId() )
@@ -390,6 +392,9 @@ class BatchWin ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def onClose( self, event ):
+		event.Skip()
+	
 	def onSubAddClick( self, event ):
 		event.Skip()
 	
@@ -433,6 +438,9 @@ class BatchWin ( wx.Dialog ):
 		event.Skip()
 	
 	def onMenuItemDumpListClick( self, event ):
+		event.Skip()
+	
+	def onButtonCloseClick( self, event ):
 		event.Skip()
 	
 	def onButtonStartClick( self, event ):

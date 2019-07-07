@@ -19,6 +19,9 @@ class MultiColumnCol(object):
     def __bool__(self):
         return True
 
+    def clear(self):
+        self.items = []
+
     def canAddFiles(self, index):
         return False
 

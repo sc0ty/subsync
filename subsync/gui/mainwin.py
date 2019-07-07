@@ -168,15 +168,15 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     def showBatchWin(self, tasks=None, mode=None):
         try:
             self.Hide()
-            if mode and mode.autoStart and tasks:
-                BatchSyncWin(self, tasks, mode=mode).ShowModal()
-            else:
-                BatchWin(self, tasks, mode=mode).ShowModal()
+            win = BatchWin(self, tasks, mode=mode)
+            win.Show()
 
-        finally:
-            self.Show()
+        except Exception as e:
+            logger.warn('showBatchWin %r', e, exc_info=True)
             if mode and mode.autoClose:
                 self.Close(force=True)
+            else:
+                self.Show()
 
     @error_dlg
     def onClose(self, event):

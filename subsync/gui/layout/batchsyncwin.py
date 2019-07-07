@@ -148,7 +148,7 @@ class BatchSyncWin ( wx.Dialog ):
 		fgSizer5.SetFlexibleDirection( wx.BOTH )
 		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_buttonFixFailed = wx.Button( self.m_panel1, wx.ID_OK, _(u"Fix failed"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonFixFailed = wx.Button( self.m_panel1, wx.ID_ANY, _(u"Fix failed"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_buttonFixFailed.Hide()
 		
 		fgSizer5.Add( self.m_buttonFixFailed, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )

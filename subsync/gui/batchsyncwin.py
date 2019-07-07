@@ -169,6 +169,8 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
                 self.m_buttonFixFailed.SetFocus()
                 break
 
+        self.m_gaugeCurrentProgress.SetValue(100)
+        self.m_gaugeTotalProgress.SetValue(self.m_gaugeTotalProgress.GetRange())
         self.Layout()
 
         if self.mode and self.mode.autoClose:
@@ -252,23 +254,17 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
 
         self.Layout()
 
+    def getFailedTasks(self):
+        return [ task.getTask() for task in self.tasks if task.state != 'success' ]
+
     def onButtonStopClick(self, event):
+        self.mode = None
         self.stop()
         self.showCloseButton()
 
     @errorwin.error_dlg
     def onButtonFixFailedClick(self, event):
-        if self.IsModal():
-            self.EndModal(wx.ID_OK)
-        else:
-            self.Close()
-
-        tasks = [ task.getTask() for task in self.tasks if task.state != 'success' ]
-        if tasks:
-            # to avoid circular dependency
-            from subsync.gui.batchwin import BatchWin
-            with BatchWin(self.GetParent(), tasks) as dlg:
-                dlg.ShowModal()
+        self.EndModal(wx.ID_RETRY)
 
     def onItemsSelected(self, event):
         self.selectedTask = self.m_items.GetSelectedItem()
