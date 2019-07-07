@@ -19,4 +19,6 @@ typedef std::function<void (int, const char*, const char*)> LoggerCallback;
 void setDebugLevel(int level);
 void setLoggerCallback(LoggerCallback cb);
 
+void log(LogLevel level, const char *module, const char *msg);
+
 #endif

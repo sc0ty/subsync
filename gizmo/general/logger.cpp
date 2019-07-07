@@ -14,7 +14,7 @@ static int g_ffmpegLogLevel = AV_LOG_WARNING;
 static int g_sphinxLogLevel = ERR_WARN;
 
 
-static void logCb(LogLevel level, const char *module, const char *msg)
+void log(LogLevel level, const char *module, const char *msg)
 {
 	if (Utf8::validate(msg))
 	{
@@ -45,7 +45,7 @@ static void ffmpegLogCb(void *avcl, int level, const char *fmt, va_list vl)
 		else if (level >= AV_LOG_ERROR)   lvl = LOG_ERROR;
 		else if (level >= AV_LOG_FATAL)   lvl = LOG_CRITICAL;
 
-		logCb(lvl, "ffmpeg", line);
+		log(lvl, "ffmpeg", line);
 	}
 }
 
@@ -75,7 +75,7 @@ static void sphinxLogCb(void *user_data, err_lvl_t level, const char *fmt, ...)
 			default: lvl = LOG_DEBUG;
 		}
 
-		logCb(lvl, "sphinx", line);
+		log(lvl, "sphinx", line);
 	}
 }
 

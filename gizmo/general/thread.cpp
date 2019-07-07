@@ -1,5 +1,6 @@
 #include "general/thread.h"
 #include "general/scope.h"
+#include "general/logger.h"
 
 using namespace std;
 
@@ -27,7 +28,18 @@ void Thread::run(Runnable runnable, const string &name)
 	if (!name.empty())
 		renameThread(name);
 
-	runnable();
+	try
+	{
+		runnable();
+	}
+	catch (const std::exception &ex)
+	{
+		log(LogLevel::LOG_ERROR, "thread", ex.what());
+	}
+	catch (...)
+	{
+		log(LogLevel::LOG_ERROR, "thread", "fatal error");
+	}
 }
 
 
