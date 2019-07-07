@@ -93,6 +93,9 @@ class InputItem(BaseItem):
 
             dc.drawTextLimited('; '.join(desc), x, y, w)
 
+    def getPathInfo(self):
+        return self.file and '{}:{}'.format(self.file.path, self.file.no+1)
+
     def hasStreamType(self, types):
         for s in self.file.streams.values():
             if s.type in types:
@@ -170,6 +173,9 @@ class OutputItem(BaseItem):
         if path != self.path:
             self.path = path
             self.clear()
+
+    def getPathInfo(self):
+        return self.path
 
     def getName(self):
         return self.path and os.path.basename(self.path)

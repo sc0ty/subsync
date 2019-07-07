@@ -22,7 +22,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     def __init__(self, parent, tasks=None, mode=None):
         super().__init__(parent)
 
-        self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
+        self.m_buttonMenu.SetLabel(u'\u22ee') # 2630
         img.setToolBitmap(self.m_toolBarSub, self.m_toolSubAdd, 'file-add')
         img.setToolBitmap(self.m_toolBarSub, self.m_toolSubRemove, 'file-remove')
         img.setToolBitmap(self.m_toolBarSub, self.m_toolSubSelStream, 'props')
@@ -33,9 +33,6 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
         self.m_buttonMaxDistInfo.message = descriptions.maxDistInfo
         self.m_buttonEffortInfo.message = descriptions.effortInfo
-
-        if settings().debugOptions:
-            self.m_buttonDebugMenu.Show()
 
         self.subs = InputCol(SubFile.types)
         self.refs = InputCol(RefFile.types)
@@ -90,6 +87,16 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         outs = self.m_items.getSelectionInCol(self.outs)
         files = [ s.file for s in subs + refs ]
 
+        sel = self.m_items.getSelection()
+        if len(sel) == 0:
+            self.m_textSelected.SetValue(_('<nothing selected>'))
+        elif len(sel) == 1:
+            item = self.m_items.getFirstSelectedItem()
+            self.m_textSelected.SetValue(item.getPathInfo() or '')
+        else:
+            self.m_textSelected.SetValue(_('<multiple selected>'))
+        self.m_buttonSelStream.Enable(bool(subs) or bool(refs))
+
         self.m_toolBarSub.EnableTool(self.m_toolSubRemove.GetId(), bool(subs))
         self.m_toolBarSub.EnableTool(self.m_toolSubSelStream.GetId(), bool(subs))
 
@@ -127,9 +134,6 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         val = self.m_sliderEffort.GetValue() / 100
         self.m_textEffort.SetLabel(_('{:.2f}').format(val))
         settings().set(minEffort=val)
-
-    def onButtonOutputSelectClick(self, event):
-        event.Skip()
 
     @error_dlg
     def onButtonStartClick(self, event):
@@ -186,6 +190,12 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         if paths:
             self.m_items.addFiles(self.refs, paths)
 
+    @error_dlg
+    def onButtonAddFilesClick(self, event):
+        paths = self.showOpenFileDlg()
+        if paths:
+            self.m_items.addFiles(None, paths, sort=True)
+
     def showOpenFileDlg(self):
         wildcard = '|'.join([
                 _('All supported files'), subtitleWildcard + ';' + videoWildcard,
@@ -207,10 +217,13 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                 subsIndex = min(index, subsIndex)
                 refsIndex = min(index, refsIndex)
             subs, refs = sortInputFiles(items)
-            added  = self.subs.addItems(subs, subsIndex)
-            added += self.refs.addItems(refs, refsIndex)
+            addedSubs = self.subs.addItems(subs, subsIndex)
+            addedRefs = self.refs.addItems(refs, refsIndex)
+            self.m_items.setSelection(addedSubs or addedRefs)
+            added = addedSubs + addedRefs
         else:
             added = col.addItems(items, index or len(col))
+            self.m_items.setSelection(added)
 
         if len(paths) > len(added):
             msg = [ _('Following files could not be added:') ]
@@ -230,7 +243,6 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
         if added:
             self.m_items.updateSize()
-            self.m_items.setSelection(added)
             self.m_items.Refresh()
             self.onItemsChange()
 
@@ -272,6 +284,15 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     def onRefSelStreamClick(self, event):
         items = self.m_items.getSelectionInCol(self.refs)
         self.showStreamSelectionWindow(items, self.refs.types)
+
+    @error_dlg
+    def onButtonSelStreamClick(self, event):
+        items = self.m_items.getSelectionInCol(self.subs)
+        types = self.subs.types
+        if not items:
+            items = self.m_items.getSelectionInCol(self.refs)
+            types = self.refs.types
+        self.showStreamSelectionWindow(items, types)
 
     def showStreamSelectionWindow(self, items, types):
         if not items:
@@ -344,16 +365,33 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                 self.updateTasks()
                 self.m_items.Refresh()
 
-    def onButtonDebugMenuClick(self, event):
-        self.PopupMenu(self.m_menuDebug)
+    def onButtonMenuClick(self, event):
+        self.PopupMenu(self.m_menu)
 
     @error_dlg
-    def onMenuItemDumpListClick(self, event):
+    def onMenuItemImportListClick(self, event):
+        wildcard = '*.yaml|*.yaml|{}|*.*'.format(_('All files'))
+        path = filedlg.showOpenFileDlg(self, wildcard=wildcard)
+        if path:
+            tasks = SyncTaskList.load(path)
+            self.setTasks(tasks)
+
+    @error_dlg
+    def onMenuItemExportListClick(self, event):
         wildcard = '*.yaml|*.yaml|{}|*.*'.format(_('All files'))
         path = filedlg.showSaveFileDlg(self, wildcard=wildcard)
         if path:
             self.updateTasks()
             SyncTaskList.save(self.tasks, path)
+
+    @error_dlg
+    def onMenuItemClearListClick(self, event):
+        msg = _('Do you really want to clear all files?')
+        title = _('Clear file list')
+        flags = wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION
+        with wx.MessageDialog(self, msg, title, flags) as dlg:
+            if dlg.ShowModal() == wx.ID_YES:
+                self.setTasks([])
 
     def onButtonCloseClick(self, event):
         self.Close()
