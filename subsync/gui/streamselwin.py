@@ -30,15 +30,15 @@ class StreamSelectionWin(subsync.gui.layout.streamselwin.StreamSelectionWin):
         self.m_choiceSelType.SetClientData(1, ['subtitle/text'])
         self.m_choiceSelType.SetClientData(2, ['audio'])
 
-        types = set(s.type for ss in streams for s in ss.streams.values()) & set(types)
-        hasAudio = 'audio' in types
-        hasSubtitle = 'subtitle/text' in types
+        stypes = set(s.type for ss in streams for s in ss.streams.values()) & set(types)
+        hasAudio = 'audio' in stypes
+        hasSubtitle = 'subtitle/text' in stypes
 
         enableTypeSelection = hasAudio and hasSubtitle
         self.m_textSelType.Show(enableTypeSelection)
         self.m_choiceSelType.Show(enableTypeSelection)
 
-        langs = set(s.lang.lower() for ss in streams for s in ss.streams.values())
+        langs = set(s.lang.lower() for ss in streams for s in ss.streams.values() if s.type in types)
         self.m_choiceSelLang.Append(_('auto'), None)
         if langs & set(['', 'und']):
             langs.discard('')
@@ -48,7 +48,7 @@ class StreamSelectionWin(subsync.gui.layout.streamselwin.StreamSelectionWin):
         self.m_choiceSelLang.addSortedLangs({getLanguageName(l): l for l in langs})
         self.m_choiceSelLang.SetSelection(0)
 
-        titles = set(s.title for ss in streams for s in ss.streams.values())
+        titles = set(s.title for ss in streams for s in ss.streams.values() if s.type in types)
         self.m_choiceSelTitle.Append(_('auto'), None)
         for title in sorted(titles):
             value = title
