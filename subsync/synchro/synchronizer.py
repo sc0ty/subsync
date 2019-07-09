@@ -39,7 +39,6 @@ class Synchronizer(object):
         self.sub = sub
         self.ref = ref
 
-        self.refCache = None
         self.onError = lambda src, err: None
 
         self.correlator = gizmo.Correlator(
@@ -50,7 +49,6 @@ class Synchronizer(object):
                 settings().minWordsSim)
         self.correlator.connectStatsCallback(self.onStatsUpdate)
         self.refWordsSink = self.correlator.pushRefWord
-
         self.subtitlesCollector = subtitle.SubtitlesCollector()
 
         self.stats = gizmo.CorrelationStats()
@@ -61,14 +59,9 @@ class Synchronizer(object):
         self.refPipelines = []
         self.pipelines = []
 
-    def onRefWord(self, word):
-        self.refWordsSink(word)
-
-        if self.refCache and self.refCache.id:
-            self.refCache.data.append((word))
-
     def destroy(self):
         logger.info('releasing synchronizer resources')
+
         self.correlator.connectStatsCallback(None)
 
         for p in self.pipelines:
@@ -106,25 +99,12 @@ class Synchronizer(object):
         if not runCb():
             return
 
-        if self.refCache and self.refCache.isValid(self.ref):
-            logger.info('restoring cached reference words (%i)', len(self.refCache.data))
-
-            for word in self.refCache.data:
-                self.refWordsSink(word)
-
-            self.refPipelines = pipeline.createProducerPipelines(self.ref, timeWindows=self.refCache.progress,
-                    runCb=runCb)
-
-        else:
-            if self.refCache:
-                self.refCache.init(self.ref)
-
-            self.refPipelines = pipeline.createProducerPipelines(self.ref, no=getJobsNo(), runCb=runCb)
+        self.refPipelines = pipeline.createProducerPipelines(self.ref, no=getJobsNo(), runCb=runCb)
 
         for p in self.refPipelines:
             p.connectEosCallback(self.onRefEos)
             p.connectErrorCallback(self.onRefError)
-            p.connectWordsCallback(self.onRefWord)
+            p.connectWordsCallback(self.refWordsSink)
 
         self.pipelines = [ self.subPipeline ] + self.refPipelines
 
@@ -140,11 +120,6 @@ class Synchronizer(object):
 
         for p in self.pipelines:
             p.stop()
-
-        if self.refCache and self.refCache.id and self.refPipelines:
-            self.refCache.progress = [ (p.getPosition(), *p.timeWindow)
-                    for p in self.refPipelines
-                    if not p.done and p.getPosition() < p.timeWindow[1] ]
 
     def isRunning(self):
         if self.correlator.isRunning():

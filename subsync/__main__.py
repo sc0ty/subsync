@@ -12,7 +12,7 @@ from subsync.settings import settings
 
 
 def subsync():
-    mode, args = cmdargs.parseCmdArgs()
+    args = cmdargs.parseCmdArgs()
 
     try:
         settings().load()
@@ -28,11 +28,9 @@ def subsync():
         logger.info('command line parameters: %s', args)
 
     if shouldUseCli(args):
-        startCli(mode, args)
+        startCli(args)
     else:
-        startGui(mode, args)
-
-    if not mode.autoStart:
+        startGui(args)
         settings().save()
 
     loggercfg.terminate()
@@ -49,7 +47,7 @@ def shouldUseCli(args):
         return True
 
 
-def startGui(mode, args):
+def startGui(args):
     import wx
     from subsync.gui.mainwin import MainWin
     from subsync.gui.errorwin import showExceptionDlg
@@ -57,19 +55,16 @@ def startGui(mode, args):
     try:
         app = wx.App()
 
-        if mode.mode == 'sync':
+        if args.mode == 'sync':
             task = cmdargs.parseSyncArgs(args)
             win = MainWin(None, sub=task.sub, ref=task.ref)
             win.Show()
 
-            if mode.autoStart:
-                wx.CallAfter(win.start, task=task, mode=mode, askForLang=False)
-
-        elif mode.mode == 'batch':
+        elif args.mode == 'batch':
             tasks = cmdargs.parseBatchArgs(args)
             win = MainWin(None)
             win.Show()
-            wx.CallAfter(win.showBatchWin, tasks=tasks, mode=mode)
+            wx.CallAfter(win.showBatchWin, tasks=tasks)
 
         else:
             win = MainWin(None)
@@ -82,14 +77,14 @@ def startGui(mode, args):
         showExceptionDlg()
 
 
-def startCli(mode, args):
+def startCli(args):
     from subsync import cli
 
     try:
         tasks = []
-        if mode.mode == 'sync':
+        if args.mode == 'sync':
             tasks = [ cmdargs.parseSyncArgs(args) ]
-        elif mode.mode == 'batch':
+        elif args.mode == 'batch':
             tasks = cmdargs.parseBatchArgs(args)
 
         app = cli.App(verbosity=args.verbose)

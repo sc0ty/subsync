@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class SyncWin(subsync.gui.layout.syncwin.SyncWin):
-    def __init__(self, parent, task, mode=None, refCache=None):
+    def __init__(self, parent, task):
         super().__init__(parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
@@ -39,11 +39,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.pendingErrors = False
 
         self.task = task
-        self.mode = mode
-        self.outSaved = False
 
         self.sync = Synchronizer(task.sub, task.ref)
-        self.sync.refCache = refCache
         self.sync.onError = self.onError
 
         self.running = True
@@ -73,7 +70,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.onError('core', err)
 
         try:
-            self.sync.stop()
+            self.sync.stop(force=True)
         except Exception as err:
             logger.warning('%r', err, exc_info=True)
             self.onError('core', err)
@@ -111,7 +108,6 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                 self.Fit()
                 self.Layout()
 
-        self.handleOutput(status)
         self.updateStatusErrors()
 
     @gui_thread
@@ -141,36 +137,10 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             else:
                 self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
 
-        self.handleOutput(status, finished=finished)
         self.updateStatusErrors()
 
         self.Fit()
         self.Layout()
-
-        if self.mode and self.mode.autoClose and not self.outSaved:
-            self.EndModal(wx.ID_OK)
-
-    def handleOutput(self, status, finished=False):
-        if not self.outSaved and status and status.subReady and (finished or status.effort >= settings().minEffort):
-            self.outSaved = True
-
-            if self.task.out:
-                try:
-                    self.saveSynchronizedSubtitles(
-                            path=self.task.getOutputPath(),
-                            enc=self.task.out.enc,
-                            fps=self.task.out.fps,
-                            overwrite=self.task.out.overwrite)
-                except Exception as err:
-                    logger.warning('%r', err, exc_info=True)
-                    self.onError('out', err)
-
-            if self.mode and self.mode.autoClose:
-                self.EndModal(wx.ID_OK)
-
-            if self.mode and self.mode.autoStart:
-                self.stop()
-                self.showCloseButton()
 
     @gui_thread
     def onError(self, source, err):
@@ -218,7 +188,6 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             event.Skip()
 
     def onButtonStopClick(self, event):
-        self.mode = None
         self.stop()
         self.showCloseButton()
 

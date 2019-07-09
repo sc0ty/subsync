@@ -30,14 +30,13 @@ class TaskState(SyncTask):
 
 
 class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
-    def __init__(self, parent, tasks, mode=None):
+    def __init__(self, parent, tasks):
         super().__init__(parent)
 
         self.currentTask = None
         self.selectedTask = None
 
         self.tasks = [ TaskState(task) for task in tasks ]
-        self.mode = mode
 
         img.setItemBitmap(self.m_bitmapTick, 'tickmark')
         img.setItemBitmap(self.m_bitmapCross, 'crossmark')
@@ -93,7 +92,7 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
             minEffort = settings().minEffort
             effort = -1
 
-            while self.running and sync.isRunning() and effort < minEffort:
+            while self.running and sync.isRunning() and (minEffort >= 1.0 or effort < minEffort):
                 status = sync.getStatus()
                 effort = status.effort
                 self.updateStatus(task, no, status)
@@ -103,7 +102,7 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
             self.onError('core', err)
 
         try:
-            sync.stop()
+            sync.stop(force=True)
             status = sync.getStatus()
             succeeded = self.running and status and status.subReady
             if succeeded:
@@ -172,9 +171,6 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
         self.m_gaugeCurrentProgress.SetValue(100)
         self.m_gaugeTotalProgress.SetValue(self.m_gaugeTotalProgress.GetRange())
         self.Layout()
-
-        if self.mode and self.mode.autoClose:
-            self.Close()
 
     def updateTimer(self, progress=None):
         elapsed = self.runTime.Time() / 1000
@@ -258,7 +254,6 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
         return [ task.getTask() for task in self.tasks if task.state != 'success' ]
 
     def onButtonStopClick(self, event):
-        self.mode = None
         self.stop()
         self.showCloseButton()
 

@@ -11,7 +11,6 @@ from subsync.gui.busydlg import BusyDlg
 from subsync.gui.errorwin import error_dlg
 from subsync.synchro import SyncTask
 from subsync.assets import assetManager, assetListUpdater
-from subsync import cache
 from subsync import img
 from subsync import config
 from subsync import loggercfg
@@ -82,7 +81,6 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.SetSizeHints(minW=size.GetWidth(), minH=size.GetHeight(),
                 maxH=size.GetHeight())
 
-        self.refsCache = cache.WordsCache()
         assetListUpdater.start(autoUpdate=settings().autoUpdate)
 
     def onSliderMaxDistScroll(self, event):
@@ -94,16 +92,13 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.PopupMenu(self.m_menu)
 
     def onMenuItemSettingsClick(self, event):
-        with SettingsWin(self, settings(), self.refsCache) as dlg:
+        with SettingsWin(self, settings()) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 newSettings = dlg.getSettings()
                 if settings() != newSettings:
                     self.changeSettings(newSettings)
 
     def changeSettings(self, newSettings):
-        if not settings().refsCache:
-            self.refsCache.clear()
-
         if settings().logLevel != newSettings.logLevel:
             loggercfg.setLevel(newSettings.logLevel)
 
@@ -142,41 +137,31 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
     @error_dlg
     def onButtonStartClick(self, event):
-        try:
-            settings().save()
-            task = SyncTask(self.m_panelSub.stream, self.m_panelRef.stream)
-            self.start(task, askForLang=True)
-        except:
-            self.refsCache.clear()
-            raise
+        settings().save()
+        task = SyncTask(self.m_panelSub.stream, self.m_panelRef.stream)
+        self.start(task, askForLang=True)
 
-    def start(self, task, mode=None, askForLang=True):
+    @error_dlg
+    def start(self, task, askForLang=True):
         if assetsdlg.validateAssets(self, [task], askForLang=askForLang):
             logRunCmd(task)
-            cache = self.refsCache if settings().refsCache else None
 
-            with SyncWin(self, task, mode=mode, refCache=cache) as dlg:
+            with SyncWin(self, task) as dlg:
                 dlg.ShowModal()
-
-        if mode and mode.autoClose:
-            self.Close(force=True)
 
     @error_dlg
     def onMenuItemBatchProcessingClick(self, event):
         self.showBatchWin()
 
-    def showBatchWin(self, tasks=None, mode=None):
+    def showBatchWin(self, tasks=None):
         try:
             self.Hide()
-            win = BatchWin(self, tasks, mode=mode)
+            win = BatchWin(self, tasks)
             win.Show()
 
         except Exception as e:
             logger.warn('showBatchWin %r', e, exc_info=True)
-            if mode and mode.autoClose:
-                self.Close(force=True)
-            else:
-                self.Show()
+            self.Show()
 
     @error_dlg
     def onClose(self, event):

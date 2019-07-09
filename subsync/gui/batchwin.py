@@ -19,7 +19,7 @@ import os
 
 
 class BatchWin(subsync.gui.layout.batchwin.BatchWin):
-    def __init__(self, parent, tasks=None, mode=None):
+    def __init__(self, parent, tasks=None):
         super().__init__(parent)
 
         self.m_buttonMenu.SetLabel(u'\u22ee') # 2630
@@ -57,10 +57,6 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
         self.setTasks(tasks)
         self.Layout()
-
-        self.mode = mode
-        if mode and mode.autoStart:
-            self.start()
 
     def setTasks(self, tasks):
         self.tasks = []
@@ -145,20 +141,20 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     def start(self):
         tasks = self.tasks
-        askForLang = not (self.mode and self.mode.autoStart)
-        if assetsdlg.validateAssets(self, tasks, askForLang=askForLang):
+        if assetsdlg.validateAssets(self, tasks, askForLang=True):
             self.updateTasks()
 
             try:
                 self.Hide()
-                with BatchSyncWin(self.GetParent(), tasks, mode=self.mode) as dlg:
+                with BatchSyncWin(self.GetParent(), tasks) as dlg:
                     res = dlg.ShowModal()
                     if res == wx.ID_RETRY:
                         self.setTasks(dlg.getFailedTasks())
+                        self.Show()
                     else:
                         self.Close()
 
-            finally:
+            except:
                 self.Show()
 
     @error_dlg
@@ -402,10 +398,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     def onClose(self, event):
         parent = self.GetParent()
         if parent:
-            if self.mode and self.mode.autoClose:
-                parent.Close(force=True)
-            else:
-                parent.Show()
+            parent.Show()
 
         if event:
             event.Skip()

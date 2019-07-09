@@ -52,10 +52,3 @@ class SyncTaskList(object):
         data = [ task.serialize() for task in tasks ]
         with open(path, 'w') as fp:
             yaml.dump(data, fp, default_flow_style=False)
-
-
-SyncMode = namedtuple('SyncMode', [
-    'mode',     # 'sync' / 'batch'
-    'autoStart',
-    'autoClose',
-])
