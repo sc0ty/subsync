@@ -22,7 +22,7 @@ def validateAssets(parent, tasks, updateAssets=True, askForLang=True):
         if task.out and task.out.path:
             task.out.validateOutputPattern()
 
-    if askForLang and not settings().showLanguageNotSelectedPopup:
+    if askForLang and settings().showLanguageNotSelectedPopup:
         if not askForLangSelection(parent, tasks):
             return False
 
@@ -114,7 +114,7 @@ def askForLangSelection(parent, tasks):
             dlg.ShowCheckBox(_('don\'t show this message again (could be changed in settings)'))
             res = dlg.ShowModal() == wx.ID_YES
             if res and dlg.IsCheckBoxChecked():
-                settings().showLanguageNotSelectedPopup = True
+                settings().showLanguageNotSelectedPopup = False
                 settings().save()
             return res
 

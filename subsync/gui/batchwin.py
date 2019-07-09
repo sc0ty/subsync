@@ -160,9 +160,9 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     @error_dlg
     def onFilesDrop(self, col, paths, index):
         if col and col in (self.subs, self.refs):
-            sort = settings().batchSortFiles
+            sort = settings().batchSortFiles and len(paths) > 1
 
-            if settings().showBatchDropTargetPopup:
+            if settings().showBatchDropTargetPopup and len(paths) > 1:
                 msg = _('Do you want to sort files between subtitles and references automatically?')
                 title = _('Sort dropped files')
                 flags = wx.YES_NO | wx.ICON_QUESTION
@@ -171,7 +171,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                     sort = dlg.ShowModal() == wx.ID_YES
 
                     if dlg.IsCheckBoxChecked():
-                        settings().showBatchDropTargetPopup = True
+                        settings().showBatchDropTargetPopup = False
                         settings().batchSortFiles = sort
                         settings().save()
 
