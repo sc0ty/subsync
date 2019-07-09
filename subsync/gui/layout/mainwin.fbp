@@ -14,6 +14,7 @@
         <property name="file">mainwin</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
+        <property name="indent_with_spaces"></property>
         <property name="internationalize">1</property>
         <property name="name">MainWin</property>
         <property name="namespace"></property>
@@ -1208,10 +1209,6 @@
                                                                 <event name="OnMenuSelection">onMenuItemSettingsClick</event>
                                                                 <event name="OnUpdateUI"></event>
                                                             </object>
-                                                            <object class="separator" expanded="1">
-                                                                <property name="name">m_separator1</property>
-                                                                <property name="permission">none</property>
-                                                            </object>
                                                             <object class="wxMenuItem" expanded="1">
                                                                 <property name="bitmap"></property>
                                                                 <property name="checked">0</property>
@@ -1226,6 +1223,10 @@
                                                                 <property name="unchecked_bitmap"></property>
                                                                 <event name="OnMenuSelection">onMenuItemCheckUpdateClick</event>
                                                                 <event name="OnUpdateUI"></event>
+                                                            </object>
+                                                            <object class="separator" expanded="1">
+                                                                <property name="name">m_separator1</property>
+                                                                <property name="permission">none</property>
                                                             </object>
                                                             <object class="wxMenuItem" expanded="1">
                                                                 <property name="bitmap"></property>

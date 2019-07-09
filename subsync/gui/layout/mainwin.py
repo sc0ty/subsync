@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Nov  6 2017)
+## Python code generated with wxFormBuilder (version Dec  3 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -94,10 +94,10 @@ class MainWin ( wx.Frame ):
 		self.m_menuItemSettings = wx.MenuItem( self.m_menu, wx.ID_PROPERTIES, _(u"Settings"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu.Append( self.m_menuItemSettings )
 		
-		self.m_menu.AppendSeparator()
-		
 		self.m_menuItemCheckUpdate = wx.MenuItem( self.m_menu, wx.ID_ANY, _(u"Check for updates"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu.Append( self.m_menuItemCheckUpdate )
+		
+		self.m_menu.AppendSeparator()
 		
 		self.m_menuItemAbout = wx.MenuItem( self.m_menu, wx.ID_ABOUT, _(u"About"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu.Append( self.m_menuItemAbout )
