@@ -75,6 +75,7 @@ class MultiColumnView(wx.ScrolledWindow):
         self.onSelection = lambda: None
         self.onContextMenu = lambda col, item, index: None
         self.onFilesDrop = lambda col, paths, index: None
+        self.onPaintEmpty = lambda width, height: None
 
         filedrop.setFileDropTarget(
                 self,
@@ -227,6 +228,8 @@ class MultiColumnView(wx.ScrolledWindow):
         col = self.getColAt(pos)
         index = self.getDragItemIndex(pos, col)
         wx.CallAfter(self.onFilesDrop, col, paths, index)
+        self.drawDragPos = False
+        self.dragPos = None
         return True
 
     def onFilesDrag(self, x, y, result):
@@ -293,3 +296,8 @@ class MultiColumnView(wx.ScrolledWindow):
             dc.DrawLine(
                     self.CalcScrolledPosition(x1*self.colWidth, y*self.itemHeight),
                     self.CalcScrolledPosition(x2*self.colWidth, y*self.itemHeight))
+
+        elif self.onPaintEmpty and sum([ len(col) for col in self.cols ]) == 0:
+            bmp = self.onPaintEmpty(client.Width, client.Height)
+            if bmp:
+                dc.DrawBitmap(bmp, 0, 0)

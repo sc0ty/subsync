@@ -7,6 +7,7 @@ from subsync.gui.batchsyncwin import BatchSyncWin
 from subsync.gui import busydlg
 from subsync.gui.components import assetsdlg
 from subsync.gui.components import filedlg
+from subsync.gui.components.dc import BitmapMemoryDC
 from subsync.gui.errorwin import ErrorWin, error_dlg
 from subsync.synchro import SyncTask, SyncTaskList, SubFile, RefFile
 from subsync.settings import settings
@@ -49,6 +50,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_items.onSelection = self.onSelection
         self.m_items.onContextMenu = self.onContextMenu
         self.m_items.onFilesDrop = self.onFilesDrop
+        self.m_items.onPaintEmpty = self.onPaintEmpty
 
         self.m_sliderMaxDist.SetValue(settings().windowSize / 60)
         self.m_sliderEffort.SetValue(settings().minEffort * 100)
@@ -391,6 +393,12 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         with wx.MessageDialog(self, msg, title, flags) as dlg:
             if dlg.ShowModal() == wx.ID_YES:
                 self.setTasks([])
+
+    def onPaintEmpty(self, width, height):
+        dc = BitmapMemoryDC(width, height)
+        dc.setFont(14)
+        dc.DrawText(descriptions.batchSyncInfo, 5, 5)
+        return dc.getBitmap()
 
     def onButtonCloseClick(self, event):
         self.Close()

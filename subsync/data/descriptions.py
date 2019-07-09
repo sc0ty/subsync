@@ -10,3 +10,9 @@ Higher value will result with better synchronization, but it will take longer.''
 noLanguageSelectedQuestion = _(
 '''Langauge selection is not mandatory, but could drastically improve synchronization accuracy.
 Are you sure?''')
+
+batchSyncInfo = _(
+'''Drag & drop files here
+
+Ctrl + click to select many
+Shift + click to select range''')
