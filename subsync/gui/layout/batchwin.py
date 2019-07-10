@@ -205,24 +205,6 @@ class BatchWin ( wx.Frame ):
 		fgSizer5.Fit( self.m_panelSettings )
 		fgSizer4.Add( self.m_panelSettings, 0, wx.EXPAND, 5 )
 		
-		self.m_panelDrop = wx.Panel( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.m_panelDrop.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-		self.m_panelDrop.Hide()
-		
-		bSizer8 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.m_textDrop = wx.StaticText( self.m_panelDrop, wx.ID_ANY, _(u"Drop files here to sort subtitles and references automatically"), wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTRE|wx.ST_ELLIPSIZE_MIDDLE )
-		self.m_textDrop.Wrap( -1 )
-		self.m_textDrop.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOWTEXT ) )
-		
-		bSizer8.Add( self.m_textDrop, 0, wx.ALL|wx.EXPAND, 20 )
-		
-		
-		self.m_panelDrop.SetSizer( bSizer8 )
-		self.m_panelDrop.Layout()
-		bSizer8.Fit( self.m_panelDrop )
-		fgSizer4.Add( self.m_panelDrop, 1, wx.EXPAND |wx.ALL, 5 )
-		
 		self.m_panelProgress = wx.Panel( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_panelProgress.Hide()
 		

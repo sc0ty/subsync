@@ -69,7 +69,7 @@ def getParser():
     batch = subparsers.add_parser('batch', help=_('batch synchronization'))
     batch.set_defaults(mode='batch')
     batch.add_argument('batch', type=str, help=_('batch job yaml description'))
-    batch.add_argument('--effort', type=float, help=_('how hard to try (0.0 - 1.0)'))
+    batch.add_argument('--effort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
 
     cli = parser.add_argument_group(_('headless options'))
     cli.add_argument('--cli', action='store_true', help=_('headless mode (command line only)'))

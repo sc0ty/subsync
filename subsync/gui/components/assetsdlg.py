@@ -111,7 +111,7 @@ def askForLangSelection(parent, tasks):
         title = _('No language selected')
         flags = wx.YES_NO | wx.ICON_QUESTION
         with wx.RichMessageDialog(parent, '\n'.join(msg), title, flags) as dlg:
-            dlg.ShowCheckBox(_('don\'t show this message again (could be changed in settings)'))
+            dlg.ShowCheckBox(_('don\'t show this message again'))
             res = dlg.ShowModal() == wx.ID_YES
             if res and dlg.IsCheckBoxChecked():
                 settings().showLanguageNotSelectedPopup = False

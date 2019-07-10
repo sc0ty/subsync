@@ -133,7 +133,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     def onSliderEffortScroll(self, event):
         val = self.m_sliderEffort.GetValue() / 100
-        self.m_textEffort.SetLabel(_('{:.2f}').format(val))
+        self.m_textEffort.SetLabel('{:.2f}'.format(val))
         settings().set(minEffort=val)
 
     @error_dlg
@@ -169,7 +169,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                 title = _('Sort dropped files')
                 flags = wx.YES_NO | wx.ICON_QUESTION
                 with wx.RichMessageDialog(self, msg, title, flags) as dlg:
-                    dlg.ShowCheckBox(_('don\'t show this message again (could be changed in settings)'))
+                    dlg.ShowCheckBox(_('don\'t show this message again'))
                     sort = dlg.ShowModal() == wx.ID_YES
 
                     if dlg.IsCheckBoxChecked():
