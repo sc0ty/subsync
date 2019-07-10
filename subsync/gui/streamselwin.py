@@ -38,11 +38,10 @@ class StreamSelectionWin(subsync.gui.layout.streamselwin.StreamSelectionWin):
         self.m_textSelType.Show(enableTypeSelection)
         self.m_choiceSelType.Show(enableTypeSelection)
 
-        langs = set(s.lang.lower() for ss in streams for s in ss.streams.values() if s.type in types)
+        langs = set(canonizeLang(s.lang) for ss in streams for s in ss.streams.values() if s.type in types)
         self.m_choiceSelLang.Append(_('auto'), None)
-        if langs & set(['', 'und']):
+        if '' in langs:
             langs.discard('')
-            langs.discard('und')
             self.m_choiceSelLang.Append(_('<undefined>'), '')
 
         self.m_choiceSelLang.addSortedLangs({getLanguageName(l): l for l in langs})
@@ -93,14 +92,21 @@ def findStream(ss, types, lang, title):
     streams = []
     for type in types:
         # we will try streams that have lang set first
-        streams += [ (no, s) for no, s in items if s.type == type and s.lang ]
-        streams += [ (no, s) for no, s in items if s.type == type and not s.lang ]
+        streams += [ (no, s) for no, s in items if s.type == type and canonizeLang(s.lang) ]
+        streams += [ (no, s) for no, s in items if s.type == type and not canonizeLang(s.lang) ]
 
     if lang is not None:
-        streams = [ ss for ss in streams if ss[1].lang.lower() == lang ]
+        streams = [ ss for ss in streams if canonizeLang(ss[1].lang) == lang ]
 
     if title is not None:
         streams = [ ss for ss in streams if ss[1].title == title ]
 
     if streams:
         return streams[0][0]
+
+
+def canonizeLang(lang):
+    lang = lang.lower()
+    if lang != 'und':
+        return lang
+    return ''
