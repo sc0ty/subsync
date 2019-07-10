@@ -1,5 +1,4 @@
 import argparse
-from subsync.synchro import SyncTask, SyncTaskList, SubFile, RefFile, OutputFile, ChannelsMap
 import re
 
 
@@ -21,6 +20,8 @@ def parseSettingsArgs(args):
 
 
 def parseSyncArgs(args):
+    from subsync.synchro import SyncTask, SubFile, RefFile, OutputFile, ChannelsMap
+
     sub = SubFile(path=args.sub)
     if args.sub_stream is not None:
         sub.select(args.sub_stream - 1)
@@ -39,6 +40,7 @@ def parseSyncArgs(args):
 
 
 def parseBatchArgs(args):
+    from subsync.synchro import SyncTaskList
     return SyncTaskList.load(args.batch)
 
 

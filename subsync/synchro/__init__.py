@@ -4,11 +4,8 @@ from subsync.synchro.input import InputFile, SubFile, RefFile
 from subsync.synchro.output import OutputFile
 from subsync.synchro.channels import ChannelsMap
 
-Synchronizer = Synchronizer
-SyncTask = SyncTask
-SyncTaskList = SyncTaskList
-InputFile = InputFile
-SubFile = SubFile
-RefFile = RefFile
-OutputFile = OutputFile
-ChannelsMap = ChannelsMap
+__all__ = [
+        'Synchronizer',
+        'SyncTask', 'SyncTaskList',
+        'InputFile', 'SubFile', 'RefFile', 'OutputFile',
+        'ChannelsMap' ]
