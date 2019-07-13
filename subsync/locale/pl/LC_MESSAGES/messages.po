@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-07-10 22:06+0200\n"
-"PO-Revision-Date: 2019-07-10 22:22+0200\n"
+"PO-Revision-Date: 2019-07-10 22:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -413,11 +413,11 @@ msgstr "język"
 
 #: subsync/gui/batchsyncwin.py:177
 msgid "Elapsed"
-msgstr "Upłynęło:"
+msgstr "Upłynęło"
 
 #: subsync/gui/batchsyncwin.py:181
 msgid "ETA"
-msgstr "Pozostało ok:"
+msgstr "Pozostało ok"
 
 #: subsync/gui/batchsyncwin.py:228
 msgid "synchronizing..."
