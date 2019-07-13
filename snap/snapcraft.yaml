@@ -78,7 +78,8 @@ parts:
       - gizmo
       - desktop-gtk3
     python-packages:
-      - https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04/wxPython-4.0.3-cp35-cp35m-linux_x86_64.whl
+      - https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04/wxPython-4.0.6-cp35-cp35m-linux_x86_64.whl
+      - PyYAML
     organize:
       share: usr/share
     prime:
