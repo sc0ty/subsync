@@ -18,6 +18,8 @@ You don't have to adjust subtitles manually anymore!
 * support for different languages for subtitles and reference track (using dictionary)
 * character encoding auto detection
 * easy to use graphical interface
+* batch mode
+* headless mode (command line without GUI)
 * support for drag & drop
 * auto update
 

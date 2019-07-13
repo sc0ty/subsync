@@ -17,6 +17,8 @@ Możliwa jest również synchronizacja z innymi napisami (również w odmiennym 
 * synchronizacja napisów z innymi napisami
 * napisy mogą być w innym języku co ścieżka audio/napisy referencyjne
 * autodetekcja kodowania znaków
+* tryb synchronizacji seryjner
+* tryb headless (linia komend bez GUI)
 * łatwy w użyciu interfejs graficzny
 * aktualizacje automatyczne
 
