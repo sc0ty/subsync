@@ -18,6 +18,7 @@ class Dictionary
 		const std::vector<std::string> &translate(const std::string &text) const;
 
 		Entrys::const_iterator bestGuess(const std::string &text) const;
+		Entrys::const_iterator begin() const;
 		Entrys::const_iterator end() const;
 
 	private:

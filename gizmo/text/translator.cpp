@@ -27,7 +27,7 @@ void Translator::pushWord(const Word &word)
 	if (it1 == m_dict.end())
 		return;
 
-	for (; it1 != m_dict.end(); --it1)
+	while (true)
 	{
 		float sim = compareWords(lword, it1->first);
 		if (sim < m_minSim)
@@ -35,6 +35,11 @@ void Translator::pushWord(const Word &word)
 
 		for (auto &tr : it1->second)
 			m_wordsCb(Word(tr, word.time, word.score*sim));
+
+		if (it1 == m_dict.begin())
+			break;
+
+		--it1;
 	}
 
 	for (++it2; it2 != m_dict.end(); ++it2)

@@ -41,6 +41,11 @@ Dictionary::Entrys::const_iterator Dictionary::bestGuess(const string &text) con
 	return it;
 }
 
+Dictionary::Entrys::const_iterator Dictionary::begin() const
+{
+	return m_entrys.begin();
+}
+
 Dictionary::Entrys::const_iterator Dictionary::end() const
 {
 	return m_entrys.end();
