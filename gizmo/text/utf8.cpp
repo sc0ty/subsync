@@ -90,16 +90,20 @@ size_t Utf8::iterator::size() const
 	if (m_ptr == NULL)
 		return 0;
 
-	size_t s = 0;
-	const uint8_t *p = m_ptr;
+	return Utf8::size((char*) m_ptr);
+}
 
-	while (*p)
-	{
-		if (!ISCNT(*p)) s++;
-		p++;
-	}
-
-	return s;
+unsigned Utf8::iterator::cpSize() const
+{
+	if (m_ptr == NULL)
+		return 0;
+	if (IS2B(*m_ptr))
+		return 2;
+	if (IS3B(*m_ptr))
+		return 3;
+	if (IS4B(*m_ptr))
+		return 4;
+	return 1;
 }
 
 uint32_t Utf8::iterator::toLower() const
@@ -269,6 +273,38 @@ uint32_t upperToLower(uint32_t upper, uint32_t defval)
 	}
 
 	return defval;
+}
+
+string Utf8::reverse(const string &str)
+{
+	string res;
+	res.reserve(str.size());
+
+	const auto cps = decode(str);
+	const size_t length = cps.size();
+
+	for (size_t i = 0; i < length; i++)
+		res += encode(cps[length - i - 1]);
+
+	return res;
+}
+
+size_t Utf8::size(const std::string &str)
+{
+	return size(str.c_str());
+}
+
+size_t Utf8::size(const char *str)
+{
+	size_t sz = 0;
+
+	while (*str)
+	{
+		if (!ISCNT(*str)) sz++;
+		str++;
+	}
+
+	return sz;
 }
 
 bool Utf8::validate(const string &str)

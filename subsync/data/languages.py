@@ -1,6 +1,6 @@
 languages = {
         'alb': (_('Albanian'), ['Windows-1252', 'ISO-8859-1']),
-        'ara': (_('Arabic'), ['ISO-8859-6']),
+        'ara': (_('Arabic'), ['ISO-8859-6', 'Windows-1256']),
         'bel': (_('Belarusian'), ['ISO-8859-5']),
         'bul': (_('Bulgarian'), ['Windows-1251', 'ISO-8859-5']),
         'cat': (_('Catalan'), ['Windows-1252', 'ISO-8859-1']),
@@ -93,3 +93,6 @@ languages2to3 = {
         'uk': 'ukr',
 }
 
+
+# right-to-left
+languagesRTL = [ 'ara', 'heb' ]

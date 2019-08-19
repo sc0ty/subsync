@@ -25,7 +25,11 @@ class Utf8
 				bool operator== (const iterator &it) const;
 				bool operator!= (const iterator &it) const;
 
+				// codepoints left to the end of the string
 				size_t size() const;
+
+				// current codepoint size
+				unsigned cpSize() const;
 
 				uint32_t toLower() const;
 				uint32_t toUpper() const;
@@ -49,6 +53,13 @@ class Utf8
 
 		static std::string toLower(const std::string &str);
 		static std::string toUpper(const std::string &str);
+
+		static std::string reverse(const std::string &str);
+
+		static std::string substr(const iterator &begin, const iterator &end);
+
+		static size_t size(const std::string &str);
+		static size_t size(const char *str);
 
 		static bool validate(const std::string &str);
 		static bool validate(const char *str);

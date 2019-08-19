@@ -42,6 +42,7 @@ void initMediaWrapper(py::module &m)
 	subDec.def(py::init<>());
 	subDec.def("setMinWordLen", &SubtitleDec::setMinWordLen);
 	subDec.def("setEncoding", &SubtitleDec::setEncoding);
+	subDec.def("setRightToLeft", &SubtitleDec::setRightToLeft);
 	subDec.def("connectSubsCallback", &SubtitleDec::connectSubsCallback);
 	subDec.def("connectWordsCallback", &SubtitleDec::connectWordsCallback);
 

@@ -3,6 +3,7 @@
 
 #include "decoder.h"
 #include "text/words.h"
+#include "text/ssa.h"
 #include <string>
 #include <functional>
 
@@ -43,6 +44,8 @@ class SubtitleDec : public Decoder
 
 		void setMinWordLen(unsigned minLen);
 		void setEncoding(const std::string &encoding);
+		void setRightToLeft(bool rightToLeft);
+		void setWordDelimiters(const std::string &delimiters);
 
 	private:
 		bool feedOutput(AVSubtitle &sub, double duration);
@@ -53,6 +56,8 @@ class SubtitleDec : public Decoder
 
 		SubsCallback m_subsCb;
 		WordsCallback m_wordsCb;
+
+		SSAParser m_ssaParser;
 		unsigned m_minWordLen;
 
 		double m_timeBase;

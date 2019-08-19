@@ -200,4 +200,117 @@ TEST_CASE("UTF-8")
 			REQUIRE( Utf8::validate( Utf8::escape("\xfc\x80\x80\x80\x80\x80") ) );
 		}
 	}
+
+	SECTION("size")
+	{
+		SECTION("size of simple strings")
+		{
+			REQUIRE( Utf8::size("") == 0 );
+			REQUIRE( Utf8::size("a") == 1 );
+			REQUIRE( Utf8::size("ab") == 2 );
+			REQUIRE( Utf8::size("abc") == 3 );
+		}
+
+		SECTION("size of mulit-byte strings")
+		{
+			REQUIRE( Utf8::size("\xc3\xb1") == 1 );
+			REQUIRE( Utf8::size("\xe2\x82\xa1") == 1 );
+			REQUIRE( Utf8::size("\xf0\x90\x8c\xbc") == 1 );
+			REQUIRE( Utf8::size("\xc2\x80") == 1 );
+			REQUIRE( Utf8::size("\xe0\xa0\x80") == 1 );
+			REQUIRE( Utf8::size("\xf0\x90\x80\x80") == 1 );
+			REQUIRE( Utf8::size("\x7f") == 1 );
+			REQUIRE( Utf8::size("\xdf\xbf") == 1 );
+			REQUIRE( Utf8::size("\xef\xbf\xbf") == 1 );
+			REQUIRE( Utf8::size("\xee\x80\x80") == 1 );
+			REQUIRE( Utf8::size("\xef\xbf\xbd") == 1 );
+			REQUIRE( Utf8::size("\xf4\x90\x80\x80") == 1 );
+
+			REQUIRE( Utf8::size("\xc3\xb1" "\xe2\x82\xa1") == 2 );
+			REQUIRE( Utf8::size("\xf0\x90\x8c\xbc" "\xc3\xb1" "\xe2\x82\xa1") == 3 );
+			REQUIRE( Utf8::size("\xe0\xa0\x80" "\xc2\x80") == 2 );
+			REQUIRE( Utf8::size("\xf0\x90\x80\x80" "\xe0\xa0\x80" "\xc2\x80") == 3 );
+			REQUIRE( Utf8::size("\x7f" "\xef\xbf\xbf") == 2 );
+			REQUIRE( Utf8::size("\x7f" "\xdf\xbf") == 2 );
+			REQUIRE( Utf8::size("\xee\x80\x80" "\xf4\x90\x80\x80") == 2 );
+			REQUIRE( Utf8::size("\xef\xbf\xbd" "\xee\x80\x80" "\xf4\x90\x80\x80") == 3);
+			REQUIRE( Utf8::size("\xc3\xb1" "\xe2\x82\xa1") == 2 );
+			REQUIRE( Utf8::size(
+					"\xc3\xb1" "\xe2\x82\xa1" "\xf0\x90\x8c\xbc" "\xc3\xb1" "\xe2\x82\xa1" "\xe0\xa0\x80"
+					"\xc2\x80" "\xf0\x90\x80\x80" "\xe0\xa0\x80" "\xc2\x80" "\x7f" "\xef\xbf\xbf" "\x7f"
+					"\xdf\xbf" "\xee\x80\x80" "\xf4\x90\x80\x80" "\xef\xbf\xbd" "\xee\x80\x80"
+					"\xf4\x90\x80\x80" ) == 19 );
+		}
+
+		SECTION("size of invalid strings")
+		{
+			REQUIRE( Utf8::size( "\xa1") <= 1 );
+			REQUIRE( Utf8::size( "\xf8") <= 1 );
+			REQUIRE( Utf8::size( "\xf8\xa1") <= 1 );
+			REQUIRE( Utf8::size( "\xf8\xa1\xa1") <= 1 );
+			REQUIRE( Utf8::size( "\xf8\xa1\xa1\xa1\xa1") <= 2 );
+			REQUIRE( Utf8::size( "\xfc\xa1\xa1\xa1\xa1\xa1") <= 2 );
+		}
+	}
+
+	SECTION("reverse")
+	{
+		SECTION("reverse simple strings")
+		{
+			REQUIRE( Utf8::reverse("") == "" );
+			REQUIRE( Utf8::reverse("a") == "a" );
+			REQUIRE( Utf8::reverse("ab") == "ba" );
+			REQUIRE( Utf8::reverse("abc") == "cba" );
+		}
+
+		SECTION("reverse multi-byte codepoints")
+		{
+			REQUIRE( Utf8::reverse("\xc3\xb1") == "\xc3\xb1" );
+			REQUIRE( Utf8::reverse("\xe2\x82\xa1") == "\xe2\x82\xa1" );
+			REQUIRE( Utf8::reverse("\xf0\x90\x8c\xbc") == "\xf0\x90\x8c\xbc" );
+
+			REQUIRE( Utf8::reverse("\xc2\x80") == "\xc2\x80" );
+			REQUIRE( Utf8::reverse("\xe0\xa0\x80") == "\xe0\xa0\x80" );
+			REQUIRE( Utf8::reverse("\xf0\x90\x80\x80") == "\xf0\x90\x80\x80" );
+
+			REQUIRE( Utf8::reverse("\x7f") == "\x7f" );
+			REQUIRE( Utf8::reverse("\xdf\xbf") == "\xdf\xbf" );
+			REQUIRE( Utf8::reverse("\xef\xbf\xbf") == "\xef\xbf\xbf" );
+
+			REQUIRE( Utf8::reverse("\xee\x80\x80") == "\xee\x80\x80" );
+			REQUIRE( Utf8::reverse("\xef\xbf\xbd") == "\xef\xbf\xbd" );
+			REQUIRE( Utf8::reverse("\xf4\x90\x80\x80") == "\xf4\x90\x80\x80" );
+		}
+
+		SECTION("reverse multi-byte strings")
+		{
+			REQUIRE( Utf8::reverse("\xc3\xb1" "\xe2\x82\xa1") == "\xe2\x82\xa1" "\xc3\xb1" );
+			REQUIRE( Utf8::reverse("\xf0\x90\x8c\xbc" "\xc3\xb1" "\xe2\x82\xa1")
+					== "\xe2\x82\xa1" "\xc3\xb1" "\xf0\x90\x8c\xbc" );
+
+			REQUIRE( Utf8::reverse("\xe0\xa0\x80" "\xc2\x80") == "\xc2\x80" "\xe0\xa0\x80" );
+			REQUIRE( Utf8::reverse("\xf0\x90\x80\x80" "\xe0\xa0\x80" "\xc2\x80")
+					== "\xc2\x80" "\xe0\xa0\x80" "\xf0\x90\x80\x80" );
+
+			REQUIRE( Utf8::reverse("\x7f" "\xef\xbf\xbf") == "\xef\xbf\xbf" "\x7f" );
+			REQUIRE( Utf8::reverse("\x7f" "\xdf\xbf") == "\xdf\xbf" "\x7f" );
+
+			REQUIRE( Utf8::reverse("\xee\x80\x80" "\xf4\x90\x80\x80") == "\xf4\x90\x80\x80" "\xee\x80\x80" );
+			REQUIRE( Utf8::reverse("\xef\xbf\xbd" "\xee\x80\x80" "\xf4\x90\x80\x80")
+					== "\xf4\x90\x80\x80" "\xee\x80\x80" "\xef\xbf\xbd" );
+
+			REQUIRE( Utf8::reverse("\xc3\xb1" "\xe2\x82\xa1") == "\xe2\x82\xa1" "\xc3\xb1" );
+
+			REQUIRE( Utf8::reverse(
+					"\xc3\xb1" "\xe2\x82\xa1" "\xf0\x90\x8c\xbc" "\xc3\xb1" "\xe2\x82\xa1" "\xe0\xa0\x80"
+					"\xc2\x80" "\xf0\x90\x80\x80" "\xe0\xa0\x80" "\xc2\x80" "\x7f" "\xef\xbf\xbf" "\x7f"
+					"\xdf\xbf" "\xee\x80\x80" "\xf4\x90\x80\x80" "\xef\xbf\xbd" "\xee\x80\x80"
+					"\xf4\x90\x80\x80" )
+					==
+					"\xf4\x90\x80\x80" "\xee\x80\x80" "\xef\xbf\xbd" "\xf4\x90\x80\x80" "\xee\x80\x80"
+					"\xdf\xbf" "\x7f" "\xef\xbf\xbf" "\x7f" "\xc2\x80" "\xe0\xa0\x80" "\xf0\x90\x80\x80"
+					"\xc2\x80" "\xe0\xa0\x80" "\xe2\x82\xa1" "\xc3\xb1" "\xf0\x90\x8c\xbc" "\xe2\x82\xa1"
+					"\xc3\xb1" );
+		}
+	}
 }

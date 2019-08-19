@@ -1,5 +1,6 @@
 import gizmo
 from subsync import assets
+from subsync.data import languages
 from subsync.error import Error
 
 import logging
@@ -9,10 +10,15 @@ logger = logging.getLogger(__name__)
 def loadDictionary(lang1, lang2, minLen=0):
     dictionary = gizmo.Dictionary()
 
+    reverse1 = lang1 in languages.languagesRTL
+    reverse2 = lang2 in languages.languagesRTL
+
     asset = assets.getAsset('dict', (lang1, lang2))
     if asset.isLocal():
         for key, val in loadDictionaryFromFile(asset.path):
             if len(key) >= minLen and len(val) >= minLen:
+                if reverse1: key = key[::-1]
+                if reverse2: val = val[::-1]
                 dictionary.add(key, val)
 
     else:
@@ -20,6 +26,8 @@ def loadDictionary(lang1, lang2, minLen=0):
         if asset.isLocal():
             for key, val in loadDictionaryFromFile(asset.path):
                 if len(key) >= minLen and len(val) >= minLen:
+                    if reverse1: val = val[::-1]
+                    if reverse2: key = key[::-1]
                     dictionary.add(val, key)
 
     if not asset.isLocal():

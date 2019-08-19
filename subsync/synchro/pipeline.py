@@ -1,6 +1,7 @@
 import gizmo
 from subsync.synchro import speech
 from subsync.settings import settings
+from subsync.data import languages
 from subsync.error import Error
 import math
 
@@ -78,6 +79,11 @@ class SubtitlePipeline(BasePipeline):
         super().__init__(stream)
         self.dec = gizmo.SubtitleDec()
         self.dec.setMinWordLen(settings().minWordLen)
+
+        if stream.lang and stream.lang.lower() in languages.languagesRTL:
+            logger.info('switching to right-to-left for file "%s"', stream.path)
+            self.dec.setRightToLeft(True)
+
         if stream.enc != None:
             self.dec.setEncoding(stream.enc)
 

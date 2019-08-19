@@ -6,8 +6,12 @@
 using namespace std;
 
 
+static const char DEFAULT_WORD_DELIMITERS[] = " \t.,!?[]{}():<>|\\/\"#$%-+`";
+
+
 SubtitleDec::SubtitleDec() :
 	m_codecCtx(NULL),
+	m_ssaParser(false, DEFAULT_WORD_DELIMITERS),
 	m_minWordLen(0),
 	m_timeBase(0.0),
 	m_position(0.0)
@@ -117,59 +121,27 @@ bool SubtitleDec::feedOutput(AVSubtitle &sub, double duration)
 	return gotSub;
 }
 
-void SubtitleDec::feedWordsOutput(float begin, float end, const char *data)
+void SubtitleDec::feedWordsOutput(float beginTime, float endTime, const char *data)
 {
-	const char *text = data;
-	unsigned commas = 0;
-
-	while (*text != '\0')
+	const auto words = m_ssaParser.splitWords(data);
+	if (!words.empty())
 	{
-		if (*text++ == ',' && ++commas >= 8)
-			break;
-	}
+		size_t cps = words.size();
+		for (const string &word : words)
+			cps += word.size();
 
-	if (commas < 8)
-		text = data;
+		const float ratio = (endTime - beginTime) / (float) cps;
+		float time = beginTime;
 
-	float delta = (end - begin) / (float) strlen(text);
-	const char *p = text;
-
-	while (*p != '\0')
-	{
-		string word;
-		size_t beg = p - text;
-		size_t end = p - text;
-
-		while (*p != '\0')
+		for (const string &word : words)
 		{
-			if (p[0] == '\\' && (p[1] == 'n' || p[1] == 'N'))
+			if (word.size() >= m_minWordLen)
 			{
-				p += 2;
-				break;
-			}
-			else if (p[0] == '{' && p[1] == '\\')
-			{
-				for (p += 2; *p != '}' && *p != '\0'; p++);
-				break;
-			}
-			else if (strchr(" \t\n.,!?[]{}<>|\\/\"#$%-+`", *p))
-			{
-				p++;
-				break;
-			}
-			else
-			{
-				word += *p;
+				const float wt = time + ratio * (float) (word.size() / 2);
+				m_wordsCb(Word(word, wt));
 			}
 
-			p++;
-			end++;
-		}
-
-		if (word.size() >= m_minWordLen)
-		{
-			float time = begin + delta * (float) (beg + end) / 2.0;
-			m_wordsCb(Word(word, time));
+			time += ratio * (float) (word.size() + 1);
 		}
 	}
 }
@@ -207,3 +179,7 @@ void SubtitleDec::setEncoding(const string &encoding)
 	m_encoding = encoding;
 }
 
+void SubtitleDec::setRightToLeft(bool rightToLeft)
+{
+	m_ssaParser.setRightToLeft(rightToLeft);
+}
