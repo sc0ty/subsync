@@ -1,6 +1,6 @@
 import gizmo
 from subsync.synchro.channels import ChannelsMap
-from subsync.data.languages import languages, languages2to3
+from subsync.data import languages
 from subsync import utils
 import os
 
@@ -175,9 +175,5 @@ def getLangFromPath(path):
         else:
             break
 
-    if size == 2:
-        return languages2to3.get(name[-2:].lower())
-    elif size == 3:
-        lang = name[-3:].lower()
-        if lang in languages:
-            return lang
+    if size == 2 or size == 3:
+        return languages.get(name[-size:].lower()).code3

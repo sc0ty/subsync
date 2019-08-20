@@ -1,13 +1,3 @@
-from subsync.data.languages import languages
-
-
-def getLanguageName(lang):
-    name = languages.get(lang, None)
-    if name:
-        return name[0]
-    return lang
-
-
 def parseVersion(version, defaultVer=None):
     try:
         return tuple(int(x) for x in version.split('.'))

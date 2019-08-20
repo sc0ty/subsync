@@ -12,7 +12,13 @@ namespace py = pybind11;
 void initTranslatorWrapper(py::module &m)
 {
 	py::class_<Dictionary> dictionary(m, "Dictionary");
-	dictionary.def(py::init<>());
+	dictionary.def(py::init<size_t, bool, bool, size_t, size_t>(),
+			py::arg("minLen"),
+			py::arg("rightToLeftKey") = false,
+			py::arg("rightToLeftVal") = false,
+			py::arg("ngramsKey") = 0,
+			py::arg("ngramsVal") = 0);
+
 	dictionary.def("add", &Dictionary::add);
 	dictionary.def("size", &Dictionary::size);
 	dictionary.def("translate", &Dictionary::translate);

@@ -36,15 +36,14 @@ class ChoiceLang(ChoiceCustomLang):
 
         super().__init__(*args, **kwargs)
         self.Append(_('<other>'), None)
-        self.addSortedLangs({ languages[c][0]: c for c in languages.keys() })
+        self.addSortedLangs({ lang.name: lang.code3 for lang in languages })
 
 
 class ChoiceGuiLang(ChoiceCustomLang):
     def __init__(self, *args, **kwargs):
-        from subsync.data.languages import languages, languages2to3
+        from subsync.data import languages
         from subsync.translations import listLanguages as langs
 
         super().__init__(*args, **kwargs)
         self.Append(_('default'), None)
-        self.addSortedLangs({
-            languages.get(languages2to3.get(x), [x])[0]: x for x in langs()})
+        self.addSortedLangs({ languages.get(code2=x, name=x).name: x for x in langs() })

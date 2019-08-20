@@ -8,7 +8,7 @@ from subsync.gui.busydlg import showBusyDlgAsyncJob
 from subsync.gui.errorwin import error_dlg
 from subsync.error import Error
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
-from subsync.data.languages import languages
+from subsync.data import languages
 
 
 @error_dlg
@@ -134,6 +134,6 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
 
 
 def validateLang(lang):
-    if lang and lang.lower() in languages:
+    if lang and lang.lower() in languages.codes3:
         return lang.lower()
 

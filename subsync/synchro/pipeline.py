@@ -80,9 +80,13 @@ class SubtitlePipeline(BasePipeline):
         self.dec = gizmo.SubtitleDec()
         self.dec.setMinWordLen(settings().minWordLen)
 
-        if stream.lang and stream.lang.lower() in languages.languagesRTL:
-            logger.info('switching to right-to-left for file "%s"', stream.path)
-            self.dec.setRightToLeft(True)
+        langInfo = stream.lang and languages.get(code3=stream.lang.lower())
+        if langInfo:
+            if langInfo.rightToLeft:
+                logger.info('switching to right-to-left for file "%s"', stream.path)
+            if langInfo.ngrams:
+                logger.info('switching to %i-gram for file "%s"', langInfo.ngrams, stream.path)
+            self.dec.setMode(rightToLeft=langInfo.rightToLeft, ngram=langInfo.ngrams or 0)
 
         if stream.enc != None:
             self.dec.setEncoding(stream.enc)

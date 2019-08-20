@@ -1,6 +1,7 @@
 from subsync.assets.updater import Updater
 from subsync import config
 from subsync import utils
+from subsync.data import languages
 from subsync.error import Error
 import os
 import json
@@ -123,8 +124,8 @@ class DictAsset(Asset):
     def getPrettyName(self):
         if len(self.params) >= 2:
             return _('dictionary {} / {}').format(
-                    utils.getLanguageName(self.params[0]),
-                    utils.getLanguageName(self.params[1]))
+                    languages.getName(self.params[0]),
+                    languages.getName(self.params[1]))
         else:
             super().getPrettyName()
 
@@ -157,7 +158,7 @@ class SpeechAsset(Asset):
     def getPrettyName(self):
         if len(self.params) >= 1:
             return _('{} speech recognition model').format(
-                    utils.getLanguageName(self.params[0]))
+                    languages.getName(self.params[0]))
         else:
             super().getPrettyName()
 

@@ -12,10 +12,10 @@ class SSAParser
 		typedef std::list<std::string> Words;
 
 	public:
-		SSAParser(bool rightToLeft=false, const char *wordDelimiters=NULL);
+		SSAParser(const char *wordDelimiters=NULL);
 
 		void setWordDelimiters(const char *delimiters);
-		void setRightToLeft(bool rtl=true);
+		void setMode(bool rtl=false, size_t ngram=0);
 
 		Words splitWords(const char *ssa) const;
 
@@ -27,6 +27,7 @@ class SSAParser
 
 	private:
 		bool m_rightToLeft;
+		size_t m_ngram;
 		std::set<uint32_t> m_wordDelimiters;
 };
 

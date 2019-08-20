@@ -4,6 +4,17 @@
 using namespace std;
 
 
+static SSAParser::Words splitNgrams(const SSAParser::Words &words, size_t size);
+
+
+SSAParser::SSAParser(const char *wordDelimiters) :
+	m_rightToLeft(false),
+	m_ngram(0)
+{
+	if (wordDelimiters)
+		setWordDelimiters(wordDelimiters);
+}
+
 const char *SSAParser::skipHeader(const char *ssa)
 {
 	const char *text = ssa;
@@ -22,23 +33,16 @@ const char *SSAParser::skipHeader(const char *ssa)
 	return text;
 }
 
-
-SSAParser::SSAParser(bool rightToLeft, const char *wordDelimiters) :
-	m_rightToLeft(rightToLeft)
-{
-	if (wordDelimiters)
-		setWordDelimiters(wordDelimiters);
-}
-
 void SSAParser::setWordDelimiters(const char *delimiters)
 {
 	for (Utf8::iterator it(delimiters); *it; ++it)
 		m_wordDelimiters.insert(*it);
 }
 
-void SSAParser::setRightToLeft(bool rtl)
+void SSAParser::setMode(bool rtl, size_t ngram)
 {
 	m_rightToLeft = rtl;
+	m_ngram = ngram;
 }
 
 SSAParser::Words SSAParser::splitWords(const char *ssa) const
@@ -84,7 +88,11 @@ SSAParser::Words SSAParser::splitWords(const char *ssa) const
 	}
 
 	addWord(words, word, pos);
-	return words;
+
+	if (m_ngram)
+		return splitNgrams(words, m_ngram);
+	else
+		return words;
 }
 
 SSAParser::Words::iterator SSAParser::addWord(Words &words, string &word,
@@ -98,4 +106,28 @@ SSAParser::Words::iterator SSAParser::addWord(Words &words, string &word,
 			++pos;
 	}
 	return pos;
+}
+
+static SSAParser::Words splitNgrams(const SSAParser::Words &words, size_t size)
+{
+	SSAParser::Words res;
+
+	for (const string &word : words)
+	{
+		Utf8::iterator beg(word);
+		Utf8::iterator end = beg;
+		end += size;
+
+		while (true)
+		{
+			res.push_back(Utf8::substr(beg, end));
+			if (!*end)
+				break;
+
+			++beg;
+			++end;
+		}
+	}
+
+	return res;
 }

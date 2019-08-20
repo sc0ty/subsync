@@ -22,6 +22,9 @@ class Utf8
 				iterator operator++ (int);
 				iterator operator-- (int);
 
+				iterator &operator+= (size_t len);
+				iterator &operator-= (size_t len);
+
 				bool operator== (const iterator &it) const;
 				bool operator!= (const iterator &it) const;
 

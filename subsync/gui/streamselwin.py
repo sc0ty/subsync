@@ -1,6 +1,6 @@
 import subsync.gui.layout.streamselwin
 from subsync import img
-from subsync.utils import getLanguageName
+from subsync.data import languages
 import wx
 import os
 
@@ -44,7 +44,7 @@ class StreamSelectionWin(subsync.gui.layout.streamselwin.StreamSelectionWin):
             langs.discard('')
             self.m_choiceSelLang.Append(_('<undefined>'), '')
 
-        self.m_choiceSelLang.addSortedLangs({getLanguageName(l): l for l in langs})
+        self.m_choiceSelLang.addSortedLangs({ languages.getName(l): l for l in langs })
         self.m_choiceSelLang.SetSelection(0)
 
         titles = set(s.title for ss in streams for s in ss.streams.values() if s.type in types)

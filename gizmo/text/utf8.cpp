@@ -85,6 +85,22 @@ Utf8::iterator Utf8::iterator::operator-- (int)
 	return cp;
 }
 
+Utf8::iterator &Utf8::iterator::operator+= (size_t len)
+{
+	for (; len > 0; len--)
+		operator++();
+
+	return *this;
+}
+
+Utf8::iterator &Utf8::iterator::operator-= (size_t len)
+{
+	for (; len > 0; len--)
+		operator--();
+
+	return *this;
+}
+
 size_t Utf8::iterator::size() const
 {
 	if (m_ptr == NULL)
@@ -287,6 +303,11 @@ string Utf8::reverse(const string &str)
 		res += encode(cps[length - i - 1]);
 
 	return res;
+}
+
+string Utf8::substr(const Utf8::iterator &begin, const Utf8::iterator &end)
+{
+	return string(begin.getRawData(), 0, end.getRawData() - begin.getRawData());
 }
 
 size_t Utf8::size(const std::string &str)

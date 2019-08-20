@@ -7,34 +7,32 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def loadDictionary(lang1, lang2, minLen=0):
-    dictionary = gizmo.Dictionary()
+def loadDictionary(langKey, langVal, minLen=0):
+    langKeyInfo = languages.get(code3=langKey)
+    langValInfo = languages.get(code3=langVal)
 
-    reverse1 = lang1 in languages.languagesRTL
-    reverse2 = lang2 in languages.languagesRTL
+    dictionary = gizmo.Dictionary(
+            minLen=minLen,
+            rightToLeftKey=langKeyInfo.rightToLeft,
+            rightToLeftVal=langValInfo.rightToLeft,
+            ngramsKey=langKeyInfo.ngrams or 0,
+            ngramsVal=langValInfo.ngrams or 0);
 
-    asset = assets.getAsset('dict', (lang1, lang2))
+    asset = assets.getAsset('dict', (langKey, langVal))
     if asset.isLocal():
         for key, val in loadDictionaryFromFile(asset.path):
-            if len(key) >= minLen and len(val) >= minLen:
-                if reverse1: key = key[::-1]
-                if reverse2: val = val[::-1]
-                dictionary.add(key, val)
-
+            dictionary.add(key, val)
     else:
-        asset = assets.getAsset('dict', (lang2, lang1))
+        asset = assets.getAsset('dict', (langVal, langKey))
         if asset.isLocal():
             for key, val in loadDictionaryFromFile(asset.path):
-                if len(key) >= minLen and len(val) >= minLen:
-                    if reverse1: val = val[::-1]
-                    if reverse2: key = key[::-1]
-                    dictionary.add(val, key)
+                dictionary.add(val, key)
 
     if not asset.isLocal():
         raise Error(_('There is no dictionary for transaltion from {} to {}')
-                    .format(lang1, lang2)) \
-                    .add('language1', lang1) \
-                    .add('language2', lang2)
+                    .format(langKey, langVal)) \
+                    .add('language1', langKey) \
+                    .add('language2', langVal)
 
     logger.info('dictionary ready with %u entries', dictionary.size())
     return dictionary
@@ -47,6 +45,6 @@ def loadDictionaryFromFile(path):
             if len(line) > 0 and line[0] != '#':
                 ents = line.strip().split('|')
                 if len(ents) >= 2:
-                    key = ents[0].lower()
+                    key = ents[0]
                     for val in ents[1:]:
-                        yield (key, val.lower())
+                        yield (key, val)

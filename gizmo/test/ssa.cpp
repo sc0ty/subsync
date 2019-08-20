@@ -32,14 +32,11 @@ TEST_CASE("SSA Parser")
 		REQUIRE( w.size() == 2 );
 		REQUIRE( getWord(w, 0) == "abc{" );
 		REQUIRE( getWord(w, 1) == "ghi" );
-
-		w = SSAParser(false, " \t\n.,!?[]{}():<>|\\/\"#$%-+`").splitWords("-'Cause the cops say he's dead--");
-		REQUIRE( w.size() == 6 );
 	}
 
 	SECTION("SSA words split left-to-right")
 	{
-		SSAParser p(false, " ");
+		SSAParser p(" ");
 		SSAParser::Words w;
 
 		w = p.splitWords("abc");
@@ -69,9 +66,10 @@ TEST_CASE("SSA Parser")
 		REQUIRE( getWord(w, 2) == "ghi" );
 	}
 
-	SECTION("rSSA words split right-to-left")
+	SECTION("SSA words split right-to-left")
 	{
-		SSAParser p(true, " ");
+		SSAParser p(" ");
+		p.setMode(true);
 		SSAParser::Words w;
 
 		w = p.splitWords("abc");
@@ -99,5 +97,43 @@ TEST_CASE("SSA Parser")
 		REQUIRE( getWord(w, 0) == "fed" );
 		REQUIRE( getWord(w, 1) == "cba" );
 		REQUIRE( getWord(w, 2) == "ihg" );
+	}
+
+	SECTION("SSA split n-grams")
+	{
+		SSAParser p(" ");
+		p.setMode(false, 3);
+		SSAParser::Words w;
+
+		w = p.splitWords("ab");
+		REQUIRE( w.size() == 1 );
+		REQUIRE( getWord(w, 0) == "ab" );
+
+		w = p.splitWords("abc");
+		REQUIRE( w.size() == 1 );
+		REQUIRE( getWord(w, 0) == "abc" );
+
+		w = p.splitWords("abcd");
+		REQUIRE( w.size() == 2 );
+		REQUIRE( getWord(w, 0) == "abc" );
+		REQUIRE( getWord(w, 1) == "bcd" );
+
+		w = p.splitWords("abcde");
+		REQUIRE( w.size() == 3 );
+		REQUIRE( getWord(w, 0) == "abc" );
+		REQUIRE( getWord(w, 1) == "bcd" );
+		REQUIRE( getWord(w, 2) == "cde" );
+
+		w = p.splitWords("ab cde");
+		REQUIRE( w.size() == 2 );
+		REQUIRE( getWord(w, 0) == "ab" );
+		REQUIRE( getWord(w, 1) == "cde" );
+
+		w = p.splitWords("abcd efgh");
+		REQUIRE( w.size() == 4 );
+		REQUIRE( getWord(w, 0) == "abc" );
+		REQUIRE( getWord(w, 1) == "bcd" );
+		REQUIRE( getWord(w, 2) == "efg" );
+		REQUIRE( getWord(w, 3) == "fgh" );
 	}
 }

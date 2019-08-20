@@ -1,5 +1,5 @@
 import locale
-from subsync.data.languages import languages, languages2to3
+from subsync.data import languages
 from subsync.error import Error
 
 import logging
@@ -14,10 +14,9 @@ def detectEncoding(path, lang, probeSize=32*1024):
         dlang, denc = None, None
 
     if not lang and dlang:
-        lang2 = dlang.split('_', 1)[0]
-        lang = languages2to3.get(lang2)
+        lang = dlang.split('_', 1)[0]
 
-    encs = [ 'UTF-8' ] + languages.get(lang, (None, []))[1]
+    encs = [ 'UTF-8' ] + languages.get(lang).encodings
     if denc and denc not in encs:
         encs.append(denc)
 

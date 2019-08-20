@@ -11,7 +11,7 @@ static const char DEFAULT_WORD_DELIMITERS[] = " \t.,!?[]{}():<>|\\/\"#$%-+`";
 
 SubtitleDec::SubtitleDec() :
 	m_codecCtx(NULL),
-	m_ssaParser(false, DEFAULT_WORD_DELIMITERS),
+	m_ssaParser(DEFAULT_WORD_DELIMITERS),
 	m_minWordLen(0),
 	m_timeBase(0.0),
 	m_position(0.0)
@@ -179,7 +179,7 @@ void SubtitleDec::setEncoding(const string &encoding)
 	m_encoding = encoding;
 }
 
-void SubtitleDec::setRightToLeft(bool rightToLeft)
+void SubtitleDec::setMode(bool rightToLeft, size_t ngram)
 {
-	m_ssaParser.setRightToLeft(rightToLeft);
+	m_ssaParser.setMode(rightToLeft, ngram);
 }
