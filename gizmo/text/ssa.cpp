@@ -1,15 +1,12 @@
 #include "text/ssa.h"
 #include "text/utf8.h"
+#include "text/words.h"
 
 using namespace std;
 
 
-static SSAParser::Words splitNgrams(const SSAParser::Words &words, size_t size);
-
-
-SSAParser::SSAParser(const char *wordDelimiters) :
-	m_rightToLeft(false),
-	m_ngram(0)
+SSAParser::SSAParser(const char *wordDelimiters, bool rightToLeft) :
+	m_rightToLeft(rightToLeft)
 {
 	if (wordDelimiters)
 		setWordDelimiters(wordDelimiters);
@@ -39,17 +36,16 @@ void SSAParser::setWordDelimiters(const char *delimiters)
 		m_wordDelimiters.insert(*it);
 }
 
-void SSAParser::setMode(bool rtl, size_t ngram)
+void SSAParser::setRightToLeft(bool rtl)
 {
 	m_rightToLeft = rtl;
-	m_ngram = ngram;
 }
 
-SSAParser::Words SSAParser::splitWords(const char *ssa) const
+size_t SSAParser::splitWords(WordList &words, const char *ssa) const
 {
-	list<string> words;
 	string word;
-	Words::iterator pos = words.begin();
+	size_t len = 0;
+	WordList::iterator pos = words.begin();
 
 	for (Utf8::iterator it(skipHeader(ssa)); *it; ++it)
 	{
@@ -84,19 +80,17 @@ SSAParser::Words SSAParser::splitWords(const char *ssa) const
 				word = string(data, it.cpSize()) + word;
 			else
 				word += string(data, it.cpSize());
+
+			len++;
 		}
 	}
 
 	addWord(words, word, pos);
-
-	if (m_ngram)
-		return splitNgrams(words, m_ngram);
-	else
-		return words;
+	return len;
 }
 
-SSAParser::Words::iterator SSAParser::addWord(Words &words, string &word,
-		Words::iterator pos) const
+SSAParser::WordList::iterator SSAParser::addWord(WordList &words, string &word,
+		WordList::iterator pos) const
 {
 	if (!word.empty())
 	{
@@ -106,28 +100,4 @@ SSAParser::Words::iterator SSAParser::addWord(Words &words, string &word,
 			++pos;
 	}
 	return pos;
-}
-
-static SSAParser::Words splitNgrams(const SSAParser::Words &words, size_t size)
-{
-	SSAParser::Words res;
-
-	for (const string &word : words)
-	{
-		Utf8::iterator beg(word);
-		Utf8::iterator end = beg;
-		end += size;
-
-		while (true)
-		{
-			res.push_back(Utf8::substr(beg, end));
-			if (!*end)
-				break;
-
-			++beg;
-			++end;
-		}
-	}
-
-	return res;
 }

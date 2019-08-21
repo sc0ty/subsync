@@ -113,6 +113,7 @@ sources = [
         'text/dictionary.cpp',
         'text/words.cpp',
         'text/ssa.cpp',
+        'text/ngrams.cpp',
         'text/utf8.cpp',
         'text/wordsqueue.cpp',
         'math/point.cpp',

@@ -26,6 +26,7 @@ SOURCES = \
 		  ssa.cpp \
 		  line.cpp \
 		  linefinder.cpp \
+		  ../text/words.cpp \
 		  ../text/utf8.cpp \
 		  ../text/ssa.cpp \
 		  ../math/point.cpp \
@@ -35,6 +36,7 @@ SOURCES = \
 HEADERS = \
 		  catch.hpp \
 		  math.h \
+		  ../text/words.h \
 		  ../text/utf8.h \
 		  ../text/ssa.h \
 		  ../math/point.h \

@@ -73,20 +73,27 @@ class SubtitlePipeline(BasePipeline):
     def __init__(self, stream):
         ''' Speech recognition pipeline:
 
-        Demux --> SpeechDec  --[words]--> ...
+        Demux --> SpeechDec  --[words]--> {NgramSplitter} --[words]--> ...
         '''
 
         super().__init__(stream)
         self.dec = gizmo.SubtitleDec()
         self.dec.setMinWordLen(settings().minWordLen)
+        self.ngramSplitter = None
+        self.sink = self.dec
 
         langInfo = stream.lang and languages.get(code3=stream.lang.lower())
         if langInfo:
             if langInfo.rightToLeft:
                 logger.info('switching to right-to-left for file "%s"', stream.path)
+                self.dec.setRightToLeft(True)
+
             if langInfo.ngrams:
                 logger.info('switching to %i-gram for file "%s"', langInfo.ngrams, stream.path)
-            self.dec.setMode(rightToLeft=langInfo.rightToLeft, ngram=langInfo.ngrams or 0)
+                self.dec.setMinWordLen(langInfo.ngrams)
+                self.ngramSplitter = gizmo.NgramSplitter(langInfo.ngrams)
+                self.dec.connectWordsCallback(self.ngramSplitter.pushWord)
+                self.sink = self.ngramSplitter
 
         if stream.enc != None:
             self.dec.setEncoding(stream.enc)
@@ -97,9 +104,11 @@ class SubtitlePipeline(BasePipeline):
         super().destroy()
         self.dec.connectWordsCallback(None)
         self.dec.connectSubsCallback(None)
+        if self.ngramSplitter:
+            self.ngramSplitter.connectWordsCallback(None)
 
     def connectWordsCallback(self, cb):
-        self.dec.connectWordsCallback(cb)
+        self.sink.connectWordsCallback(cb)
 
     def connectSubsCallback(self, cb):
         self.dec.connectSubsCallback(cb)
@@ -109,7 +118,7 @@ class SpeechPipeline(BasePipeline):
     def __init__(self, stream):
         ''' Speech recognition pipeline:
 
-        Demux --> AudioDec --> Resampler --> SpeechRecognition --[words]--> ...
+        Demux --> AudioDec --> Resampler --> SpeechRecognition --[words]--> {NgramSplitter} --[words]--> ...
         '''
 
         super().__init__(stream)
@@ -123,6 +132,16 @@ class SpeechPipeline(BasePipeline):
         self.speechRec = speech.createSpeechRec(speechModel)
         self.speechRec.setMinWordProb(settings().minWordProb)
         self.speechRec.setMinWordLen(settings().minWordLen)
+        self.ngramSplitter = None
+        self.sink = self.speechRec
+
+        langInfo = stream.lang and languages.get(code3=stream.lang.lower())
+        if langInfo and langInfo.ngrams:
+            logger.info('switching to %i-gram for audio "%s"', langInfo.ngrams, stream.path)
+            self.speechRec.setMinWordLen(langInfo.ngrams)
+            self.ngramSplitter = gizmo.NgramSplitter(langInfo.ngrams)
+            self.speechRec.connectWordsCallback(self.ngramSplitter.pushWord)
+            self.sink = self.ngramSplitter
 
         self.resampler = gizmo.Resampler()
         self.channels = stream.channels
@@ -134,6 +153,8 @@ class SpeechPipeline(BasePipeline):
 
     def destroy(self):
         super().destroy()
+        if self.ngramSplitter:
+            self.ngramSplitter.connectWordsCallback(None)
         self.speechRec.connectWordsCallback(None)
         self.resampler.connectFormatChangeCallback(None)
 
@@ -144,7 +165,7 @@ class SpeechPipeline(BasePipeline):
         self.resampler.setChannelMap(channelsMap.getMap())
 
     def connectWordsCallback(self, cb):
-        self.speechRec.connectWordsCallback(cb)
+        self.sink.connectWordsCallback(cb)
 
 
 def createProducerPipeline(stream):

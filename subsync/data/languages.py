@@ -21,7 +21,7 @@ languages = [
         mkLanguage( 'bel', 'be', _('Belarusian'), ['ISO-8859-5'] ),
         mkLanguage( 'bul', 'bg', _('Bulgarian'), ['Windows-1251', 'ISO-8859-5'] ),
         mkLanguage( 'cat', 'ca', _('Catalan'), ['Windows-1252', 'ISO-8859-1'] ),
-        mkLanguage( 'chi', 'zh', _('Chinese'), ['Windows-950'], ngrams=3 ),
+        mkLanguage( 'chi', 'zh', _('Chinese'), ['GB18030'], ngrams=2 ),
         mkLanguage( 'cze', 'cs', _('Czech'), ['Windows-1250', 'ISO-8859-2'] ),
         mkLanguage( 'dan', 'da', _('Danish'), ['Windows-1252', 'ISO-8859-1'] ),
         mkLanguage( 'dut', 'nl', _('Dutch'), ['Windows-1252', 'ISO-8859-1'] ),

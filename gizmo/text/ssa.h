@@ -1,6 +1,7 @@
 #ifndef __TEXT_SSA__
 #define __TEXT_SSA__
 
+#include "words.h"
 #include <list>
 #include <set>
 #include <string>
@@ -9,25 +10,24 @@
 class SSAParser
 {
 	public:
-		typedef std::list<std::string> Words;
+		typedef std::list<std::string> WordList;
 
 	public:
-		SSAParser(const char *wordDelimiters=NULL);
+		SSAParser(const char *wordDelimiters=NULL, bool rightToLeft=false);
 
 		void setWordDelimiters(const char *delimiters);
-		void setMode(bool rtl=false, size_t ngram=0);
+		void setRightToLeft(bool rtl=true);
 
-		Words splitWords(const char *ssa) const;
+		size_t splitWords(WordList &words, const char *ssa) const;
 
 		static const char *skipHeader(const char *ssa);
 
 	private:
-		Words::iterator addWord(Words &words, std::string &word,
-				Words::iterator pos) const;
+		WordList::iterator addWord(WordList &words, std::string &word,
+				WordList::iterator pos) const;
 
 	private:
 		bool m_rightToLeft;
-		size_t m_ngram;
 		std::set<uint32_t> m_wordDelimiters;
 };
 

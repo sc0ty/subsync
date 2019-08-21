@@ -1,4 +1,5 @@
 #include "speechrec.h"
+#include "text/utf8.h"
 #include "general/exception.h"
 #include <cstring>
 #include <cstdint>
@@ -202,7 +203,7 @@ void SpeechRecognition::parseUtterance()
 			const int pprob = ps_seg_prob(it, NULL, NULL, NULL);
 			const float prob = logmath_exp(ps_get_logmath(m_ps), pprob);
 
-			if (m_wordsCb && word.size() >= m_minLen && prob >= m_minProb)
+			if (m_wordsCb && Utf8::size(word) >= m_minLen && prob >= m_minProb)
 				m_wordsCb(Word(word, time + m_deltaTime, prob));
 		}
 	}

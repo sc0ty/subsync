@@ -1,5 +1,6 @@
 #include "subdec.h"
 #include "demux.h"
+#include "text/utf8.h"
 #include "general/scope.h"
 #include "general/exception.h"
 
@@ -123,25 +124,26 @@ bool SubtitleDec::feedOutput(AVSubtitle &sub, double duration)
 
 void SubtitleDec::feedWordsOutput(float beginTime, float endTime, const char *data)
 {
-	const auto words = m_ssaParser.splitWords(data);
+	SSAParser::WordList words;
+	size_t cps = m_ssaParser.splitWords(words, data);
+	cps += words.size() - 1;
+
 	if (!words.empty())
 	{
-		size_t cps = words.size();
-		for (const string &word : words)
-			cps += word.size();
-
 		const float ratio = (endTime - beginTime) / (float) cps;
 		float time = beginTime;
 
 		for (const string &word : words)
 		{
-			if (word.size() >= m_minWordLen)
+			const size_t wordSize = Utf8::size(word);
+
+			if (wordSize >= m_minWordLen)
 			{
-				const float wt = time + ratio * (float) (word.size() / 2);
+				const float wt = time + ratio * (float) (wordSize / 2);
 				m_wordsCb(Word(word, wt));
 			}
 
-			time += ratio * (float) (word.size() + 1);
+			time += ratio * (float) (wordSize + 1);
 		}
 	}
 }
@@ -179,7 +181,7 @@ void SubtitleDec::setEncoding(const string &encoding)
 	m_encoding = encoding;
 }
 
-void SubtitleDec::setMode(bool rightToLeft, size_t ngram)
+void SubtitleDec::setRightToLeft(bool rightToLeft)
 {
-	m_ssaParser.setMode(rightToLeft, ngram);
+	m_ssaParser.setRightToLeft(rightToLeft);
 }

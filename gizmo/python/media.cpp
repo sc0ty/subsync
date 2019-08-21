@@ -8,6 +8,7 @@
 #include "media/resampler.h"
 #include "media/avout.h"
 #include "media/speechrec.h"
+#include "text/ngrams.h"
 
 namespace py = pybind11;
 
@@ -42,8 +43,7 @@ void initMediaWrapper(py::module &m)
 	subDec.def(py::init<>());
 	subDec.def("setMinWordLen", &SubtitleDec::setMinWordLen);
 	subDec.def("setEncoding", &SubtitleDec::setEncoding);
-	subDec.def("setMode", &SubtitleDec::setMode,
-			py::arg("rightToLeft") = false, py::arg("ngram") = 0);
+	subDec.def("setRightToLeft", &SubtitleDec::setRightToLeft);
 	subDec.def("connectSubsCallback", &SubtitleDec::connectSubsCallback);
 	subDec.def("connectWordsCallback", &SubtitleDec::connectWordsCallback);
 
@@ -75,4 +75,12 @@ void initMediaWrapper(py::module &m)
 	speechRec.def("setMinWordLen", &SpeechRecognition::setMinWordLen);
 	speechRec.def("connectWordsCallback",
 			&SpeechRecognition::connectWordsCallback);
+
+	/*** class NgramSplitter ***/
+	py::class_<NgramSplitter, shared_ptr<NgramSplitter>>
+		ngramSplitter(m, "NgramSplitter");
+	ngramSplitter.def(py::init<size_t>());
+	ngramSplitter.def("pushWord", &NgramSplitter::pushWord);
+	ngramSplitter.def("connectWordsCallback",
+			&NgramSplitter::connectWordsCallback);
 }

@@ -44,7 +44,7 @@ class SubtitleDec : public Decoder
 
 		void setMinWordLen(unsigned minLen);
 		void setEncoding(const std::string &encoding);
-		void setMode(bool rightToLeft, size_t ngram);
+		void setRightToLeft(bool rightToLeft=true);
 		void setWordDelimiters(const std::string &delimiters);
 
 	private:
