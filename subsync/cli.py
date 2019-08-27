@@ -202,7 +202,10 @@ class App(object):
 
     def printStats(self, status, endline=False):
         if pr.verbosity >= 1:
-            progress = 100 * min(max(status.progress, status.effort / settings().minEffort, 0), 1)
+            progress = status.progress
+            effort = settings().minEffort
+            if effort:
+                progress = min(max(progress, status.effort / effort, 0), 1)
 
             msg = '[+] synchronization {:3.0f}%: {} points'.format(progress, status.points)
             if pr.verbosity >= 2:
