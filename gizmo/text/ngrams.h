@@ -8,12 +8,13 @@ class NgramSplitter
 {
 	public:
 		NgramSplitter(size_t size);
-		void connectWordsCallback(WordsCallback callback);
+		void addWordsListener(WordsListener listener);
+		bool removeWordsListener(WordsListener listener);
 		void pushWord(const Word &word);
 
 	private:
 		size_t m_size;
-		WordsCallback m_wordsCb;
+		WordsNotifier m_wordsNotifier;
 };
 
 #endif

@@ -8,9 +8,14 @@ Translator::Translator(const Dictionary &dict) : m_dict(dict), m_minSim(1.0f)
 {
 }
 
-void Translator::connectWordsCallback(WordsCallback callback)
+void Translator::addWordsListener(WordsListener listener)
 {
-	m_wordsCb = callback;
+	m_wordsNotifier.addListener(listener);
+}
+
+bool Translator::removeWordsListener(WordsListener listener)
+{
+	return m_wordsNotifier.removeListener(listener);
 }
 
 void Translator::setMinWordsSim(float minSim)
@@ -34,7 +39,7 @@ void Translator::pushWord(const Word &word)
 			break;
 
 		for (auto &tr : it1->second)
-			m_wordsCb(Word(tr, word.time, word.duration, word.score*sim));
+			m_wordsNotifier.notify(Word(tr, word.time, word.duration, word.score*sim));
 
 		if (it1 == m_dict.begin())
 			break;
@@ -49,6 +54,6 @@ void Translator::pushWord(const Word &word)
 			break;
 
 		for (auto &tr : it2->second)
-			m_wordsCb(Word(tr, word.time, word.duration, word.score*sim));
+			m_wordsNotifier.notify(Word(tr, word.time, word.duration, word.score*sim));
 	}
 }

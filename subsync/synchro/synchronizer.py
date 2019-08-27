@@ -83,8 +83,8 @@ class Synchronizer(object):
         self.subPipeline = pipeline.createProducerPipeline(self.sub)
         self.subPipeline.connectEosCallback(self.onSubEos)
         self.subPipeline.connectErrorCallback(self.onSubError)
-        self.subPipeline.connectSubsCallback(self.subtitlesCollector.addSubtitle)
-        self.subPipeline.connectWordsCallback(self.correlator.pushSubWord)
+        self.subPipeline.addSubsListener(self.subtitlesCollector.addSubtitle)
+        self.subPipeline.addWordsListener(self.correlator.pushSubWord)
 
         if not runCb():
             return
@@ -93,7 +93,7 @@ class Synchronizer(object):
             self.dictionary = dictionary.loadDictionary(self.ref.lang, self.sub.lang, settings().minWordLen)
             self.translator = gizmo.Translator(self.dictionary)
             self.translator.setMinWordsSim(settings().minWordsSim)
-            self.translator.connectWordsCallback(self.correlator.pushRefWord)
+            self.translator.addWordsListener(self.correlator.pushRefWord)
             self.refWordsSink = self.translator.pushWord
 
         if not runCb():
@@ -104,7 +104,7 @@ class Synchronizer(object):
         for p in self.refPipelines:
             p.connectEosCallback(self.onRefEos)
             p.connectErrorCallback(self.onRefError)
-            p.connectWordsCallback(self.refWordsSink)
+            p.addWordsListener(self.refWordsSink)
 
         self.pipelines = [ self.subPipeline ] + self.refPipelines
 

@@ -13,12 +13,14 @@ class Translator
 
 		void pushWord(const Word &word);
 
-		void connectWordsCallback(WordsCallback m_wordsCb);
+		void addWordsListener(WordsListener listener);
+		bool removeWordsListener(WordsListener listener);
+
 		void setMinWordsSim(float minSim);
 
 	private:
 		const Dictionary &m_dict;
-		WordsCallback m_wordsCb;
+		WordsNotifier m_wordsNotifier;
 		float m_minSim;
 };
 

@@ -23,7 +23,9 @@ class SpeechRecognition : public AVOutput
 
 		void setParam(const std::string &key, const std::string &val);
 
-		void connectWordsCallback(WordsCallback callback);
+		void addWordsListener(WordsListener listener);
+		bool removeWordsListener(WordsListener listener);
+
 		void setMinWordProb(float minProb);
 		void setMinWordLen(unsigned minLen);
 
@@ -44,7 +46,7 @@ class SpeechRecognition : public AVOutput
 		double m_deltaTime;
 		double m_timeBase;
 
-		WordsCallback m_wordsCb;
+		WordsNotifier m_wordsNotifier;
 		float m_minProb;
 		unsigned m_minLen;
 };

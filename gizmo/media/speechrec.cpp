@@ -62,9 +62,14 @@ void SpeechRecognition::setParam(const string &key, const string &val)
 		.add("value", val);
 }
 
-void SpeechRecognition::connectWordsCallback(WordsCallback callback)
+void SpeechRecognition::addWordsListener(WordsListener listener)
 {
-	m_wordsCb = callback;
+	m_wordsNotifier.addListener(listener);
+}
+
+bool SpeechRecognition::removeWordsListener(WordsListener listener)
+{
+	return m_wordsNotifier.removeListener(listener);
 }
 
 void SpeechRecognition::setMinWordProb(float minProb)
@@ -203,8 +208,8 @@ void SpeechRecognition::parseUtterance()
 			const int pprob = ps_seg_prob(it, NULL, NULL, NULL);
 			const float prob = logmath_exp(ps_get_logmath(m_ps), pprob);
 
-			if (m_wordsCb && Utf8::size(word) >= m_minLen && prob >= m_minProb)
-				m_wordsCb(Word(word, time + m_deltaTime, 0.0f, prob));
+			if (Utf8::size(word) >= m_minLen && prob >= m_minProb)
+				m_wordsNotifier.notify(Word(word, time + m_deltaTime, 0.0f, prob));
 		}
 	}
 }

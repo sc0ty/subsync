@@ -44,8 +44,12 @@ void initMediaWrapper(py::module &m)
 	subDec.def("setMinWordLen", &SubtitleDec::setMinWordLen);
 	subDec.def("setEncoding", &SubtitleDec::setEncoding);
 	subDec.def("setRightToLeft", &SubtitleDec::setRightToLeft);
-	subDec.def("connectSubsCallback", &SubtitleDec::connectSubsCallback);
-	subDec.def("connectWordsCallback", &SubtitleDec::connectWordsCallback);
+	subDec.def("addSubsListener", &SubtitleDec::addSubsListener);
+	subDec.def("removeSubsListener", &SubtitleDec::removeSubsListener,
+			py::arg("listener") = nullptr);
+	subDec.def("addWordsListener", &SubtitleDec::addWordsListener);
+	subDec.def("removeWordsListener", &SubtitleDec::removeWordsListener,
+			py::arg("listener") = nullptr);
 
 	/*** class AudioDec ***/
 	py::class_<AudioDec, shared_ptr<AudioDec>> audioDec(m, "AudioDec", decoder);
@@ -73,14 +77,16 @@ void initMediaWrapper(py::module &m)
 	speechRec.def("setParam", &SpeechRecognition::setParam);
 	speechRec.def("setMinWordProb", &SpeechRecognition::setMinWordProb);
 	speechRec.def("setMinWordLen", &SpeechRecognition::setMinWordLen);
-	speechRec.def("connectWordsCallback",
-			&SpeechRecognition::connectWordsCallback);
+	speechRec.def("addWordsListener", &SpeechRecognition::addWordsListener);
+	speechRec.def("removeWordsListener", &SpeechRecognition::removeWordsListener,
+			py::arg("listener") = nullptr);
 
 	/*** class NgramSplitter ***/
 	py::class_<NgramSplitter, shared_ptr<NgramSplitter>>
 		ngramSplitter(m, "NgramSplitter");
 	ngramSplitter.def(py::init<size_t>());
 	ngramSplitter.def("pushWord", &NgramSplitter::pushWord);
-	ngramSplitter.def("connectWordsCallback",
-			&NgramSplitter::connectWordsCallback);
+	ngramSplitter.def("addWordsListener", &NgramSplitter::addWordsListener);
+	ngramSplitter.def("removeWordsListener", &NgramSplitter::removeWordsListener,
+			py::arg("listener") = nullptr);
 }

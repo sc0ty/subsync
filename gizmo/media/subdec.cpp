@@ -67,9 +67,6 @@ void SubtitleDec::stop()
 
 bool SubtitleDec::feed(const AVPacket *packet)
 {
-	if (!m_subsCb && !m_wordsCb)
-		return false;
-
 	AVSubtitle sub;
 	int gotSub;
 
@@ -110,12 +107,8 @@ bool SubtitleDec::feedOutput(AVSubtitle &sub, double duration)
 		if (text)
 		{
 			gotSub = true;
-
-			if (m_subsCb)
-				m_subsCb(begin, end, text);
-
-			if (m_wordsCb)
-				feedWordsOutput(begin, end, text);
+			m_subsNotifier.notify(begin, end, text);
+			feedWordsOutput(begin, end, text);
 		}
 	}
 
@@ -139,7 +132,7 @@ void SubtitleDec::feedWordsOutput(float beginTime, float endTime, const char *da
 			const float duration = ratio * (float) wordSize;
 
 			if (wordSize >= m_minWordLen)
-				m_wordsCb(Word(word, time, duration));
+				m_wordsNotifier.notify(Word(word, time, duration));
 
 			time += duration + ratio;
 		}
@@ -159,14 +152,24 @@ void SubtitleDec::discontinuity()
 {
 }
 
-void SubtitleDec::connectSubsCallback(SubsCallback callback)
+void SubtitleDec::addSubsListener(SubsListener listener)
 {
-	m_subsCb = callback;
+	m_subsNotifier.addListener(listener);
 }
 
-void SubtitleDec::connectWordsCallback(WordsCallback callback)
+bool SubtitleDec::removeSubsListener(SubsListener listener)
 {
-	m_wordsCb = callback;
+	return m_subsNotifier.removeListener(listener);
+}
+
+void SubtitleDec::addWordsListener(WordsListener listener)
+{
+	m_wordsNotifier.addListener(listener);
+}
+
+bool SubtitleDec::removeWordsListener(WordsListener listener)
+{
+	return m_wordsNotifier.removeListener(listener);
 }
 
 void SubtitleDec::setMinWordLen(unsigned minWordLen)

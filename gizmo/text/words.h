@@ -1,8 +1,10 @@
 #ifndef __WORDS_H__
 #define __WORDS_H__
 
+#include "general/notifier.h"
 #include <functional>
 #include <string>
+#include <vector>
 
 
 struct Word
@@ -22,7 +24,8 @@ struct Word
 };
 
 
-typedef std::function<void (const Word &)> WordsCallback;
+typedef std::function<void (const Word &)> WordsListener;
+typedef Notifier<const Word &> WordsNotifier;
 
 
 enum class WordId

@@ -92,7 +92,7 @@ class SubtitlePipeline(BasePipeline):
                 logger.info('switching to %i-gram for file "%s"', langInfo.ngrams, stream.path)
                 self.dec.setMinWordLen(langInfo.ngrams)
                 self.ngramSplitter = gizmo.NgramSplitter(langInfo.ngrams)
-                self.dec.connectWordsCallback(self.ngramSplitter.pushWord)
+                self.dec.addWordsListener(self.ngramSplitter.pushWord)
                 self.sink = self.ngramSplitter
 
         if stream.enc != None:
@@ -102,16 +102,22 @@ class SubtitlePipeline(BasePipeline):
 
     def destroy(self):
         super().destroy()
-        self.dec.connectWordsCallback(None)
-        self.dec.connectSubsCallback(None)
+        self.dec.removeWordsListener()
+        self.dec.removeSubsListener()
         if self.ngramSplitter:
-            self.ngramSplitter.connectWordsCallback(None)
+            self.ngramSplitter.removeWordsListener()
 
-    def connectWordsCallback(self, cb):
-        self.sink.connectWordsCallback(cb)
+    def addWordsListener(self, listener):
+        self.sink.addWordsListener(listener)
 
-    def connectSubsCallback(self, cb):
-        self.dec.connectSubsCallback(cb)
+    def removeWordsListener(self, listener=None):
+        return self.dec.removeWordsListener(listener)
+
+    def addSubsListener(self, listener):
+        self.dec.addSubsListener(listener)
+
+    def removeSubsListener(self, listener=None):
+        self.dec.removeSubsListener(listener)
 
 
 class SpeechPipeline(BasePipeline):
@@ -140,7 +146,7 @@ class SpeechPipeline(BasePipeline):
             logger.info('switching to %i-gram for audio "%s"', langInfo.ngrams, stream.path)
             self.speechRec.setMinWordLen(langInfo.ngrams)
             self.ngramSplitter = gizmo.NgramSplitter(langInfo.ngrams)
-            self.speechRec.connectWordsCallback(self.ngramSplitter.pushWord)
+            self.speechRec.addWordsListener(self.ngramSplitter.pushWord)
             self.sink = self.ngramSplitter
 
         self.resampler = gizmo.Resampler()
@@ -154,8 +160,8 @@ class SpeechPipeline(BasePipeline):
     def destroy(self):
         super().destroy()
         if self.ngramSplitter:
-            self.ngramSplitter.connectWordsCallback(None)
-        self.speechRec.connectWordsCallback(None)
+            self.ngramSplitter.removeWordsListener()
+        self.speechRec.removeWordsListener()
         self.resampler.connectFormatChangeCallback(None)
 
     def onAudioFormatChanged(self, inFormat, outFormat):
@@ -164,8 +170,11 @@ class SpeechPipeline(BasePipeline):
         logger.info('listening to channels: %s', channelsMap)
         self.resampler.setChannelMap(channelsMap.getMap())
 
-    def connectWordsCallback(self, cb):
-        self.sink.connectWordsCallback(cb)
+    def addWordsListener(self, listener):
+        self.sink.addWordsListener(listener)
+
+    def removeWordsListener(self, listener=None):
+        return self.sink.removeWordsListener(listener)
 
 
 def createProducerPipeline(stream):

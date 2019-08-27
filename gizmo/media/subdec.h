@@ -4,6 +4,7 @@
 #include "decoder.h"
 #include "text/words.h"
 #include "text/ssa.h"
+#include "general/notifier.h"
 #include <string>
 #include <functional>
 
@@ -21,7 +22,9 @@ class SubtitleDec : public Decoder
 				double /* startTime */,
 				double /* endTime */,
 				const char* /* text */ )>
-			SubsCallback;
+			SubsListener;
+
+		typedef Notifier<double, double, const char*> SubsNotifier;
 
 	public:
 		SubtitleDec();
@@ -39,8 +42,11 @@ class SubtitleDec : public Decoder
 		virtual void flush();
 		virtual void discontinuity();
 
-		void connectSubsCallback(SubsCallback callback);
-		void connectWordsCallback(WordsCallback callback);
+		void addSubsListener(SubsListener listener);
+		bool removeSubsListener(SubsListener listener);
+
+		void addWordsListener(WordsListener listener);
+		bool removeWordsListener(WordsListener listener);
 
 		void setMinWordLen(unsigned minLen);
 		void setEncoding(const std::string &encoding);
@@ -54,8 +60,8 @@ class SubtitleDec : public Decoder
 	private:
 		AVCodecContext *m_codecCtx;
 
-		SubsCallback m_subsCb;
-		WordsCallback m_wordsCb;
+		SubsNotifier m_subsNotifier;
+		WordsNotifier m_wordsNotifier;
 
 		SSAParser m_ssaParser;
 		unsigned m_minWordLen;
