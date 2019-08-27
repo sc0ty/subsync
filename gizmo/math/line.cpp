@@ -173,7 +173,7 @@ float Line::removeFurthestPoint(Points &points) const
 string Line::toString() const
 {
 	stringstream ss;
-	ss << fixed << setprecision(3) << a << "x" << showpos << b;
+	ss << fixed << setprecision(4) << a << "x" << setprecision(3) << showpos << b;
 	return ss.str();
 }
 
