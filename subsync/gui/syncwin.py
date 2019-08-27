@@ -63,8 +63,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.updateStatusStarted()
 
             while self.running and self.sync.isRunning():
-                self.updateStatus(self.sync.getStatus())
                 self.sleeper.sleep(0.5)
+                self.updateStatus(self.sync.getStatus())
         except Exception as err:
             logger.warning('%r', err, exc_info=True)
             self.onError('core', err)
