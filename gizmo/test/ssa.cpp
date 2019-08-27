@@ -4,100 +4,92 @@
 
 TEST_CASE("SSA Parser")
 {
-	SECTION("parsing SSA special sequences")
-	{
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ").splitWords(w, "abc{\\def}ghi");
-			REQUIRE( len == 6 );
-			REQUIRE( w.size() == 2 );
-			REQUIRE( w.front() == "abc" );
-			REQUIRE( w.back() == "ghi" );
-		}
+	SSAParser p = SSAParser(" ");
+	SSAParser::WordList w;
 
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ").splitWords(w, "abc{{\\c}ghi");
-			REQUIRE( len == 7 );
-			REQUIRE( w.size() == 2 );
-			REQUIRE( w.front() == "abc{" );
-			REQUIRE( w.back() == "ghi" );
-		}
+	SECTION("skipping braces with slash")
+	{
+		size_t len = p.splitWords(w, "abc{\\def}ghi{{\\c}jkl");
+		REQUIRE( len == 10 );
+		REQUIRE( w.size() == 3 );
+		REQUIRE( w.front() == "abc" );
+		w.pop_front();
+		REQUIRE( w.front() == "ghi{" );
+		REQUIRE( w.back() == "jkl" );
 	}
 
-	SECTION("SSA words split left-to-right")
+	SECTION("parse single word")
 	{
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ").splitWords(w, "abc");
-			REQUIRE( len == 3 );
-			REQUIRE( w.size() == 1 );
-			REQUIRE( w.front() == "abc" );
-		}
-
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ").splitWords(w, "abc def");
-			REQUIRE( len == 6 );
-			REQUIRE( w.size() == 2 );
-			REQUIRE( w.front() == "abc" );
-			REQUIRE( w.back() == "def" );
-		}
-
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ").splitWords(w, "abc\\Ndef");
-			REQUIRE( len == 6 );
-			REQUIRE( w.size() == 2 );
-			REQUIRE( w.front() == "abc" );
-			REQUIRE( w.back() == "def" );
-		}
-
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ").splitWords(w, "abc def ghi");
-			REQUIRE( len == 9 );
-			REQUIRE( w.size() == 3 );
-			REQUIRE( w.front() == "abc" );
-			w.pop_front();
-			REQUIRE( w.front() == "def" );
-			REQUIRE( w.back() == "ghi" );
-		}
-
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ").splitWords(w, "abc def\\Nghi");
-			REQUIRE( len == 9 );
-			REQUIRE( w.size() == 3 );
-			REQUIRE( w.front() == "abc" );
-			w.pop_front();
-			REQUIRE( w.front() == "def" );
-			REQUIRE( w.back() == "ghi" );
-		}
+		size_t len = p.splitWords(w, "abc");
+		REQUIRE( len == 3 );
+		REQUIRE( w.size() == 1 );
+		REQUIRE( w.front() == "abc" );
 	}
 
-	SECTION("SSA words split right-to-left")
+	SECTION("parse two words")
 	{
+		size_t len = p.splitWords(w, "abc def");
+		REQUIRE( len == 6 );
+		REQUIRE( w.size() == 2 );
+		REQUIRE( w.front() == "abc" );
+		REQUIRE( w.back() == "def" );
+	}
+
+	SECTION("parse three words")
+	{
+		size_t len = p.splitWords(w, "abc def ghi");
+		REQUIRE( len == 9 );
+		REQUIRE( w.size() == 3 );
+		REQUIRE( w.front() == "abc" );
+		w.pop_front();
+		REQUIRE( w.front() == "def" );
+		REQUIRE( w.back() == "ghi" );
+	}
+
+	SECTION("parse two lines")
+	{
+		size_t len = p.splitWords(w, "abc\\Ndef");
+		REQUIRE( len == 6 );
+		REQUIRE( w.size() == 2 );
+		REQUIRE( w.front() == "abc" );
+		REQUIRE( w.back() == "def" );
+	}
+
+	SECTION("parse multiple words in two lines")
+	{
+		size_t len = p.splitWords(w, "abc def\\Nghi");
+		REQUIRE( len == 9 );
+		REQUIRE( w.size() == 3 );
+		REQUIRE( w.front() == "abc" );
+		w.pop_front();
+		REQUIRE( w.front() == "def" );
+		REQUIRE( w.back() == "ghi" );
+	}
+
+	SECTION("right-to-left mode")
+	{
+		p.setRightToLeft(true);
+
+		SECTION("parse single word")
 		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ", true).splitWords(w, "abc");
+			size_t len = p.splitWords(w, "abc");
 			REQUIRE( len == 3 );
 			REQUIRE( w.size() == 1 );
 			REQUIRE( w.front() == "cba" );
 		}
 
+		SECTION("parse two words")
 		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ", true).splitWords(w, "abc def");
+			size_t len = p.splitWords(w, "abc def");
 			REQUIRE( len == 6 );
 			REQUIRE( w.size() == 2 );
 			REQUIRE( w.front() == "fed" );
 			REQUIRE( w.back() == "cba" );
 		}
 
+		SECTION("parse two lines")
 		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ", true).splitWords(w, "abc\\Ndef");
+			size_t len = p.splitWords(w, "abc\\Ndef");
 			REQUIRE( len == 6 );
 			REQUIRE( w.size() == 2 );
 			REQUIRE( w.front() == "cba" );
@@ -105,20 +97,9 @@ TEST_CASE("SSA Parser")
 			REQUIRE( w.back() == "fed" );
 		}
 
+		SECTION("parse multiple words in two lines")
 		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ", true).splitWords(w, "abc\\Ndef ghi");
-			REQUIRE( len == 9 );
-			REQUIRE( w.size() == 3 );
-			REQUIRE( w.front() == "cba" );
-			w.pop_front();
-			REQUIRE( w.front() == "ihg" );
-			REQUIRE( w.back() == "fed" );
-		}
-
-		{
-			SSAParser::WordList w;
-			size_t len = SSAParser(" ", true).splitWords(w, "abc def\\Nghi");
+			size_t len = p.splitWords(w, "abc def\\Nghi");
 			REQUIRE( len == 9 );
 			REQUIRE( w.size() == 3 );
 			REQUIRE( w.front() == "fed" );
@@ -126,5 +107,6 @@ TEST_CASE("SSA Parser")
 			REQUIRE( w.front() == "cba" );
 			REQUIRE( w.back() == "ihg" );
 		}
+
 	}
 }

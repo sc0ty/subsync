@@ -24,11 +24,13 @@ SOURCES = \
 		  core.cpp \
 		  utf8.cpp \
 		  ssa.cpp \
+		  ngrams.cpp \
 		  line.cpp \
 		  linefinder.cpp \
 		  ../text/words.cpp \
 		  ../text/utf8.cpp \
 		  ../text/ssa.cpp \
+		  ../text/ngrams.cpp \
 		  ../math/point.cpp \
 		  ../math/line.cpp \
 		  ../math/linefinder.cpp \
@@ -39,9 +41,11 @@ HEADERS = \
 		  ../text/words.h \
 		  ../text/utf8.h \
 		  ../text/ssa.h \
+		  ../text/ngrams.h \
 		  ../math/point.h \
 		  ../math/line.h \
 		  ../math/linefinder.h \
+		  ../general/notifier.h \
 
 OBJDIR = obj/test
 
