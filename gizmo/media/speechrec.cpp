@@ -204,7 +204,7 @@ void SpeechRecognition::parseUtterance()
 			const float prob = logmath_exp(ps_get_logmath(m_ps), pprob);
 
 			if (m_wordsCb && Utf8::size(word) >= m_minLen && prob >= m_minProb)
-				m_wordsCb(Word(word, time + m_deltaTime, prob));
+				m_wordsCb(Word(word, time + m_deltaTime, 0.0f, prob));
 		}
 	}
 }

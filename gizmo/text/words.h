@@ -9,13 +9,16 @@ struct Word
 {
 	std::string text;
 	float time;
+	float duration;
 	float score;
 
 	Word();
-	Word(float time, float score);
-	Word(const std::string &text, float time, float score=1.0f);
+	Word(float time, float duration, float score);
+	Word(const std::string &text, float time, float duration=0.0f,
+			float score=1.0f);
 
 	bool operator< (const Word &w) const;
+	std::string toString() const;
 };
 
 

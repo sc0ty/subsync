@@ -136,14 +136,12 @@ void SubtitleDec::feedWordsOutput(float beginTime, float endTime, const char *da
 		for (const string &word : words)
 		{
 			const size_t wordSize = Utf8::size(word);
+			const float duration = ratio * (float) wordSize;
 
 			if (wordSize >= m_minWordLen)
-			{
-				const float wt = time + ratio * (float) (wordSize / 2);
-				m_wordsCb(Word(word, wt));
-			}
+				m_wordsCb(Word(word, time, duration));
 
-			time += ratio * (float) (wordSize + 1);
+			time += duration + ratio;
 		}
 	}
 }

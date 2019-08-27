@@ -134,8 +134,8 @@ bool Correlator::addSubtitle(const Word &sub)
 {
 	m_subs.insert(sub);
 
-	auto first = m_refs.lower_bound(Word(sub.time - m_windowSize, 0.0f));
-	auto last  = m_refs.upper_bound(Word(sub.time + m_windowSize, 1.0f));
+	auto first = m_refs.lower_bound(Word(sub.time - m_windowSize, 0.0f, 0.0f));
+	auto last  = m_refs.upper_bound(Word(sub.time + m_windowSize, 0.0f, 1.0f));
 	if (first == m_refs.end())
 		first = m_refs.begin();
 
@@ -157,8 +157,8 @@ bool Correlator::addReference(const Word &ref)
 {
 	m_refs.insert(ref);
 
-	auto first = m_subs.lower_bound(Word(ref.time - m_windowSize, 0.0f));
-	auto last  = m_subs.upper_bound(Word(ref.time + m_windowSize, 1.0f));
+	auto first = m_subs.lower_bound(Word(ref.time - m_windowSize, 0.0f, 0.0f));
+	auto last  = m_subs.upper_bound(Word(ref.time + m_windowSize, 0.0f, 1.0f));
 	if (first == m_subs.end())
 		first = m_subs.begin();
 

@@ -26,5 +26,6 @@ void initTranslatorWrapper(py::module &m)
 	py::class_<Word> word(m, "Word");
 	word.def_readwrite("text", &Word::text);
 	word.def_readwrite("time", &Word::time);
+	word.def_readwrite("duration", &Word::duration);
 	word.def_readwrite("score", &Word::score);
 }

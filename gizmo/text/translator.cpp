@@ -34,7 +34,7 @@ void Translator::pushWord(const Word &word)
 			break;
 
 		for (auto &tr : it1->second)
-			m_wordsCb(Word(tr, word.time, word.score*sim));
+			m_wordsCb(Word(tr, word.time, word.duration, word.score*sim));
 
 		if (it1 == m_dict.begin())
 			break;
@@ -49,6 +49,6 @@ void Translator::pushWord(const Word &word)
 			break;
 
 		for (auto &tr : it2->second)
-			m_wordsCb(Word(tr, word.time, word.score*sim));
+			m_wordsCb(Word(tr, word.time, word.duration, word.score*sim));
 	}
 }

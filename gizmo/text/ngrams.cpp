@@ -19,23 +19,28 @@ void NgramSplitter::pushWord(const Word &word)
 {
 	if (m_wordsCb)
 	{
-		Utf8::iterator beg(word.text);
-		Utf8::iterator end = beg;
+		const size_t wordSize = Utf8::size(word.text);
 
-		size_t cps;
-		for (cps = 0; cps < m_size && *end; cps++)
-			++end;
-
-		if (cps >= m_size)
+		if (wordSize >= m_size)
 		{
+			Utf8::iterator beg(word.text);
+			Utf8::iterator end = beg;
+			end += m_size;
+
+			float time = word.time;
+			const float delta = word.duration / (float) wordSize;
+			const float duration = delta * (float) m_size;
+
 			while (true)
 			{
-				m_wordsCb(Word(Utf8::substr(beg, end), word.time, word.score));
+				m_wordsCb(Word(Utf8::substr(beg, end), time, duration, word.score));
+
 				if (!*end)
 					break;
 
 				++beg;
 				++end;
+				time += delta;
 			}
 		}
 	}
