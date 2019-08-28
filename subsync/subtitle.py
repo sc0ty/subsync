@@ -13,16 +13,24 @@ logger = logging.getLogger(__name__)
 class Subtitles(pysubs2.SSAFile):
     def __init__(self):
         super().__init__()
-        self.out = None
+
+    def setHeader(self, header):
+        s = super().from_string(header)
+        self.aegisub_project = s.aegisub_project
+        self.info = s.info
+        self.styles = s.styles
 
     def add(self, begin, end, text):
-        entry = parseLine(text)
-        event = pysubs2.SSAEvent(
-                type = 'Dialogue',
-                start = begin * 1000.0,
-                end = end * 1000.0,
-                **entry)
-        self.insert(bisect.bisect_left(self, event), event)
+        if text.startswith('[Script Info]'):
+            self.setHeader(text)
+        else:
+            entry = parseLine(text)
+            event = pysubs2.SSAEvent(
+                    type = 'Dialogue',
+                    start = begin * 1000.0,
+                    end = end * 1000.0,
+                    **entry)
+            self.insert(bisect.bisect_left(self, event), event)
 
     def synchronize(self, formula):
         res = copy.deepcopy(self)
@@ -103,6 +111,7 @@ def parseLine(text):
     fields = text.split(',', 8)
     if len(fields) == 9:
         entry = {
+            'layer':   fields[0],
             'style':   fields[2],
             'name':    fields[3],
             'marginl': fields[4],

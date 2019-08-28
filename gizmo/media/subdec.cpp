@@ -57,6 +57,13 @@ void SubtitleDec::start(const AVStream *stream)
 	if (res < 0)
 		throw EXCEPTION_FFMPEG("can't open subtitle stream", res)
 			.module("SubtitleDec", "avcodec_open2");
+
+	if (m_codecCtx->subtitle_header && m_codecCtx->subtitle_header_size)
+	{
+		const string header((const char *) m_codecCtx->subtitle_header,
+				m_codecCtx->subtitle_header_size);
+		m_subsNotifier.notify(0.0, 0.0, header.c_str());
+	}
 }
 
 void SubtitleDec::stop()
