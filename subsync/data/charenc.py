@@ -16,8 +16,10 @@ charEncodings = (
         ("Windows-1258",     "Vietnamese"                     ),
         ("Windows-874",      "Thai"                           ),
 
+        ("ISO-8859-1",       "Latin-1"                        ),
         ("ISO-8859-2",       "Eastern European Latin-2"       ),
         ("ISO-8859-3",       "Esperanto Latin-3"              ),
+        ("ISO-8859-5",       "Latin-4"),
         ("ISO-8859-6",       "Arabic"                         ),
         ("ISO-8859-7",       "Greek"                          ),
         ("ISO-8859-8",       "Hebrew"                         ),
@@ -31,7 +33,6 @@ charEncodings = (
         ("ISO-2022-CN-EXT",  "Simplified Chinese"             ),
         ("ISO-2022-JP-2",    "Japanese"                       ),
         ("ISO-2022-KR",      "Korean"                         ),
-        ("ISO-2022-TW",      "Traditional Chinese Unix"       ),
 
         ("IBM850",           "Western European"               ),
         ("KOI8-R",           "Russian"                        ),
@@ -39,6 +40,7 @@ charEncodings = (
         ("EUC-CN",           "Simplified Chinese Unix"        ),
         ("EUC-JP",           "Japanese Unix"                  ),
         ("Shift_JIS",        "Japanese"                       ),
+        ("CP932",            "Japanese"                       ),
         ("CP949",            "Korean"                         ),
         ("Big5",             "Traditional Chinese"            ),
         ("Big5-HKSCS",       "Hong-Kong Supplementary"        ),
