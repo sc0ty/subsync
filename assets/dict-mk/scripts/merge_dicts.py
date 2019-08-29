@@ -13,7 +13,7 @@ multi_banner = '''
 def make_dict(dst, srcs, minkeys=1):
     dicts = []
     for src in srcs:
-        print('Reading {}'.format(src))
+        print('merge_dicts: Reading {}'.format(src))
         d = Dictionary(src)
         dicts.append(d)
 
@@ -39,10 +39,10 @@ def make_dict(dst, srcs, minkeys=1):
     res.validate()
 
     if len(res) >= minkeys:
-        print('Dict {} writing {}'.format(res.get_name(), dst))
+        print('merge_dicts: Dict {} writing {}'.format(res.get_name(), dst))
         res.save(dst)
     else:
-        print('Dict {} got only {} keys, SKIPPING'.format(res.get_name(), len(res)))
+        print('merge_dicts: Dict {} got only {} keys, SKIPPING'.format(res.get_name(), len(res)))
 
 
 def find_dicts(name, dirs):
@@ -63,7 +63,7 @@ def version_to_str(version):
 
 if __name__ == "__main__":
     if len(sys.argv) <= 3:
-        print('Use: {} SRC_DIR1 [SRC_DIR2] [SRC_DIR3...] DST_DIR MIN_KEYS'.format(sys.argv[0]))
+        print('merge_dicts: Use: {} SRC_DIR1 [SRC_DIR2] [SRC_DIR3...] DST_DIR MIN_KEYS'.format(sys.argv[0]))
         exit(1)
 
     srcdirs = sys.argv[1:-2]

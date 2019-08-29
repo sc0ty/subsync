@@ -1,5 +1,6 @@
 WIKI_TEMP_DIR = $(TEMP_DIR)/wiktionary
 WIKI_PART_DIR = $(PART_DIR)/wiktionary
+PARTS += $(WIKI_PART_DIR)
 
 WIKI_LANGS = \
 			 bg ca cs da de el en eo es et eu fi fr gl he hr hu id io is it ka \
@@ -8,7 +9,10 @@ WIKI_LANGS = \
 
 WIKI_TRIANGLES = \
 			  ar_en_ku \
+			  ar_en_pl \
 			  en_no_sv \
+			  en_ru_zh \
+			  en_fr_zh \
 
 wiki_lang = $(firstword $(subst ., ,$(notdir $1)))
 wiki_triangle_langs = $(subst _, ,$(patsubst $(WIKI_TEMP_DIR)/%.3,%,$1))
@@ -27,7 +31,7 @@ wiktionary: $(WIKI_2) $(WIKI_3)
 	@mkdir -p $(WIKI_PART_DIR)
 	$(SCRIPTS_DIR)/wiki_convert.py $(WIKI_TEMP_DIR) $(WIKI_PART_DIR) $(DICT_VERSION)
 
-$(WIKI_BZ2): %.xml.bz2:
+$(WIKI_BZ2):
 	$(eval lang := $(call wiki_lang,$@))
 	@mkdir -p $(WIKI_TEMP_DIR)
 	wget -nv -O $@ http://dumps.wikimedia.org/$(lang)wiktionary/latest/$(lang)wiktionary-latest-pages-meta-current.xml.bz2

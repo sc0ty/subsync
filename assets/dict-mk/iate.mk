@@ -1,5 +1,6 @@
 IATE_TEMP_DIR = $(TEMP_DIR)/iate
 IATE_PART_DIR = $(PART_DIR)/iate
+PARTS += $(IATE_PART_DIR)
 
 IATE_GZ = $(IATE_TEMP_DIR)/iate.xml.gz
 IATE_XML = $(IATE_TEMP_DIR)/iate.xml

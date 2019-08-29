@@ -3,6 +3,15 @@
 import os
 
 
+def pprint(*args, **kwargs):
+    import sys
+    try:
+        prefix = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ':'
+    except:
+        prefix = ''
+    print(prefix, *args, **kwargs)
+
+
 class Dictionary(object):
     def __init__(self, path=None, lang1=None, lang2=None, version=None, banner=None):
         self.d = {}
@@ -41,10 +50,10 @@ class Dictionary(object):
                     if len(entrys) >= 2:
                         key = entrys[0]
                         if key in self.d:
-                            print('duplicated key: "' + key + '"')
+                            pprint('duplicated key: "' + key + '"')
                         self.add(key, entrys[1:])
                     else:
-                        print('invalid entry: "' + line + '"')
+                        pprint('invalid entry: "' + line + '"')
 
     def save(self, path):
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -60,7 +69,7 @@ class Dictionary(object):
                 if len(vals) > 0:
                     fp.write(key + '|' + '|'.join(sorted(vals)) + '\n')
                 else:
-                    print('empty translation: "' + key + '" => ()')
+                    pprint('empty translation: "' + key + '" => ()')
 
     def get_name(self):
         if self.lang1 and self.lang2:
@@ -78,15 +87,15 @@ class Dictionary(object):
         err = 0
         for key in self.d:
             if not key or len(key.split()) != 1:
-                print('invalid key: "' + key + '"')
+                pprint('invalid key: "' + key + '"')
                 err += 1
             if len(self.d[key]) == 0:
-                print('no values for key: "' + key + '"')
+                pprint('no values for key: "' + key + '"')
                 err += 1
             for val in self.d[key]:
                 valsNo += 1
                 if len(key.split()) != 1:
-                    print('invalid value for key "' + key + '": "' + val + '"')
+                    pprint('invalid value for key "' + key + '": "' + val + '"')
                     err += 1
         if summary:
             if err == 0:

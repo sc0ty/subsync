@@ -28,27 +28,36 @@ def get_dict(lang1, lang2, version):
         return None
 
 
+def dict_add(d, key, val):
+    if ' ' in key:
+        for k in key.split():
+            k = k.strip()
+            if len(k) >= 5:
+                dict_add(d, k, val)
+    elif ' ' in val:
+        vals = [ v.strip() for v in val.split() if len(v.strip()) >= 5 ]
+        dict_add(d, key, vals)
+    else:
+        d.add(key, val)
+
+
 def read_dict(path, no=2):
-    print('Reading {}'.format(path))
+    print('wiki_convert: wiki_extract: Reading {}'.format(path))
     with open(path, 'rt', encoding='utf8') as fp:
         for line in fp:
             ent = line.split('\t', no*2+1)
             items = zip(ent[0:no*2:2], ent[1:no*2:2])
             for lang1, val1 in items:
                 for lang2, val2 in items:
-                    if lang1 != lang2 and ' ' not in val1 and ' ' not in val2:
-                        if lang1 > lang2:
-                            lang1, lang2 = lang2, lang1
-                            val1, val2 = val2, val1
-
+                    if lang1 != lang2 and val1 and val2:
                         d = get_dict(lang1, lang2, version)
                         if d is not None:
-                            d.add(val1, val2)
+                            dict_add(d, val1, val2)
 
 
 if __name__ == "__main__":
     if len(sys.argv) <= 3:
-        print('Use: {} SRC_DIR DST_DIR VERSION [MIN_KEYS]'.format(sys.argv[0]))
+        print('wiki_convert: wiki_extract: Use: {} SRC_DIR DST_DIR VERSION [MIN_KEYS]'.format(sys.argv[0]))
         exit(1)
 
     srcdir = sys.argv[1]
@@ -80,7 +89,7 @@ if __name__ == "__main__":
 
         if len(d) >= minkeys:
             dstpath = os.path.join(dstdir, d.get_name())
-            print('Dict {} writing {}'.format(d.get_name(), dstpath))
+            print('wiki_convert: wiki_extract: Dict {} writing {}'.format(d.get_name(), dstpath))
             d.save(dstpath)
         else:
-            print('Dict {} got only {} keys, SKIPPING'.format(d.get_name(), len(d)))
+            print('wiki_convert: wiki_extract: Dict {} got only {} keys, SKIPPING'.format(d.get_name(), len(d)))

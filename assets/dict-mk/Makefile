@@ -2,6 +2,7 @@ DICTS_DIR = ../dict
 TEMP_DIR = temp
 PART_DIR = part
 SCRIPTS_DIR = scripts
+PARTS =
 
 DICT_VERSION ?= 1.1.0
 DICT_MINKEYS ?= 10000
@@ -17,7 +18,7 @@ convert:
 
 merge: convert
 	@mkdir -p $(DICTS_DIR)
-	$(SCRIPTS_DIR)/merge_dicts.py $(PART_DIR)/wiktionary $(PART_DIR)/iate $(PART_DIR)/svob $(DICTS_DIR) $(DICT_MINKEYS)
+	$(SCRIPTS_DIR)/merge_dicts.py $(PARTS) $(DICTS_DIR) $(DICT_MINKEYS)
 
 clean:
 	$(RM) -r $(DICTS_DIR)
@@ -28,5 +29,7 @@ clean:
 .PHONY: all download extract convert merge clean
 
 include wiktionary.mk
+include wikdict.mk
 include iate.mk
 include svobodneslovniky.mk
+include mdbg.mk

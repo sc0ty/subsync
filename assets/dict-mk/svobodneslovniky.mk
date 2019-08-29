@@ -1,5 +1,6 @@
 SVOB_TEMP_DIR = $(TEMP_DIR)/svob
 SVOB_PART_DIR = $(PART_DIR)/svob
+PARTS += $(SVOB_PART_DIR)
 
 SVOB_BZ2 = $(SVOB_TEMP_DIR)/svob.txt.bz2
 SVOB_TXT = $(SVOB_TEMP_DIR)/svob.txt

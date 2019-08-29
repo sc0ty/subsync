@@ -12,9 +12,22 @@ banner = '''
 '''.strip()
 
 
+def dict_add(d, key, val):
+    if ' ' in key:
+        for k in key.split():
+            k = k.strip()
+            if len(k) >= 5:
+                dict_add(d, k, val)
+    elif ' ' in val:
+        vals = [ v.strip() for v in val.split() if len(v.strip()) >= 5 ]
+        dict_add(d, key, vals)
+    else:
+        d.add(key, val)
+
+
 if __name__ == "__main__":
     if len(sys.argv) <= 3:
-        print('Use: {} SRC_FILE DST_DIR VERSION'.format(sys.argv[0]))
+        print('svob_convert: Use: {} SRC_FILE DST_DIR VERSION'.format(sys.argv[0]))
         exit(1)
 
     srcpath = sys.argv[1]
@@ -22,7 +35,7 @@ if __name__ == "__main__":
     version = sys.argv[3]
     minkeys = int(sys.argv[4]) if len(sys.argv) > 4 else 1
 
-    print('Reading {}'.format(srcpath))
+    print('svob_convert: Reading {}'.format(srcpath))
 
     d = Dictionary(lang1='cze', lang2='eng', version=version, banner=banner)
 
@@ -34,14 +47,14 @@ if __name__ == "__main__":
                     val = ent[0]
                     key = ent[1]
 
-                    if key and val and ' ' not in key and ' ' not in val:
-                        d.add(key, val)
+                    if key and val:
+                        dict_add(d, key, val)
 
     d.validate()
 
     if len(d) >= minkeys:
         dstpath = os.path.join(dstdir, d.get_name())
-        print('Dict {} writing {}'.format(d.get_name(), dstpath))
+        print('svob_convert: Dict {} writing {}'.format(d.get_name(), dstpath))
         d.save(dstpath)
     else:
-        print('Dict {} got only {} keys, SKIPPING'.format(d.get_name(), len(d)))
+        print('svob_convert: Dict {} got only {} keys, SKIPPING'.format(d.get_name(), len(d)))

@@ -72,13 +72,26 @@ class Parser(object):
             terms.add(self.term)
 
 
+def dict_add(d, key, val):
+    if ' ' in key:
+        for k in key.split():
+            k = k.strip()
+            if len(k) >= 5:
+                dict_add(d, k, val)
+    elif ' ' in val:
+        vals = [ v.strip() for v in val.split() if len(v.strip()) >= 5 ]
+        dict_add(d, key, vals)
+    else:
+        d.add(key, val)
+
+
 def gen_dict(terms, lang1, lang2, version):
     d = Dictionary(lang1=lang1, lang2=lang2, version=version, banner=banner)
     for term in terms.values():
         if lang1 in term and lang2 in term:
             val = term[lang2]
             for key in term[lang1]:
-                d.add(key, val)
+                dict_add(d, key, val)
     return d
 
 
@@ -91,7 +104,7 @@ def iter_langs(langs):
 
 if __name__ == "__main__":
     if len(sys.argv) <= 3:
-        print('Use: {} SRC_PATH DST_DIR VERSION [MIN_KEYS]'.format(sys.argv[0]))
+        print('iate_convert: Use: {} SRC_PATH DST_DIR VERSION [MIN_KEYS]'.format(sys.argv[0]))
         exit(1)
 
     srcpath = sys.argv[1]
@@ -99,7 +112,7 @@ if __name__ == "__main__":
     version = sys.argv[3]
     minkeys = int(sys.argv[4]) if len(sys.argv) > 4 else 1
 
-    print('Reading {}'.format(srcpath))
+    print('iate_convert: Reading {}'.format(srcpath))
     p = Parser(srcpath)
 
     for lang1, lang2 in iter_langs(sorted(p.langs)):
@@ -109,11 +122,11 @@ if __name__ == "__main__":
 
             if len(d) >= minkeys:
                 dstpath = os.path.join(dstdir, d.get_name())
-                print('Dict {} writing {}'.format(d.get_name(), dstpath))
+                print('iate_convert: Dict {} writing {}'.format(d.get_name(), dstpath))
                 d.save(dstpath)
             else:
-                print('Dict {} got only {} keys, SKIPPING'.format(d.get_name(), len(d)))
+                print('iate_convert: Dict {} got only {} keys, SKIPPING'.format(d.get_name(), len(d)))
 
         except Exception as e:
-            print('[!] error: ' + str(e))
+            print('iate_convert: [!] error: ' + str(e))
 
