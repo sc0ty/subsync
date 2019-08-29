@@ -1,9 +1,11 @@
 import wx
+import wx.lib.mixins.listctrl
 
 
-class StreamList(wx.ListCtrl):
+class StreamList(wx.ListCtrl, wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        wx.ListCtrl.__init__(self, *args, **kwargs)
+        wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin.__init__(self)
         self.InsertColumn(0, _('id'), format=wx.LIST_FORMAT_RIGHT, width=40)
         self.InsertColumn(1, _('language'), width=80)
         self.InsertColumn(2, _('type'), width=120)
