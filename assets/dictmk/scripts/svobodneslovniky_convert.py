@@ -8,7 +8,7 @@ from dict_tools import Dictionary
 banner = '''
 # Data extracted from Free English-Czech Dictionary https://www.svobodneslovniky.cz
 # Copyright (c)  2016–2019  xHire <xhire@svobodneslovniky.cz>.
-# Licence: GNU/FDL 1.1
+# License: GNU/FDL 1.1
 '''.strip()
 
 

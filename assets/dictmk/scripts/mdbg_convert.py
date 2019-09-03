@@ -7,7 +7,8 @@ from dict_tools import Dictionary
 
 
 banner = '''
-# TODO: Add banner for https://www.mdbg.net
+# Data extracted from CC-CEDICT https://www.mdbg.net
+# License: Creative Commons Attribution-ShareAlike 4.0 International License
 '''.strip()
 
 if __name__ == "__main__":

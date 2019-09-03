@@ -9,6 +9,7 @@ from dict_tools import Dictionary
 
 banner = '''
 # Data extracted from Wiktionary https://www.wiktionary.org
+# License: Creative Commons Attribution-Share-Alike 3.0 License
 '''.strip()
 
 
