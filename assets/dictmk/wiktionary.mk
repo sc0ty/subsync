@@ -13,6 +13,9 @@ WIKI_TRIANGLES = \
 			  en_no_sv \
 			  en_ru_zh \
 			  en_fr_zh \
+			  en_pt_zh \
+			  pt_ru_zh \
+			  fr_pt_zh \
 
 wiki_lang = $(firstword $(subst ., ,$(notdir $1)))
 wiki_triangle_langs = $(subst _, ,$(patsubst $(WIKI_TEMP_DIR)/%.3,%,$1))
