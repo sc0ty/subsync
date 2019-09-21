@@ -1,6 +1,6 @@
 SCRIPTS_DIR = scripts
 
-URL ?= https://github.com/sc0ty/subsync/releases/download/
+URL ?= https://github.com/sc0ty/subsync/releases/download/assets/
 URL_LOCAL ?= http://localhost:8000/assets/
 
 DICT_DIR = dict
