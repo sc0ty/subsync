@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, ChainMap
 
 
 LanguageInfo = namedtuple('LanguageInfo', [
@@ -7,12 +7,13 @@ LanguageInfo = namedtuple('LanguageInfo', [
     'name',
     'encodings',
     'rightToLeft',
-    'ngrams'
+    'ngrams',
+    'extraCodes',
 ])
 
 
-def mkLanguage(code3=None, code2=None, name=None, encodings=[], rightToLeft=False, ngrams=None):
-    return LanguageInfo(code3, code2, name, encodings, rightToLeft, ngrams)
+def mkLanguage(code3=None, code2=None, name=None, encodings=[], rightToLeft=False, ngrams=None, extraCodes=None):
+    return LanguageInfo(code3, code2, name, encodings, rightToLeft, ngrams, extraCodes)
 
 
 languages = [
@@ -21,7 +22,7 @@ languages = [
         mkLanguage( 'bel', 'be', _('Belarusian'), ['ISO-8859-5'] ),
         mkLanguage( 'bul', 'bg', _('Bulgarian'), ['Windows-1251', 'ISO-8859-5'] ),
         mkLanguage( 'cat', 'ca', _('Catalan'), ['Windows-1252', 'ISO-8859-1'] ),
-        mkLanguage( 'chi', 'zh', _('Chinese'), ['GB18030'], ngrams=2 ),
+        mkLanguage( 'chi', 'zh', _('Chinese'), ['GB18030'], ngrams=2, extraCodes=[ 'cht', 'chs', 'cmn' ] ),
         mkLanguage( 'cze', 'cs', _('Czech'), ['Windows-1250', 'ISO-8859-2'] ),
         mkLanguage( 'dan', 'da', _('Danish'), ['Windows-1252', 'ISO-8859-1'] ),
         mkLanguage( 'dut', 'nl', _('Dutch'), ['Windows-1252', 'ISO-8859-1'] ),
@@ -67,6 +68,7 @@ codes3 = { x.code3: x for x in languages }
 
 codes2 = { x.code2: x for x in languages }
 
+extraCodes = ChainMap(*[ { k: l for k in l.extraCodes } for l in languages if l.extraCodes ])
 
 def get(code=None, code2=None, code3=None, **kwargs):
     if code3 and code3 in codes3:
@@ -78,6 +80,8 @@ def get(code=None, code2=None, code3=None, **kwargs):
             return codes3[code]
         if code in codes2:
             return codes2[code]
+        if code in extraCodes:
+            return extraCodes[code]
     return mkLanguage(**kwargs)
 
 
