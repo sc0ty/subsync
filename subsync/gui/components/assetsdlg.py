@@ -114,7 +114,7 @@ def askForLangSelection(parent, tasks):
             dlg.ShowCheckBox(_('don\'t show this message again'))
             res = dlg.ShowModal() == wx.ID_YES
             if res and dlg.IsCheckBoxChecked():
-                settings().showLanguageNotSelectedPopup = False
+                settings().set(showLanguageNotSelectedPopup=False)
                 settings().save()
             return res
 

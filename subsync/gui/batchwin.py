@@ -173,8 +173,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                     sort = dlg.ShowModal() == wx.ID_YES
 
                     if dlg.IsCheckBoxChecked():
-                        settings().showBatchDropTargetPopup = False
-                        settings().batchSortFiles = sort
+                        settings().set(showBatchDropTargetPopup=False, batchSortFiles=sort)
                         settings().save()
 
             self.addFiles(col, paths, index, sort=sort)

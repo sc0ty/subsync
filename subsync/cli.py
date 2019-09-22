@@ -112,8 +112,8 @@ class App(object):
         pr.verbosity = verbosity
         self.assetsDownloader = AssetsDownloader(offline)
 
-    def runTasks(self, tasks):
-        for task in tasks:
+    def runTasks(self):
+        for task in settings().tasks:
             try:
                 pr.println(1, '[*] starting synchronization {}'.format(task.sub.path))
                 pr.println(2, '[+] sub: {}'.format(task.sub))

@@ -7,36 +7,58 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+persistent = {
+        'language': None,
+        'maxPointDist': 2.0,
+        'minPointsNo': 20,
+        'appendLangCode': True,
+        'outputCharEnc': 'UTF-8',
+        'windowSize': 30.0 * 60.0,
+        'minWordProb': 0.3,
+        'jobsNo': None,
+        'minWordLen': 5,
+        'minCorrelation': 0.9999,
+        'minWordsSim': 0.6,
+        'minEffort': 0.5,
+        'lastdir': '',
+        'refsCache': True,
+        'autoUpdate': True,
+        'askForUpdate': True,
+        'showLanguageNotSelectedPopup': True,
+        'showBatchDropTargetPopup': True,
+        'batchSortFiles': False,
+        'debugOptions': False,
+        'logLevel': logging.WARNING,
+        'logFile': None,
+        'logBlacklist': None,
+        }
+
+
+volatile = {
+        'cli': False,
+        'mode': None,
+        'tasks': None,
+        'verbose': 1,
+        'exitWhenDone': False,
+        'dumpSubWords': None,
+        'dumpRefWords': None,
+        'dumpRawSubWords': None,
+        'dumpRawRefWords': None,
+        'dumpUsedSubWords': None,
+        'dumpUsedRefWords': None,
+        }
+
+
 class Settings(object):
     def __init__(self, settings=None, **kw):
-        self.language = None
+        self.keep = {}
 
-        self.maxPointDist = 2.0
-        self.minPointsNo = 20
-        self.appendLangCode = True
-        self.outputCharEnc = 'UTF-8'
-        self.windowSize = 30.0 * 60.0
-        self.minWordProb = 0.3
-        self.jobsNo = None
-        self.minWordLen = 5
-        self.minCorrelation = 0.9999
-        self.minWordsSim = 0.6
-        self.minEffort = 0.5
+        for key, val in persistent.items():
+            setattr(self, key, val)
+            self.keep[key] = val
 
-        self.lastdir = ''
-        self.refsCache = True
-
-        self.autoUpdate = True
-        self.askForUpdate = True
-
-        self.showLanguageNotSelectedPopup = True
-        self.showBatchDropTargetPopup = True
-        self.batchSortFiles = False
-
-        self.debugOptions = False
-        self.logLevel = logging.WARNING
-        self.logFile = None
-        self.logBlacklist = None
+        for key, val in volatile.items():
+            setattr(self, key, val)
 
         if settings:
             self.set(**settings.items())
@@ -50,10 +72,12 @@ class Settings(object):
                 return False
         return True
 
-    def set(self, **state):
+    def set(self, temp=False, **state):
         for key, val in state.items():
             if hasattr(self, key):
                 setattr(self, key, val)
+                if not temp and key in persistent:
+                    self.keep[key] = val
             else:
                 logger.warning('invalid entry: %s = %s (%s)',
                         key, str(val), type(val).__name__)
@@ -76,9 +100,9 @@ class Settings(object):
         try:
             os.makedirs(os.path.dirname(config.configpath), exist_ok=True)
             with open(config.configpath, 'w', encoding='utf8') as fp:
-                json.dump(self.items(), fp, indent=4)
+                json.dump(self.keep, fp, indent=4)
             logger.info('configuration saved to %s', config.configpath)
-            logger.debug('configuration: %r', self.items())
+            logger.debug('configuration: %r', items)
         except Exception as e:
             logger.warning('cannot save configuration to %s: %r', config.configpath, e)
 

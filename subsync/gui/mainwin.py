@@ -55,7 +55,7 @@ def logRunCmd(task):
 
 
 class MainWin(subsync.gui.layout.mainwin.MainWin):
-    def __init__(self, parent, sub=None, ref=None):
+    def __init__(self, parent):
         super().__init__(parent)
 
         img.setWinIcon(self)
@@ -66,6 +66,13 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
         if config.assetupd == None:
             self.m_menu.Remove(self.m_menuItemCheckUpdate.GetId())
+
+        if settings().mode == 'sync' and settings().tasks and settings().tasks[0]:
+            sub = settings().tasks[0].sub
+            ref = settings().tasks[0].ref
+        else:
+            sub = None
+            ref = None
 
         self.m_panelSub.setStream(sub)
         self.m_panelRef.setStream(ref)
@@ -153,10 +160,10 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     def onMenuItemBatchProcessingClick(self, event):
         self.showBatchWin()
 
-    def showBatchWin(self, tasks=None):
+    def showBatchWin(self):
         try:
             self.Hide()
-            win = BatchWin(self, tasks)
+            win = BatchWin(self, settings().tasks)
             win.Show()
 
         except Exception as e:

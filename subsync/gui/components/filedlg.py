@@ -16,11 +16,11 @@ def showOpenFileDlg(parent, multiple=False, **args):
             if multiple:
                 paths = fileDialog.GetPaths()
                 if paths:
-                    settings().lastdir = os.path.dirname(paths[0])
+                    settings().set(lastdir=os.path.dirname(paths[0]))
                 return paths
             else:
                 path = fileDialog.GetPath()
-                settings().lastdir = os.path.dirname(path)
+                settings().set(lastdir=os.path.dirname(path))
                 return path
 
 
@@ -50,6 +50,6 @@ def showSaveFileDlg(parent, **args):
     with wx.FileDialog(parent, _('Select file'), style=style, **args) as fileDialog:
         if fileDialog.ShowModal() == wx.ID_OK:
             path = appendExtensionToPath(fileDialog)
-            settings().lastdir = os.path.dirname(path)
+            settings().set(lastdir=os.path.dirname(path))
             return path
 

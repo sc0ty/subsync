@@ -1,22 +1,23 @@
+from subsync.settings import settings
 import argparse
+import logging
 import re
 
 
 def parseCmdArgs(argv=None):
-    return getParser().parse_args(argv)
-
-
-def parseSettingsArgs(args):
+    args =  getParser().parse_args(argv)
     vargs = vars(args)
 
-    settings = { k: v for k, v in vargs.items() if k in settingOptionsDescription and v is not None }
+    s = { k: v for k, v in vargs.items() if k in settings().items() and v is not None }
+    temp = args.mode != 'settings'
+    settings().set(temp=temp, **s)
 
-    if args.effort is not None:
-        settings['minEffort'] = args.effort
-    if args.jobs is not None:
-        settings['jobsNo'] = args.jobs or None
+    if args.mode == 'sync':
+        parseSyncArgs(args)
+    elif args.mode == 'batch':
+        parseBatchArgs(args)
 
-    return settings
+    return args
 
 
 def parseSyncArgs(args):
@@ -35,13 +36,16 @@ def parseSyncArgs(args):
         ref.channels = ChannelsMap.deserialize(args.ref_channels)
 
     out = args.out and OutputFile(path=args.out, fps=args.out_fps, enc=args.out_enc)
-
-    return SyncTask(sub, ref, out)
+    task = SyncTask(sub, ref, out)
+    settings().tasks = [ task ]
+    return task
 
 
 def parseBatchArgs(args):
     from subsync.synchro import SyncTaskList
-    return SyncTaskList.load(args.batch)
+    tasks = SyncTaskList.load(args.batch)
+    settings().tasks = tasks
+    return tasks
 
 
 def getParser():
@@ -66,38 +70,56 @@ def getParser():
     sync.add_argument('--out', '--out-file', type=str, help=_('output file path (used with --cli)'))
     sync.add_argument('--out-fps', type=float, help=_('output framerate (for fps-based subtitles)'))
     sync.add_argument('--out-enc', type=str, help=_('output character encoding'))
-    sync.add_argument('--effort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
+    sync.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
 
     batch = subparsers.add_parser('batch', help=_('batch synchronization'))
     batch.set_defaults(mode='batch')
     batch.add_argument('batch', type=str, help=_('batch job yaml description'))
-    batch.add_argument('--effort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
+    batch.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
+
+    setup = subparsers.add_parser('settings', help=_('change default settings'))
+    setup.set_defaults(mode='settings')
+    setup.add_argument('--effort', dest='minEffor', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
 
     cli = parser.add_argument_group(_('headless options'))
     cli.add_argument('--cli', action='store_true', help=_('headless mode (command line only)'))
     cli.add_argument('--verbose', type=int, default=1, help=_('verbosity level for headless job'))
 
-    settings = parser.add_argument_group(_('synchronization options'))
-    settings.add_argument('--window-size', type=int, help=_('maximum correction (in seconds)'))
-    settings.add_argument('--jobs', type=int, help=_('number of synchronization jobs, 0 for auto'))
+    sync = parser.add_argument_group(_('synchronization options'))
+    addOption(sync, 'jobsNo', '--jobs', type=int, metavar='NO', help=_('number of synchronization jobs, 0 for auto'))
+    addOption(sync, 'windowSize', type=float, metavar='SIZE', help=_('maximum correction (in seconds)'))
+    addOption(sync, 'maxPointDist', type=float, metavar='DIST', help=_('maximum synchronization error (type: in seconds)'))
+    addOption(sync, 'minPointsNo', type=int, metavar='NO', help=_('minimum synchronization points no'))
+    addOption(sync, 'minWordProb', type=float, metavar='PROB', help=_('minimum speech recognition score (type: 0.0 - 1.0)'))
+    addOption(sync, 'minWordLen', type=int, metavar='LEN', help=_('minimum number of letters for word to be used in synchronization'))
+    addOption(sync, 'minCorrelation', type=float, metavar='CORRELATION', help=_('minimum correlation (type: 0.0 - 1.0)'))
+    addOption(sync, 'minWordsSim', type=float, metavar='SIM', help=_('minimum words similarity for synchronization point (type: 0.0 - 1.0)'))
 
-    recase = re.compile('([A-Z])')
-    for name, (type, help) in settingOptionsDescription.items():
-        option = '--' + recase.sub(r'-\1', name).lower()
-        settings.add_argument(option, dest=name, type=type, help=help)
+    class LogLevelAction(argparse.Action):
+        def __call__(self, parser, args, values, option_string=None):
+            val = values
+            if val in [ 'DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'CRITICAL' ]:
+                setattr(args, self.dest, getattr(logging, val))
+            else:
+                setattr(args, self.dest, int(val))
 
     dbg = parser.add_argument_group(_('debug options'))
-    dbg.add_argument('--loglevel', type=str, help=_('set logging level, numerically or by name'))
-    dbg.add_argument('--logfile', type=str, help=_('dump logs to specified file'))
+    addOption(dbg, 'logLevel', '--loglevel', type=str, action=LogLevelAction, help=_('set logging level, numerically or by name'))
+    addOption(dbg, 'logFile', '--logfile', type=str, help=_('dump logs to specified file'))
+    addOption(dbg, 'dumpSubWords', type=str, metavar='PATH', help=_('dump subtitle words to file'))
+    addOption(dbg, 'dumpRefWords', type=str, metavar='PATH', help=_('dump reference words to file'))
+    addOption(dbg, 'dumpRawSubWords', type=str, metavar='PATH', help=_('dump raw subtitle words to file'))
+    addOption(dbg, 'dumpRawRefWords', type=str, metavar='PATH', help=_('dump raw reference words to file'))
+    addOption(dbg, 'dumpUsedSubWords', type=str, metavar='PATH', help=_('dump subtitle words used for synchronization to file'))
+    addOption(dbg, 'dumpUsedRefWords', type=str, metavar='PATH', help=_('dump reference words used for synchronization to file'))
 
     return parser
 
 
-settingOptionsDescription = {
-        'maxPointDist':   (float, _('maximum synchronization error (in seconds)')),
-        'minPointsNo':    (int,   _('minimum synchronization points no')),
-        'minWordProb':    (float, _('minimum speech recognition score (0.0 - 1.0)')),
-        'minWordLen':     (int,   _('minimum number of letters for word to be used in synchronization')),
-        'minCorrelation': (float, _('minimum correlation (0.0 - 1.0)')),
-        'minWordsSim':    (float, _('minimum words similarity for synchronization point (0.0 - 1.0)')),
-}
+def addOption(parser, name, option=None, **kw):
+    if not option:
+        recase = re.compile('([A-Z])')
+        option = '--' + recase.sub(r'-\1', name).lower()
+    if not 'dest' in kw:
+        kw['dest'] = name
+    parser.add_argument(option, **kw)
