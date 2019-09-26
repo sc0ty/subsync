@@ -38,6 +38,7 @@ class Exception : public std::exception
 		Exception &module(const std::string &m1, const std::string &m2,
 				const std::string &m3="", const std::string &m4="") throw();
 		Exception &code(int code) throw();
+		Exception &averror(int errnum) throw();
 		Exception &file(const std::string &file) throw();
 		Exception &line(const std::string &line) throw();
 		Exception &time(double timestamp) throw();
@@ -53,8 +54,8 @@ class Exception : public std::exception
 };
 
 
-std::string makeSourceString(const char *file, int line, const char *func);
-std::string ffmpegCodeDescription(int code);
+std::string makeSourceString(const char *file, int line, const char *func) throw();
+std::string ffmpegCodeDescription(int code) throw();
 
 #define EXCEPTION_ADD_SOURCE \
 	add("source", makeSourceString(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION))
@@ -63,6 +64,6 @@ std::string ffmpegCodeDescription(int code);
 	Exception(msg).EXCEPTION_ADD_SOURCE
 
 #define EXCEPTION_FFMPEG(msg, val) \
-	Exception(msg, ffmpegCodeDescription(val)).code(val).EXCEPTION_ADD_SOURCE
+	Exception(msg, ffmpegCodeDescription(val)).averror(val).EXCEPTION_ADD_SOURCE
 
 #endif
