@@ -12,17 +12,8 @@ from subsync.settings import settings
 
 
 def subsync():
-    try:
-        settings().load()
-    except Exception as e:
-        logger.warning('settings load failed, %r', e, exc_info=True)
-
     args = cmdargs.parseCmdArgs()
-    translations.setLanguage(settings().language)
-    setupLogger()
-
-    if len(sys.argv) > 1:
-        logger.info('command line parameters: %s', args)
+    initConfig(args)
 
     if shouldUseCli():
         startCli(args)
@@ -31,6 +22,33 @@ def subsync():
         settings().save()
 
     loggercfg.terminate()
+
+
+def initConfig(args):
+    loggerInit = False
+    if args.logLevel is not None or args.logFile is not None:
+        loggercfg.init(level=args.logLevel, path=args.logFile)
+        loggerInit = True
+
+    try:
+        settings().load()
+    except Exception as e:
+        logger.warning('settings load failed, %r', e, exc_info=True)
+
+    s = { k: v for k, v in vars(args).items() if k in settings().keys() and v is not None }
+    tempSettings = args.mode != 'settings'
+    settings().set(temp=tempSettings, **s)
+
+    if not loggerInit or args.logLevel != settings().logLevel or args.logFile != settings().logFile:
+        loggercfg.init(level=settings().logLevel, path=settings().logFile)
+
+    if settings().logBlacklist:
+        loggercfg.setBlacklistFilters(settings().logBlacklist)
+
+    translations.setLanguage(settings().language)
+
+    if len(sys.argv) > 1:
+        logger.info('command line parameters: %s', args)
 
 
 def shouldUseCli():
@@ -73,13 +91,6 @@ def startCli(args):
 
     except Exception as err:
         logger.error('subsync failed, %r', err, exc_info=True)
-
-
-def setupLogger():
-    loggercfg.init(level=settings().logLevel, path=settings().logFile)
-    blacklist = settings().logBlacklist
-    if blacklist:
-        loggercfg.setBlacklistFilters(blacklist)
 
 
 if __name__ == "__main__":

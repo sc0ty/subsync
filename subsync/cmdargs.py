@@ -1,4 +1,4 @@
-from subsync.settings import settings
+from subsync.settings import settings, wordsDumpIds
 import argparse
 import logging
 import re
@@ -6,11 +6,6 @@ import re
 
 def parseCmdArgs(argv=None):
     args =  getParser().parse_args(argv)
-    vargs = vars(args)
-
-    s = { k: v for k, v in vargs.items() if k in settings().items() and v is not None }
-    temp = args.mode != 'settings'
-    settings().set(temp=temp, **s)
 
     if args.mode == 'sync':
         parseSyncArgs(args)
@@ -97,21 +92,25 @@ def getParser():
 
     class LogLevelAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
-            val = values
-            if val in [ 'DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'CRITICAL' ]:
-                setattr(args, self.dest, getattr(logging, val))
+            if values in [ 'DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'CRITICAL' ]:
+                setattr(args, self.dest, getattr(logging, values))
             else:
-                setattr(args, self.dest, int(val))
+                setattr(args, self.dest, int(values))
+
+    class WordsDumpAction(argparse.Action):
+        def __call__(self, parser, args, values, option_string=None):
+            src, path = values.split(':', 1)
+            if src not in wordsDumpIds:
+                raise argparse.ArgumentError(self, 'unrecognized source {}, should be one of {}'.format(src, wordsDumpIds))
+            res = getattr(args, self.dest, None) or []
+            res.append((src, path))
+            setattr(args, self.dest, res)
 
     dbg = parser.add_argument_group(_('debug options'))
-    addOption(dbg, 'logLevel', '--loglevel', type=str, action=LogLevelAction, help=_('set logging level, numerically or by name'))
+    addOption(dbg, 'logLevel', '--loglevel', type=str, action=LogLevelAction, help=_('set logging level, '
+        'numericall value or one of: DEBUG, INFO, WARNING, ERROR, CRITICAL'))
     addOption(dbg, 'logFile', '--logfile', type=str, help=_('dump logs to specified file'))
-    addOption(dbg, 'dumpSubWords', type=str, metavar='PATH', help=_('dump subtitle words to file'))
-    addOption(dbg, 'dumpRefWords', type=str, metavar='PATH', help=_('dump reference words to file'))
-    addOption(dbg, 'dumpRawSubWords', type=str, metavar='PATH', help=_('dump raw subtitle words to file'))
-    addOption(dbg, 'dumpRawRefWords', type=str, metavar='PATH', help=_('dump raw reference words to file'))
-    addOption(dbg, 'dumpUsedSubWords', type=str, metavar='PATH', help=_('dump subtitle words used for synchronization to file'))
-    addOption(dbg, 'dumpUsedRefWords', type=str, metavar='PATH', help=_('dump reference words used for synchronization to file'))
+    addOption(dbg, 'dumpWords', type=str, metavar='SRCS:PATH', action=WordsDumpAction, help=_('dump words to file'))
 
     return parser
 

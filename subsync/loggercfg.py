@@ -15,17 +15,23 @@ _activeFilter = None
 
 
 def init(level=None, path=None):
+    logging.captureWarnings(True)
+    numLevel = parseLevel(level)
+
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
     logging.basicConfig(
             format='%(asctime)s.%(msecs)03i:%(threadName)12.12s:%(levelname)8.8s:%(name)24.24s: %(message)s',
             datefmt='%H:%M:%S',
-            level=level,
+            level=numLevel,
             filename=path)
 
     def print_log(level, m, msg):
         logging.getLogger(m).log(level, msg.strip().replace('\n', '; '))
 
     gizmo.setLoggerCallback(print_log)
-    gizmo.setDebugLevel(level)
+    gizmo.setDebugLevel(numLevel)
 
 
 def terminate():
@@ -33,11 +39,22 @@ def terminate():
 
 
 def setLevel(level):
+    numLevel = parseLevel(level)
     logger = logging.getLogger()
-    logger.setLevel(level)
+    logger.setLevel(numLevel)
     for handler in logger.handlers:
-        handler.setLevel(level)
-    gizmo.setDebugLevel(level)
+        handler.setLevel(numLevel)
+    gizmo.setDebugLevel(numLevel)
+
+
+def parseLevel(level):
+    try:
+        return int(level)
+    except:
+        try:
+            return getattr(logging, level)
+        except:
+            return logging.WARNING
 
 
 def setBlacklistFilters(filters):

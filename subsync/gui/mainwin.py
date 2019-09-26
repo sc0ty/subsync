@@ -99,14 +99,14 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.PopupMenu(self.m_menu)
 
     def onMenuItemSettingsClick(self, event):
-        with SettingsWin(self, settings()) as dlg:
+        with SettingsWin(self) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 newSettings = dlg.getSettings()
                 if settings() != newSettings:
                     self.changeSettings(newSettings)
 
     def changeSettings(self, newSettings):
-        if settings().logLevel != newSettings.logLevel:
+        if settings().logLevel != newSettings.logLevel or settings().logFile != newSettings.logFile:
             loggercfg.setLevel(newSettings.logLevel)
 
         if settings().logBlacklist != newSettings.logBlacklist:
@@ -120,7 +120,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
                 wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
 
-        settings().set(**newSettings.items())
+        settings().set(**newSettings.getAll())
         settings().save()
 
     @error_dlg

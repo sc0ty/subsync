@@ -40,18 +40,20 @@ volatile = {
         'tasks': None,
         'verbose': 1,
         'exitWhenDone': False,
-        'dumpSubWords': None,
-        'dumpRefWords': None,
-        'dumpRawSubWords': None,
-        'dumpRawRefWords': None,
-        'dumpUsedSubWords': None,
-        'dumpUsedRefWords': None,
+        'dumpWords': [],
         }
+
+
+wordsDumpIds = [ 'sub', 'subPipe', 'subRaw', 'ref', 'refPipe', 'refRaw' ]
 
 
 class Settings(object):
     def __init__(self, settings=None, **kw):
         self.keep = {}
+        self.dirty = False
+
+        self.persistent = persistent.keys()
+        self.volatile = volatile.keys()
 
         for key, val in persistent.items():
             setattr(self, key, val)
@@ -61,29 +63,46 @@ class Settings(object):
             setattr(self, key, val)
 
         if settings:
-            self.set(**settings.items())
+            self.set(**{ k: settings.get(k) for k in settings.keys() })
         self.set(**kw)
 
     def __eq__(self, other):
-        for key in self.__dict__.keys() | other.__dict__.keys():
+        for key in self.keys() | other.keys():
             if not hasattr(self, key) or not hasattr(other, key):
                 return False
             if getattr(self, key) != getattr(other, key):
                 return False
         return True
 
+    def keys(self, persistentOnly=False, volatileOnly=False):
+        if persistentOnly:
+            return self.persistent
+        elif volatileOnly:
+            return self.volatile
+        else:
+            return self.persistent | self.volatile
+
     def set(self, temp=False, **state):
+        dirty = False
         for key, val in state.items():
-            if hasattr(self, key):
+            if key in persistent or key in volatile:
                 setattr(self, key, val)
-                if not temp and key in persistent:
+                if not temp and key in persistent and self.keep[key] != val:
                     self.keep[key] = val
+                    dirty = True
             else:
                 logger.warning('invalid entry: %s = %s (%s)',
                         key, str(val), type(val).__name__)
 
-    def items(self):
-        return {k: v for k, v in self.__dict__.items()}
+        self.dirty = self.dirty or dirty
+        return dirty
+
+    def get(self, key):
+        if key in self.keys():
+            return getattr(self, key)
+
+    def getAll(self):
+        return { key: self.get(key) for key in self.keys() }
 
     def load(self):
         try:
@@ -92,20 +111,24 @@ class Settings(object):
                     cfg = json.load(fp)
                     logger.info('configuration loaded from %s', config.configpath)
                     logger.debug('configuration: %r', cfg)
-                    self.set(**cfg)
+
+                    dirty = self.dirty
+                    self.set(temp=False, **{ **persistent, **cfg })
+                    self.dirty = dirty
         except Exception as err:
             raise Error(_('Cannot load settings file, {}').format(err), path=config.configpath)
 
     def save(self):
-        try:
-            os.makedirs(os.path.dirname(config.configpath), exist_ok=True)
-            with open(config.configpath, 'w', encoding='utf8') as fp:
-                json.dump(self.keep, fp, indent=4)
-            logger.info('configuration saved to %s', config.configpath)
-            logger.debug('configuration: %r', items)
-        except Exception as e:
-            logger.warning('cannot save configuration to %s: %r', config.configpath, e)
-
+        if self.dirty:
+            try:
+                os.makedirs(os.path.dirname(config.configpath), exist_ok=True)
+                with open(config.configpath, 'w', encoding='utf8') as fp:
+                    json.dump(self.keep, fp, indent=4)
+                self.dirty = False
+                logger.info('configuration saved to %s', config.configpath)
+                logger.debug('configuration: %r', self.keep)
+            except Exception as e:
+                logger.warning('cannot save configuration to %s: %r', config.configpath, e)
 
 _settings = Settings()
 

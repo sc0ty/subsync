@@ -1,13 +1,13 @@
 import subsync.gui.layout.settingswin
 from subsync.gui.components.filedlg import showSaveFileDlg
-from subsync.settings import Settings
+from subsync.settings import settings, Settings
 from subsync import config
 import multiprocessing
 import wx
 
 
 class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
-    def __init__(self, parent, settings):
+    def __init__(self, parent):
         super().__init__(parent)
         self.m_outputCharEnc.SetString(0, _('same as input subtitles'))
 
@@ -16,7 +16,7 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
             self.m_autoUpdate.Hide()
             self.m_askForUpdate.Hide()
 
-        self.setSettings(settings)
+        self.setSettings(settings())
 
     def setSettings(self, settings):
         self.settings = Settings(settings)
@@ -71,10 +71,10 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
         return self.settings
 
     def settingsFieldsGen(self):
-        for key, val in self.settings.items().items():
+        for key in self.settings.keys():
             field = 'm_' + key
             if hasattr(self, field):
-                yield getattr(self, field), key, val
+                yield getattr(self, field), key, self.settings.get(key)
 
     def onCheckAutoJobsNoCheck(self, event):
         auto = self.m_checkAutoJobsNo.IsChecked()
