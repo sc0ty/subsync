@@ -140,7 +140,8 @@ bool Demux::step()
 			for (shared_ptr<Decoder> dec : stream.decoders)
 				dec->feed(&packet);
 
-			m_position = (double)packet.pts * stream.timeBase;
+			if (packet.pts != AV_NOPTS_VALUE)
+				m_position = (double) packet.pts * stream.timeBase;
 		}
 
 		return true;
