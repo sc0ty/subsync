@@ -111,7 +111,6 @@ def parseLine(text):
     fields = text.split(',', 8)
     if len(fields) == 9:
         entry = {
-            'layer':   fields[0],
             'style':   fields[2],
             'name':    fields[3],
             'marginl': fields[4],
