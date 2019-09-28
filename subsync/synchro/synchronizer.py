@@ -1,9 +1,7 @@
 import gizmo
-from subsync.synchro import pipeline
 from subsync import subtitle
 from subsync.settings import settings
-from subsync.synchro import dictionary
-from subsync.synchro import encdetect
+from subsync.synchro import pipeline, dictionary, encdetect, wordsdump
 import threading
 import multiprocessing
 from collections import namedtuple
@@ -55,9 +53,11 @@ class Synchronizer(object):
         self.effortBegin = None
         self.statsLock = threading.Lock()
 
+        self.translator = None
         self.subPipeline = None
         self.refPipelines = []
         self.pipelines = []
+        self.wordsDumpers = []
 
     def destroy(self):
         logger.info('releasing synchronizer resources')
@@ -70,6 +70,13 @@ class Synchronizer(object):
         self.subPipeline = None
         self.refPipelines = []
         self.pipelines = []
+        self.translator = None
+        self.refWordsSink = None
+
+        for wd in self.wordsDumpers:
+            wd.flush()
+
+        self.wordsDumpers = []
 
     def init(self, runCb=lambda: True):
         logger.info('initializing synchronization jobs')
@@ -107,6 +114,27 @@ class Synchronizer(object):
             p.addWordsListener(self.refWordsSink)
 
         self.pipelines = [ self.subPipeline ] + self.refPipelines
+
+        dumpSources = {
+                'sub':     [ self.subPipeline ],
+                'subPipe': [ self.subPipeline ],
+                'subRaw':  [ self.subPipeline.getRawWordsSource() ],
+                'ref':     [ self.translator ] if self.translator else self.refPipelines,
+                'refPipe': self.refPipelines,
+                'refRaw':  [ p.getRawWordsSource() for p in self.refPipelines ],
+                }
+
+        for srcId, path in settings().dumpWords:
+            sources = dumpSources.get(srcId)
+            if sources:
+                logger.debug('dumping %s to %s (from %i sources)', srcId, path, len(sources))
+                if path:
+                    wd = wordsdump.WordsFileDump(path, overwrite=True)
+                else:
+                    wd = wordsdump.WordsStdoutDump(srcId)
+                self.wordsDumpers.append(wd)
+                for source in sources:
+                    source.addWordsListener(wd.pushWord)
 
     def start(self):
         logger.info('starting synchronization')

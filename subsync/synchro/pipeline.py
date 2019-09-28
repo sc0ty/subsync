@@ -104,14 +104,16 @@ class SubtitlePipeline(BasePipeline):
         super().destroy()
         self.dec.removeWordsListener()
         self.dec.removeSubsListener()
-        if self.ngramSplitter:
-            self.ngramSplitter.removeWordsListener()
+        self.sink.removeWordsListener()
 
     def addWordsListener(self, listener):
         self.sink.addWordsListener(listener)
 
     def removeWordsListener(self, listener=None):
-        return self.dec.removeWordsListener(listener)
+        return self.sink.removeWordsListener(listener)
+
+    def getRawWordsSource(self):
+        return self.dec
 
     def addSubsListener(self, listener):
         self.dec.addSubsListener(listener)
@@ -159,8 +161,7 @@ class SpeechPipeline(BasePipeline):
 
     def destroy(self):
         super().destroy()
-        if self.ngramSplitter:
-            self.ngramSplitter.removeWordsListener()
+        self.sink.removeWordsListener()
         self.speechRec.removeWordsListener()
         self.resampler.connectFormatChangeCallback(None)
 
@@ -175,6 +176,12 @@ class SpeechPipeline(BasePipeline):
 
     def removeWordsListener(self, listener=None):
         return self.sink.removeWordsListener(listener)
+
+    def getRawWordsSource(self):
+        return self.speechRec
+
+    def getRawWordsSource(self):
+        return self.speechRec
 
 
 def createProducerPipeline(stream):
