@@ -207,7 +207,7 @@ class App(object):
             if effort:
                 progress = min(max(progress, status.effort / effort, 0), 1)
 
-            msg = '[+] synchronization {:3.0f}%: {} points'.format(progress, status.points)
+            msg = '[+] synchronization {:3.0f}%: {} points'.format(100 * progress, status.points)
             if pr.verbosity >= 2:
                 msg += ', correlation={:.2f}, formula={}, maxChange={}'.format(
                         100 * status.factor,
