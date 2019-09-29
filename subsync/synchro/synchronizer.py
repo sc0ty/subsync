@@ -78,14 +78,18 @@ class Synchronizer(object):
 
         self.wordsDumpers = []
 
-    def init(self, runCb=lambda: True):
+    def init(self, runCb=None):
+        try:
+            self._initInternal(runCb)
+        except gizmo.ErrorTerminated:
+            logger.info('initialization terminated')
+
+
+    def _initInternal(self, runCb=None):
         logger.info('initializing synchronization jobs')
         for stream in (self.sub, self.ref):
             if stream.type == 'subtitle/text' and not stream.enc and len(stream.streams) == 1:
                 stream.enc = encdetect.detectEncoding(stream.path, stream.lang)
-
-        if not runCb():
-            return
 
         self.subPipeline = pipeline.createProducerPipeline(self.sub)
         self.subPipeline.connectEosCallback(self.onSubEos)
@@ -93,18 +97,12 @@ class Synchronizer(object):
         self.subPipeline.addSubsListener(self.subtitlesCollector.addSubtitle)
         self.subPipeline.addWordsListener(self.correlator.pushSubWord)
 
-        if not runCb():
-            return
-
         if self.sub.lang and self.ref.lang and self.sub.lang != self.ref.lang:
             self.dictionary = dictionary.loadDictionary(self.ref.lang, self.sub.lang, settings().minWordLen)
             self.translator = gizmo.Translator(self.dictionary)
             self.translator.setMinWordsSim(settings().minWordsSim)
             self.translator.addWordsListener(self.correlator.pushRefWord)
             self.refWordsSink = self.translator.pushWord
-
-        if not runCb():
-            return
 
         self.refPipelines = pipeline.createProducerPipelines(self.ref, no=getJobsNo(), runCb=runCb)
 

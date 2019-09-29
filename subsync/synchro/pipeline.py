@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class BasePipeline(object):
-    def __init__(self, stream):
-        self.demux = gizmo.Demux(stream.path)
+    def __init__(self, stream, runCb=None):
+        self.demux = gizmo.Demux(stream.path, runCb)
         self.extractor = gizmo.Extractor(self.demux)
 
         self.duration = self.demux.getDuration()
@@ -70,13 +70,13 @@ class BasePipeline(object):
 
 
 class SubtitlePipeline(BasePipeline):
-    def __init__(self, stream):
+    def __init__(self, stream, runCb=None):
         ''' Speech recognition pipeline:
 
         Demux --> SpeechDec  --[words]--> {NgramSplitter} --[words]--> ...
         '''
 
-        super().__init__(stream)
+        super().__init__(stream, runCb)
         self.dec = gizmo.SubtitleDec()
         self.dec.setMinWordLen(settings().minWordLen)
         self.ngramSplitter = None
@@ -123,13 +123,13 @@ class SubtitlePipeline(BasePipeline):
 
 
 class SpeechPipeline(BasePipeline):
-    def __init__(self, stream):
+    def __init__(self, stream, runCb=None):
         ''' Speech recognition pipeline:
 
         Demux --> AudioDec --> Resampler --> SpeechRecognition --[words]--> {NgramSplitter} --[words]--> ...
         '''
 
-        super().__init__(stream)
+        super().__init__(stream, runCb)
 
         speechModel = speech.loadSpeechModel(stream.lang)
         self.dec = gizmo.AudioDec()
@@ -184,26 +184,23 @@ class SpeechPipeline(BasePipeline):
         return self.speechRec
 
 
-def createProducerPipeline(stream):
+def createProducerPipeline(stream, runCb=None):
     if stream.type == 'subtitle/text':
-        return SubtitlePipeline(stream)
+        return SubtitlePipeline(stream, runCb)
     elif stream.type == 'audio':
-        return SpeechPipeline(stream)
+        return SpeechPipeline(stream, runCb)
     else:
         raise Error(_('Not supported stream type'), type=stream.type)
 
 
-def createProducerPipelines(stream, no=None, timeWindows=None, runCb=lambda: True):
+def createProducerPipelines(stream, no=None, timeWindows=None, runCb=None):
     if timeWindows != None:
         no = len(timeWindows)
 
     pipes = []
     for i in range(no):
 
-        if not runCb():
-            return pipes
-
-        p = createProducerPipeline(stream)
+        p = createProducerPipeline(stream, runCb)
         pipes.append(p)
 
         if p.duration:

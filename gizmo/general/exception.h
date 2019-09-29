@@ -15,6 +15,7 @@ class Exception : public std::exception
 		Exception() throw();
 		Exception(const std::string &msg) throw();
 		Exception(const std::string &msg, const std::string &detail) throw();
+		Exception(const Exception &ex) throw();
 		virtual ~Exception() throw();
 
 		virtual const char* what() const throw();
@@ -51,6 +52,15 @@ class Exception : public std::exception
 
 		mutable std::string str;
 		mutable std::string fieldsStr;
+};
+
+
+class ExceptionTerminated : public Exception
+{
+	public:
+		ExceptionTerminated() throw();
+		ExceptionTerminated(const Exception &ex) throw();
+		virtual ~ExceptionTerminated() throw();
 };
 
 

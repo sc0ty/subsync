@@ -27,6 +27,9 @@ Exception::Exception(const string &msg, const string &detail) throw()
 	this->msg = msg + ": " + detail;
 }
 
+Exception::Exception(const Exception &ex) throw() : msg(ex.msg), vals(ex.vals)
+{}
+
 Exception::~Exception() throw()
 {}
 
@@ -141,6 +144,18 @@ Exception &Exception::time(double timestamp) throw()
 
 	return add("time", buffer);
 }
+
+
+/*** ExceptionTerminated class ***/
+ExceptionTerminated::ExceptionTerminated() throw()
+{}
+
+ExceptionTerminated::ExceptionTerminated(const Exception &ex) throw()
+	: Exception(ex)
+{}
+
+ExceptionTerminated::~ExceptionTerminated() throw()
+{}
 
 
 /*** Helper functions ***/

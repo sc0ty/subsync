@@ -82,15 +82,18 @@ void Extractor::run(string threadName)
 	}
 	catch (const Exception &ex)
 	{
-		m_errorCb(ex);
+		if (m_errorCb && ex.get("averror") != "AVERROR_EXIT")
+			m_errorCb(ex);
 	}
 	catch (const std::exception& ex)
 	{
-		m_errorCb(EXCEPTION(ex.what()).module("extractor"));
+		if (m_errorCb)
+			m_errorCb(EXCEPTION(ex.what()).module("extractor"));
 	}
 	catch (...)
 	{
-		m_errorCb(EXCEPTION("fatal error").module("extractor"));
+		if (m_errorCb)
+			m_errorCb(EXCEPTION("fatal error").module("extractor"));
 	}
 
 	while (m_state == State::running)
@@ -112,15 +115,17 @@ void Extractor::run(string threadName)
 			if (m_state == State::running)
 				demux->notifyDiscontinuity();
 
-			if (m_errorCb)
+			if (m_errorCb && ex.get("averror") != "AVERROR_EXIT")
 				m_errorCb(ex);
 		}
 		catch (const std::exception& ex)
 		{
+		if (m_errorCb)
 			m_errorCb(EXCEPTION(ex.what()).module("extractor"));
 		}
 		catch (...)
 		{
+		if (m_errorCb)
 			m_errorCb(EXCEPTION("fatal error").module("extractor"));
 		}
 	}

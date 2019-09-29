@@ -19,7 +19,8 @@ void initMediaWrapper(py::module &m)
 {
 	/*** class Demux ***/
 	py::class_<Demux, shared_ptr<Demux>> demux(m, "Demux");
-	demux.def(py::init<const string &>());
+	demux.def(py::init<const string &, std::function<bool()>>(),
+			py::arg("fileName"), py::arg("runCb") = nullptr);
 	demux.def("getStreamsInfo", &Demux::getStreamsInfo);
 	demux.def("connectDec", &Demux::connectDec);
 	demux.def("disconnectDec", &Demux::disconnectDec);

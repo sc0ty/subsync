@@ -17,16 +17,29 @@ static AVInputFormat *getInputFormatByFname(const char *path);
 			.add("range", m_streamsNo)
 
 
-Demux::Demux(const string &fileName) :
+Demux::Demux(const string &fileName, function<bool()> runCb) :
 	m_formatContext(NULL),
 	m_position(0.0),
 	m_streams(NULL),
-	m_streamsNo(0)
+	m_streamsNo(0),
+	m_runCb(runCb)
 {
 	init();
 
+	m_formatContext = avformat_alloc_context();
+	if (m_formatContext == NULL)
+		throw EXCEPTION("can't allocate AVFormatContext")
+			.module("Demux", "avformat_alloc_context")
+			.file(fileName);
+
+	if (runCb)
+	{
+		m_formatContext->interrupt_callback.callback = Demux::interruptCallback;
+		m_formatContext->interrupt_callback.opaque = this;
+	}
+
 	int res = avformat_open_input(&m_formatContext, fileName.c_str(), NULL, NULL);
-	if (res < 0)
+	if (res < 0 && res != AVERROR_EXIT)
 	{
 		// try to detect container by file extension - works for slightly broken subtitles
 		AVInputFormat *fmt = getInputFormatByFname(fileName.c_str());
@@ -202,6 +215,12 @@ void Demux::flush()
 	}
 }
 
+int Demux::interruptCallback(void *context)
+{
+	Demux *d = (Demux*) context;
+	return d->m_runCb && d->m_runCb() ? 0 : 1;
+}
+
 
 /*** Demux::Stream ***/
 
@@ -285,4 +304,3 @@ AVInputFormat *getInputFormatByFname(const char *path)
 
 	return fmt;
 }
-

@@ -7,6 +7,7 @@
 #include <string>
 #include <atomic>
 #include <memory>
+#include <functional>
 
 struct AVFormatContext;
 struct AVStream;
@@ -15,7 +16,7 @@ struct AVStream;
 class Demux
 {
 	public:
-		Demux(const std::string &fileName);
+		Demux(const std::string &fileName, std::function<bool()> runCb=NULL);
 		~Demux();
 
 		Demux(const Demux&) = delete;
@@ -46,6 +47,8 @@ class Demux
 		StreamsFormat m_streamsInfo;
 		std::atomic<double> m_position;
 
+		static int interruptCallback(void *context);
+
 	private:
 		struct Stream
 		{
@@ -60,6 +63,8 @@ class Demux
 
 		Stream *m_streams;
 		unsigned m_streamsNo;
+
+		std::function<bool()> m_runCb;
 };
 
 #endif
