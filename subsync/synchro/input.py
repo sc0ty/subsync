@@ -50,7 +50,7 @@ class InputFile(object):
                 break
 
         if len(streams) > 0:
-            self.selectFirstMachingStream()
+            self.selectFirstMatchingStream()
 
     def assign(self, s):
         self.path    = s.path
@@ -80,7 +80,9 @@ class InputFile(object):
 
         return stream
 
-    def selectFirstMachingStream(self):
+    def selectFirstMatchingStream(self, types=None):
+        if types is not None:
+            self.types = types
         if self.streams == None or len(self.streams) == 0:
             return None
         if self.types == None:

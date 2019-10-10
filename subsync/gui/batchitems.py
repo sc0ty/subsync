@@ -139,7 +139,7 @@ class InputCol(MultiColumnCol):
             file = item.file
             file.types = self.types
             if file.type not in self.types:
-                file.selectFirstMachingStream()
+                file.selectFirstMatchingStream()
                 item.clear()
         return super().addItems(items, index)
 
