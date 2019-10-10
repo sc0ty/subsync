@@ -156,7 +156,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
                     else:
                         self.Close()
 
-            except:
+            finally:
                 self.Show()
 
     @error_dlg
