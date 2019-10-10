@@ -121,7 +121,6 @@ sources = [
         'math/linefinder.cpp',
         'general/exception.cpp',
         'general/logger.cpp',
-        'general/thread.cpp',
         'general/platform.cpp',
         'python/wrapper.cpp',
         'python/general.cpp',
@@ -265,7 +264,7 @@ setup(
     description = 'SubSync gizmo library',
     long_description = '',
     ext_modules = ext_modules,
-    setup_requires = ['pybind11>=2.2'],
+    setup_requires = ['pybind11>=2.4'],
     cmdclass = {'build_ext': build_ext},
     zip_safe = False,
 )

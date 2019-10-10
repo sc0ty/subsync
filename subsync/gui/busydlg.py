@@ -1,6 +1,5 @@
 import wx
-import gizmo
-from subsync.gui.errorwin import showExceptionDlg
+import threading
 import sys
 
 import logging
@@ -57,11 +56,13 @@ def showBusyDlgAsyncJob(parent, msg, job, *args, **kwargs):
             logger.warn('showBusyDlgAsyncJob: %r', err, exc_info=True)
             exc = sys.exc_info()
 
-    thread = gizmo.Thread(runJob, name=getattr(job, '__name__', 'BusyJob'))
+    thread = threading.Thread(target=runJob)
+    thread.start()
+
     with BusyDlg(parent, msg) as dlg:
-        dlg.ShowModalWhile(thread.isRunning)
+        dlg.ShowModalWhile(thread.is_alive)
 
     if exc:
-        showExceptionDlg(parent, exc)
+        raise exc[1]
 
     return res

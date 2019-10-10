@@ -7,7 +7,7 @@ cx-Freeze==5.1.1
 idna==2.8
 idna-ssl==1.1.0
 multidict==4.5.2
-pybind11==2.3.0
+pybind11>=2.4.0
 pycryptodome==3.8.2
 pydot==1.4.1
 pyparsing==2.4.0

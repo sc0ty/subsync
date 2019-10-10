@@ -12,8 +12,9 @@ from subsync.settings import settings
 from subsync import utils
 from subsync import img
 from subsync import error
-import gizmo
 import pysubs2.exceptions
+import threading
+import time
 import os
 
 import logging
@@ -47,12 +48,11 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.closing = False
         self.runTime = wx.StopWatch()
 
-        self.sleeper = gizmo.Sleeper()
-        self.thread = gizmo.Thread(self.syncJob, name='Synchro')
+        self.thread = threading.Thread(target=self.syncJob, name='Synchro')
+        self.thread.start()
 
     def stop(self):
         self.running = False
-        self.sleeper.wake()
 
     def syncJob(self):
         try:
@@ -63,7 +63,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.updateStatusStarted()
 
             while self.running and self.sync.isRunning():
-                self.sleeper.sleep(0.5)
+                time.sleep(0.5)
                 self.updateStatus(self.sync.getStatus())
         except Exception as err:
             logger.warning('%r', err, exc_info=True)
@@ -180,9 +180,9 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.closing = True
             self.stop()
 
-            if self.thread.isRunning():
+            if self.thread.is_alive():
                 with busydlg.BusyDlg(self, _('Terminating, please wait...')) as dlg:
-                    dlg.ShowModalWhile(self.thread.isRunning)
+                    dlg.ShowModalWhile(self.thread.is_alive)
 
         if event:
             event.Skip()

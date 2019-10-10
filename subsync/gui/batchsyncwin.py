@@ -7,8 +7,9 @@ from subsync import utils
 from subsync import img
 from subsync.settings import settings
 from subsync import error
-import gizmo
 import wx
+import threading
+import time
 import os
 
 import logging
@@ -60,12 +61,11 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
         self.running = True
         self.closing = False
         self.runTime = wx.StopWatch()
-        self.sleeper = gizmo.Sleeper()
-        self.thread = gizmo.Thread(self.syncJob, name='BatchSync')
+        self.thread = threading.Thread(target=self.syncJob, name='BatchSync')
+        self.thread.start()
 
     def stop(self):
         self.running = False
-        self.sleeper.wake()
 
     def syncJob(self):
         for no, task in enumerate(self.tasks):
@@ -96,7 +96,7 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
                 status = sync.getStatus()
                 effort = status.effort
                 self.updateStatus(task, no, status)
-                self.sleeper.sleep(0.5)
+                time.sleep(0.5)
         except Exception as err:
             logger.warning('%r', err, exc_info=True)
             self.onError('core', err)
@@ -280,9 +280,9 @@ class BatchSyncWin(subsync.gui.layout.batchsyncwin.BatchSyncWin):
             self.closing = True
             self.stop()
 
-            if self.thread.isRunning():
+            if self.thread.is_alive():
                 with busydlg.BusyDlg(self, _('Terminating, please wait...')) as dlg:
-                    dlg.ShowModalWhile(self.thread.isRunning)
+                    dlg.ShowModalWhile(self.thread.is_alive)
 
         if event:
             event.Skip()
