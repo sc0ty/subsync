@@ -16,6 +16,12 @@ For main module:
 - Python modules listed in `requirements.txt` file;
 - compiled _gizmo_ module.
 
+## Configuration
+SubSync expects to find configuration in `config.py` file. You could use default from `config.py.template` and modify it if needed:
+```
+cp subsync/config.py.template subsync/config.py
+```
+
 ## POSIX platforms
 For POSIX compatibile platforms (e.g. Linux), standard Python `setup.py` scripts are provided.
 
@@ -37,6 +43,7 @@ If you have ffmpeg, sphinxbase and pocketsphinx libraries installed and avaiable
 ```
 cd gizmo
 python setup.py build
+python setup.py install
 ```
 
 If you don't want to use `pkg-config` (or you can't), you must provide paths to these libraries manually using following options:
@@ -114,3 +121,6 @@ Technically [snaps](https://snapcraft.io) are universal linux packages, but it l
 
 To build one, just type `snapcraft` in the project main directory.
 Thats it, no need to prepare virtualenv, installing dependencies nor building gizmo. Everything needed will be downloaded and built automatically.
+
+## Headless version
+Version without GUI will be build if there is no wxPython installed. You could remove corresponding line from `requirements.txt` file, or install dependencies manually.
