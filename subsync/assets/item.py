@@ -71,9 +71,6 @@ class Asset(object):
     def remoteVersion(self, defaultVersion=(0, 0, 0)):
         return utils.parseVersion(self.getRemote('version'), defaultVersion)
 
-    def isUpgradable(self):
-        return self.remoteVersion() > self.localVersion()
-
     def validateLocal(self):
         pass
 

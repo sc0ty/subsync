@@ -180,9 +180,6 @@ class SpeechPipeline(BasePipeline):
     def getRawWordsSource(self):
         return self.speechRec
 
-    def getRawWordsSource(self):
-        return self.speechRec
-
 
 def createProducerPipeline(stream, runCb=None):
     if stream.type == 'subtitle/text':
