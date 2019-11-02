@@ -79,6 +79,26 @@ void Extractor::run(string threadName)
 	{
 		demux->seek(m_beginTime);
 		demux->start();
+
+		while (m_state == State::running)
+		{
+			try
+			{
+				while (m_state == State::running)
+				{
+					if (!demux->step() || (demux->getPosition() >= m_endTime))
+						m_state = State::stopping;
+				}
+			}
+			catch (const Exception &ex)
+			{
+				if (m_state == State::running)
+					demux->notifyDiscontinuity();
+
+				if (m_errorCb && ex.get("averror") != "AVERROR_EXIT")
+					m_errorCb(ex);
+			}
+		}
 	}
 	catch (const Exception &ex)
 	{
@@ -96,39 +116,13 @@ void Extractor::run(string threadName)
 			m_errorCb(EXCEPTION("fatal error").module("extractor"));
 	}
 
-	while (m_state == State::running)
+	try
 	{
-		try
-		{
-			while (m_state == State::running)
-			{
-				if (!demux->step() || (demux->getPosition() >= m_endTime))
-				{
-					m_state = State::stopping;
-					if (m_eosCb)
-						m_eosCb();
-				}
-			}
-		}
-		catch (const Exception &ex)
-		{
-			if (m_state == State::running)
-				demux->notifyDiscontinuity();
-
-			if (m_errorCb && ex.get("averror") != "AVERROR_EXIT")
-				m_errorCb(ex);
-		}
-		catch (const std::exception& ex)
-		{
-		if (m_errorCb)
-			m_errorCb(EXCEPTION(ex.what()).module("extractor"));
-		}
-		catch (...)
-		{
-		if (m_errorCb)
-			m_errorCb(EXCEPTION("fatal error").module("extractor"));
-		}
+		if (m_eosCb)
+			m_eosCb();
 	}
+	catch (...)
+	{ }
 
 	try
 	{
