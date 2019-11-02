@@ -269,9 +269,6 @@ void init()
 AVInputFormat *getInputFormatByFname(const char *path)
 {
 	const char *p = strrchr(path, '.');
-	if (p == NULL)
-		return NULL;
-
 	string ext;
 	for (p++; *p; p++)
 		ext += tolower(*p);
