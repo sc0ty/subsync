@@ -51,6 +51,7 @@ class ArtProvider(wx.ArtProvider):
         self.register('subtitle-file', 'subtitle-file', wx.ART_FRAME_ICON)
         self.register('video-file', 'video-file', wx.ART_FRAME_ICON)
         self.register('unknown-file', 'unknown-file', wx.ART_FRAME_ICON)
+        self.register('new-file', 'new-file', wx.ART_FRAME_ICON)
 
     def register(self, name, id, *clients):
         if type(id) is bytes:
