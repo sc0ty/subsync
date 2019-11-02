@@ -81,7 +81,7 @@ class StreamSelectionWin ( wx.Dialog ):
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
-		self.m_bitmapTick = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_bitmapTick = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TICK_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer4.Add( self.m_bitmapTick, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 
 		self.m_textTickInfo = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"files with matching streams"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -89,7 +89,7 @@ class StreamSelectionWin ( wx.Dialog ):
 
 		fgSizer4.Add( self.m_textTickInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
-		self.m_bitmapCross = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_bitmapCross = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_CROSS_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer4.Add( self.m_bitmapCross, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT, 5 )
 
 		self.m_textCrossInfo = wx.StaticText( self.m_panel1, wx.ID_ANY, _(u"files without matching streams"), wx.DefaultPosition, wx.DefaultSize, 0 )

@@ -1,7 +1,6 @@
 from .cell import BaseCell
 from subsync.gui.openwin import OpenWin
 from subsync.synchro import InputFile
-from subsync import img
 import wx
 
 
@@ -50,12 +49,11 @@ class InputSyncCell(BaseCell):
     def drawIcon(self, item):
         if type(item) is InputFile:
             if self.selected:
-                img.setItemBitmap(self.m_bitmapIcon, 'ok')
+                self.setIcon('selected-file')
             else:
-                icon = (item.filetype or 'unknown').split('/')[0] + '-file'
-                img.setItemBitmap(self.m_bitmapIcon, icon)
+                self.setIcon( (item.filetype or 'unknown').split('/')[0] + '-file' )
         elif type(item) is DropPlaceholderItem:
-            img.setItemBitmap(self.m_bitmapIcon, 'new-file')
+            self.setIcon('new-file')
 
 
 class InputEditCell(InputSyncCell):

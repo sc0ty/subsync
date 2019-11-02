@@ -1,5 +1,4 @@
 import subsync.gui.layout.streamselwin
-from subsync import img
 from subsync.data import languages
 import wx
 import os
@@ -12,15 +11,12 @@ class StreamSelectionWin(subsync.gui.layout.streamselwin.StreamSelectionWin):
     def __init__(self, parent, streams, types):
         super().__init__(parent)
 
-        img.setItemBitmap(self.m_bitmapTick, 'tickmark')
-        img.setItemBitmap(self.m_bitmapCross, 'crossmark')
-
         self.streams = streams
         self.selection = []
 
         self.m_items.SetIconMap({
-            False: img.getBitmap('crossmark'),
-            True:  img.getBitmap('tickmark')
+            False: wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_MENU),
+            True:  wx.ArtProvider.GetBitmap(wx.ART_TICK_MARK, wx.ART_MENU)
         })
 
         for s in streams:

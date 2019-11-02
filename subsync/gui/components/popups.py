@@ -1,12 +1,11 @@
 import wx
-from subsync import img
 
 
 class PopupInfoButton(wx.BitmapButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.Bind(wx.EVT_BUTTON, self.onClick)
-        img.setItemBitmap(self, 'info')
+        self.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_TIP, wx.ART_BUTTON))
         self.message = None
 
     def onClick(self, event):

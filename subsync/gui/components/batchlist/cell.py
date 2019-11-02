@@ -37,6 +37,12 @@ class BaseCell(subsync.gui.layout.batchlistitem.BatchListItem):
         self.m_textDetails.Show(show)
         self.parent.updateEvent.emit()
 
+    def setIcon(self, id, client=wx.ART_FRAME_ICON):
+        self.m_bitmapIcon.SetBitmap(wx.ArtProvider.GetBitmap(id, client))
+
+    def setStatusIcon(self, id, client=wx.ART_BUTTON):
+        self.m_bitmapStatus.SetBitmap(wx.ArtProvider.GetBitmap(id, client))
+
     def setInteractive(self):
         for obj in self.objects():
             obj.Bind(wx.EVT_LEFT_UP, self.onLeftUp)

@@ -2,7 +2,7 @@ from .cell import BaseCell
 from subsync.gui import errorwin
 from subsync.gui.outpatternwin import OutputPatternWin
 from subsync.synchro import OutputFile
-from subsync import img, error
+from subsync import error
 import wx
 import os
 
@@ -12,7 +12,7 @@ class OutputEditCell(BaseCell):
         super().__init__(parent)
         self.item = item or OutputFile(path)
 
-        img.setItemBitmap(self.m_bitmapStatus, 'dir')
+        self.setStatusIcon(wx.ART_FOLDER)
         self.setState(sub, ref, path, selected=selected)
         self.setInteractive()
 
@@ -34,9 +34,9 @@ class OutputEditCell(BaseCell):
     def select(self, selected=True):
         if super().select(selected):
             if self.selected:
-                img.setItemBitmap(self.m_bitmapIcon, 'ok')
+                self.setIcon('selected-file')
             else:
-                img.setItemBitmap(self.m_bitmapIcon, 'subtitle-file')
+                self.setIcon('subtitle-file')
 
     def show(self, show=True):
         self.m_bitmapStatus.Show(show)
@@ -71,9 +71,10 @@ class OutputSyncCell(BaseCell):
         self.success = None
         self.errors = error.ErrorsCollector()
 
-        img.setItemBitmap(self.m_bitmapIcon, 'subtitle-file')
+        self.setIcon('subtitle-file')
         self.m_textName.SetLabel(os.path.basename(item.getPath(sub, ref)))
-        self.setDescription(_('queued...'), icon='wait')
+        self.setDescription(_('queued...'))
+        self.setStatusIcon('wait')
         self.m_bitmapStatus.Show()
 
         self.show()
@@ -86,11 +87,9 @@ class OutputSyncCell(BaseCell):
             description += _(', {} points').format(status.points)
         self.m_textDetails.SetLabel(description)
 
-        if icon is not None:
-            img.setItemBitmap(self.m_bitmapStatus, icon)
-
     def jobStart(self):
-        self.setDescription('initializing...', icon='run')
+        self.setDescription('initializing...')
+        self.setStatusIcon('run')
 
     def update(self, status):
         if self.status is None or status.points != self.status.points:
@@ -102,25 +101,26 @@ class OutputSyncCell(BaseCell):
         self.success = success
 
         if success:
-            self.setDescription(_('done'), icon='tickmark', status=self.status)
+            self.setDescription(_('done'), status=self.status)
+            self.setStatusIcon(wx.ART_TICK_MARK)
 
         else:
-            icon = None
             if self.errors:
-                icon = 'error'
+                self.setStatusIcon(wx.ART_ERROR)
             elif terminated:
-                icon = 'wait'
+                self.setStatusIcon('wait')
             else:
-                icon = 'crossmark'
+                self.setStatusIcon(wx.ART_CROSS_MARK)
 
             if terminated:
-                self.setDescription(_('terminated'), icon=icon, status=self.status)
+                self.setDescription(_('terminated'), status=self.status)
             else:
-                self.setDescription(_('couldn\'t synchronize'), icon=icon, status=self.status)
+                self.setDescription(_('couldn\'t synchronize'), status=self.status)
 
     def addError(self, source, error):
         if not self.errors:
             self.m_textErrors.Show()
+            self.Layout()
         msg = errorwin.syncErrorToString(source, error)
         self.errors.add(msg, source, error)
 

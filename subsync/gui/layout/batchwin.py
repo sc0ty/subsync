@@ -48,19 +48,27 @@ class BatchWin ( wx.Frame ):
 		fgSizer3.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
 		self.m_buttonAdd = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Add"), wx.DefaultPosition, wx.DefaultSize, 0 )
+
+		self.m_buttonAdd.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_NORMAL_FILE, wx.ART_BUTTON ) )
 		fgSizer3.Add( self.m_buttonAdd, 0, wx.ALL, 5 )
 
 		self.m_buttonRemove = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Remove"), wx.DefaultPosition, wx.DefaultSize, 0 )
+
+		self.m_buttonRemove.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_DELETE, wx.ART_BUTTON ) )
 		self.m_buttonRemove.Enable( False )
 
 		fgSizer3.Add( self.m_buttonRemove, 0, wx.ALL, 5 )
 
 		self.m_buttonStreamSel = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Select stream"), wx.DefaultPosition, wx.DefaultSize, 0 )
+
+		self.m_buttonStreamSel.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_HELP_SETTINGS, wx.ART_BUTTON ) )
 		self.m_buttonStreamSel.Enable( False )
 
 		fgSizer3.Add( self.m_buttonStreamSel, 0, wx.ALL, 5 )
 
 		self.m_buttonOutSel = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Select output"), wx.DefaultPosition, wx.DefaultSize, 0 )
+
+		self.m_buttonOutSel.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_HELP_SETTINGS, wx.ART_BUTTON ) )
 		self.m_buttonOutSel.Enable( False )
 
 		fgSizer3.Add( self.m_buttonOutSel, 0, wx.ALL, 5 )
@@ -270,35 +278,35 @@ class BatchWin ( wx.Frame ):
 		self.Layout()
 		self.m_menubar = wx.MenuBar( 0 )
 		self.m_menuFile = wx.Menu()
-		self.m_menuItemNew = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&New"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemNew = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&New")+ u"\t" + u"CTRL+N", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuItemNew.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_NEW, wx.ART_MENU ) )
 		self.m_menuFile.Append( self.m_menuItemNew )
 
 		self.m_menuFile.AppendSeparator()
 
-		self.m_menuItemAddAuto = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&Add files (auto sort)"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItemAddAuto.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_FILE_OPEN, wx.ART_MENU ) )
+		self.m_menuItemAddAuto = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&Add files (auto sort)")+ u"\t" + u"CTRL+O", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemAddAuto.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_NORMAL_FILE, wx.ART_MENU ) )
 		self.m_menuFile.Append( self.m_menuItemAddAuto )
 
-		self.m_menuItemAddSubs = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"Add &subtitles"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItemAddSubs.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_FILE_OPEN, wx.ART_MENU ) )
+		self.m_menuItemAddSubs = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"Add &subtitles")+ u"\t" + u"F3", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemAddSubs.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_NORMAL_FILE, wx.ART_MENU ) )
 		self.m_menuFile.Append( self.m_menuItemAddSubs )
 
-		self.m_menuItemAddRefs = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"Add &references"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItemAddRefs.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_FILE_OPEN, wx.ART_MENU ) )
+		self.m_menuItemAddRefs = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"Add &references")+ u"\t" + u"F4", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemAddRefs.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_NORMAL_FILE, wx.ART_MENU ) )
 		self.m_menuFile.Append( self.m_menuItemAddRefs )
 
-		self.m_menuItemAddFolder = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"Add &folder"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItemAddFolder.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_FOLDER_OPEN, wx.ART_MENU ) )
+		self.m_menuItemAddFolder = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"Add &folder")+ u"\t" + u"F2", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemAddFolder.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_FOLDER, wx.ART_MENU ) )
 		self.m_menuFile.Append( self.m_menuItemAddFolder )
 
 		self.m_menuFile.AppendSeparator()
 
-		self.m_menuItemImport = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&Import list"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemImport = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&Import list")+ u"\t" + u"F9", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuItemImport.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_FILE_OPEN, wx.ART_MENU ) )
 		self.m_menuFile.Append( self.m_menuItemImport )
 
-		self.m_menuItemExport = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&Export list"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemExport = wx.MenuItem( self.m_menuFile, wx.ID_ANY, _(u"&Export list")+ u"\t" + u"F10", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuItemExport.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_FILE_SAVE, wx.ART_MENU ) )
 		self.m_menuFile.Append( self.m_menuItemExport )
 
@@ -311,35 +319,36 @@ class BatchWin ( wx.Frame ):
 		self.m_menubar.Append( self.m_menuFile, _(u"&File") )
 
 		self.m_menuEdit = wx.Menu()
-		self.m_menuItemRemove = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"&Remove"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemRemove = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"&Remove")+ u"\t" + u"DELETE", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuItemRemove.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_DELETE, wx.ART_MENU ) )
 		self.m_menuEdit.Append( self.m_menuItemRemove )
 		self.m_menuItemRemove.Enable( False )
 
 		self.m_menuEdit.AppendSeparator()
 
-		self.m_menuItemSelectAll = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select &all"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemSelectAll = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select &all")+ u"\t" + u"CTRL+A", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuEdit.Append( self.m_menuItemSelectAll )
 
-		self.m_menuItemSelectSubs = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select all &subtitles"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemSelectSubs = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select all &subtitles")+ u"\t" + u"CTRL+1", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuEdit.Append( self.m_menuItemSelectSubs )
 
-		self.m_menuItemSelectRefs = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select all &references"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemSelectRefs = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select all &references")+ u"\t" + u"CTRL+2", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuEdit.Append( self.m_menuItemSelectRefs )
 
-		self.m_menuItemSelectOuts = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select all o&utputs"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemSelectOuts = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Select all o&utputs")+ u"\t" + u"CTRL+3", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuEdit.Append( self.m_menuItemSelectOuts )
 
 		self.m_menuEdit.AppendSeparator()
 
-		self.m_menuItemStreamSel = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Set &input stream"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemStreamSel = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Set &input stream")+ u"\t" + u"F5", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuEdit.Append( self.m_menuItemStreamSel )
 		self.m_menuItemStreamSel.Enable( False )
 
-		self.m_menuItemOutSel = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Set &output location"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemOutSel = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Set &output location")+ u"\t" + u"F6", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuEdit.Append( self.m_menuItemOutSel )
 
-		self.m_menuItemProps = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"&Propeties"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemProps = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"&Propeties")+ u"\t" + u"F8", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemProps.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_HELP_SETTINGS, wx.ART_MENU ) )
 		self.m_menuEdit.Append( self.m_menuItemProps )
 		self.m_menuItemProps.Enable( False )
 
@@ -347,6 +356,7 @@ class BatchWin ( wx.Frame ):
 
 		self.m_menuHelp = wx.Menu()
 		self.m_menuItemAbout = wx.MenuItem( self.m_menuHelp, wx.ID_ANY, _(u"&About"), wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItemAbout.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_INFORMATION, wx.ART_MENU ) )
 		self.m_menuHelp.Append( self.m_menuItemAbout )
 
 		self.m_menubar.Append( self.m_menuHelp, _(u"&Help") )

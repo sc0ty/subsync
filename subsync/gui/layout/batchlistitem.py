@@ -77,32 +77,6 @@ class BatchListItem ( wx.Panel ):
 		self.SetSizer( fgSizer1 )
 		self.Layout()
 		fgSizer1.Fit( self )
-		self.m_menuInputItemContext = wx.Menu()
-		self.m_menuItemEncoding = wx.MenuItem( self.m_menuInputItemContext, wx.ID_ANY, _(u"Character encoding"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuInputItemContext.Append( self.m_menuItemEncoding )
-
-		self.m_menuItemAudio = wx.MenuItem( self.m_menuInputItemContext, wx.ID_ANY, _(u"Audio channels"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuInputItemContext.Append( self.m_menuItemAudio )
-		self.m_menuItemAudio.Enable( False )
-
-		self.m_menuItemLanguage = wx.MenuItem( self.m_menuInputItemContext, wx.ID_ANY, _(u"Language"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuInputItemContext.Append( self.m_menuItemLanguage )
-
-		self.m_menuInputItemContext.AppendSeparator()
-
-		self.m_menuItemRemove = wx.MenuItem( self.m_menuInputItemContext, wx.ID_ANY, _(u"Remove"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItemRemove.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_DELETE, wx.ART_MENU ) )
-		self.m_menuInputItemContext.Append( self.m_menuItemRemove )
-
-		self.m_menuInputItemContext.AppendSeparator()
-
-		self.m_menuItemStreamSel = wx.MenuItem( self.m_menuInputItemContext, wx.ID_ANY, _(u"Select stream"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuInputItemContext.Append( self.m_menuItemStreamSel )
-
-		self.m_menuItemProps = wx.MenuItem( self.m_menuInputItemContext, wx.ID_ANY, _(u"Properties"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuInputItemContext.Append( self.m_menuItemProps )
-
-
 
 	def __del__( self ):
 		pass

@@ -91,24 +91,24 @@ class SyncWin ( wx.Dialog ):
 		self.m_bitmapTick = wx.StaticBitmap( self.m_panelMain, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_TICK_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_bitmapTick.Hide()
 
-		fgSizer5.Add( self.m_bitmapTick, 0, wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+		fgSizer5.Add( self.m_bitmapTick, 0, wx.TOP|wx.BOTTOM|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_bitmapCross = wx.StaticBitmap( self.m_panelMain, wx.ID_ANY, wx.ArtProvider.GetBitmap( wx.ART_CROSS_MARK, wx.ART_MENU ), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_bitmapCross.Hide()
 
-		fgSizer5.Add( self.m_bitmapCross, 0, wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+		fgSizer5.Add( self.m_bitmapCross, 0, wx.TOP|wx.BOTTOM|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_textSync = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Synchronization: 0 points"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textSync.Wrap( -1 )
 
-		fgSizer5.Add( self.m_textSync, 0, wx.ALL|wx.EXPAND, 5 )
+		fgSizer5.Add( self.m_textSync, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_textShowDetails = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"[show more]"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textShowDetails.Wrap( -1 )
 
 		self.m_textShowDetails.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_HIGHLIGHT ) )
 
-		fgSizer5.Add( self.m_textShowDetails, 0, wx.ALL|wx.EXPAND, 5 )
+		fgSizer5.Add( self.m_textShowDetails, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
 		fgSizer2.Add( fgSizer5, 1, wx.EXPAND|wx.TOP, 5 )

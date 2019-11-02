@@ -1,5 +1,4 @@
 import subsync.gui.layout.aboutwin
-from subsync import img
 import wx
 import wx.lib.dialogs
 
@@ -7,7 +6,7 @@ import wx.lib.dialogs
 class AboutWin(subsync.gui.layout.aboutwin.AboutWin):
     def __init__(self, parent):
         super().__init__(parent)
-        img.setItemBitmap(self.m_bitmapLogo, 'logo')
+        self.m_bitmapLogo.SetBitmap(wx.ArtProvider.GetBitmap('logo', wx.ART_OTHER))
 
         try:
             from subsync.version import version

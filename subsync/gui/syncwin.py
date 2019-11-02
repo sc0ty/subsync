@@ -10,7 +10,6 @@ from subsync.data import filetypes
 from subsync import subtitle
 from subsync.settings import settings
 from subsync import utils
-from subsync import img
 from subsync import error
 import pysubs2.exceptions
 import threading
@@ -26,8 +25,6 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         super().__init__(parent)
 
         self.m_buttonDebugMenu.SetLabel(u'\u22ee') # 2630
-        img.setItemBitmap(self.m_bitmapTick, 'tickmark')
-        img.setItemBitmap(self.m_bitmapCross, 'crossmark')
 
         if settings().debugOptions:
             self.m_buttonDebugMenu.Show()

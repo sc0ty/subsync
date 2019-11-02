@@ -27,11 +27,6 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_buttonMaxDistInfo.message = descriptions.maxDistInfo
         self.m_buttonEffortInfo.message = descriptions.effortInfo
 
-        img.setItemBitmap(self.m_buttonAdd, 'file-add')
-        img.setItemBitmap(self.m_buttonRemove, 'file-remove')
-        img.setItemBitmap(self.m_buttonStreamSel, 'props')
-        img.setItemBitmap(self.m_buttonOutSel, 'props')
-
         self.m_sliderMaxDist.SetValue(settings().windowSize / 60)
         self.m_sliderEffort.SetValue(settings().minEffort * 100)
         self.onSliderMaxDistScroll(None)
@@ -63,18 +58,6 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.Bind(wx.EVT_MENU, self.m_items.onMenuPatternClick, id=self.m_menuItemOutSel.GetId())
         self.Bind(wx.EVT_MENU, self.m_items.onMenuPropsClick, id=self.m_menuItemProps.GetId())
         self.Bind(wx.EVT_MENU, self.onMenuAboutClick, id=self.m_menuItemAbout.GetId())
-
-        self.SetAcceleratorTable(wx.AcceleratorTable([
-            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('N'), self.m_menuItemNew.GetId()),
-            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('L'), self.m_menuItemImport.GetId()),
-            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('S'), self.m_menuItemExport.GetId()),
-            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('A'), self.m_menuItemSelectAll.GetId()),
-            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('1'), self.m_menuItemSelectSubs.GetId()),
-            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('2'), self.m_menuItemSelectRefs.GetId()),
-            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('3'), self.m_menuItemSelectOuts.GetId()),
-            wx.AcceleratorEntry(0, wx.WXK_INSERT, self.m_menuItemAddAuto.GetId()),
-            wx.AcceleratorEntry(0, wx.WXK_DELETE, self.m_menuItemRemove.GetId()),
-            ]))
 
         if tasks:
             self.m_items.addTasks(tasks)
@@ -154,13 +137,15 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
             else:
                 self.m_textStatusVal.SetLabel(_('Everything synchronized successfully'))
 
+        icon = None
         if succeeded:
-            img.setItemBitmap(self.m_bitmapStatus, 'tickmark')
+            icon = wx.ArtProvider.GetBitmap(wx.ART_TICK_MARK, wx.ART_BUTTON)
         elif errors:
-            img.setItemBitmap(self.m_bitmapStatus, 'error')
+            icon = wx.ArtProvider.GetBitmap(wx.ART_ERROR, wx.ART_BUTTON)
         else:
-            img.setItemBitmap(self.m_bitmapStatus, 'crossmark')
+            icon = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_BUTTON)
 
+        self.m_bitmapStatus.SetBitmap(icon)
         self.m_bitmapStatus.Show()
         self.m_buttonEditFailed.Enable(failed)
         self.m_panelSyncDone.Show()
@@ -395,7 +380,7 @@ class BatchSynchronizer(object):
         try:
             self.onJobStart(no)
             sync = Synchronizer(task.sub, task.ref)
-            sync.onError = partial(self.onError, no=no)
+            sync.onError = lambda source, error: self.onError(no, source, error)
 
             sync.init(runCb=lambda: self.running)
             if self.running:

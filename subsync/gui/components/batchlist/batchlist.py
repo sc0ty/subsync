@@ -50,8 +50,6 @@ class BatchList(ulc.UltimateListCtrl):
         self.m_contextMenu.AppendSeparator()
         self.m_menuItemStreamSel = wx.MenuItem(self.m_contextMenu, wx.ID_ANY, _('Select &stream'))
         self.m_contextMenu.Append(self.m_menuItemStreamSel)
-        self.m_menuItemOutputSel = wx.MenuItem(self.m_contextMenu, wx.ID_ANY, _('Select &output'))
-        self.m_contextMenu.Append(self.m_menuItemOutputSel)
         self.m_menuItemProps = wx.MenuItem(self.m_contextMenu, wx.ID_ANY, _('&Properties'))
         self.m_contextMenu.Append(self.m_menuItemProps)
 
