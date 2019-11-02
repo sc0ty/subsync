@@ -24,6 +24,11 @@ class InputFile(object):
         if stream != None:
             self.assign(stream)
 
+    def __lt__(self, other):
+        if self.path != other.path:
+            return self.path < other.path
+        return self.no < other.no
+
     def stream(self):
         return self.streams[self.no] if self.no != None else None
 
@@ -91,6 +96,15 @@ class InputFile(object):
             for no in sorted(self.streams):
                 if self.streams[no].type == t:
                     return self.select(no)
+
+    def hasMatchingStream(self, types=None):
+        types = types or self.types
+        if types is None:
+            return len(self.streams) > 0
+        for s in self.streams.values():
+            if s.type in types:
+                return True
+        return False
 
     def isOpen(self):
         return self.path != None

@@ -2,7 +2,6 @@ import subsync.gui.layout.mainwin
 import wx
 from subsync.gui.syncwin import SyncWin
 from subsync.gui.batchwin import BatchWin
-from subsync.gui.batchsyncwin import BatchSyncWin
 from subsync.gui.settingswin import SettingsWin
 from subsync.gui.downloadwin import SelfUpdateWin
 from subsync.gui.aboutwin import AboutWin
@@ -164,11 +163,9 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         try:
             self.Hide()
             win = BatchWin(self, settings().tasks)
-            win.Show()
 
-        except Exception as e:
-            logger.warn('showBatchWin %r', e, exc_info=True)
-            self.Show()
+        finally:
+            wx.CallAfter(win.Show)
 
     @error_dlg
     def onClose(self, event):

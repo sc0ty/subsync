@@ -125,3 +125,13 @@ def getExceptionDetails(excInfo=None):
 
     if exc:
         return ''.join(traceback.format_exception(type, exc, tb))
+
+
+def getExceptionField(e, key):
+    if type(e) is gizmo.Error:
+        for line in str(e).split('\n'):
+            ents = line.split(':', 1)
+            if len(ents) == 2 and ents[0] == key:
+                return ents[1].strip()
+    elif type(e) is Error:
+        return e.get(key)

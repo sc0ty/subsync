@@ -1,130 +1,228 @@
 import subsync.gui.layout.batchwin
-from subsync.gui.batchitems import InputCol, OutputCol, InputItem
-from subsync.gui.outpatternwin import OutputPatternWin
-from subsync.gui.streamselwin import StreamSelectionWin
-from subsync.gui.openwin import OpenWin
-from subsync.gui.batchsyncwin import BatchSyncWin
-from subsync.gui import busydlg
-from subsync.gui.components import assetsdlg
-from subsync.gui.components import filedlg
-from subsync.gui.components.dc import BitmapMemoryDC
-from subsync.gui.errorwin import ErrorWin, error_dlg
-from subsync.synchro import SyncTask, SyncTaskList, SubFile, RefFile
+from subsync.gui.aboutwin import AboutWin
+from subsync.gui.busydlg import BusyDlg
+from subsync.gui.components import assetsdlg, filedlg
+from subsync.gui.components.thread import gui_thread
+from subsync.gui.components.update import update_lock
+from subsync.gui.errorwin import error_dlg
+from subsync.synchro import Synchronizer, SyncTaskList, InputFile, SubFile, RefFile
 from subsync.settings import settings
-from subsync import img
-from subsync import error
+from subsync import img, utils
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
 from subsync.data import descriptions
 import wx
-import os
+import threading
+import time
+from functools import partial
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     def __init__(self, parent, tasks=None):
         super().__init__(parent)
-
-        self.m_buttonMenu.SetLabel(u'\u22ee') # 2630
-        img.setToolBitmap(self.m_toolBarSub, self.m_toolSubAdd, 'file-add')
-        img.setToolBitmap(self.m_toolBarSub, self.m_toolSubRemove, 'file-remove')
-        img.setToolBitmap(self.m_toolBarSub, self.m_toolSubSelStream, 'props')
-        img.setToolBitmap(self.m_toolBarRef, self.m_toolRefAdd, 'file-add')
-        img.setToolBitmap(self.m_toolBarRef, self.m_toolRefRemove, 'file-remove')
-        img.setToolBitmap(self.m_toolBarRef, self.m_toolRefSelStream, 'props')
-        img.setToolBitmap(self.m_toolBarOut, self.m_toolOutPattern, 'props')
+        img.setWinIcon(self)
 
         self.m_buttonMaxDistInfo.message = descriptions.maxDistInfo
         self.m_buttonEffortInfo.message = descriptions.effortInfo
 
-        self.subs = InputCol(SubFile.types)
-        self.refs = InputCol(RefFile.types)
-        self.outs = OutputCol()
-
-        self.outPattern = os.path.join('{ref_dir}', '{ref_name}{if:sub_lang:.}{sub_lang}.srt')
-
-        itemHeight = InputCol.getHeight()
-        self.m_items.addCol(self.subs, itemHeight)
-        self.m_items.addCol(self.refs, itemHeight)
-        self.m_items.addCol(self.outs, itemHeight)
-
-        self.m_items.onItemsChange = self.onItemsChange
-        self.m_items.onSelection = self.onSelection
-        self.m_items.onContextMenu = self.onContextMenu
-        self.m_items.onFilesDrop = self.onFilesDrop
-        self.m_items.onPaintEmpty = self.onPaintEmpty
+        img.setItemBitmap(self.m_buttonAdd, 'file-add')
+        img.setItemBitmap(self.m_buttonRemove, 'file-remove')
+        img.setItemBitmap(self.m_buttonStreamSel, 'props')
+        img.setItemBitmap(self.m_buttonOutSel, 'props')
 
         self.m_sliderMaxDist.SetValue(settings().windowSize / 60)
         self.m_sliderEffort.SetValue(settings().minEffort * 100)
         self.onSliderMaxDistScroll(None)
         self.onSliderEffortScroll(None)
 
-        self.setTasks(tasks)
-        self.Layout()
+        # workaround for truncated texts
+        self.m_textMaxDist.SetMinSize(wx.Size(int(self.m_textMaxDist.GetSize().width * 1.1), -1))
+        self.m_textEffort.SetMinSize(wx.Size(int(self.m_textEffort.GetSize().width * 1.1), -1))
 
-    def setTasks(self, tasks):
-        self.tasks = []
-        self.subs.clear()
-        self.refs.clear()
+        self.synchro = None
+        self.closing = False
+
+        self.m_items.updateEvent.addListener(self.onItemsUpdate)
+
+        self.m_buttonAdd.Bind(wx.EVT_BUTTON, lambda e: self.addFiles())
+        self.m_buttonRemove.Bind(wx.EVT_BUTTON, self.m_items.onMenuRemoveClick)
+        self.m_buttonStreamSel.Bind(wx.EVT_BUTTON, self.m_items.onMenuStreamSelClick)
+        self.m_buttonOutSel.Bind(wx.EVT_BUTTON, self.m_items.onMenuPatternClick)
+        self.Bind(wx.EVT_MENU, lambda e: self.addFiles(), id=self.m_menuItemAddAuto.GetId())
+        self.Bind(wx.EVT_MENU, lambda e: self.addFiles(0), id=self.m_menuItemAddSubs.GetId())
+        self.Bind(wx.EVT_MENU, lambda e: self.addFiles(1), id=self.m_menuItemAddRefs.GetId())
+        self.Bind(wx.EVT_MENU, lambda e: self.Close(), id=self.m_menuItemClose.GetId())
+        self.Bind(wx.EVT_MENU, self.m_items.onMenuRemoveClick, id=self.m_menuItemRemove.GetId())
+        self.Bind(wx.EVT_MENU, lambda e: self.m_items.selectColumns([0, 1, 2]), id=self.m_menuItemSelectAll.GetId())
+        self.Bind(wx.EVT_MENU, lambda e: self.m_items.selectColumns([0]), id=self.m_menuItemSelectSubs.GetId())
+        self.Bind(wx.EVT_MENU, lambda e: self.m_items.selectColumns([1]), id=self.m_menuItemSelectRefs.GetId())
+        self.Bind(wx.EVT_MENU, lambda e: self.m_items.selectColumns([2]), id=self.m_menuItemSelectOuts.GetId())
+        self.Bind(wx.EVT_MENU, self.m_items.onMenuStreamSelClick, id=self.m_menuItemStreamSel.GetId())
+        self.Bind(wx.EVT_MENU, self.m_items.onMenuPatternClick, id=self.m_menuItemOutSel.GetId())
+        self.Bind(wx.EVT_MENU, self.m_items.onMenuPropsClick, id=self.m_menuItemProps.GetId())
+        self.Bind(wx.EVT_MENU, self.onMenuAboutClick, id=self.m_menuItemAbout.GetId())
+
+        self.SetAcceleratorTable(wx.AcceleratorTable([
+            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('N'), self.m_menuItemNew.GetId()),
+            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('L'), self.m_menuItemImport.GetId()),
+            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('S'), self.m_menuItemExport.GetId()),
+            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('A'), self.m_menuItemSelectAll.GetId()),
+            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('1'), self.m_menuItemSelectSubs.GetId()),
+            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('2'), self.m_menuItemSelectRefs.GetId()),
+            wx.AcceleratorEntry(wx.ACCEL_CTRL, ord('3'), self.m_menuItemSelectOuts.GetId()),
+            wx.AcceleratorEntry(0, wx.WXK_INSERT, self.m_menuItemAddAuto.GetId()),
+            wx.AcceleratorEntry(0, wx.WXK_DELETE, self.m_menuItemRemove.GetId()),
+            ]))
 
         if tasks:
-            self.subs.addItems([ InputItem(file=t.sub, types=SubFile.types) for t in tasks ], 0)
-            self.refs.addItems([ InputItem(file=t.ref, types=RefFile.types) for t in tasks ], 0)
+            self.m_items.addTasks(tasks)
 
-        self.updateTasks()
-        self.onItemsChange()
-        self.onSelection()
+        self.Layout()
 
-    def onItemsChange(self):
-        self.updateTasks()
-        self.m_items.updateSize()
-        self.m_items.Refresh()
+    def start(self):
+        if self.synchro:
+            self.synchro.stop()
 
-        canStart = len(self.subs) and len(self.subs) == len(self.refs) == len(self.outs)
-        self.m_buttonStart.Enable(canStart)
-        self.onSelection()
+        tasks = self.m_items.getTasks()
 
-    def onSelection(self):
-        subs = self.m_items.getSelectionInCol(self.subs)
-        refs = self.m_items.getSelectionInCol(self.refs)
-        outs = self.m_items.getSelectionInCol(self.outs)
-        files = [ s.file for s in subs + refs ]
+        if assetsdlg.validateAssets(self, tasks, askForLang=True):
+            self.m_gaugeTotalProgress.SetRange(100 * len(tasks))
+            self.goToSyncMode()
 
-        sel = self.m_items.getSelection()
-        if len(sel) == 0:
-            self.m_textSelected.SetValue(_('<nothing selected>'))
-        elif len(sel) == 1:
-            item = self.m_items.getFirstSelectedItem()
-            self.m_textSelected.SetValue(item.getPathInfo() or '')
+            self.synchro = BatchSynchronizer()
+            self.synchro.onJobStart = self.onJobStart
+            self.synchro.onJobEnd = self.onJobEnd
+            self.synchro.onJobUpdate = self.onJobUpdate
+            self.synchro.onAllJobsEnd = self.onAllJobsEnd
+            self.synchro.onError = self.onJobError
+
+            self.synchro.start(tasks)
+
+    def stop(self):
+        self.synchro and self.synchro.stop()
+        self.m_textStatusVal.SetLabel(_('Terminating...'))
+
+    @update_lock
+    def goToEditMode(self):
+        self.m_panelProgress.Hide()
+        self.m_panelSettings.Show()
+        self.m_buttonStop.Show()
+        self.m_buttonStop.Hide()
+        self.m_buttonClose.Show()
+        for no in range(self.m_menubar.GetMenuCount()):
+            self.m_menubar.EnableTop(no, True)
+        self.m_items.setMode(syncMode=False)
+        self.Layout()
+
+    @update_lock
+    def goToSyncMode(self):
+        self.m_items.setMode(syncMode=True)
+        self.m_textStatusVal.SetLabel(_('Initializing...'))
+        self.m_bitmapStatus.Hide()
+        self.m_gaugeCurrentProgress.SetValue(0)
+        self.m_gaugeTotalProgress.SetValue(0)
+        self.m_panelSettings.Hide()
+        self.m_panelSyncDone.Hide()
+        self.m_panelProgress.Show()
+        self.m_buttonStart.Disable()
+        self.m_buttonStop.Show()
+        self.m_buttonClose.Hide()
+        for no in range(self.m_menubar.GetMenuCount()):
+            self.m_menubar.EnableTop(no, False)
+        self.Layout()
+
+    @update_lock
+    def goToDoneMode(self, terminated):
+        failed = sum([ not x.success for x in self.m_items.iterJobs() ])
+        errors = sum([ bool(x.errors) for x in self.m_items.iterJobs() ])
+        succeeded = not terminated and not failed
+
+        if terminated:
+            self.m_textStatusVal.SetLabel(_('Synchronization terminated'))
+        elif failed:
+            if failed == self.m_items.GetItemCount():
+                self.m_textStatusVal.SetLabel(_('Total failure'))
+            elif errors:
+                self.m_textStatusVal.SetLabel(_('Got errors, synchronization failed'))
+            else:
+                self.m_textStatusVal.SetLabel(_('Some tasks couldn\'t be synchronized'))
         else:
-            self.m_textSelected.SetValue(_('<multiple selected>'))
-        self.m_buttonSelStream.Enable(bool(subs) or bool(refs))
+            if errors:
+                self.m_textStatusVal.SetLabel(_('Everything synchronized, but got errors'))
+            else:
+                self.m_textStatusVal.SetLabel(_('Everything synchronized successfully'))
 
-        self.m_toolBarSub.EnableTool(self.m_toolSubRemove.GetId(), bool(subs))
-        self.m_toolBarSub.EnableTool(self.m_toolSubSelStream.GetId(), bool(subs))
+        if succeeded:
+            img.setItemBitmap(self.m_bitmapStatus, 'tickmark')
+        elif errors:
+            img.setItemBitmap(self.m_bitmapStatus, 'error')
+        else:
+            img.setItemBitmap(self.m_bitmapStatus, 'crossmark')
 
-        self.m_toolBarRef.EnableTool(self.m_toolRefRemove.GetId(), bool(refs))
-        self.m_toolBarRef.EnableTool(self.m_toolRefSelStream.GetId(), bool(refs))
+        self.m_bitmapStatus.Show()
+        self.m_buttonEditFailed.Enable(failed)
+        self.m_panelSyncDone.Show()
+        self.m_buttonStop.Hide()
+        self.m_buttonClose.Show()
+        self.m_items.clearSelection()
+        self.Layout()
 
-        self.m_toolBarOut.EnableTool(self.m_toolOutPattern.GetId(), bool(outs))
+    @gui_thread
+    @update_lock
+    def onJobStart(self, no):
+        self.m_items.clearSelection()
+        self.m_items.selectRow(no)
+        self.m_items.EnsureVisible(no)
+        self.m_items.getJob(no).jobStart()
+        self.onJobUpdate(no)
 
-        langs = set([ s.lang for s in files ])
-        self.m_choiceLang.Enable(bool(langs))
-        self.m_choiceLang.SetValue(getSingleVal(langs))
+    @gui_thread
+    def onJobEnd(self, no, status, success, terminated):
+        self.m_items.getJob(no).jobEnd(status, success, terminated)
+        self.m_gaugeCurrentProgress.SetValue(100)
 
-        encs = set([ s.enc for s in files if s.type == 'subtitle/text' ])
-        self.m_choiceEnc.Enable(bool(encs))
-        self.m_choiceEnc.SetValue(getSingleVal(encs))
+    @gui_thread
+    def onJobUpdate(self, no, status=None):
+        if status is not None:
+            self.m_items.getJob(no).update(status)
 
-    def updateTasks(self):
-        size = max(len(self.subs), len(self.refs))
-        self.outs.resize(size, self.outPattern)
-        self.tasks = []
+        progress = 0.0
+        if status is not None:
+            progress = status.progress
+            effort = settings().minEffort
+            if effort:
+                progress = min(max(progress, status.effort / effort, 0), 1)
+        self.m_gaugeCurrentProgress.SetValue(100 * progress)
+        self.m_gaugeTotalProgress.SetValue(100 * (no + progress))
 
-        for i in range(size):
-            task = SyncTask(out=self.outs[i].file)
-            if i < len(self.subs): task.sub = self.subs[i].file
-            if i < len(self.refs): task.ref = self.refs[i].file
-            self.outs[i].setPath(task.getOutputPath())
-            self.tasks.append(task)
+        if self.synchro.running:
+            self.updateProgressText(no, progress)
+
+    @gui_thread
+    @update_lock
+    def onAllJobsEnd(self, terminated):
+        self.m_gaugeTotalProgress.SetValue(self.m_gaugeTotalProgress.GetRange())
+        self.goToDoneMode(terminated)
+
+    @gui_thread
+    def onJobError(self, no, source, error):
+        self.m_items.getJob(no).addError(source, error)
+
+    def updateProgressText(self, no, progress):
+        total = self.m_items.GetItemCount()
+        elapsed = self.synchro.runTime.Time() / 1000
+
+        msg = [ _('Task:'), '{} / {}'.format(no+1, total) ]
+        if elapsed > 1:
+            msg += [ _('Elapsed:'), utils.timeStampFmt(elapsed) ]
+        if elapsed > 60 and progress:
+            totalProgress = (no + progress) / total
+            eta = elapsed / totalProgress - elapsed
+            msg += [ _('ETA:'), utils.timeStampApproxFmt(eta) ]
+
+        self.m_textStatusVal.SetLabel(' '.join(msg))
 
     def onSliderMaxDistScroll(self, event):
         val = self.m_sliderMaxDist.GetValue()
@@ -141,268 +239,83 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         settings().save()
         self.start()
 
-    def start(self):
-        tasks = self.tasks
-        if assetsdlg.validateAssets(self, tasks, askForLang=True):
-            self.updateTasks()
+    @error_dlg
+    def onButtonStopClick(self, event):
+        self.stop()
+        self.m_buttonStop.Hide()
+        self.m_buttonClose.Show()
+        self.Layout()
 
-            try:
-                self.Hide()
-                with BatchSyncWin(self.GetParent(), tasks) as dlg:
-                    res = dlg.ShowModal()
-                    if res == wx.ID_RETRY:
-                        self.setTasks(dlg.getFailedTasks())
-                        self.Show()
-                    else:
-                        self.Close()
-
-            finally:
-                self.Show()
+    def onButtonCloseClick(self, event):
+        self.Close()
 
     @error_dlg
-    def onFilesDrop(self, col, paths, index):
-        if col and col in (self.subs, self.refs):
-            sort = settings().batchSortFiles and len(paths) > 1
-
-            if settings().showBatchDropTargetPopup and len(paths) > 1:
-                msg = _('Do you want to sort files between subtitles and references automatically?')
-                title = _('Sort dropped files')
-                flags = wx.YES_NO | wx.ICON_QUESTION
-                with wx.RichMessageDialog(self, msg, title, flags) as dlg:
-                    dlg.ShowCheckBox(_('don\'t show this message again'))
-                    sort = dlg.ShowModal() == wx.ID_YES
-
-                    if dlg.IsCheckBoxChecked():
-                        settings().set(showBatchDropTargetPopup=False, batchSortFiles=sort)
-                        settings().save()
-
-            self.addFiles(col, paths, index, sort=sort)
-
-    @error_dlg
-    def onSubAddClick(self, event):
-        paths = self.showOpenFileDlg()
-        if paths:
-            self.addFiles(self.subs, paths)
-
-    @error_dlg
-    def onRefAddClick(self, event):
-        paths = self.showOpenFileDlg()
-        if paths:
-            self.addFiles(self.refs, paths)
-
-    def showOpenFileDlg(self):
+    def addFiles(self, col=None):
         wildcard = '|'.join([
                 _('All supported files'), subtitleWildcard + ';' + videoWildcard,
                 _('Subtitle files'), subtitleWildcard,
                 _('Video files'), videoWildcard,
                 _('All files'), '*.*' ])
 
-        return filedlg.showOpenFileDlg(self, multiple=True, wildcard=wildcard)
+        paths = filedlg.showOpenFileDlg(self, multiple=True, wildcard=wildcard)
+        if paths:
+            self.m_items.addFiles(paths, col=col)
 
-    def addFiles(self, col, paths, index=None, sort=False):
-        msg = _('Loading, please wait...')
-        types = self.refs.types
-        if col and not sort:
-            types = col.types
-        items, errors = busydlg.showBusyDlgAsyncJob(self, msg, self.loadFiles, paths, types)
-        if sort:
-            subsIndex, refsIndex = len(self.subs), len(self.refs)
-            if index is not None:
-                subsIndex = min(index, subsIndex)
-                refsIndex = min(index, refsIndex)
-            subs, refs = sortInputFiles(items)
-            addedSubs = self.subs.addItems(subs, subsIndex)
-            addedRefs = self.refs.addItems(refs, refsIndex)
-            self.m_items.setSelection(addedSubs or addedRefs)
-            added = addedSubs + addedRefs
-        else:
-            added = col.addItems(items, index or len(col))
-            self.m_items.setSelection(added)
+    @update_lock
+    def onButtonEditFailedClick(self, event):
+        rows = [ no for no, job in enumerate(self.m_items.iterJobs()) if job.success ]
+        for row in reversed(rows):
+            self.m_items.removeRow(row)
+        self.goToEditMode()
 
-        if len(paths) > len(added):
-            msg = [ _('Following files could not be added:') ]
-            msg += list(sorted(set(paths) - set(item.file.path for item in added)))
+    def onButtonEditAllClick(self, event):
+        self.goToEditMode()
 
-            with ErrorWin(self, '\n'.join(msg)) as dlg:
-                for path in sorted(set([i.file.path for i in items]) - set([a.file.path for a in added])):
-                    dlg.addDetails('# {}'.format(path))
-                    dlg.addDetails(_('There are no usable streams'))
-                    dlg.addDetails('\n')
-                dlg.addDetails(*errors)
-                dlg.ShowModal()
-        elif errors:
-            with ErrorWin(self, _('Unexpected error occured')) as dlg:
-                dlg.addDetails(*errors)
-                dlg.ShowModal()
-
-        if added:
-            self.m_items.updateSize()
-            self.m_items.Refresh()
-            self.onItemsChange()
-
-    def loadFiles(self, paths, types=None):
-        items = []
-        errors = []
-        for path in paths:
-            try:
-                items.append(InputItem(path=path, types=types))
-            except Exception as err:
-                errors.append('# {}'.format(path))
-                errors.append(error.getExceptionMessage(err))
-                errors.append(error.getExceptionDetails())
-                errors.append('\n')
-        return items, errors
-
-    @error_dlg
-    def onSubRemoveClick(self, event):
-        items = self.m_items.getSelectionInCol(self.subs)
-        self.removeItems(items)
-
-    @error_dlg
-    def onRefRemoveClick(self, event):
-        items = self.m_items.getSelectionInCol(self.refs)
-        self.removeItems(items)
-
-    def removeItems(self, items):
-        if not items:
-            raise error.Error(_('Select files first'))
-        self.m_items.removeItems(items)
-        self.m_items.Refresh()
-
-    @error_dlg
-    def onSubSelStreamClick(self, event):
-        items = self.m_items.getSelectionInCol(self.subs)
-        self.showStreamSelectionWindow(items, self.subs.types)
-
-    @error_dlg
-    def onRefSelStreamClick(self, event):
-        items = self.m_items.getSelectionInCol(self.refs)
-        self.showStreamSelectionWindow(items, self.refs.types)
-
-    @error_dlg
-    def onButtonSelStreamClick(self, event):
-        items = self.m_items.getSelectionInCol(self.subs)
-        types = self.subs.types
-        if not items:
-            items = self.m_items.getSelectionInCol(self.refs)
-            types = self.refs.types
-        self.showStreamSelectionWindow(items, types)
-
-    def showStreamSelectionWindow(self, items, types):
-        if not items:
-            raise error.Error(_('Select files first'))
-        files = [ item.file for item in items ]
-        with StreamSelectionWin(self, files, types) as dlg:
-            if dlg.ShowModal() == wx.ID_OK:
-                for item, selection in zip(items, dlg.getSelection()):
-                    if selection != None:
-                        item.selectStream(selection)
-                self.onSelection()
-                self.updateTasks()
-                self.m_items.Refresh()
-
-    @error_dlg
-    def onOutPatternClick(self, event):
-        items = self.m_items.getSelectionInCol(self.outs)
-        pattern = self.outPattern
-        if items:
-            pattern = items[0].file.path
-
-        with OutputPatternWin(self, pattern) as dlg:
-            if dlg.ShowModal() == wx.ID_OK:
-                pattern = dlg.getPattern()
-                self.outPattern = pattern
-                for item in items:
-                    item.setPattern(pattern)
-                self.updateTasks()
-                self.m_items.Refresh()
+    def onButtonEditNewClick(self, event):
+        self.m_items.removeAll()
+        self.goToEditMode()
 
     @error_dlg
     def onChoiceLangChoice(self, event):
-        self.setStreamParams(lang=self.m_choiceLang.GetValue())
+        lang = self.m_choiceLang.GetValue()
+        self.m_items.updateSelectedInputs(lang=lang)
 
-    @error_dlg
-    def onChoiceEncChoice(self, event):
-        self.setStreamParams(enc=self.m_choiceEnc.GetValue())
+    @update_lock
+    def onItemsUpdate(self):
+        subLangs = set([ c.item.lang for c in self.m_items.iterSelected(0) if c.isFile() ])
+        refLangs = set([ c.item.lang for c in self.m_items.iterSelected(1) if c.isFile() ])
+        selLangs = subLangs | refLangs
 
-    def setStreamParams(self, lang=False, enc=False):
-        items = self.m_items.getSelectionInCol(self.subs) + self.m_items.getSelectionInCol(self.refs)
-        for item in items:
-            item.setStreamParams(lang=lang, enc=enc)
-        self.updateTasks()
-        self.m_items.Refresh()
+        isSubSel = bool(subLangs)
+        isRefSel = bool(refLangs)
+        isOutSel = bool(self.m_items.getFirstSelected(2))
 
-    @error_dlg
-    def onItemsLeftDClick(self, event):
-        item = self.m_items.getFirstSelectedItem()
-        if item and isinstance(item, InputItem):
-            self.showInputPropsWin(item)
+        self.m_buttonRemove.Enable(isSubSel or isRefSel)
+        self.m_buttonStreamSel.Enable(isSubSel ^ isRefSel)
+        self.m_buttonOutSel.Enable(isOutSel)
 
-    def onContextMenu(self, col, item, index):
-        if item and col in (self.subs, self.refs):
-            self.PopupMenu(self.m_menuItems)
+        self.m_menuItemRemove.Enable(isSubSel or isRefSel)
+        self.m_menuItemStreamSel.Enable(isSubSel ^ isRefSel)
+        self.m_menuItemOutSel.Enable(isOutSel)
+        self.m_menuItemProps.Enable(isSubSel or isRefSel or isOutSel)
 
-    @error_dlg
-    def onMenuItemsRemoveClick(self, event):
-        self.removeItems(self.m_items.getSelection())
+        if len(selLangs) == 1:
+            self.m_choiceLang.SetValue(next(iter(selLangs)))
+        else:
+            self.m_choiceLang.SetValue(wx.NOT_FOUND)
 
-    @error_dlg
-    def onMenuItemsPropsClick(self, event):
-        item = self.m_items.getFirstSelectedItem()
-        if item and isinstance(item, InputItem):
-            self.showInputPropsWin(item)
-
-    def showInputPropsWin(self, item):
-        with OpenWin(self, item.file, allowOpen=False) as dlg:
-            if dlg.ShowModal() == wx.ID_OK:
-                item.setFile(dlg.file)
-                self.updateTasks()
-                self.m_items.Refresh()
-
-    def onButtonMenuClick(self, event):
-        self.PopupMenu(self.m_menu)
-
-    @error_dlg
-    def onMenuItemAddFilesClick(self, event):
-        paths = self.showOpenFileDlg()
-        if paths:
-            self.addFiles(None, paths, sort=True)
-
-    @error_dlg
-    def onMenuItemImportListClick(self, event):
-        wildcard = '*.yaml|*.yaml|{}|*.*'.format(_('All files'))
-        path = filedlg.showOpenFileDlg(self, wildcard=wildcard)
-        if path:
-            tasks = SyncTaskList.load(path)
-            self.setTasks(tasks)
-
-    @error_dlg
-    def onMenuItemExportListClick(self, event):
-        wildcard = '*.yaml|*.yaml|{}|*.*'.format(_('All files'))
-        path = filedlg.showSaveFileDlg(self, wildcard=wildcard)
-        if path:
-            self.updateTasks()
-            SyncTaskList.save(self.tasks, path)
-
-    @error_dlg
-    def onMenuItemClearListClick(self, event):
-        msg = _('Do you really want to clear all files?')
-        title = _('Clear file list')
-        flags = wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION
-        with wx.MessageDialog(self, msg, title, flags) as dlg:
-            if dlg.ShowModal() == wx.ID_YES:
-                self.setTasks([])
-
-    def onPaintEmpty(self, width, height):
-        dc = BitmapMemoryDC(width, height)
-        dc.setFont(14)
-        dc.DrawText(descriptions.batchSyncInfo, 5, 5)
-        return dc.getBitmap()
-
-    def onButtonCloseClick(self, event):
-        self.Close()
+        self.m_choiceLang.Enable(isSubSel or isRefSel)
+        self.m_buttonStart.Enable(self.m_items.isReadyToSynchronize())
 
     def onClose(self, event):
+        self.closing = True
+        self.m_items.updateEvent.removeListener(self.onItemsUpdate)
+        self.stop()
+
+        if self.synchro and self.synchro.thread.is_alive():
+            with BusyDlg(self, _('Terminating, please wait...')) as dlg:
+                dlg.ShowModalWhile(self.synchro.thread.is_alive)
+
         parent = self.GetParent()
         if parent:
             parent.Show()
@@ -410,22 +323,116 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         if event:
             event.Skip()
 
+    @error_dlg
+    def onMenuNewClick(self, event):
+        if self.m_items.GetItemCount() > 0:
+            msg = _('Do you want to clear all items?')
+            title = _('Remove items')
+            flags = wx.YES_NO | wx.ICON_QUESTION
+            with wx.MessageDialog(self, msg, title, flags) as dlg:
+                if dlg.ShowModal() == wx.ID_YES:
+                    self.m_items.removeAll()
 
-def getSingleVal(items, defaultVal=wx.NOT_FOUND):
-    if len(items) == 1:
-        return next(iter(items))
-    else:
-        return defaultVal
+    @error_dlg
+    def onMenuAddFolderClick(self, event):
+        style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
+        with wx.DirDialog(self, _('Select directory'), style=style) as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                self.m_items.addFiles([ dlg.GetPath() ], skipMissing=True)
+
+    @error_dlg
+    def onMenuImportClick(self, event):
+        wildcard = '*.yaml|*.yaml|{}|*.*'.format(_('All files'))
+        path = filedlg.showOpenFileDlg(self, wildcard=wildcard)
+        if path:
+            tasks = SyncTaskList.load(path)
+            self.m_items.removeAll()
+            self.m_items.addTasks(tasks)
+
+    @error_dlg
+    def onMenuExportClick(self, event):
+        wildcard = '*.yaml|*.yaml|{}|*.*'.format(_('All files'))
+        path = filedlg.showSaveFileDlg(self, wildcard=wildcard)
+        if path:
+            tasks = self.m_items.getTasks()
+            SyncTaskList.save(tasks, path)
+
+    @error_dlg
+    def onMenuAboutClick(self, event):
+        AboutWin(self).ShowModal()
 
 
-def sortInputFiles(items):
-    subs = []
-    refs = []
-    for item in sorted(items):
-        if [ s for s in item.file.streams.values() if s.type not in SubFile.types ]:
-            item.file.types = RefFile.types
-            refs.append(item)
-        else:
-            item.file.types = SubFile.types
-            subs.append(item)
-    return subs, refs
+class BatchSynchronizer(object):
+    def __init__(self):
+        self.onJobStart = lambda no: None
+        self.onJobEnd = lambda no, status, success, terminated: None
+        self.onJobUpdate = lambda no, status: None
+        self.onAllJobsEnd = lambda terminated: None
+        self.onError = lambda no, source, error: None
+
+    def start(self, tasks):
+        self.tasks = tasks
+        self.running = True
+        self.runTime = wx.StopWatch()
+        self.thread = threading.Thread(target=self.syncJob, name='BatchSync')
+        self.thread.start()
+
+    def stop(self):
+        self.running = False
+
+    def syncJob(self):
+        for no, task in enumerate(self.tasks):
+            if self.running:
+                self.runTask(task, no)
+            if not self.running:
+                self.onJobEnd(no, None, False, not self.running)
+
+        self.onAllJobsEnd(not self.running)
+        logger.info('thread terminated')
+
+    def runTask(self, task, no):
+        logger.info('running task %i: %r', no, task)
+        try:
+            self.onJobStart(no)
+            sync = Synchronizer(task.sub, task.ref)
+            sync.onError = partial(self.onError, no=no)
+
+            sync.init(runCb=lambda: self.running)
+            if self.running:
+                sync.start()
+
+            minEffort = settings().minEffort
+            effort = -1
+
+            while self.running and sync.isRunning() and (minEffort >= 1.0 or effort < minEffort):
+                status = sync.getStatus()
+                effort = status.effort
+                self.onJobUpdate(no, status)
+                time.sleep(0.5)
+
+        except Exception as err:
+            logger.warning('%r', err, exc_info=True)
+            self.onError(no, 'core', err)
+
+        try:
+            sync.stop(force=True)
+            status = sync.getStatus()
+            succeeded = self.running and status and status.subReady
+            if succeeded:
+                try:
+                    sync.getSynchronizedSubtitles().save(
+                            path=task.getOutputPath(),
+                            encoding=task.getOutputEnc(),
+                            fps=task.out.fps,
+                            overwrite=task.out.overwrite)
+
+                except Exception as err:
+                    logger.warning('%r', err, exc_info=True)
+                    self.onError(no, 'out', err)
+
+            self.onJobEnd(no, status, succeeded, not self.running)
+        except Exception as err:
+            logger.warning('%r', err, exc_info=True)
+            self.onError(no, 'core', err)
+
+        sync.destroy()
