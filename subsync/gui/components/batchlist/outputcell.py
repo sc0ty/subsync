@@ -24,16 +24,14 @@ class OutputEditCell(BaseCell):
             path = self.item.getPath(sub, ref)
             self.m_textName.SetLabel(os.path.basename(path))
             self.m_textDetails.SetLabel(os.path.dirname(path))
-            self.show(True)
-        else:
-            self.show(False)
 
-        self.select(selected)
+        self.select(selected, force=not self.visible)
+        self.show(sub is not None and ref is not None)
         self.Layout()
         self.parent.updateEvent.emit()
 
-    def select(self, selected=True):
-        if super().select(selected):
+    def select(self, selected=True, force=False):
+        if super().select(selected) or force:
             if self.selected:
                 self.setIcon('selected-file')
             else:
