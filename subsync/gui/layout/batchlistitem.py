@@ -52,7 +52,7 @@ class BatchListItem ( wx.Panel ):
 		self.m_bitmapStatus = wx.StaticBitmap( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.Size( 16,16 ), 0 )
 		self.m_bitmapStatus.Hide()
 
-		fgSizer3.Add( self.m_bitmapStatus, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+		fgSizer3.Add( self.m_bitmapStatus, 0, wx.ALIGN_CENTER_VERTICAL|wx.BOTTOM|wx.LEFT, 5 )
 
 		self.m_textErrors = wx.StaticText( self, wx.ID_ANY, _(u"[errors]"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textErrors.Wrap( -1 )
@@ -60,12 +60,12 @@ class BatchListItem ( wx.Panel ):
 		self.m_textErrors.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, True, wx.EmptyString ) )
 		self.m_textErrors.Hide()
 
-		fgSizer3.Add( self.m_textErrors, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+		fgSizer3.Add( self.m_textErrors, 0, wx.ALIGN_CENTER_VERTICAL|wx.BOTTOM|wx.LEFT, 5 )
 
 		self.m_textDetails = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.ST_ELLIPSIZE_END )
 		self.m_textDetails.Wrap( -1 )
 
-		fgSizer3.Add( self.m_textDetails, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL|wx.EXPAND|wx.RESERVE_SPACE_EVEN_IF_HIDDEN, 5 )
+		fgSizer3.Add( self.m_textDetails, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.RESERVE_SPACE_EVEN_IF_HIDDEN|wx.BOTTOM|wx.RIGHT|wx.LEFT, 5 )
 
 
 		fgSizer2.Add( fgSizer3, 1, wx.EXPAND, 5 )

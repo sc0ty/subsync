@@ -2777,11 +2777,11 @@
                     <property name="name">m_menuHelp</property>
                     <property name="permission">protected</property>
                     <object class="wxMenuItem" expanded="1">
-                        <property name="bitmap">Load From Art Provider; wxART_INFORMATION; wxART_MENU</property>
+                        <property name="bitmap"></property>
                         <property name="checked">0</property>
                         <property name="enabled">1</property>
                         <property name="help"></property>
-                        <property name="id">wxID_ANY</property>
+                        <property name="id">wxID_ABOUT</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">&amp;About</property>
                         <property name="name">m_menuItemAbout</property>

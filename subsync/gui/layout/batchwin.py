@@ -355,8 +355,7 @@ class BatchWin ( wx.Frame ):
 		self.m_menubar.Append( self.m_menuEdit, _(u"&Edit") )
 
 		self.m_menuHelp = wx.Menu()
-		self.m_menuItemAbout = wx.MenuItem( self.m_menuHelp, wx.ID_ANY, _(u"&About"), wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menuItemAbout.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_INFORMATION, wx.ART_MENU ) )
+		self.m_menuItemAbout = wx.MenuItem( self.m_menuHelp, wx.ID_ABOUT, _(u"&About"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuHelp.Append( self.m_menuItemAbout )
 
 		self.m_menubar.Append( self.m_menuHelp, _(u"&Help") )

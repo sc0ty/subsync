@@ -214,7 +214,7 @@
                                 <property name="vgap">0</property>
                                 <object class="sizeritem" expanded="1">
                                     <property name="border">5</property>
-                                    <property name="flag">wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxLEFT</property>
+                                    <property name="flag">wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxLEFT</property>
                                     <property name="proportion">0</property>
                                     <object class="wxStaticBitmap" expanded="1">
                                         <property name="BottomDockable">1</property>
@@ -272,7 +272,7 @@
                                 </object>
                                 <object class="sizeritem" expanded="1">
                                     <property name="border">5</property>
-                                    <property name="flag">wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxLEFT</property>
+                                    <property name="flag">wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxLEFT</property>
                                     <property name="proportion">0</property>
                                     <object class="wxStaticText" expanded="1">
                                         <property name="BottomDockable">1</property>
@@ -333,7 +333,7 @@
                                 </object>
                                 <object class="sizeritem" expanded="1">
                                     <property name="border">5</property>
-                                    <property name="flag">wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND|wxRESERVE_SPACE_EVEN_IF_HIDDEN</property>
+                                    <property name="flag">wxALIGN_CENTER_VERTICAL|wxEXPAND|wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxBOTTOM|wxRIGHT|wxLEFT</property>
                                     <property name="proportion">0</property>
                                     <object class="wxStaticText" expanded="1">
                                         <property name="BottomDockable">1</property>
