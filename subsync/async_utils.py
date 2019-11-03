@@ -1,10 +1,29 @@
+import logging
+logger = logging.getLogger(__name__)
+
+
+# workaround for crashing mimetypes bug https://bugs.python.org/issue38672
+import mimetypes, os
+try:
+    mimetypes.init()
+except Exception as e:
+    logger.warning('mimetypes init failed, %r', e, exc_info=True)
+    paths = []
+    for path in mimetypes.knownfiles:
+        try:
+            if os.path.isfile(path):
+                open(path)
+                paths.append(path)
+        except Exception as e:
+            logger.warning('offending file %s: %r', path, e)
+
+    mimetypes.init(paths)
+
+
 import os
 import aiohttp
 import json
 from subsync.error import Error
-
-import logging
-logger = logging.getLogger(__name__)
 
 
 async def downloadRaw(url):
