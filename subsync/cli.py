@@ -113,6 +113,9 @@ class App(object):
         self.assetsDownloader = AssetsDownloader(offline)
 
     def runTasks(self):
+        if not settings().tasks:
+            pr.println(1, '[-] nothing to do')
+
         for task in settings().tasks:
             try:
                 pr.println(1, '[*] starting synchronization {}'.format(task.sub.path))

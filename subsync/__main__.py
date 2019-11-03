@@ -73,7 +73,7 @@ def startGui(args):
 
         win.Show()
         if settings().mode == 'batch':
-            wx.CallLater(100, win.showBatchWin)
+            wx.CallLater(100, win.showBatchWin, settings().tasks)
 
         app.MainLoop()
 
