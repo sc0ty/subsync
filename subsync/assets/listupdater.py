@@ -3,6 +3,7 @@ from subsync import utils
 from subsync import thread
 from subsync import async_utils
 import asyncio
+import sys
 
 import logging
 logger = logging.getLogger(__name__)
@@ -13,13 +14,13 @@ class AssetListUpdater(thread.AsyncJob):
         super().__init__(self.updateJob, name='AssetListUpdater')
         self.mgr = mgr
 
-    async def updateJob(self, updateList=True, autoUpdate=False):
+    async def updateJob(self, updateList=True, autoUpdate=False, onError=None):
         await self.loadRemoteAssetList()
         if updateList:
-            await self.downloadRemoteAssetList()
+            await self.downloadRemoteAssetList(onError)
         self.removeOldInstaller()
         if autoUpdate:
-            await self.runAutoUpdater(autoUpdate)
+            await self.runAutoUpdater(onError)
 
     async def loadRemoteAssetList(self):
         try:
@@ -35,7 +36,7 @@ class AssetListUpdater(thread.AsyncJob):
             logger.error('cannot read asset list from %s: %r',
                     config.assetspath, e, exc_info=True)
 
-    async def downloadRemoteAssetList(self):
+    async def downloadRemoteAssetList(self, onError):
         try:
             if config.assetsurl:
                 logger.info('downloading remote assets list from %s', config.assetsurl)
@@ -49,8 +50,10 @@ class AssetListUpdater(thread.AsyncJob):
 
         except Exception as e:
             logger.error('cannot download asset list from %s: %r', config.assetsurl, e)
+            if onError:
+                onError(sys.exc_info())
 
-    async def runAutoUpdater(self, autoUpdate):
+    async def runAutoUpdater(self, onError):
         try:
             updAsset = self.mgr.getSelfUpdaterAsset()
             updater = updAsset and updAsset.getUpdater()
@@ -76,6 +79,8 @@ class AssetListUpdater(thread.AsyncJob):
 
         except Exception as e:
             logger.error('update processing failed: %r', e, exc_info=True)
+            if onError:
+                onError(sys.exc_info())
 
     def removeOldInstaller(self):
         cur = utils.getCurrentVersion()

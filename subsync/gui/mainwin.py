@@ -176,14 +176,19 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         event.Skip()
 
     def checkForUpdate(self):
+        errors = []
+
         updAsset = assetManager.getSelfUpdaterAsset()
         if updAsset:
             if not assetListUpdater.isRunning() and not updAsset.hasUpdate():
-                assetListUpdater.start(updateList=True, autoUpdate=True)
+                assetListUpdater.start(updateList=True, autoUpdate=True, onError=errors.append)
 
             if assetListUpdater.isRunning():
                 with BusyDlg(self, _('Checking for update...')) as dlg:
                     dlg.ShowModalWhile(assetListUpdater.isRunning)
+
+            if errors:
+                raise errors[0][1]
 
             return updAsset.hasUpdate()
         return False
