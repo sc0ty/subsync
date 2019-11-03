@@ -29,6 +29,7 @@ class OutputEditCell(BaseCell):
             self.show(False)
 
         self.select(selected)
+        self.Layout()
         self.parent.updateEvent.emit()
 
     def select(self, selected=True):

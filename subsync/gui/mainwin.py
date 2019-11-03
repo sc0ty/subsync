@@ -159,10 +159,10 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     def onMenuItemBatchProcessingClick(self, event):
         self.showBatchWin()
 
-    def showBatchWin(self):
+    def showBatchWin(self, tasks=None):
         try:
             self.Hide()
-            win = BatchWin(self, settings().tasks)
+            win = BatchWin(self, tasks)
 
         finally:
             wx.CallAfter(win.Show)
