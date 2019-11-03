@@ -4,11 +4,12 @@ from subsync.synchro import ChannelsMap
 
 
 class ChannelsWin(subsync.gui.layout.channelswin.ChannelsWin):
-    def __init__(self, parent, audio):
+    def __init__(self, parent, audio=None, channelIds=None):
         super().__init__(parent)
 
         self.channels = {}
-        for channel in ChannelsMap.layoutToIds(audio.channelLayout):
+
+        for channel in channelIds or ChannelsMap.layoutToIds(audio.channelLayout):
             self.addChannel(channel)
 
         self.update()

@@ -1,11 +1,12 @@
 from .drop import DropExternal, DropInternal
 from .inputcell import InputEditCell, InputSyncCell
 from .outputcell import OutputEditCell, OutputSyncCell
-from subsync.synchro import SyncTask, InputFile, RefFile, SubFile
+from subsync.synchro import SyncTask, InputFile, RefFile, SubFile, ChannelsMap
 from subsync.gui import busydlg
 from subsync.gui.errorwin import error_dlg, ErrorWin
 from subsync.gui.langwin import LanguagesWin
 from subsync.gui.charencwin import CharactersEncodingWin
+from subsync.gui.channelswin import ChannelsWin
 from subsync.gui.streamselwin import StreamSelectionWin
 from subsync.gui.outpatternwin import OutputPatternWin
 from subsync.gui.components.update import updateLocker, update_lock
@@ -508,7 +509,16 @@ class BatchList(ulc.UltimateListCtrl):
 
     @error_dlg
     def onMenuChannelsClick(self, event, cell=None):
-        #TODO: implement me
+        ids = set()
+        for cell in self.iterSelected(0, 1):
+            stream = cell.item.stream()
+            if cell.item.type == 'audio' and stream is not None and stream.audio is not None:
+                ids |= set(ChannelsMap.layoutToIds(stream.audio.channelLayout))
+
+        if ids:
+            with ChannelsWin(self, channelIds=ids) as dlg:
+                if dlg.ShowModal() == wx.ID_OK:
+                    self.updateSelectedInputs(channels=dlg.GetValue())
         event.Skip()
 
     @error_dlg
