@@ -21,6 +21,8 @@ persistent = {
         'minWordsSim': 0.6,
         'minEffort': 0.5,
         'lastdir': '',
+        'lastSubLang': None,
+        'lastRefLang': None,
         'refsCache': True,
         'autoUpdate': True,
         'askForUpdate': True,

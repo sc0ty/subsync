@@ -33,8 +33,9 @@ def readStream(parent, path, types):
 
 
 class OpenWin(subsync.gui.layout.openwin.OpenWin):
-    def __init__(self, parent, file, allowOpen=True):
+    def __init__(self, parent, file, allowOpen=True, defaultLang=None):
         super().__init__(parent)
+        self.defaultLang = defaultLang
         self.file = InputFile(stream=file)
         self.openStream(self.file)
 
@@ -68,6 +69,9 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
         if file.no is not None:
             self.selectStream(file.stream())
 
+        if not lang:
+            lang = self.defaultLang
+
         file.lang = lang
         self.m_choiceLang.SetValue(lang)
         self.m_choiceEncoding.SetValue(enc)
@@ -80,7 +84,10 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
         self.file.type = file.type
 
         if updateLang and file.lang:
-            self.file.lang = validateLang(file.lang)
+            lang = validateLang(file.lang)
+            if not lang:
+                lang = self.defaultLang
+            self.file.lang = lang
             self.m_choiceLang.SetValue(self.file.lang)
 
         isSubText = file.type == 'subtitle/text'
@@ -101,7 +108,9 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
         self.m_textChannels.SetValue(channels.getDescription())
 
     def onChoiceLangChoice(self, event):
-        self.file.lang = validateLang(self.m_choiceLang.GetValue())
+        lang = validateLang(self.m_choiceLang.GetValue())
+        self.file.lang = lang
+        self.defaultLang = lang
 
     def onListStreamsSelect(self, event):
         index = self.m_listStreams.getSelectedStream()
@@ -137,3 +146,9 @@ def validateLang(lang):
     if lang and lang.lower() in languages.codes3:
         return lang.lower()
 
+
+def getLastLangProperty(file):
+    if file.types is SubFile.types:
+        return 'lastSubLang'
+    elif file.types is SubFile.types:
+        return 'lastRefLang'

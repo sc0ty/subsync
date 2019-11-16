@@ -15,6 +15,7 @@ class InputPanel(subsync.gui.layout.subpanel.SubtitlePanel):
         super().__init__(parent)
         filedrop.setFileDropTarget(self, OnDropFile=self.onDropSubFile)
         self.stream = None
+        self.defaultLangKey = None
 
     @error_dlg
     def onButtonSubOpenClick(self, event):
@@ -25,12 +26,16 @@ class InputPanel(subsync.gui.layout.subpanel.SubtitlePanel):
 
     def showOpenWin(self, stream):
         if stream != None and stream.isOpen():
-            with openwin.OpenWin(self, stream) as dlg:
+            defaultLang = settings().get(self.defaultLangKey)
+            with openwin.OpenWin(self, stream, defaultLang=defaultLang) as dlg:
                 if dlg.ShowModal() == wx.ID_OK and dlg.file.isOpen():
                     self.setStream(dlg.file)
+                    settings().setValue(self.defaultLangKey, dlg.defaultLang)
 
     def onChoiceSubLang(self, event):
-        self.stream.lang = self.m_choiceSubLang.GetValue()
+        lang = self.m_choiceSubLang.GetValue()
+        self.stream.lang = lang
+        settings().setValue(self.defaultLangKey, dlg.defaultLang)
 
     def onDropSubFile(self, x, y, filename):
 
@@ -57,9 +62,11 @@ class SubPanel(InputPanel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.stream = SubFile()
+        self.defaultLangKey = 'lastSubLang'
 
 
 class RefPanel(InputPanel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.stream = RefFile()
+        self.defaultLangKey = 'lastRefLang'
