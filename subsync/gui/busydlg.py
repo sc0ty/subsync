@@ -32,10 +32,9 @@ class BusyDlg(wx.Dialog):
         self.SetClientSize(size)
         panel.SetSize(self.GetClientSize())
         text.Center()
-        self.Center()
 
         if cancellable or onCancel:
-            button = wx.Button(self, wx.ID_CANCEL, _('Cancel'))
+            button = wx.Button(panel, wx.ID_CANCEL, _('Cancel'))
             buttonSize = button.GetBestSize()
             size.height += buttonSize.height + 30
             self.SetClientSize(size)
@@ -44,6 +43,8 @@ class BusyDlg(wx.Dialog):
             button.Center(wx.HORIZONTAL)
             if onCancel:
                 button.Bind(wx.EVT_BUTTON, onCancel)
+
+        self.Center()
         self.Layout()
 
     def ShowModal(self):
