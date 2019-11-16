@@ -21,7 +21,7 @@ class AssetListUpdater(thread.AsyncJob):
         if self.error:
             e = self.error[1]
             self.error = None
-            msg = '{}:\n{}'.format(_('Communication with server failed'), str(e))
+            msg = '{}\n{}'.format(_('Communication with server failed'), str(e))
             raise Error(msg) from e
         return self.isListReady
 

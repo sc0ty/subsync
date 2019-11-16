@@ -83,12 +83,12 @@ def getParser():
     cfg = parser.add_argument_group(_('synchronization options'))
     addOption(cfg, 'jobsNo', '--jobs', type=int, metavar='NO', help=_('number of synchronization jobs, 0 for auto'))
     addOption(cfg, 'windowSize', type=float, metavar='SIZE', help=_('maximum correction (in seconds)'))
-    addOption(cfg, 'maxPointDist', type=float, metavar='DIST', help=_('maximum synchronization error (type: in seconds)'))
+    addOption(cfg, 'maxPointDist', type=float, metavar='DIST', help=_('maximum synchronization error (in seconds)'))
     addOption(cfg, 'minPointsNo', type=int, metavar='NO', help=_('minimum synchronization points no'))
-    addOption(cfg, 'minWordProb', type=float, metavar='PROB', help=_('minimum speech recognition score (type: 0.0 - 1.0)'))
+    addOption(cfg, 'minWordProb', type=float, metavar='PROB', help=_('minimum speech recognition score (0.0 - 1.0)'))
     addOption(cfg, 'minWordLen', type=int, metavar='LEN', help=_('minimum number of letters for word to be used in synchronization'))
-    addOption(cfg, 'minCorrelation', type=float, metavar='CORRELATION', help=_('minimum correlation (type: 0.0 - 1.0)'))
-    addOption(cfg, 'minWordsSim', type=float, metavar='SIM', help=_('minimum words similarity for synchronization point (type: 0.0 - 1.0)'))
+    addOption(cfg, 'minCorrelation', type=float, metavar='CORRELATION', help=_('minimum correlation (0.0 - 1.0)'))
+    addOption(cfg, 'minWordsSim', type=float, metavar='SIM', help=_('minimum words similarity for synchronization point (0.0 - 1.0)'))
 
     class LogLevelAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
@@ -117,7 +117,7 @@ def getParser():
         'numericall value or one of: DEBUG, INFO, WARNING, ERROR, CRITICAL'))
     addOption(dbg, 'logFile', '--logfile', type=str, help=_('dump logs to specified file'))
     addOption(dbg, 'dumpWords', type=str, metavar='SRC[:PATH]', action=WordsDumpAction,
-            help=_('dump words to file, or to standard output if there is no PATH, SRC is one of: ' + ', '.join(wordsDumpIds)))
+            help=_('dump words to file, or to standard output if there is no PATH, SRC is one of: ') + ', '.join(wordsDumpIds))
 
     return parser
 
