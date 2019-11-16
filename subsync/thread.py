@@ -69,11 +69,14 @@ class AsyncJob(object):
         if self.task:
             try:
                 return self.task.result()
-            except CancelledError or InvalidStateError:
+            except asyncio.CancelledError or asyncio.InvalidStateError:
                 pass
 
     def _run(self, job, *args, **kwargs):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
         self.task = asyncio.ensure_future(job(*args, **kwargs))
-        self.loop.run_until_complete(self.task)
+        try:
+            self.loop.run_until_complete(self.task)
+        except asyncio.CancelledError:
+            pass
