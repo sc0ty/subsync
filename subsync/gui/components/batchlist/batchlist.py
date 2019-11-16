@@ -58,6 +58,28 @@ class BatchList(ulc.UltimateListCtrl):
         self.Bind(wx.EVT_LEFT_DOWN, self.onLeftDown)
         self.Bind(wx.EVT_SIZE, self.onResize)
 
+        # workaround for deadlock on Mac
+        if wx.Platform == '__WXMAC__':
+            freeze = super().Freeze
+            thaw = super().Thaw
+
+            def unfreeze(cb):
+                def wrapper(*args, **kwargs):
+                    level = 0
+                    while self.IsFrozen():
+                        thaw()
+                        level += 1
+                    try:
+                        cb(*args, **kwargs)
+                    finally:
+                        for i in range(level):
+                            freeze()
+                return wrapper
+
+            self.InsertItem = unfreeze(self.InsertItem)
+            self.SetItemWindow = unfreeze(self.SetItemWindow)
+            self.insertRow = unfreeze(self.insertRow)
+
         self.Layout()
 
     def Freeze(self):
@@ -259,7 +281,7 @@ class BatchList(ulc.UltimateListCtrl):
     def replaceItem(self, row, col, item, select=False):
         self.GetItemWindow(row, col).setState(item, select)
 
-    @update_lock
+    # NO @update_lock - workaround for deadlock on Mac - caller should lock itself
     def insertRow(self, row, sub=None, ref=None, out=None, select=False):
         row = min(row, self.GetItemCount())
 
@@ -410,6 +432,26 @@ class BatchList(ulc.UltimateListCtrl):
                 self.removeRow(row)
 
     @update_lock
+    def reflow(self, start=0):
+        dst = 0
+        for src in range(start, self.GetItemCount()):
+            sub = self.GetItemWindow(src, 0)
+            ref = self.GetItemWindow(src, 1)
+            if sub.visible or ref.visible:
+                if src != dst:
+                    self.GetItemWindow(dst, 0).setState(sub.item)
+                    self.GetItemWindow(dst, 1).setState(ref.item)
+                    self.GetItemWindow(dst, 2).setState(sub.item, ref.item)
+                dst += 1
+
+        for row in range(dst, self.GetItemCount()):
+            self.GetItemWindow(row, 0).setState(None)
+            self.GetItemWindow(row, 1).setState(None)
+            self.GetItemWindow(row, 2).setState(None, None)
+
+        return dst
+
+    @update_lock
     def updateOutputs(self):
         for row in range(self.GetItemCount()):
             sub = self.GetItemWindow(row, 0)
@@ -435,6 +477,7 @@ class BatchList(ulc.UltimateListCtrl):
                 self.updateOutputs()
                 self.updateEvent.enable()
                 self.SetDropTarget(DropExternal(self))
+                wx.CallAfter(self.trim)
 
     @update_lock
     def onLeftDown(self, event):

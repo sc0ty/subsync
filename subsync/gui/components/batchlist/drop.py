@@ -91,8 +91,8 @@ class DropInternal(wx.FileDropTarget):
         if self.col != col or self.row != row:
             with updateLocker(self.parent):
                 items = self.getItemsToMove(col)
-                self.parent.trim()
-                row = min(row, self.parent.GetItemCount())
+                maxRow = self.parent.reflow()
+                row = min(row, maxRow)
                 self.parent.insertItems(row, col, items, select=True)
             return True
         else:

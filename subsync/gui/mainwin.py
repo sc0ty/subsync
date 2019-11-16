@@ -7,7 +7,7 @@ from subsync.gui.downloadwin import SelfUpdateWin
 from subsync.gui.aboutwin import AboutWin
 from subsync.gui.components import assetsdlg
 from subsync.gui.busydlg import BusyDlg
-from subsync.gui.errorwin import error_dlg
+from subsync.gui.errorwin import error_dlg, showExceptionDlg
 from subsync.synchro import SyncTask
 from subsync.assets import assetManager, assetListUpdater
 from subsync import img
@@ -163,6 +163,9 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         try:
             self.Hide()
             win = BatchWin(self, tasks)
+
+        except:
+            showExceptionDlg(self)
 
         finally:
             wx.CallAfter(win.Show)

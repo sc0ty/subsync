@@ -13,7 +13,6 @@ from subsync.data import descriptions
 import wx
 import threading
 import time
-from functools import partial
 
 import logging
 logger = logging.getLogger(__name__)
