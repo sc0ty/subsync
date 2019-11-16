@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+from subsync import config
+
+
+config.configdir = os.path.dirname(sys.executable)
+config.shareddir = os.path.dirname(sys.executable)
+
+config.configpath = os.path.join(config.configdir, config.appname + '.json')
+config.assetspath = os.path.join(config.configdir, 'assets.json')
+config.assetdir   = os.path.join(config.shareddir, 'assets')
+
+if config.assetupd:
+    config.assetupd += '-portable'
+
+import subsync
+subsync.subsync()

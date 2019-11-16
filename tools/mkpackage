@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+
+import sys, os, json
+from zipfile import ZipFile, ZIP_DEFLATED
+from functools import partial
+
+arcname = partial(os.path.join, 'upgrade')
+
+
+output = sys.argv[1]
+descfn = os.path.splitext(output)[0] + '.json'
+
+spec = {}
+desc = { 'type': 'zip' }
+
+
+print('Creating package {}'.format(output))
+with ZipFile(output, 'w', compression=ZIP_DEFLATED) as zf:
+    for arg in sys.argv[2:]:
+        cmd, param = arg.split('=', 1)
+
+        if cmd == '--file':
+            arcn = arcname(os.path.basename(param))
+            print(' - writing {}'.format(arcn))
+            zf.write(param, arcn)
+
+        elif cmd == '--str':
+            path, data = param.split(':', 1)
+            arcn = arcname(path)
+            print(' - writing {}'.format(arcn))
+            zf.writestr(arcn, data)
+
+        elif cmd == '--stdin':
+            arcn = arcname(param)
+            print(' - writing {}'.format(arcn))
+            zf.writestr(arcn, sys.stdin.read())
+
+        elif cmd == '--id':
+            desc['id'] = param
+
+        elif cmd == '--version':
+            spec['version'] = param
+            desc['version'] = param
+
+        elif cmd == '--install':
+            spec['install'] = param
+
+        else:
+            raise ValueError('invalid argument ' + arg)
+
+    if spec:
+        arcn = arcname('upgrade.json')
+        print(' - writing {}'.format(arcn))
+        zf.writestr(arcn, json.dumps(spec))
+
+print('Creating package description {}'.format(descfn))
+with open(descfn, 'w') as jf:
+    json.dump(desc, jf, indent=4)
+
+print('done')

@@ -1,9 +1,34 @@
-import sys
-import os
-import glob
-import re
-import subprocess
+import sys, os, glob, re, subprocess, shutil
 import distutils.cmd
+import distutils.command.build_py
+from setuptools import setup
+
+
+class build_py(distutils.command.build_py.build_py):
+    def run(self):
+        try:
+            config_path = os.path.join('subsync', 'config.py')
+            config_path_template = os.path.join('subsync', 'config.py.template')
+
+            if not os.path.isfile(config_path):
+                print('copying {} -> {}'.format(config_path_template, config_path))
+                shutil.copyfile(config_path_template, config_path)
+        except:
+            pass
+
+        try:
+            update_version = False
+            version_long, version = read_version()
+            update_version = version_long is not None
+
+            import subsync
+            update_version = subsync.version()[1] != version_long
+
+        finally:
+            if update_version:
+                write_version_file(version_long, version)
+
+        super().run()
 
 
 class gen_gui(distutils.cmd.Command):
@@ -62,7 +87,24 @@ class gen_locales(distutils.cmd.Command):
         subprocess.check_call(cmd)
 
 
-def update_version(fname=os.path.join('subsync', 'version.py')):
+class gen_version(distutils.cmd.Command):
+    description = 'Generate version file'
+    user_options = [
+            ('out=', None, 'path to version file')
+            ]
+
+    def initialize_options(self):
+        self.out_path = None
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        version_long, version = read_version()
+        write_version_file(version_long, version, self.out_path)
+
+
+def read_version():
     try:
         version_long = subprocess.check_output(['git', 'describe', '--tags']).decode('UTF-8').strip()
         v = version_long[re.search('\d', version_long).start():].split('-')
@@ -75,99 +117,59 @@ def update_version(fname=os.path.join('subsync', 'version.py')):
         version_long = 'custom'
         version = '0.0.0'
 
-    print('version number: {} ({})'.format(version, version_long))
+    return version_long, version
 
-    with open(fname, 'w') as fp:
+
+def write_version_file(version_long, version, path=None):
+    if path is None:
+        path = os.path.join('subsync', 'version.py')
+
+    print('writing version number {} -> {}'.format(version_long, path))
+    with open(path, 'w') as fp:
         fp.write('version = "{}"\n'.format(version_long))
         fp.write('version_short = "{}"\n'.format(version))
 
-    return version
 
-
-version = update_version()
-
-desc = dict(
+setup(
         name = 'subsync',
-        version = version,
+        version = read_version()[1],
         author = 'Michał Szymaniak',
         author_email = 'sc0typl@gmail.com',
         url = 'https://github.com/sc0ty/subsync',
         description = 'Subtitle Speech Synchronizer',
-        )
-
-
-if sys.platform == 'win32':
-    from cx_Freeze import setup, Executable
-
-    build_exe = {
-        'packages': ['idna', 'asyncio'],
-        'excludes': ['updatelangs', 'tkinter', 'tcl', 'ttk'],
-        'include_msvcr': True,
-    }
-
-    bdist_msi = {
-        'upgrade_code': '{30cde9a7-1f56-49ef-8701-4d6bf8dee50a}',
-        'data': {
-            'Shortcut': [
-                ('StartMenuShortcut',        # Shortcut
-                 'StartMenuFolder',          # Directory
-                 'Subtitle Speech Synchronizer', # Name
-                 'TARGETDIR',              # Component
-                 '[TARGETDIR]subsync.exe', # Target
-                 None,                     # Arguments
-                 None,                     # Description
-                 None,                     # Hotkey
-                 None,                     # Icon
-                 None,                     # IconIndex
-                 None,                     # ShowCmd
-                 'TARGETDIR'               # WkDir
-                 ),
+        license='GPLv3',
+        packages = [
+            'subsync',
+            'subsync.synchro',
+            'subsync.assets',
+            'subsync.data',
+            'subsync.gui',
+            'subsync.gui.layout',
+            'subsync.gui.components',
+            'subsync.gui.components.batchlist',
             ],
-        },
-    }
-
-    executables = [
-        Executable(
-            os.path.join('subsync', '__main__.py'),
-            base = 'Win32GUI',
-            targetName = 'subsync.exe',
-            icon = os.path.join('resources', 'icon.ico'),
-        )
-    ]
-
-    setup(**desc,
-            options = {
-                'build_exe': build_exe,
-                'bdist_msi': bdist_msi,
-                },
-            cmdclass = {
-                'gen_gui': gen_gui,
-                'gen_locales': gen_locales,
-                },
-            executables = executables,
-            )
-
-else:
-    from setuptools import setup
-
-    setup(**desc,
-            packages=['subsync', 'subsync.synchro', 'subsync.assets', 'subsync.data', 'subsync.gui', 'subsync.gui.layout', 'subsync.gui.components', 'subsync.gui.components.batchlist'],
-            entry_points={'gui_scripts': ['subsync=subsync.__main__:subsync']},
-            install_requires=['aiohttp', 'pysubs2', 'pycryptodome'],
-            cmdclass = {
-                'gen_gui': gen_gui,
-                'gen_locales': gen_locales,
-                },
-            package_data={
-                'subsync': [
-                    'key.pub',
-                    os.path.join('img', '*.png'),
-                    os.path.join('img', '*.ico'),
-                    os.path.join('locale', '*', 'LC_MESSAGES', '*.mo'),
-                    ],
-                },
-            data_files = [
-                ('share/icons/hicolor/scalable/apps', ['resources/subsync.svg']),
-                ('share/applications', ['resources/subsync.desktop']),
+        entry_points = {'gui_scripts': ['subsync=subsync.__main__:subsync']},
+        install_requires = [
+            'aiohttp>=2.3',
+            'certifi',
+            'pysubs2>=0.2.4',
+            'pycryptodome>=3.9',
+            'PyYAML',
+            'wxPython>=4.0',
+            ],
+        scripts = ['bin/subsync'],
+        cmdclass = {
+            'build_py': build_py,
+            'gen_gui': gen_gui,
+            'gen_locales': gen_locales,
+            'gen_version': gen_version,
+            },
+        package_data={
+            'subsync': [
+                'key.pub',
+                os.path.join('img', '*.png'),
+                os.path.join('img', '*.ico'),
+                os.path.join('locale', '*', 'LC_MESSAGES', '*.mo'),
                 ],
-            )
+            },
+        )

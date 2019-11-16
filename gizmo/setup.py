@@ -262,6 +262,7 @@ setup(
     author_email = 'sc0typl@gmail.com',
     url = 'https://github.com/sc0ty/subsync',
     description = 'SubSync gizmo library',
+    license='GPLv3',
     long_description = '',
     ext_modules = ext_modules,
     setup_requires = ['pybind11>=2.4'],

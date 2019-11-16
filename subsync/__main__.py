@@ -93,6 +93,14 @@ def startCli(args):
         logger.error('subsync failed, %r', err, exc_info=True)
 
 
+def version():
+    try:
+        from subsync.version import version, version_short
+        return version_short, version
+    except:
+        return None, 'UNDEFINED'
+
+
 if __name__ == "__main__":
     subsync()
 

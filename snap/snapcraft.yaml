@@ -76,11 +76,14 @@ parts:
       - libsdl1.2debian
       - python3-yaml
       - python3-six
+      - python3-chardet
+      - python3-idna
+      - python3-certifi
     after:
       - gizmo
       - desktop-gtk3
     python-packages:
-      - https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04/wxPython-4.0.6-cp35-cp35m-linux_x86_64.whl
+      - https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04/wxPython-4.0.7.post2-cp35-cp35m-linux_x86_64.whl
     organize:
       share: usr/share
     prime:
@@ -107,18 +110,16 @@ parts:
   pybind11:
     plugin: python
     python-version: python3
-    python-packages:
-      - pybind11>=2.2
+    source: https://github.com/pybind/pybind11.git
+    source-tag: v2.4.3
     prime:
       - -include
-      - -usr/lib/*.a
-      - -usr/lib/**/*.a
 
   ffmpeg:
     plugin: autotools
     source: https://github.com/FFmpeg/FFmpeg.git
     source-type: git
-    source-tag: n4.1
+    source-tag: n4.2
     build-packages:
       - libass-dev
       - libbz2-dev

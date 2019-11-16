@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define Name="subsync" ?>
+<?define FullName="Subtitle Speech Synchronizer" ?>
+<?define Manufacturer="sc0ty" ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Codepage="1252" Id="*" Language="1033" Manufacturer="$(var.Manufacturer)" Name="$(var.FullName)" UpgradeCode="30cde9a7-1f56-49ef-8701-4d6bf8dee50a" Version="$(var.Version)">
+        <Package Compressed="yes" Description="$(var.FullName) $(var.Version) Installer" Id="*" InstallerVersion="500" InstallScope="perMachine" Keywords="Installer" Languages="1033" Manufacturer="sc0ty" Platform="x64" SummaryCodepage="1252"/>
+        <MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="A newer version of $(var.FullName) is already installed." />
+        <Media Cabinet="subsync.cab" EmbedCab="yes" Id="1"/>
+        <WixVariable Id="WixUILicenseRtf" Value="resources\LICENSE.rtf" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFiles64Folder">
+                <Directory Id="INSTALLDIR" Name="$(var.Name)">
+                </Directory>
+            </Directory>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="$(var.Name)"/>
+                <Directory Id="DesktopFolder" Name="Desktop"/>
+            </Directory>
+        </Directory>
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Guid="6B6F2ED3-3DC7-4683-9647-4ED47E9DBC04" Id="ApplicationShortcut">
+                <Shortcut Id="ApplicationStartMenuShortcut" Name="$(var.FullName)" Target="[INSTALLDIR]subsync.exe" WorkingDirectory="INSTALLDIR"/>
+                <RemoveFolder Directory="ApplicationProgramsFolder" Id="RemoveApplicationProgramsFolder" On="uninstall"/>
+                <RegistryValue Key="Software\$(var.Manufacturer)\$(var.Name)" KeyPath="yes" Name="Installed" Root="HKCU" Type="integer" Value="1"/>
+            </Component>
+        </DirectoryRef>
+        <DirectoryRef Id="DesktopFolder">
+            <Component Guid="4CCFD183-BAAD-4AEE-A614-8A27A3459612" Id="ApplicationShortcutDesktop">
+                <Shortcut Id="ApplicationDesktopShortcut" Name="$(var.FullName)" Target="[INSTALLDIR]subsync.exe" WorkingDirectory="INSTALLDIR"/>
+                <RemoveFolder Directory="DesktopFolder" Id="RemoveDesktopFolder" On="uninstall"/>
+                <RegistryValue Key="Software\$(var.Manufacturer)\$(var.Name)" KeyPath="yes" Name="Installed" Root="HKCU" Type="integer" Value="1"/>
+                <Condition>INSTALLDESKTOPSHORTCUT</Condition>
+            </Component>
+        </DirectoryRef>
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR"/>
+        <UI>
+            <UIRef Id="InstallUI" />
+            <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+        </UI>
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.FullName)" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+        <Property Id="WixShellExecTarget" Value="[#subsync.exe]" />
+        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+        <Feature Id="ProductFeature">
+            <ComponentGroupRef Id="Files"/>
+            <ComponentRef Id="ApplicationShortcut"/>
+            <ComponentRef Id="ApplicationShortcutDesktop"/>
+        </Feature>
+    </Product>
+</Wix>
