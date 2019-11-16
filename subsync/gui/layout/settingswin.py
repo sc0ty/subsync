@@ -95,13 +95,6 @@ class SettingsWin ( wx.Dialog ):
 		fgSizer4.Add( self.m_showLanguageNotSelectedPopup, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
 
-		fgSizer4.Add( ( 0, 0), 1, wx.EXPAND, 5 )
-
-		self.m_showBatchDropTargetPopup = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"sort files (in batch processing)"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_showBatchDropTargetPopup.SetValue(True)
-		fgSizer4.Add( self.m_showBatchDropTargetPopup, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
-
-
 		self.m_panelGeneral.SetSizer( fgSizer4 )
 		self.m_panelGeneral.Layout()
 		fgSizer4.Fit( self.m_panelGeneral )
