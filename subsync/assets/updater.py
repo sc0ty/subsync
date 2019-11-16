@@ -9,7 +9,7 @@ import threading
 import asyncio
 import tempfile
 import zipfile
-import Crypto
+from Crypto.Hash import SHA256
 from collections import namedtuple
 
 import logging
@@ -95,7 +95,7 @@ class Updater(thread.AsyncJob):
         size = self.asset.getRemote('size')
 
         logger.info('downloading %s', url)
-        hash = Crypto.Hash.SHA256.new()
+        hash = SHA256.new()
 
         def onNewChunk(chunk, progress):
             self.setStatus(progress=progress)
