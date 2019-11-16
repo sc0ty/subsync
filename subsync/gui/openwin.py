@@ -145,10 +145,3 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
 def validateLang(lang):
     if lang and lang.lower() in languages.codes3:
         return lang.lower()
-
-
-def getLastLangProperty(file):
-    if file.types is SubFile.types:
-        return 'lastSubLang'
-    elif file.types is SubFile.types:
-        return 'lastRefLang'
