@@ -2,6 +2,7 @@ from subsync import config
 from subsync import utils
 from subsync import thread
 from subsync import async_utils
+from subsync.error import Error
 import asyncio
 import sys
 
@@ -13,14 +14,26 @@ class AssetListUpdater(thread.AsyncJob):
     def __init__(self, mgr):
         super().__init__(self.updateJob, name='AssetListUpdater')
         self.mgr = mgr
+        self.isListReady = False
+        self.error = None
 
-    async def updateJob(self, updateList=True, autoUpdate=False, onError=None):
+    def hasList(self):
+        if self.error:
+            e = self.error[1]
+            self.error = None
+            msg = '{}:\n{}'.format(_('Communication with server failed'), str(e))
+            raise Error(msg) from e
+        return self.isListReady
+
+    async def updateJob(self, updateList=True, autoUpdate=False):
+        self.error = None
         await self.loadRemoteAssetList()
         if updateList:
-            await self.downloadRemoteAssetList(onError)
+            await self.downloadRemoteAssetList()
+            self.isListReady = not self.error
         self.removeOldInstaller()
         if autoUpdate:
-            await self.runAutoUpdater(onError)
+            await self.runAutoUpdater()
 
     async def loadRemoteAssetList(self):
         try:
@@ -36,7 +49,7 @@ class AssetListUpdater(thread.AsyncJob):
             logger.error('cannot read asset list from %s: %r',
                     config.assetspath, e, exc_info=True)
 
-    async def downloadRemoteAssetList(self, onError):
+    async def downloadRemoteAssetList(self):
         try:
             if config.assetsurl:
                 logger.info('downloading remote assets list from %s', config.assetsurl)
@@ -50,10 +63,9 @@ class AssetListUpdater(thread.AsyncJob):
 
         except Exception as e:
             logger.error('cannot download asset list from %s: %r', config.assetsurl, e)
-            if onError:
-                onError(sys.exc_info())
+            self.error = sys.exc_info()
 
-    async def runAutoUpdater(self, onError):
+    async def runAutoUpdater(self):
         try:
             updAsset = self.mgr.getSelfUpdaterAsset()
             updater = updAsset and updAsset.getUpdater()
@@ -79,8 +91,7 @@ class AssetListUpdater(thread.AsyncJob):
 
         except Exception as e:
             logger.error('update processing failed: %r', e, exc_info=True)
-            if onError:
-                onError(sys.exc_info())
+            self.error = sys.exc_info()
 
     def removeOldInstaller(self):
         cur = utils.getCurrentVersion()

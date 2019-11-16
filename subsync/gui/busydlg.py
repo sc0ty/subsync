@@ -7,7 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 class BusyDlg(wx.Dialog):
-    def __init__(self, parent, msg):
+    def __init__(self, parent, msg, cancellable=False, onCancel=None):
+        self.timer = None
+
         style = wx.BORDER_SIMPLE | wx.FRAME_TOOL_WINDOW
         if parent:
             style |= wx.FRAME_FLOAT_ON_PARENT
@@ -26,10 +28,30 @@ class BusyDlg(wx.Dialog):
             win.SetBackgroundColour(bgColor)
 
         size = text.GetBestSize()
-        self.SetClientSize((size.width + 80, size.height + 40))
+        size = wx.Size(size.width + 80, size.height + 40)
+        self.SetClientSize(size)
         panel.SetSize(self.GetClientSize())
         text.Center()
         self.Center()
+
+        if cancellable or onCancel:
+            button = wx.Button(self, wx.ID_CANCEL, _('Cancel'))
+            buttonSize = button.GetBestSize()
+            size.height += buttonSize.height + 30
+            self.SetClientSize(size)
+            panel.SetSize(self.GetClientSize())
+            button.SetPosition(wx.Point(0, size.height - buttonSize.height - 20))
+            button.Center(wx.HORIZONTAL)
+            if onCancel:
+                button.Bind(wx.EVT_BUTTON, onCancel)
+        self.Layout()
+
+    def ShowModal(self):
+        try:
+            return super().ShowModal()
+        finally:
+            if self.timer:
+                self.timer.Stop()
 
     def ShowModalWhile(self, condCb, checkInterval=0.1):
         self.condCb = condCb

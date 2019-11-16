@@ -1,7 +1,8 @@
 import wx
 from subsync.gui.downloadwin import DownloadWin
+from subsync.gui.busydlg import BusyDlg
 from subsync.assets import assetManager, assetListUpdater
-from subsync.data import descriptions
+from subsync.data import descriptions, languages
 from subsync.settings import settings
 from subsync.error import Error
 
@@ -26,40 +27,66 @@ def validateAssets(parent, tasks, updateAssets=True, askForLang=True):
         if not askForLangSelection(parent, tasks):
             return False
 
-    assetListNotReady = assetListUpdater.isRunning()
-
     needed = set()
     for task in tasks:
         needed |= assetManager.getAssetsForTask(task)
     missing = [ asset for asset in needed if asset.isMissing() ]
 
-    if assetListNotReady and missing:
-        with BusyDlg(self, _('Downloading assets list...')) as dlg:
-            dlg.ShowModalWhile(assetListUpdater.isRunning)
+    if missing and updateAssetList(parent):
         missing = [ asset for asset in needed if asset.isMissing() ]
+        if missing:
+            raiseNotSupportedAssets(missing)
 
+    if not missing:
+        nonLocal = [ asset for asset in needed if not asset.isLocal() ]
+        if nonLocal:
+            if not askForDownloadAssets(parent, nonLocal):
+                return False
+
+    missing = [ asset for asset in needed if not asset.isLocal() ]
     if missing:
-        msg = [ _('Following assets are missing on server:'), '' ]
-        msg += [ ' - ' + asset.getPrettyName() for asset in missing ]
-        raise Error('\n'.join(msg))
-
-    nonLocal = [ asset for asset in needed if not asset.isLocal() ]
-    if nonLocal:
-        if not askForDownloadAssets(parent, nonLocal):
-            return False
+        raiseMissingAssets(missing)
 
     if updateAssets:
         update = [ asset for asset in needed if asset.isUpgradable() ]
         if update:
             askForUpdateAssets(parent, update)
 
-    missing = [ asset for asset in needed if not asset.isLocal() ]
-    if missing:
-        msg = [ _('Following assets are missing:') ]
-        msg += [ ' - ' + asset.getPrettyName() for asset in missing ]
-        raise Error('\n'.join(msg))
-
     return True
+
+def updateAssetList(parent):
+    if not assetListUpdater.isRunning() and not assetListUpdater.isListReady:
+        assetListUpdater.start(autoUpdate=False)
+
+    with BusyDlg(parent, _('Downloading assets list...'), cancellable=True) as dlg:
+        if dlg.ShowModalWhile(assetListUpdater.isRunning) == wx.ID_OK:
+            return assetListUpdater.hasList()
+        else:
+            assetListUpdater.stop()
+
+def raiseNotSupportedAssets(assets):
+    msg  = []
+    speech = [ asset for asset in assets if asset.type == 'speech' ]
+    dicts  = [ asset for asset in assets if asset.type == 'dict' ]
+
+    if speech:
+        langs = ', '.join([ languages.getName(a.params[0]) for a in speech ])
+        msg += [ _('Synchronization with {} audio is currently not supported.') \
+                .format(langs) ]
+
+    if dicts:
+        langs = [ ' - '.join([ languages.getName(p) for p in a.params ]) for a in dicts ]
+        msg += [ _('Synchronization between languages {} is currently not supported.') \
+                .format(', '.join(langs)) ]
+
+    msg += [ '', _('missing assets:') ]
+    msg += [ ' - ' + asset.getPrettyName() for asset in assets ]
+    raise Error('\n'.join(msg))
+
+def raiseMissingAssets(assets):
+    msg  = [ _('Following assets are missing:') ]
+    msg += [ ' - ' + asset.getPrettyName() for asset in assets ]
+    raise Error('\n'.join(msg))
 
 def askForDownloadAssets(parent, assetList):
     msg  = [ _('Following assets must be download to continue:') ]

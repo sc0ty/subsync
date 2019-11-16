@@ -124,16 +124,18 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
     @error_dlg
     def onMenuItemCheckUpdateClick(self, event):
-        if self.checkForUpdate():
-            if self.runUpdater():
-                self.Close(force=True)
-        else:
-            dlg = wx.MessageDialog(
-                    self,
-                    _('Your version is up to date'),
-                    _('Upgrade'),
-                    wx.OK | wx.ICON_INFORMATION)
-            dlg.ShowModal()
+        update = self.checkForUpdate()
+        if update:
+            if update.hasUpdate():
+                if self.runUpdater():
+                    self.Close(force=True)
+            else:
+                dlg = wx.MessageDialog(
+                        self,
+                        _('Your version is up to date'),
+                        _('Upgrade'),
+                        wx.OK | wx.ICON_INFORMATION)
+                dlg.ShowModal()
 
     def onMenuItemAboutClick(self, event):
         AboutWin(self).ShowModal()
@@ -179,22 +181,20 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         event.Skip()
 
     def checkForUpdate(self):
-        errors = []
-
         updAsset = assetManager.getSelfUpdaterAsset()
         if updAsset:
             if not assetListUpdater.isRunning() and not updAsset.hasUpdate():
-                assetListUpdater.start(updateList=True, autoUpdate=True, onError=errors.append)
+                assetListUpdater.start(updateList=True, autoUpdate=True)
 
             if assetListUpdater.isRunning():
-                with BusyDlg(self, _('Checking for update...')) as dlg:
-                    dlg.ShowModalWhile(assetListUpdater.isRunning)
-
-            if errors:
-                raise errors[0][1]
-
-            return updAsset.hasUpdate()
-        return False
+                with BusyDlg(self, _('Checking for update...'), cancellable=True) as dlg:
+                    if dlg.ShowModalWhile(assetListUpdater.isRunning) == wx.ID_OK:
+                        if assetListUpdater.hasList():
+                            return updAsset
+                    else:
+                        assetListUpdater.stop()
+            else:
+                return updAsset
 
     def runUpdater(self):
         updAsset = assetManager.getSelfUpdaterAsset()
