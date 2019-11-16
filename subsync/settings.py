@@ -89,11 +89,9 @@ class Settings(object):
             return self.persistent | self.volatile
 
     def set(self, temp=False, **state):
-        dirty = self.dirty
         for key, val in state.items():
-            dirty = self.setValue(key, val, temp=temp) or dirty
-        self.dirty = dirty
-        return dirty
+            self.setValue(key, val, temp=temp)
+        return self.dirty
 
     def setValue(self, key, val, temp=False):
         if key in persistent or key in volatile:
@@ -101,12 +99,11 @@ class Settings(object):
             setattr(self, key, val)
             if not temp and key in persistent and self.keep[key] != val:
                 self.keep[key] = val
-                return True
+                self.dirty = True
         elif key in outdated:
             logger.warning('outdated entry: %s = %s, dropping', key, str(val))
         else:
             logger.warning('invalid entry: %s = %s (%s)', key, str(val), type(val).__name__)
-        return False
 
     def get(self, key):
         if key in self.keys():
