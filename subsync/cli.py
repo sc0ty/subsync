@@ -115,6 +115,7 @@ class App(object):
     def runTasks(self):
         if not settings().tasks:
             pr.println(1, '[-] nothing to do')
+            return
 
         for task in settings().tasks:
             try:

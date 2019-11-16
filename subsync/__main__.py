@@ -50,6 +50,8 @@ def initConfig(args):
     if len(sys.argv) > 1:
         logger.info('command line parameters: %s', args)
 
+    settings().save()
+
 
 def shouldUseCli():
     if settings().cli:

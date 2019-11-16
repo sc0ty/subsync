@@ -74,21 +74,21 @@ def getParser():
 
     setup = subparsers.add_parser('settings', help=_('change default settings'))
     setup.set_defaults(mode='settings')
-    setup.add_argument('--effort', dest='minEffor', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
+    setup.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
 
     cli = parser.add_argument_group(_('headless options'))
     cli.add_argument('--cli', action='store_true', help=_('headless mode (command line only)'))
     cli.add_argument('--verbose', type=int, default=1, help=_('verbosity level for headless job'))
 
-    sync = parser.add_argument_group(_('synchronization options'))
-    addOption(sync, 'jobsNo', '--jobs', type=int, metavar='NO', help=_('number of synchronization jobs, 0 for auto'))
-    addOption(sync, 'windowSize', type=float, metavar='SIZE', help=_('maximum correction (in seconds)'))
-    addOption(sync, 'maxPointDist', type=float, metavar='DIST', help=_('maximum synchronization error (type: in seconds)'))
-    addOption(sync, 'minPointsNo', type=int, metavar='NO', help=_('minimum synchronization points no'))
-    addOption(sync, 'minWordProb', type=float, metavar='PROB', help=_('minimum speech recognition score (type: 0.0 - 1.0)'))
-    addOption(sync, 'minWordLen', type=int, metavar='LEN', help=_('minimum number of letters for word to be used in synchronization'))
-    addOption(sync, 'minCorrelation', type=float, metavar='CORRELATION', help=_('minimum correlation (type: 0.0 - 1.0)'))
-    addOption(sync, 'minWordsSim', type=float, metavar='SIM', help=_('minimum words similarity for synchronization point (type: 0.0 - 1.0)'))
+    cfg = parser.add_argument_group(_('synchronization options'))
+    addOption(cfg, 'jobsNo', '--jobs', type=int, metavar='NO', help=_('number of synchronization jobs, 0 for auto'))
+    addOption(cfg, 'windowSize', type=float, metavar='SIZE', help=_('maximum correction (in seconds)'))
+    addOption(cfg, 'maxPointDist', type=float, metavar='DIST', help=_('maximum synchronization error (type: in seconds)'))
+    addOption(cfg, 'minPointsNo', type=int, metavar='NO', help=_('minimum synchronization points no'))
+    addOption(cfg, 'minWordProb', type=float, metavar='PROB', help=_('minimum speech recognition score (type: 0.0 - 1.0)'))
+    addOption(cfg, 'minWordLen', type=int, metavar='LEN', help=_('minimum number of letters for word to be used in synchronization'))
+    addOption(cfg, 'minCorrelation', type=float, metavar='CORRELATION', help=_('minimum correlation (type: 0.0 - 1.0)'))
+    addOption(cfg, 'minWordsSim', type=float, metavar='SIM', help=_('minimum words similarity for synchronization point (type: 0.0 - 1.0)'))
 
     class LogLevelAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
