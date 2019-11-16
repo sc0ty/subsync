@@ -6,6 +6,7 @@
 *.res
 *.pyc
 *.pyd
+*.pyo
 *.log
 *.srt
 *.words
