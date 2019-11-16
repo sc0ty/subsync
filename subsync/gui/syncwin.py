@@ -168,9 +168,10 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.Layout()
 
     def ShowModal(self):
-        res = super().ShowModal()
-        self.onClose(None)  # since EVT_CLOSE is not emitted for modal frame
-        return res
+        try:
+            return super().ShowModal()
+        finally:
+            self.onClose(None)  # since EVT_CLOSE is not emitted for modal frame
 
     def onClose(self, event):
         if not self.closing:

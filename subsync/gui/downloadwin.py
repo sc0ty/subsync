@@ -27,9 +27,10 @@ class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
         self.progressTimer.Start(200)
 
     def ShowModal(self):
-        res = super().ShowModal()
-        self.onClose(None)
-        return res
+        try:
+            return super().ShowModal()
+        finally:
+            self.onClose(None)
 
     def onClose(self, event):
         self.updater.stop()
