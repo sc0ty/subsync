@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-11-16 18:35+0100\n"
-"PO-Revision-Date: 2019-11-16 18:55+0100\n"
+"PO-Revision-Date: 2019-11-16 19:03+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -699,7 +699,7 @@ msgstr "przerwane"
 
 #: subsync/gui/components/batchlist/outputcell.py:117
 msgid "couldn't synchronize"
-msgstr "nie można zsynchronizować"
+msgstr "niepowodzenie"
 
 #: subsync/gui/components/batchlist/outputcell.py:128
 #: subsync/gui/errorwin.py:34 subsync/gui/layout/errorwin.py:21
