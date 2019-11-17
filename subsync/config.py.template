@@ -20,6 +20,11 @@ elif sys.platform == 'linux':
     shareddir = configdir
     assetupd =  None
 
+elif sys.platform == 'darwin':
+    configdir = os.path.join(os.path.expanduser('~'), 'Library', 'Preferences', appname)
+    shareddir = configdir
+    assetupd = 'subsync/mac-x86_64'
+
 else:
     configdir = datadir
     shareddir = configdir
