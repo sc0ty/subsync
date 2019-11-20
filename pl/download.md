@@ -14,7 +14,7 @@ Wszystkie wersje (oraz lista zmian) dostępne [tutaj](https://github.com/sc0ty/s
 (wersja przenośna - bez instalacji)
 
 ## MacOS
-* [subsync-0.12.0-mac-x86_64.dmg](https://github.com/sc0ty/subsync/releases/download/0.12/subsync-0.12.0-mac-x86_64.dmg)
+* wersja dla systemu macOS nie działa prawidłowo, zostanie naprawiona wkrótce, zobacz [#28](https://github.com/sc0ty/subsync/issues/28)
 
 ## Linux
 * [subsync_0.12_amd64.snap](https://github.com/sc0ty/subsync/releases/download/0.12/subsync_0.12_amd64.snap) (lub bezpośrednio ze [sklepu](https://snapcraft.io/subsync))
