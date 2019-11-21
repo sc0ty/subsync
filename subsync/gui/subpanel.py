@@ -35,7 +35,7 @@ class InputPanel(subsync.gui.layout.subpanel.SubtitlePanel):
     def onChoiceSubLang(self, event):
         lang = self.m_choiceSubLang.GetValue()
         self.stream.lang = lang
-        settings().setValue(self.defaultLangKey, dlg.defaultLang)
+        settings().setValue(self.defaultLangKey, lang)
 
     def onDropSubFile(self, x, y, filename):
 
