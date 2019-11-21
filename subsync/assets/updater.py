@@ -9,7 +9,8 @@ import threading
 import asyncio
 import tempfile
 import zipfile
-from Crypto.Hash import SHA256
+import hashlib
+import cryptography.exceptions
 from collections import namedtuple
 
 import logging
@@ -95,7 +96,7 @@ class Updater(thread.AsyncJob):
         size = self.asset.getRemote('size')
 
         logger.info('downloading %s', url)
-        hash = SHA256.new()
+        hash = hashlib.sha256()
 
         def onNewChunk(chunk, progress):
             self.setStatus(progress=progress)
@@ -109,7 +110,9 @@ class Updater(thread.AsyncJob):
         sig = await async_utils.downloadRaw(self.asset.getRemote('sig'))
 
         logger.info('verifying signature')
-        if not pubkey.getVerifier().verify(hash, sig):
+        try:
+            pubkey.verify(hash, sig)
+        except cryptography.exceptions.InvalidSignature as ex:
             raise Error(_('Signature verification failed'),
                     url=self.asset.getRemote('url'))
 

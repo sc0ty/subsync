@@ -153,7 +153,7 @@ setup(
             'aiohttp>=2.3',
             'certifi',
             'pysubs2>=0.2.4',
-            'pycryptodome>=3.9',
+            'cryptography>=2.8',
             'PyYAML',
             'wxPython>=4.0',
             ],

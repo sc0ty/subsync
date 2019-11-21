@@ -1,6 +1,6 @@
 aiohttp>=2.3
 certifi
-pycryptodome>=3.9
+cryptography>=2.8
 pysubs2>=0.2.4
 PyYAML
 wxPython>=4.0
