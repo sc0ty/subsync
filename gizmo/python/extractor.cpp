@@ -20,5 +20,6 @@ void initExtractorWrapper(py::module &m)
 	extractor.def("connectErrorCallback", &Extractor::connectErrorCallback);
 	extractor.def("start", &Extractor::start, py::arg("threadName") = "");
 	extractor.def("stop", &Extractor::stop);
+	extractor.def("wait", &Extractor::wait);
 	extractor.def("isRunning", &Extractor::isRunning);
 }

@@ -18,7 +18,7 @@ Extractor::Extractor(shared_ptr<Demux> demux) :
 
 Extractor::~Extractor()
 {
-	terminate();
+	wait();
 }
 
 const StreamsFormat &Extractor::getStreamsInfo() const
@@ -48,7 +48,6 @@ void Extractor::connectErrorCallback(ErrorCallback callback)
 
 void Extractor::start(const string &threadName)
 {
-	terminate();
 	m_state = State::running;
 	m_thread = thread(&Extractor::run, this, threadName);
 }
@@ -118,23 +117,24 @@ void Extractor::run(string threadName)
 
 	try
 	{
-		if (m_eosCb)
-			m_eosCb();
-	}
-	catch (...)
-	{ }
-
-	try
-	{
 		demux->stop();
 	}
 	catch (...)
 	{ }
 
 	m_demux = NULL;
+	m_state = State::idle;
+
+	try
+	{
+		if (m_eosCb)
+			m_eosCb();
+	}
+	catch (...)
+	{ }
 }
 
-void Extractor::terminate()
+void Extractor::wait()
 {
 	if (m_state != State::idle)
 		m_state = State::stopping;

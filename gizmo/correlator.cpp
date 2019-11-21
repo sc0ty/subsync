@@ -23,6 +23,7 @@ Correlator::Correlator(
 	m_state(State::idle),
 	m_wordsNo(0),
 	m_lineFinder(5.0f, windowSize),
+	m_correlated(false),
 	m_windowSize(windowSize),
 	m_minCorrelation(minCorrelation),
 	m_maxDistanceSqr(maxDistance * maxDistance),
@@ -33,7 +34,7 @@ Correlator::Correlator(
 
 Correlator::~Correlator()
 {
-	terminate();
+	wait();
 }
 
 void Correlator::pushSubWord(const Word &word)
@@ -44,6 +45,12 @@ void Correlator::pushSubWord(const Word &word)
 void Correlator::pushRefWord(const Word &word)
 {
 	m_queue.push(WordId::REF, word);
+}
+
+void Correlator::pushSubtitle(double start, double end, const char* text)
+{
+	(void) text;
+	m_queue.push(WordId::BUCKET, Word(start, end-start, 0.0f));
 }
 
 void Correlator::run(const string threadName)
@@ -73,13 +80,22 @@ void Correlator::run(const string threadName)
 			newBestLine = addSubtitle(word);
 		else if (id == WordId::REF)
 			newBestLine = addReference(word);
+		else if (id == WordId::BUCKET)
+			m_buckets[word.time + word.duration] = word.time;
 
 		if (newBestLine)
-			correlate();
+		{
+			CorrelationStats stats = correlate();
+			if (m_statsCb && (stats.correlated || !m_correlated))
+			{
+				m_correlated = stats.correlated;
+				m_statsCb(stats);
+			}
+		}
 	}
 }
 
-void Correlator::terminate()
+void Correlator::wait()
 {
 	if (m_state != State::idle)
 		m_state = State::stopping;
@@ -97,8 +113,6 @@ void Correlator::terminate()
 
 void Correlator::start(const std::string &threadName)
 {
-	terminate();
-
 	m_state = State::running;
 	m_thread = thread(&Correlator::run, this, threadName);
 }
@@ -176,43 +190,50 @@ bool Correlator::addReference(const Word &ref)
 	return newBestLine;
 }
 
-Points Correlator::correlate() const
+CorrelationStats Correlator::correlate() const
 {
-	double cor;
+	double factor = 0.0;
 
-	Line bestLine = m_lineFinder.getBestLine();
+	const Line bestLine = m_lineFinder.getBestLine();
 	const Points &points = m_lineFinder.getPoints();
 	Points hits = bestLine.getPointsInLine(points, 10.0f*m_maxDistanceSqr);
 
-	Line line(hits, NULL, NULL, &cor);
+	Line line(hits, NULL, NULL, &factor);
 	float distSqr = line.findFurthestPoint(hits);
 
-	while ((cor < m_minCorrelation || distSqr > m_maxDistanceSqr)
-			&& (hits.size() > m_minPointsNo))
+	while ((factor < m_minCorrelation || distSqr > m_maxDistanceSqr)
+			&& (countPoints(hits) > m_minPointsNo))
 	{
 		distSqr = line.removeFurthestPoint(hits);
-		line = Line(hits, NULL, NULL, &cor);
+		line = Line(hits, NULL, NULL, &factor);
 	}
 
-	if (m_statsCb)
+	CorrelationStats stats;
+	stats.factor = factor;
+	stats.points = countPoints(hits);
+	stats.maxDistance = sqrt(distSqr);
+	stats.formula = line;
+
+	stats.correlated =
+		factor >= m_minCorrelation &&
+		distSqr <= m_maxDistanceSqr &&
+		stats.points >= m_minPointsNo;
+
+	return stats;
+}
+
+unsigned Correlator::countPoints(const Points &pts) const
+{
+	set<float> has;
+
+	for (const Point pt : pts)
 	{
-		CorrelationStats stats;
-
-		stats.correlated =
-			cor >= m_minCorrelation &&
-			hits.size() >= m_minPointsNo &&
-			distSqr <= m_maxDistanceSqr;
-
-		stats.factor = cor;
-		stats.points = hits.size();
-		stats.maxDistance = sqrt(distSqr);
-		stats.formula = line;
-
-		if (m_state == State::running || m_state == State::finishing)
-			m_statsCb(stats);
+		Buckets::const_iterator it = m_buckets.lower_bound(pt.x);
+		if (it != m_buckets.end() && pt.x >= it->second && pt.x <= it->first)
+			has.insert(it->second);
 	}
 
-	return hits;
+	return has.size();
 }
 
 Correlator::Entrys Correlator::getSubs() const
@@ -235,12 +256,22 @@ Correlator::Entrys Correlator::getRefs() const
 
 Points Correlator::getAllPoints() const
 {
+	if (m_state != State::idle)
+		throw EXCEPTION("points cannot be obtained when the correlator is running")
+			.module("Correlator");
+
 	return m_lineFinder.getPoints();
 }
 
 Points Correlator::getUsedPoints() const
 {
-	return correlate();
+	if (m_state != State::idle)
+		throw EXCEPTION("points cannot be obtained when the correlator is running")
+			.module("Correlator");
+
+	const CorrelationStats stats = correlate();
+	const Line line(stats.formula.a, stats.formula.b);
+	return line.getPointsInLine(m_lineFinder.getPoints(), m_maxDistanceSqr);
 }
 
 

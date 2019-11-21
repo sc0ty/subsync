@@ -17,20 +17,11 @@ class BasePipeline(object):
         self.duration = self.demux.getDuration()
         self.timeWindow = [0, self.duration]
 
-        self.done = False
-        self.eosCallback = lambda: None
-
-        def eos():
-            logger.info('job terminated')
-            self.done = True
-            self.eosCallback()
-
-        self.extractor.connectEosCallback(eos)
-
     def destroy(self):
+        self.extractor.stop()
+        self.extractor.wait()
         self.extractor.connectEosCallback(None)
         self.extractor.connectErrorCallback(None)
-        self.extractor.stop()
 
     def selectTimeWindow(self, begin, end, start=None):
         if end > self.duration:
@@ -66,7 +57,7 @@ class BasePipeline(object):
         self.extractor.connectErrorCallback(cb)
 
     def connectEosCallback(self, cb):
-        self.eosCallback = cb
+        self.extractor.connectEosCallback(cb)
 
 
 class SubtitlePipeline(BasePipeline):

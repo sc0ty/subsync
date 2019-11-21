@@ -62,6 +62,8 @@ class Synchronizer(object):
     def destroy(self):
         logger.info('releasing synchronizer resources')
 
+        self.correlator.stop(force=True)
+        self.correlator.wait()
         self.correlator.connectStatsCallback(None)
 
         for p in self.pipelines:
@@ -95,6 +97,7 @@ class Synchronizer(object):
         self.subPipeline.connectEosCallback(self.onSubEos)
         self.subPipeline.connectErrorCallback(self.onSubError)
         self.subPipeline.addSubsListener(self.subtitlesCollector.addSubtitle)
+        self.subPipeline.addSubsListener(self.correlator.pushSubtitle)
         self.subPipeline.addWordsListener(self.correlator.pushSubWord)
 
         if self.sub.lang and self.ref.lang and self.sub.lang != self.ref.lang:
@@ -157,10 +160,6 @@ class Synchronizer(object):
 
         return False
 
-    def isSubReady(self):
-        with self.statsLock:
-            return self.subPipeline and self.subPipeline.done and self.stats.correlated
-
     def getProgress(self):
         psum = 0.0
         plen = 0
@@ -184,31 +183,28 @@ class Synchronizer(object):
         with self.statsLock:
             stats = self.stats
             progress = self.getProgress()
+            begin = self.effortBegin
+
+        effort = -1
+        if begin is not None:
+            if progress == None or progress <= 0:
+                effort = 0
+            elif progress >= 1:
+                effort = 1
+            else:
+                effort = (progress - begin) / (1 - begin)
 
         return SyncStatus(
-                subReady    = self.subPipeline and self.subPipeline.done and self.stats.correlated,
+                subReady    = stats.correlated and self.subPipeline and not self.subPipeline.isRunning(),
                 running     = self.isRunning(),
                 maxChange   = self.subtitlesCollector.getMaxSubtitleDiff(stats.formula),
                 progress    = progress,
-                correlated  = self.stats.correlated,
-                factor      = self.stats.factor,
-                points      = self.stats.points,
-                maxDistance = self.stats.maxDistance,
-                formula     = self.stats.formula,
-                effort      = self.getEffort(progress))
-
-    def getEffort(self, progress=None):
-        with self.statsLock:
-            begin = self.effortBegin
-        if begin == None:
-            return -1
-        if progress == None:
-            progress = self.getProgress()
-        if progress == None or progress <= 0:
-            return 0
-        if progress >= 1:
-            return 1
-        return (progress - begin) / (1 - begin)
+                correlated  = stats.correlated,
+                factor      = stats.factor,
+                points      = stats.points,
+                maxDistance = stats.maxDistance,
+                formula     = stats.formula,
+                effort      = effort)
 
     def getSynchronizedSubtitles(self):
         with self.statsLock:
@@ -219,7 +215,7 @@ class Synchronizer(object):
         logger.debug(stats)
         with self.statsLock:
             self.stats = stats
-            if self.effortBegin == None and self.subPipeline and self.subPipeline.done and stats.correlated:
+            if self.effortBegin == None and stats.correlated and self.subPipeline and not self.subPipeline.isRunning():
                 self.effortBegin = self.getProgress()
 
     def onSubEos(self):
@@ -235,8 +231,9 @@ class Synchronizer(object):
 
     def checkIfAllPipelinesDone(self):
         for p in self.pipelines:
-            if not p.done:
+            if p.isRunning():
                 return
+        logger.info('stopping correlator')
         self.correlator.stop(force=False)
 
     def onSubError(self, err):

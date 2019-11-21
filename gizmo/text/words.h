@@ -33,6 +33,7 @@ enum class WordId
 	NONE = -1,
 	SUB = 0,
 	REF = 1,
+	BUCKET,
 };
 
 #endif

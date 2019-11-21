@@ -24,10 +24,12 @@ void initCorrelatorWrapper(py::module &m)
 	correlator.def("connectStatsCallback", &Correlator::connectStatsCallback);
 	correlator.def("start", &Correlator::start, py::arg("threadName") = "");
 	correlator.def("stop", &Correlator::stop, py::arg("force") = false);
+	correlator.def("wait", &Correlator::wait);
 	correlator.def("isRunning", &Correlator::isRunning);
 	correlator.def("getProgress", &Correlator::getProgress);
 	correlator.def("pushSubWord", &Correlator::pushSubWord);
 	correlator.def("pushRefWord", &Correlator::pushRefWord);
+	correlator.def("pushSubtitle", &Correlator::pushSubtitle);
 	correlator.def("getSubs", &Correlator::getSubs);
 	correlator.def("getRefs", &Correlator::getRefs);
 	correlator.def("getAllPoints", [](const Correlator &c) {

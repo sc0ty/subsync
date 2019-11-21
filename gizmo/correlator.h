@@ -30,6 +30,7 @@ class Correlator
 	public:
 		typedef std::function<void (CorrelationStats)> StatsCallback;
 		typedef std::set<Word> Entrys;
+		typedef std::map<float /* end */, float /* start */> Buckets;
 
 	public:
 		Correlator(
@@ -45,12 +46,14 @@ class Correlator
 
 		void start(const std::string &threadName="");
 		void stop(bool force=false);
+		void wait();
 
 		bool isRunning() const;
 		float getProgress() const;
 
 		void pushSubWord(const Word &word);
 		void pushRefWord(const Word &word);
+		void pushSubtitle(double start, double end, const char* text);
 
 		Entrys getSubs() const;
 		Entrys getRefs() const;
@@ -60,12 +63,12 @@ class Correlator
 
 	private:
 		void run(const std::string threadName);
-		void terminate();
 
 		bool addSubtitle(const Word &word);
 		bool addReference(const Word &word);
 
-		Points correlate() const;
+		CorrelationStats correlate() const;
+		unsigned countPoints(const Points &pts) const;
 
 	private:
 		enum class State
@@ -79,6 +82,7 @@ class Correlator
 	private:
 		Entrys m_subs;
 		Entrys m_refs;
+		Buckets m_buckets;
 
 		std::atomic<State> m_state;
 		std::thread m_thread;
@@ -87,9 +91,9 @@ class Correlator
 		std::atomic_size_t m_wordsNo;
 
 		LineFinder m_lineFinder;
+		bool m_correlated;
 
 		StatsCallback m_statsCb;
-		CorrelationStats m_stats;
 
 		float    m_windowSize;
 		double   m_minCorrelation;

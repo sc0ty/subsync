@@ -28,11 +28,11 @@ class Extractor
 
 		void start(const std::string &threadName="");
 		void stop();
+		void wait();
 		bool isRunning() const;
 
 	private:
 		void run(const std::string threadName);
-		void terminate();
 
 	private:
 		enum class State
