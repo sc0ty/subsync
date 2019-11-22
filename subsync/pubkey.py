@@ -16,12 +16,3 @@ def getPublicKey():
 
 def verify(hash, sig):
     getPublicKey().verify(sig, hash.digest(), padding.PKCS1v15(), utils.Prehashed(hashes.SHA256()))
-
-
-def getVerifier():
-    global _verifier
-    if not _verifier:
-        key = getPublicKey()
-        _verifier = PKCS1_v1_5.new(key)
-    return _verifier
-
