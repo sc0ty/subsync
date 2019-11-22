@@ -67,16 +67,19 @@ def shouldUseCli():
 def startGui(args):
     import wx
     from subsync.gui.mainwin import MainWin
+    from subsync.gui.batchwin import BatchWin
     from subsync.gui.errorwin import showExceptionDlg
 
     try:
         app = wx.App()
-        win = MainWin(None)
+        win = None
+
+        if settings().mode == 'batch':
+            win = BatchWin(None, settings().tasks)
+        else:
+            win = MainWin(None)
 
         win.Show()
-        if settings().mode == 'batch':
-            wx.CallLater(100, win.showBatchWin, settings().tasks)
-
         app.MainLoop()
 
     except Exception as err:

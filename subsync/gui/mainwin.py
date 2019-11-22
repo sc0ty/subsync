@@ -161,10 +161,10 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     def onMenuItemBatchProcessingClick(self, event):
         self.showBatchWin()
 
-    def showBatchWin(self, tasks=None):
+    def showBatchWin(self):
         try:
             self.Hide()
-            win = BatchWin(self, tasks)
+            win = BatchWin(self)
 
         except:
             showExceptionDlg(self)
