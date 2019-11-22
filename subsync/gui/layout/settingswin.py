@@ -90,9 +90,16 @@ class SettingsWin ( wx.Dialog ):
 
 		fgSizer4.Add( self.m_staticText14, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_showLanguageNotSelectedPopup = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"language not selected"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_showLanguageNotSelectedPopup.SetValue(True)
-		fgSizer4.Add( self.m_showLanguageNotSelectedPopup, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		self.m_showLanguageNotSelectedPopup1 = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"language not selected"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_showLanguageNotSelectedPopup1.SetValue(True)
+		fgSizer4.Add( self.m_showLanguageNotSelectedPopup1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+
+
+		fgSizer4.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		self.m_showOverwriteExistingFilesConfirmPopup = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"confirm file overwrite (in batch mode)"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_showOverwriteExistingFilesConfirmPopup.SetValue(True)
+		fgSizer4.Add( self.m_showOverwriteExistingFilesConfirmPopup, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
 
 		self.m_panelGeneral.SetSizer( fgSizer4 )
@@ -122,7 +129,7 @@ class SettingsWin ( wx.Dialog ):
 		self.m_minPointsNo = wx.SpinCtrl( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 1000, 20 )
 		fgSizer5.Add( self.m_minPointsNo, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
-		self.m_staticText6 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min world length (letters):"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText6 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min word length (letters):"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 
 		fgSizer5.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -130,7 +137,7 @@ class SettingsWin ( wx.Dialog ):
 		self.m_minWordLen = wx.SpinCtrl( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 1000, 5 )
 		fgSizer5.Add( self.m_minWordLen, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
-		self.m_staticText7 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min worlds similarity:"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText7 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min words similarity:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7.Wrap( -1 )
 
 		fgSizer5.Add( self.m_staticText7, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )

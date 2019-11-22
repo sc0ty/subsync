@@ -1,6 +1,7 @@
 import wx
 from subsync.gui.downloadwin import DownloadWin
 from subsync.gui.busydlg import BusyDlg
+from subsync.gui.components import popups
 from subsync.assets import assetManager, assetListUpdater
 from subsync.data import descriptions, languages
 from subsync.settings import settings
@@ -136,14 +137,8 @@ def askForLangSelection(parent, tasks):
     if missingLang:
         msg += [ '', descriptions.noLanguageSelectedQuestion ]
         title = _('No language selected')
-        flags = wx.YES_NO | wx.ICON_QUESTION
-        with wx.RichMessageDialog(parent, '\n'.join(msg), title, flags) as dlg:
-            dlg.ShowCheckBox(_('don\'t show this message again'))
-            res = dlg.ShowModal() == wx.ID_YES
-            if res and dlg.IsCheckBoxChecked():
-                settings().set(showLanguageNotSelectedPopup=False)
-                settings().save()
-            return res
+        return popups.showConfirmationPopup(parent, '\n'.join(msg), title,
+                confirmKey='showLanguageNotSelectedPopup')
 
     return True
 

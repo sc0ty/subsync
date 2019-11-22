@@ -11,7 +11,6 @@ class OutputFile(object):
         self.path = path
         self.enc  = enc
         self.fps  = fps
-        self.overwrite = False
         self.pathFormatter = None
 
     def getPath(self, sub, ref):
@@ -27,7 +26,6 @@ class OutputFile(object):
         if self.path: res['path'] = self.path
         if self.enc:  res['enc'] = self.enc
         if self.fps:  res['fps'] = self.fps
-        if self.overwrite: res['overwrite'] = True
         return res
 
     def deserialize(data):
@@ -37,21 +35,18 @@ class OutputFile(object):
             fps = data.get('fps', None)
 
             res = OutputFile(path, enc, fps)
-            res.overwrite = data.get('overwrite', False)
             return res
 
     def __repr__(self):
         return utils.fmtobj(self.__class__.__name__,
                 path = self.path,
                 enc = self.enc,
-                fps = self.fps,
-                overwrite = self.overwrite or None)
+                fps = self.fps)
 
     def __str__(self):
         return utils.fmtstr(self.path,
                 enc = self.enc,
-                fps = self.fps,
-                overwrite = self.overwrite)
+                fps = self.fps)
 
 
 class PathFormatter(object):

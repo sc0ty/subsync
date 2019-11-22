@@ -1,6 +1,8 @@
 import subsync.gui.layout.outpatternwin
 from subsync.gui.errorwin import error_dlg
 from subsync.synchro import OutputFile
+from subsync.gui.components import popups
+from subsync.settings import settings
 import wx
 import re
 import os
@@ -13,6 +15,7 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
         self.customFolder = ''
         if pattern:
             self.setPattern(pattern)
+        self.m_checkOverwriteFiles.SetValue(settings().overwriteExistingFiles)
         self.onModeSel(None)
 
     def updatePattern(self):
@@ -132,6 +135,16 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
     def onButtonFolderCustomClick(self, event):
         self.selectCustomFolder()
         self.updatePattern()
+
+    def onCheckOverwriteFiles(self, event):
+        overwrite = self.m_checkOverwriteFiles.GetValue()
+        if overwrite:
+            overwrite = popups.showConfirmationPopup(self,
+                    _('Are you sure you want to overwrite output files if they exist?'),
+                    _('Overwrite files?'),
+                    confirmKey='showOverwriteExistingFilesConfirmPopup')
+            self.m_checkOverwriteFiles.SetValue(overwrite)
+        settings().set(overwriteExistingFiles=overwrite)
 
     @error_dlg
     def onButtonOkClick(self, event):

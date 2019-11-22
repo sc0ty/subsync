@@ -26,6 +26,8 @@ persistent = {
         'refsCache': True,
         'autoUpdate': True,
         'askForUpdate': True,
+        'overwriteExistingFiles': False,
+        'showOverwriteExistingFilesConfirmPopup': True,
         'showLanguageNotSelectedPopup': True,
         'batchSortFiles': False,
         'debugOptions': False,

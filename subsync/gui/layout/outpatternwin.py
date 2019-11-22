@@ -100,8 +100,8 @@ class OutputPatternWin ( wx.Dialog ):
 		gbSizer1.Fit( self.m_panelPredef )
 		fgSizer1.Add( self.m_panelPredef, 1, wx.EXPAND|wx.RIGHT|wx.LEFT, 20 )
 
-		self.m_staticline2 = wx.StaticLine( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		fgSizer1.Add( self.m_staticline2, 0, wx.EXPAND |wx.ALL, 5 )
+		self.m_staticline1 = wx.StaticLine( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer1.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
 
 		self.m_radioCustom = wx.RadioButton( self.m_panel1, wx.ID_ANY, _(u"custom names:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.m_radioCustom, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -260,8 +260,14 @@ class OutputPatternWin ( wx.Dialog ):
 		fgSizer3.Fit( self.m_panelCustom )
 		fgSizer1.Add( self.m_panelCustom, 1, wx.EXPAND|wx.RIGHT|wx.LEFT, 20 )
 
-		self.m_staticline1 = wx.StaticLine( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		fgSizer1.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
+		self.m_staticline2 = wx.StaticLine( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer1.Add( self.m_staticline2, 0, wx.EXPAND |wx.ALL, 5 )
+
+		self.m_checkOverwriteFiles = wx.CheckBox( self.m_panel1, wx.ID_ANY, _(u"Overwrite existing files"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.m_checkOverwriteFiles, 0, wx.ALL, 5 )
+
+		self.m_staticline3 = wx.StaticLine( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer1.Add( self.m_staticline3, 0, wx.EXPAND |wx.ALL, 5 )
 
 		fgSizer2 = wx.FlexGridSizer( 1, 0, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
@@ -305,6 +311,7 @@ class OutputPatternWin ( wx.Dialog ):
 		self.m_radioTypeSsa.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
 		self.m_radioTypeAss.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
 		self.m_radioCustom.Bind( wx.EVT_RADIOBUTTON, self.onModeSel )
+		self.m_checkOverwriteFiles.Bind( wx.EVT_CHECKBOX, self.onCheckOverwriteFiles )
 		self.m_buttonOK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
 
 	def __del__( self ):
@@ -330,6 +337,9 @@ class OutputPatternWin ( wx.Dialog ):
 
 
 
+
+	def onCheckOverwriteFiles( self, event ):
+		event.Skip()
 
 	def onButtonOkClick( self, event ):
 		event.Skip()
