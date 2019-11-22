@@ -2,6 +2,7 @@ from .cell import BaseCell
 from subsync.gui import errorwin
 from subsync.gui.outpatternwin import OutputPatternWin
 from subsync.synchro import OutputFile
+from subsync.settings import settings
 from subsync import error
 import wx
 import os
@@ -55,6 +56,7 @@ class OutputEditCell(BaseCell):
                 self.item.path = pattern
                 self.parent.outPattern = pattern
                 self.parent.updateOutputs()
+                settings().set(batchOutPattern=pattern)
 
     def onLeftDClick(self, event):
         if self.visible:

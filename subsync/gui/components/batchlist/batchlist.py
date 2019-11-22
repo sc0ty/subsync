@@ -11,6 +11,7 @@ from subsync.gui.streamselwin import StreamSelectionWin
 from subsync.gui.outpatternwin import OutputPatternWin
 from subsync.gui.components.update import updateLocker, update_lock
 from subsync.gui.components.notifier import DelayedSignalNotifier
+from subsync.settings import settings
 from subsync import error
 import wx
 from wx.lib.agw import ultimatelistctrl as ulc
@@ -29,7 +30,6 @@ class BatchList(ulc.UltimateListCtrl):
         self.rowHeightSet = False
 
         self.picked = None
-        self.outPattern = os.path.join('{ref_dir}', '{ref_name}{if:sub_lang:.}{sub_lang}.srt')
 
         self.InsertColumn(0, _('subtitles'))
         self.InsertColumn(1, _('references'))
@@ -132,15 +132,6 @@ class BatchList(ulc.UltimateListCtrl):
             out = self.GetItemWindow(row, 2).item
             tasks.append( SyncTask(sub, ref, out) )
         return tasks
-
-    def getTasksStates(self):
-        states = []
-        for row in range(self.GetItemCount()):
-            sub = self.GetItemWindow(row, 0)
-            ref = self.GetItemWindow(row, 1)
-            out = self.GetItemWindow(row, 2)
-            states.append( TaskState(self, sub, ref, out) )
-        return states
 
     def getJob(self, no):
         return self.GetItemWindow(no, 2)
@@ -296,7 +287,7 @@ class BatchList(ulc.UltimateListCtrl):
 
         outPath = None
         if out is None:
-            outPath = self.outPattern
+            outPath = settings().batchOutPattern
         owin = OutputEditCell(self, out, sub, ref, path=outPath, selected=select)
         self.SetItemWindow(row, 2, owin, expand=True)
 
@@ -549,6 +540,7 @@ class BatchList(ulc.UltimateListCtrl):
             with OutputPatternWin(self, path) as dlg:
                 if dlg.ShowModal() == wx.ID_OK:
                     self.updateSelectedOutputs(dlg.getPattern())
+                    settings().set(batchOutPattern=dlg.getPattern())
 
     @error_dlg
     def onMenuChannelsClick(self, event, cell=None):
