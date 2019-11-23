@@ -85,19 +85,6 @@ def has_flag(compiler, flagname):
     return True
 
 
-def get_version():
-    try:
-        version_long = subprocess.check_output(['git', 'describe', '--tags']).decode('UTF-8').strip()
-        v = version_long[re.search('\d', version_long).start():].split('-')
-        if len(v) > 1:
-            return '{}.{}'.format(v[0], v[1])
-        else:
-            return '{}.0'.format(v[0])
-    except Exception as e:
-        print('Version not recognized, using default, reason: ' + str(e))
-        return '0.0.0'
-
-
 bit64 = sys.maxsize > 2**32
 
 sources = [
@@ -257,7 +244,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
 
 setup(
     name = 'gizmo',
-    version = get_version(),
+    version = '0.13',
     author = 'Michał Szymaniak',
     author_email = 'sc0typl@gmail.com',
     url = 'https://github.com/sc0ty/subsync',
@@ -266,6 +253,7 @@ setup(
     long_description = '',
     ext_modules = ext_modules,
     setup_requires = ['pybind11>=2.4'],
+    install_requires = ['pybind11>=2.4'],
     cmdclass = {'build_ext': build_ext},
     zip_safe = False,
 )
