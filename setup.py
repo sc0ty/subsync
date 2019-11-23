@@ -138,6 +138,7 @@ setup(
         url = 'https://github.com/sc0ty/subsync',
         description = 'Subtitle Speech Synchronizer',
         license='GPLv3',
+        python_requires = '>=3.5',
         packages = [
             'subsync',
             'subsync.synchro',
@@ -164,7 +165,7 @@ setup(
             'gen_locales': gen_locales,
             'gen_version': gen_version,
             },
-        package_data={
+        package_data = {
             'subsync': [
                 'key.pub',
                 os.path.join('img', '*.png'),
