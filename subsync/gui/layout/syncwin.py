@@ -101,7 +101,7 @@ class SyncWin ( wx.Dialog ):
 		self.m_textSync = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"Synchronization: 0 points"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textSync.Wrap( -1 )
 
-		fgSizer5.Add( self.m_textSync, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer5.Add( self.m_textSync, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_textShowDetails = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"[show more]"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textShowDetails.Wrap( -1 )

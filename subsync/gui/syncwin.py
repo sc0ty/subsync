@@ -30,6 +30,11 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.m_buttonDebugMenu.Show()
 
         self.m_buttonStop.SetFocus()
+
+        # workaround for truncated texts
+        self.m_textStatus.SetMinSize(wx.Size(int(self.m_textStatus.GetSize().width * 1.2), -1))
+        self.m_textSync.SetMinSize(wx.Size(int(self.m_textSync.GetSize().width * 1.2), -1))
+
         self.Fit()
         self.Layout()
 
