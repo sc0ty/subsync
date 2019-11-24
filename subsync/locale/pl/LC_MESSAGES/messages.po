@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-22 19:21+0100\n"
-"PO-Revision-Date: 2019-11-22 19:24+0100\n"
+"POT-Creation-Date: 2019-11-24 11:38+0100\n"
+"PO-Revision-Date: 2019-11-24 11:39+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -109,75 +109,87 @@ msgstr ""
 msgid "output character encoding"
 msgstr "kodowanie znaków napisów wyjściowych"
 
-#: subsync/cmdargs.py:68 subsync/cmdargs.py:73 subsync/cmdargs.py:77
+#: subsync/cmdargs.py:68 subsync/cmdargs.py:79
 msgid "how hard to try (0.0 - 1.0) (used with --cli)"
 msgstr "jak mocno próbować (0.0 - 1.0) (używane z --cli)"
 
-#: subsync/cmdargs.py:70
+#: subsync/cmdargs.py:69
+msgid "overwrite existing files (used with --cli)"
+msgstr "nadpisz istniejące pliki (używane z --cli)"
+
+#: subsync/cmdargs.py:71
 msgid "batch synchronization"
 msgstr "synchronizacja seryjna"
 
-#: subsync/cmdargs.py:72
+#: subsync/cmdargs.py:73
 msgid "batch job yaml description"
 msgstr "plik yaml z listą plików do synchronizacji"
 
+#: subsync/cmdargs.py:74
+msgid "how hard to try (0.0 - 1.0)"
+msgstr "jak mocno próbować (0.0 - 1.0)"
+
 #: subsync/cmdargs.py:75
+msgid "overwrite existing files"
+msgstr "nadpisz istniejące pliki"
+
+#: subsync/cmdargs.py:77
 msgid "change default settings"
 msgstr "zmień ustawienia domyślne"
 
-#: subsync/cmdargs.py:79
+#: subsync/cmdargs.py:81
 msgid "headless options"
 msgstr "opcje trybu linii komend"
 
-#: subsync/cmdargs.py:80
+#: subsync/cmdargs.py:82
 msgid "headless mode (command line only)"
 msgstr "tryb linii komend"
 
-#: subsync/cmdargs.py:81
+#: subsync/cmdargs.py:83
 msgid "verbosity level for headless job"
 msgstr "poziom szczegółowości komunikatów dla trybu linii komend"
 
-#: subsync/cmdargs.py:83
+#: subsync/cmdargs.py:85
 msgid "synchronization options"
 msgstr "opcje synchronizacji"
 
-#: subsync/cmdargs.py:84
+#: subsync/cmdargs.py:86
 msgid "number of synchronization jobs, 0 for auto"
 msgstr "ilość wątków synchronizacji, 0 - auto"
 
-#: subsync/cmdargs.py:85
+#: subsync/cmdargs.py:87
 msgid "maximum correction (in seconds)"
 msgstr "maksymalna zmiana (w sekundach)"
 
-#: subsync/cmdargs.py:86
+#: subsync/cmdargs.py:88
 msgid "maximum synchronization error (in seconds)"
 msgstr "maksymalny błąd synchronizacji (w sekundach)"
 
-#: subsync/cmdargs.py:87
+#: subsync/cmdargs.py:89
 msgid "minimum synchronization points no"
 msgstr "minimalna liczba punktów synchronizacji"
 
-#: subsync/cmdargs.py:88
+#: subsync/cmdargs.py:90
 msgid "minimum speech recognition score (0.0 - 1.0)"
 msgstr "minimalny współczynnik rozpoznawania mowy (0.0 - 1.0)"
 
-#: subsync/cmdargs.py:89
+#: subsync/cmdargs.py:91
 msgid "minimum number of letters for word to be used in synchronization"
 msgstr "minimalna liczba liter w wyrazie, aby użyć wyraz do synchronizacji"
 
-#: subsync/cmdargs.py:90
+#: subsync/cmdargs.py:92
 msgid "minimum correlation (0.0 - 1.0)"
 msgstr "minimalna korelacja (0.0 - 1.0)"
 
-#: subsync/cmdargs.py:91
+#: subsync/cmdargs.py:93
 msgid "minimum words similarity for synchronization point (0.0 - 1.0)"
 msgstr "minimalne podobieństwa wyrazów dla punktów synchronizacji (0.0 - 1.0)"
 
-#: subsync/cmdargs.py:115
+#: subsync/cmdargs.py:117
 msgid "debug options"
 msgstr "opcje debugowania"
 
-#: subsync/cmdargs.py:116
+#: subsync/cmdargs.py:118
 msgid ""
 "set logging level, numericall value or one of: DEBUG, INFO, WARNING, ERROR, "
 "CRITICAL"
@@ -185,11 +197,11 @@ msgstr ""
 "ustaw poziom logowania, wartość numeryczna lub jedna z: DEBUG, INFO, "
 "WARNING, ERROR, CRITICAL"
 
-#: subsync/cmdargs.py:118
+#: subsync/cmdargs.py:120
 msgid "dump logs to specified file"
 msgstr "zrzuć logi do wskazanego pliku"
 
-#: subsync/cmdargs.py:120
+#: subsync/cmdargs.py:122
 msgid ""
 "dump words to file, or to standard output if there is no PATH, SRC is one "
 "of: "
@@ -479,11 +491,11 @@ msgstr "Wideo"
 
 #: subsync/gui/batchwin.py:242 subsync/gui/batchwin.py:329
 #: subsync/gui/batchwin.py:338 subsync/gui/openwin.py:24
-#: subsync/gui/syncwin.py:226 subsync/gui/syncwin.py:288
+#: subsync/gui/syncwin.py:231 subsync/gui/syncwin.py:293
 msgid "All files"
 msgstr "Wszystkie pliki"
 
-#: subsync/gui/batchwin.py:300 subsync/gui/syncwin.py:182
+#: subsync/gui/batchwin.py:300 subsync/gui/syncwin.py:187
 msgid "Terminating, please wait..."
 msgstr "Kończenie, proszę czekać..."
 
@@ -699,7 +711,7 @@ msgstr "niepowodzenie"
 
 #: subsync/gui/components/batchlist/outputcell.py:130
 #: subsync/gui/errorwin.py:34 subsync/gui/layout/errorwin.py:21
-#: subsync/gui/layout/errorwin.py:43 subsync/gui/syncwin.py:221
+#: subsync/gui/layout/errorwin.py:43 subsync/gui/syncwin.py:226
 msgid "Error"
 msgstr "Błąd"
 
@@ -1074,8 +1086,8 @@ msgid "Subtitles:"
 msgstr "Napisy:"
 
 #: subsync/gui/layout/mainwin.py:48
-msgid "References (your video):"
-msgstr "Referencja (twój plik wideo):"
+msgid "References (video or other subtitles):"
+msgstr "Referencja (wideo lub inne napisy):"
 
 #: subsync/gui/layout/mainwin.py:93
 msgid "Menu"
@@ -1490,15 +1502,15 @@ msgstr "Wyszukiwanie aktualizacji..."
 msgid "New version is available. Update now?"
 msgstr "Nowa wersja jest dostępna. Zaktualizować?"
 
-#: subsync/gui/outpatternwin.py:37
+#: subsync/gui/outpatternwin.py:39
 msgid "Select output directory"
 msgstr "Wybierz folder"
 
-#: subsync/gui/outpatternwin.py:143
+#: subsync/gui/outpatternwin.py:145
 msgid "Are you sure you want to overwrite output files if they exist?"
 msgstr "Na pewno chcesz zastąpić istniejące pliki?"
 
-#: subsync/gui/outpatternwin.py:144
+#: subsync/gui/outpatternwin.py:146
 msgid "Overwrite files?"
 msgstr "Nadpisać pliki?"
 
@@ -1514,31 +1526,31 @@ msgstr "<nieokreślony>"
 msgid "<empty>"
 msgstr "<pusty>"
 
-#: subsync/gui/syncwin.py:82
+#: subsync/gui/syncwin.py:87
 msgid "Synchronizing..."
 msgstr "Synchronizacja..."
 
-#: subsync/gui/syncwin.py:90
+#: subsync/gui/syncwin.py:95
 msgid "Synchronization: {} points"
 msgstr "Synchronizacja: {} punktów"
 
-#: subsync/gui/syncwin.py:123
+#: subsync/gui/syncwin.py:128
 msgid "Subtitles synchronized"
 msgstr "Napisy zsynchronizowane"
 
-#: subsync/gui/syncwin.py:125
+#: subsync/gui/syncwin.py:130
 msgid "No need to synchronize"
 msgstr "Synchronizacja niekonieczna"
 
-#: subsync/gui/syncwin.py:133
+#: subsync/gui/syncwin.py:138
 msgid "Synchronization inconclusive"
 msgstr "Synchronizacja niepełna"
 
-#: subsync/gui/syncwin.py:135
+#: subsync/gui/syncwin.py:140
 msgid "Couldn't synchronize"
 msgstr "Nie można zsynchronizować"
 
-#: subsync/settings.py:130
+#: subsync/settings.py:131
 msgid "Cannot load settings file, {}"
 msgstr "Błąd odczytu ustawień, {}"
 
