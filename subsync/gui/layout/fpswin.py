@@ -89,8 +89,6 @@ class FpsWin ( wx.Dialog ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_radioRef.Bind( wx.EVT_RADIOBUTTON, self.onRadioRefClick )
 		self.m_radioSub.Bind( wx.EVT_RADIOBUTTON, self.onRadioSubClick )

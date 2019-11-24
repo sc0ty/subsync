@@ -363,8 +363,6 @@ class BatchWin ( wx.Frame ):
 		self.SetMenuBar( self.m_menubar )
 
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.Bind( wx.EVT_CLOSE, self.onClose )
 		self.m_choiceLang.Bind( wx.EVT_CHOICE, self.onChoiceLangChoice )

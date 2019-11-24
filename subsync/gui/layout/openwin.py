@@ -146,8 +146,6 @@ class OpenWin ( wx.Dialog ):
 		self.SetSizer( bSizer1 )
 		self.Layout()
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_buttonOpen.Bind( wx.EVT_BUTTON, self.onButtonOpenClick )
 		self.m_listStreams.Bind( wx.EVT_LEFT_DCLICK, self.onListStreamsDClick )

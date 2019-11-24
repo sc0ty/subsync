@@ -140,8 +140,6 @@ class MainWin ( wx.Frame ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.Bind( wx.EVT_CLOSE, self.onClose )
 		self.m_sliderMaxDist.Bind( wx.EVT_SCROLL, self.onSliderMaxDistScroll )

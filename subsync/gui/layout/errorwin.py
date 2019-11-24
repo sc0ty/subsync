@@ -85,8 +85,6 @@ class ErrorWin ( wx.Dialog ):
 		self.Layout()
 		bSizer2.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_textDetails.Bind( wx.EVT_LEFT_UP, self.onTextDetailsClick )
 

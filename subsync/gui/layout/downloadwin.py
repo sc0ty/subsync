@@ -73,8 +73,6 @@ class DownloadWin ( wx.Dialog ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.Bind( wx.EVT_CLOSE, self.onClose )
 

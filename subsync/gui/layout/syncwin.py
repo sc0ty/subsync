@@ -255,8 +255,6 @@ class SyncWin ( wx.Dialog ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.Bind( wx.EVT_CLOSE, self.onClose )
 		self.m_textErrorDetails.Bind( wx.EVT_LEFT_UP, self.onTextErrorDetailsClick )

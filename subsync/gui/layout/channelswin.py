@@ -85,8 +85,6 @@ class ChannelsWin ( wx.Dialog ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_radioAuto.Bind( wx.EVT_RADIOBUTTON, self.onRadioButtonToggle )
 		self.m_radioAllChannels.Bind( wx.EVT_RADIOBUTTON, self.onRadioButtonToggle )

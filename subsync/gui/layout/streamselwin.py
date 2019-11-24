@@ -128,8 +128,6 @@ class StreamSelectionWin ( wx.Dialog ):
 		self.SetSizer( bSizer1 )
 		self.Layout()
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_choiceSelType.Bind( wx.EVT_CHOICE, self.onSelChange )
 		self.m_choiceSelLang.Bind( wx.EVT_CHOICE, self.onSelChange )

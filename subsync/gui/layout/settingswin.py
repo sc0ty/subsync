@@ -289,8 +289,6 @@ class SettingsWin ( wx.Dialog ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_checkAutoJobsNo.Bind( wx.EVT_CHECKBOX, self.onCheckAutoJobsNoCheck )
 		self.m_checkLogToFile.Bind( wx.EVT_CHECKBOX, self.onCheckLogToFileCheck )

@@ -113,8 +113,6 @@ class AboutWin ( wx.Dialog ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_buttonLicense.Bind( wx.EVT_BUTTON, self.onButtonLicenseClick )
 		self.m_buttonCredits.Bind( wx.EVT_BUTTON, self.onButtonCreditsClick )

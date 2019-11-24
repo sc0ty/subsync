@@ -295,8 +295,6 @@ class OutputPatternWin ( wx.Dialog ):
 		self.Layout()
 		bSizer1.Fit( self )
 
-		self.Centre( wx.BOTH )
-
 		# Connect Events
 		self.m_radioPredef.Bind( wx.EVT_RADIOBUTTON, self.onModeSel )
 		self.m_radioFolderRef.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
