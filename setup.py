@@ -154,7 +154,8 @@ setup(
             'aiohttp>=2.3',
             'certifi',
             'pysubs2>=0.2.4',
-            'cryptography>=2.8',
+            'pycryptodome>=3.9;platform_system=="Linux"',
+            'cryptography>=2.8;platform_system!="Linux"',
             'PyYAML',
             ],
         extras_require = {
