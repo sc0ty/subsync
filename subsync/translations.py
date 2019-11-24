@@ -1,6 +1,7 @@
 import gettext
 import locale
 import os
+import importlib
 from subsync import config
 
 import logging
@@ -25,6 +26,10 @@ def setLanguage(lang):
                     localedir=config.localedir,
                     languages=[lang])
             tr.install()
+
+        # workaround for languages being loaded before language is set
+        import subsync.data.languages
+        importlib.reload(subsync.data.languages)
 
     except Exception as e:
         logger.warning('translation language setup failed, %r', e, exc_info=False)
