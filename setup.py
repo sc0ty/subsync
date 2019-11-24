@@ -156,8 +156,10 @@ setup(
             'pysubs2>=0.2.4',
             'cryptography>=2.8',
             'PyYAML',
-            'wxPython>=4.0',
             ],
+        extras_require = {
+            'GUI': [ 'wxPython>=4.0' ],
+            },
         scripts = ['bin/subsync'],
         cmdclass = {
             'build_py': build_py,
