@@ -45,7 +45,7 @@ class MainWin ( wx.Frame ):
 		self.m_panelSub = SubPanel( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer1.Add( self.m_panelSub, 1, wx.EXPAND |wx.ALL, 5 )
 
-		self.m_staticText31 = wx.StaticText( self.m_panel2, wx.ID_ANY, _(u"References (your video):"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText31 = wx.StaticText( self.m_panel2, wx.ID_ANY, _(u"References (video or other subtitles):"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText31.Wrap( -1 )
 
 		fgSizer1.Add( self.m_staticText31, 0, wx.TOP|wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
