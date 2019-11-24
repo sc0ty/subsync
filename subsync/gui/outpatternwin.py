@@ -15,7 +15,9 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
         self.customFolder = ''
         if pattern:
             self.setPattern(pattern)
-        self.m_checkOverwriteFiles.SetValue(settings().overwriteExistingFiles)
+
+        overwrite = settings().overwriteExistingFiles or settings().overwrite
+        self.m_checkOverwriteFiles.SetValue(overwrite)
         self.onModeSel(None)
 
     def updatePattern(self):
@@ -144,7 +146,7 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
                     _('Overwrite files?'),
                     confirmKey='showOverwriteExistingFilesConfirmPopup')
             self.m_checkOverwriteFiles.SetValue(overwrite)
-        settings().set(overwriteExistingFiles=overwrite)
+        settings().set(overwriteExistingFiles=overwrite, overwrite=False)
 
     @error_dlg
     def onButtonOkClick(self, event):

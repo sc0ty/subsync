@@ -408,7 +408,7 @@ class BatchSynchronizer(object):
                             path=task.getOutputPath(),
                             encoding=task.getOutputEnc(),
                             fps=task.out.fps,
-                            overwrite=settings().overwriteExistingFiles)
+                            overwrite=settings().overwriteExistingFiles or settings().overwrite)
 
                 except Exception as err:
                     logger.warning('%r', err, exc_info=True)

@@ -66,11 +66,13 @@ def getParser():
     sync.add_argument('--out-fps', type=float, help=_('output framerate (for fps-based subtitles)'))
     sync.add_argument('--out-enc', type=str, help=_('output character encoding'))
     sync.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
+    sync.add_argument('--overwrite', action='store_true', help=_('overwrite existing files (used with --cli)'))
 
     batch = subparsers.add_parser('batch', help=_('batch synchronization'))
     batch.set_defaults(mode='batch')
     batch.add_argument('batch', type=str, help=_('batch job yaml description'))
-    batch.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
+    batch.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0)'))
+    batch.add_argument('--overwrite', action='store_true', help=_('overwrite existing files'))
 
     setup = subparsers.add_parser('settings', help=_('change default settings'))
     setup.set_defaults(mode='settings')

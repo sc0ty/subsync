@@ -44,6 +44,7 @@ volatile = {
         'tasks': None,
         'verbose': 1,
         'exitWhenDone': False,
+        'overwrite': False,
         'dumpWords': [],
         }
 

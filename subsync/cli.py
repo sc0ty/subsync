@@ -195,7 +195,7 @@ class App(object):
                         path=path,
                         encoding=task.getOutputEnc(),
                         fps=task.out.fps,
-                        overwrite=task.out.overwrite)
+                        overwrite=settings().overwrite)
                 pr.println(1, '[+] done')
 
             else:
