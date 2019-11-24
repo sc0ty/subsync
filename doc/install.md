@@ -23,104 +23,127 @@ cp subsync/config.py.template subsync/config.py
 ```
 
 ## POSIX platforms
-For POSIX compatibile platforms (e.g. Linux), standard Python `setup.py` scripts are provided.
+For POSIX compatibile platforms (e.g. Linux, MacOS), standard Python `setup.py` scripts are provided.
 
-It is advised to build under Python virtualenv. To do that, go to project main directory and type:
+It is advised to build under Python virtual environment. To do that, go to project main directory and type:
 ```
-pip install virtualenv
-virtualenv venv
+pip install venv
+python -m venv .env
 ```
-You could also specify different version of Python interpreter, for details see [the docs](https://docs.python-guide.org/dev/virtualenvs/#lower-level-virtualenv).
+You could also specify different version of Python interpreter, for details see [the docs](https://docs.python.org/3/library/venv.html).
 
-Then activate your virtualenv and install required packages:
+Activate your virtual environment:
 ```
-source venv/bin/activate
-pip install -r requirements.txt
-```
-If during this step, wxPython fails to compile, you could try to find prebuild version for your system [here](https://extras.wxpython.org/wxPython4/extras/).
-
-If you have ffmpeg, sphinxbase and pocketsphinx libraries installed and avaiable via `pkg-config`, you could now build _gizmo_:
-```
-cd gizmo
-python setup.py build
-python setup.py install
+source .env/bin/activate
 ```
 
-If you don't want to use `pkg-config` (or you can't), you must provide paths to these libraries manually using following options:
+Build _gizmo_ module.
+
+If you have ffmpeg, sphinxbase and pocketsphinx libraries installed and avaiable via `pkg-config`:
 ```
---ffmpeg-dir=PATH
---sphinxbase-dir=PATH
---pocketsphinx-dir=PATH
---use-pkg-config=yes|no
-```
-Or env variables:
-```
-FFMPEG_DIR=PATH
-SPHINXBASE_DIR=PATH
-POCKETSPHINX_DIR=PATH
-USE_PKG_CONFIG=yes|no
+pip install ./gizmo
 ```
 
-And then install it under virtualenv, e.g.:
+If you don't want to use `pkg-config` (or you can't), you must provide paths to these libraries manually, using evironment variables:
 ```
-export FFMPEG_DIR=~/projects/ffmpeg
-export SPHINXBASE_DIR=~/projects/sphinxbase
-export POCKETSPHINX_DIR=~/projects/pocketsphinx
+export FFMPEG_DIR=PATH
+export SPHINXBASE_DIR=PATH
+export POCKETSPHINX_DIR=PATH
 export USE_PKG_CONFIG=no
-python setup.py build
-python setup.py install
+pip install ./gizmo
 ```
 
-Now you could run SubSync from your virtualenv
+Install main module:
 ```
-python subsync.py
+pip install '.[GUI]'
+```
+If during this step wxPython fails to compile, you could try to find prebuild version for your system [here](https://extras.wxpython.org/wxPython4/extras/).
+
+To install headless version only (without GUI):
+```
+pip install .
+```
+
+Run SubSync from your virtual environment:
+```
+./bin/subsync
+```
+
+### MacOS installer
+MacOS binary distribution and installer are generated using pyinstaller utility. To build executable, with gizmo installed, type:
+```
+pip install pyinstaller
+pyinstaller macos.spec
+```
+
+To create dmg installer, you need to have [create-dmg](https://github.com/andreyvit/create-dmg) in your path:
+```
+./tools/package-macos.sh
 ```
 
 ## Windows
-Building Windows version under virtualenv is similar to building POSIX version. You need a [Python runtime](https://www.python.org/downloads/windows/), then you could setup and activate environment:
+Building Windows version under virtual environment is similar to building POSIX version. You need a [Python runtime](https://www.python.org/downloads/windows/), then you could setup and activate virtual environment:
 ```
-python -m pip install virtualenv
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
+python -m pip install venv
+python -m venv .env
+.env\Scripts\activate.bat
 ```
 
 To build gizmo, you need to provide dependencies first.
 Sphinxbase and pocketsphinx are published with Visual Studio solution file, which is [easy to use](https://github.com/cmusphinx/pocketsphinx#ms-windows-ms-visual-studio-2012-or-newer---we-test-with-vc-2012-express).
 Building ffmpeg on the other hand is not that easy. You could use [official build](https://ffmpeg.zeranoe.com/builds/) instead.
 
-With everythong prepared, gizmo can be installed now under virtualenv:
+Install _gizmo_ module:
 ```
-cd gizmo
 set FFMPEG_DIR=d:\projects\ffmpeg
 set SPHINXBASE_DIR=d:\projects\sphinxbase
 set POCKETSPHINX_DIR=d:\projects\pocketsphinx
 set USE_PKG_CONFIG=no
-python setup.py build
-python setup.py install
+pip install .\gizmo
 ```
 
-And SubSync is ready to be run:
+Install main module:
 ```
-python subsync.py
+pip install .[GUI]
+```
+
+To install headless version only (without GUI):
+```
+pip install .
+```
+
+Run SubSync from your virtual environment:
+```
+python bin\subsync
 ```
 
 ### Windows installer
-Windows binary distribution and installer are generated using cx-Freeze utility. To build executable, with gizmo installed, type:
+Windows binary distribution and installer are generated using pyinstaller utility. To build executable, with gizmo installed, type:
 ```
-python setup.py build_exe
+pip install pyinstaller
+pyinstaller windows.spec
 ```
-And to create msi installer:
+
+To create msi installer, you need to have [WIX Toolset](https://wixtoolset.org) in your path:
 ```
-python setup.py bdist_msi
+tools\package-windows.cmd
 ```
-For more information, please refer to the [cx-Freeze docs](https://cx-freeze.readthedocs.io/en/latest/).
+
+To create portable version, you need [7-Zip](https://www.7-zip.org) in your path:
+```
+tools\package-windows-portable.cmd
+```
 
 ## Ubuntu SNAP
-Technically [snaps](https://snapcraft.io) are universal linux packages, but it looks like they are really fully supported on Ubuntu.
+Technically [snaps](https://snapcraft.io) are universal linux packages, but it looks like they are really fully supported only on Ubuntu.
 
 To build one, just type `snapcraft` in the project main directory.
-Thats it, no need to prepare virtualenv, installing dependencies nor building gizmo. Everything needed will be downloaded and built automatically.
+Thats it, no need to prepare virtual envirnoment, installing dependencies nor building gizmo. Everything needed will be downloaded and built automatically.
 
-## Headless version
-Version without GUI will be build if there is no wxPython installed. You could remove corresponding line from `requirements.txt` file, or install dependencies manually.
+## Running without installation
+To simplify development, SubSync can be run without main module installation. Dependencies and _gizmo_ module still must be installed:
+```
+pip install ./gizmo
+pip install -r requirements
+python run.py
+```
