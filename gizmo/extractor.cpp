@@ -18,6 +18,7 @@ Extractor::Extractor(shared_ptr<Demux> demux) :
 
 Extractor::~Extractor()
 {
+	stop();
 	wait();
 }
 
@@ -136,9 +137,6 @@ void Extractor::run(string threadName)
 
 void Extractor::wait()
 {
-	if (m_state != State::idle)
-		m_state = State::stopping;
-
 	if (m_thread.joinable())
 	{
 		py::gil_scoped_release release;

@@ -34,6 +34,7 @@ Correlator::Correlator(
 
 Correlator::~Correlator()
 {
+	stop(true);
 	wait();
 }
 
@@ -97,9 +98,6 @@ void Correlator::run(const string threadName)
 
 void Correlator::wait()
 {
-	if (m_state != State::idle)
-		m_state = State::stopping;
-
 	if (m_thread.joinable())
 	{
 		m_queue.release();

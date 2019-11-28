@@ -63,11 +63,15 @@ class Synchronizer(object):
         logger.info('releasing synchronizer resources')
 
         self.correlator.stop(force=True)
-        self.correlator.wait()
-        self.correlator.connectStatsCallback(None)
+
+        for p in self.pipelines:
+            p.stop()
 
         for p in self.pipelines:
             p.destroy()
+
+        self.correlator.wait()
+        self.correlator.connectStatsCallback(None)
 
         self.subPipeline = None
         self.refPipelines = []
