@@ -63,7 +63,10 @@ class DropExternal(wx.FileDropTarget):
             maxRow = self.parent.GetItemCount() - int(col == self.col)
             row = min(self.parent.getRow(x, y), maxRow)
             self.move(row, col)
-        return result
+            return wx.DragCopy
+        else:
+            self.delayedCancel.emit()
+            return wx.DragNone
 
     def OnLeave(self):
         # on some platforms (Windows) OnLeave is called before every OnDragOver
@@ -122,7 +125,9 @@ class DropInternal(wx.FileDropTarget):
             if self.move(row, col):
                 self.col = col
                 self.row = self.parent.getRow(x, y)
-        return result
+            return wx.DragMove
+        else:
+            return wx.DragNone
 
 
 def selectStreamForCol(item, col):
