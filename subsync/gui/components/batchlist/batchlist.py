@@ -45,6 +45,8 @@ class BatchList(ulc.UltimateListCtrl):
         self.m_contextMenu.Append(self.m_menuItemChannels)
         self.m_menuItemChannels.Enable(False)
         self.m_contextMenu.AppendSeparator()
+        self.m_menuItemAutoSort = wx.MenuItem(self.m_contextMenu, wx.ID_ANY, _('Au&to sort'))
+        self.m_contextMenu.Append(self.m_menuItemAutoSort)
         self.m_menuItemRemove = wx.MenuItem(self.m_contextMenu, wx.ID_ANY, _('&Remove'))
         self.m_menuItemRemove.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU))
         self.m_contextMenu.Append(self.m_menuItemRemove)
@@ -217,7 +219,7 @@ class BatchList(ulc.UltimateListCtrl):
 
         return items
 
-    def getInputCol(self, x, maxCol=2):
+    def getInputCol(self, x):
         pos = 0
         try:
             # workaround for broken UltimateListCtrl
@@ -495,7 +497,8 @@ class BatchList(ulc.UltimateListCtrl):
                     (self.m_menuItemLanguage.GetId(),  self.onMenuLanguageClick),
                     (self.m_menuItemEncoding.GetId(),  self.onMenuEncodingClick),
                     (self.m_menuItemChannels.GetId(),  self.onMenuChannelsClick),
-                    (self.m_menuItemRemove.GetId(),    self.onMenuRemoveClick),
+                    (self.m_menuItemAutoSort.GetId(),  partial(wx.CallAfter, self.onMenuAutoSortClick)),
+                    (self.m_menuItemRemove.GetId(),    partial(wx.CallAfter, self.onMenuRemoveClick)),
                     (self.m_menuItemStreamSel.GetId(), self.onMenuStreamSelClick),
                     (self.m_menuItemProps.GetId(),     self.onMenuPropsClick),
                     ]
@@ -557,8 +560,32 @@ class BatchList(ulc.UltimateListCtrl):
         event.Skip()
 
     @error_dlg
+    @update_lock
+    def onMenuAutoSortClick(self, event, cell=None):
+        subs = []
+        refs = []
+
+        for cell in self.iterSelected(0, 1):
+            item = cell.item
+            if item.filetype == 'subtitle/text':
+                if item.stream() is None or item.stream().type not in SubFile.types:
+                    item.selectFirstMatchingStream(SubFile.types)
+                subs.append(item)
+            else:
+                if item.stream() is None or item.stream().type not in RefFile.types:
+                    item.selectFirstMatchingStream(RefFile.types)
+                refs.append(item)
+            cell.setState(None)
+
+        self.trim()
+        row = self.GetItemCount()
+        self.insertItems(row, 0, sorted(subs), select=True)
+        self.insertItems(row, 1, sorted(refs), select=True)
+        self.updateOutputs()
+
+    @error_dlg
     def onMenuRemoveClick(self, event, cell=None):
-        wx.CallAfter(self.removeSelected)
+        self.removeSelected()
 
     @error_dlg
     def onMenuStreamSelClick(self, event, cell=None):

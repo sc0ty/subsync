@@ -73,6 +73,11 @@ class BatchWin ( wx.Frame ):
 
 		fgSizer3.Add( self.m_buttonOutSel, 0, wx.ALL, 5 )
 
+		self.m_buttonAutoSort = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Auto sort"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonAutoSort.Enable( False )
+
+		fgSizer3.Add( self.m_buttonAutoSort, 0, wx.ALL, 5 )
+
 
 		fgSizer2.Add( fgSizer3, 1, wx.EXPAND, 5 )
 
@@ -319,6 +324,10 @@ class BatchWin ( wx.Frame ):
 		self.m_menubar.Append( self.m_menuFile, _(u"&File") )
 
 		self.m_menuEdit = wx.Menu()
+		self.m_menuItemAutoSort = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"Au&to sort")+ u"\t" + u"CTRL+S", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuEdit.Append( self.m_menuItemAutoSort )
+		self.m_menuItemAutoSort.Enable( False )
+
 		self.m_menuItemRemove = wx.MenuItem( self.m_menuEdit, wx.ID_ANY, _(u"&Remove")+ u"\t" + u"DELETE", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menuItemRemove.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_DELETE, wx.ART_MENU ) )
 		self.m_menuEdit.Append( self.m_menuItemRemove )
