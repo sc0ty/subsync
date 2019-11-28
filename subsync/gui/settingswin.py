@@ -93,11 +93,18 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
         enabled = self.m_checkLogToFile.IsChecked()
         self.m_textLogFilePath.Enable(enabled)
         self.m_buttonLogFileSelect.Enable(enabled)
+        if not self.m_textLogFilePath.GetValue():
+            if not self.selectLogFile():
+                self.m_checkLogToFile.SetValue(False)
 
     def onButtonLogFileSelectClick(self, event):
+        self.selectLogFile()
+
+    def selectLogFile(self):
         path = showSaveFileDlg(self)
-        if path != None:
+        if path:
             self.m_textLogFilePath.SetValue(path)
+        return path
 
     def onButtonRestoreDefaultsClick(self, event):
         dlg = wx.MessageDialog(
