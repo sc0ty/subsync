@@ -30,6 +30,8 @@ def setLanguage(lang):
         # workaround for languages being loaded before language is set
         import subsync.data.languages
         importlib.reload(subsync.data.languages)
+        import subsync.data.descriptions
+        importlib.reload(subsync.data.descriptions)
 
     except Exception as e:
         logger.warning('translation language setup failed, %r', e, exc_info=False)

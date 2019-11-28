@@ -1,4 +1,5 @@
 from subsync.settings import settings, wordsDumpIds
+from subsync.data import descriptions
 import argparse
 import logging
 import re
@@ -83,14 +84,14 @@ def getParser():
     cli.add_argument('--verbose', type=int, default=1, help=_('verbosity level for headless job'))
 
     cfg = parser.add_argument_group(_('synchronization options'))
-    addOption(cfg, 'jobsNo', '--jobs', type=int, metavar='NO', help=_('number of synchronization jobs, 0 for auto'))
-    addOption(cfg, 'windowSize', type=float, metavar='SIZE', help=_('maximum correction (in seconds)'))
-    addOption(cfg, 'maxPointDist', type=float, metavar='DIST', help=_('maximum synchronization error (in seconds)'))
-    addOption(cfg, 'minPointsNo', type=int, metavar='NO', help=_('minimum synchronization points no'))
-    addOption(cfg, 'minWordProb', type=float, metavar='PROB', help=_('minimum speech recognition score (0.0 - 1.0)'))
-    addOption(cfg, 'minWordLen', type=int, metavar='LEN', help=_('minimum number of letters for word to be used in synchronization'))
-    addOption(cfg, 'minCorrelation', type=float, metavar='CORRELATION', help=_('minimum correlation (0.0 - 1.0)'))
-    addOption(cfg, 'minWordsSim', type=float, metavar='SIM', help=_('minimum words similarity for synchronization point (0.0 - 1.0)'))
+    addOption(cfg, 'jobsNo', '--jobs', type=int, metavar='NO', help=descriptions.jobsNoInfo + ' ' + _('0 for auto.'))
+    addOption(cfg, 'windowSize', type=float, metavar='SIZE', help=descriptions.maxDistInfo + ' ' + _('In seconds.'))
+    addOption(cfg, 'maxPointDist', type=float, metavar='DIST', help=descriptions.maxPointDistInfo)
+    addOption(cfg, 'minPointsNo', type=int, metavar='NO', help=descriptions.minPointsNoInfo)
+    addOption(cfg, 'minWordProb', type=float, metavar='PROB', help=descriptions.minWordProbInfo)
+    addOption(cfg, 'minWordLen', type=int, metavar='LEN', help=descriptions.minWordLenInfo)
+    addOption(cfg, 'minCorrelation', type=float, metavar='CORRELATION', help=descriptions.minCorrelationInfo)
+    addOption(cfg, 'minWordsSim', type=float, metavar='SIM', help=descriptions.minWordSimInfo)
 
     class LogLevelAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):

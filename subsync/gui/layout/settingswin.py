@@ -9,6 +9,7 @@
 
 from subsync.gui.components.choicelang import ChoiceGuiLang
 from subsync.gui.components.choiceenc import ChoiceCharEnc
+from subsync.gui.components.popups import PopupInfoButton
 import wx
 import wx.xrc
 
@@ -107,7 +108,7 @@ class SettingsWin ( wx.Dialog ):
 		fgSizer4.Fit( self.m_panelGeneral )
 		self.m_notebook.AddPage( self.m_panelGeneral, _(u"General"), True )
 		self.m_panelSynchro = wx.Panel( self.m_notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		fgSizer5 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer5 = wx.FlexGridSizer( 0, 3, 0, 0 )
 		fgSizer5.AddGrowableCol( 1 )
 		fgSizer5.SetFlexibleDirection( wx.BOTH )
 		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
@@ -121,6 +122,11 @@ class SettingsWin ( wx.Dialog ):
 		self.m_maxPointDist.SetDigits( 2 )
 		fgSizer5.Add( self.m_maxPointDist, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
+		self.m_buttonMaxPointDistInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonMaxPointDistInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonMaxPointDistInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
+
 		self.m_staticText5 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min points no:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5.Wrap( -1 )
 
@@ -129,6 +135,11 @@ class SettingsWin ( wx.Dialog ):
 		self.m_minPointsNo = wx.SpinCtrl( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 1000, 20 )
 		fgSizer5.Add( self.m_minPointsNo, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
+		self.m_buttonMinPointsNoInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonMinPointsNoInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonMinPointsNoInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
+
 		self.m_staticText6 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min word length (letters):"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 
@@ -136,6 +147,11 @@ class SettingsWin ( wx.Dialog ):
 
 		self.m_minWordLen = wx.SpinCtrl( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 1000, 5 )
 		fgSizer5.Add( self.m_minWordLen, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+
+		self.m_buttonMinWordLenInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonMinWordLenInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonMinWordLenInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
 
 		self.m_staticText7 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min words similarity:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7.Wrap( -1 )
@@ -146,6 +162,11 @@ class SettingsWin ( wx.Dialog ):
 		self.m_minWordsSim.SetDigits( 2 )
 		fgSizer5.Add( self.m_minWordsSim, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
+		self.m_buttonMinWordSimInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonMinWordSimInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonMinWordSimInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
+
 		self.m_staticText8 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min correlation factor:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText8.Wrap( -1 )
 
@@ -155,6 +176,11 @@ class SettingsWin ( wx.Dialog ):
 		self.m_minCorrelation.SetDigits( 4 )
 		fgSizer5.Add( self.m_minCorrelation, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
+		self.m_buttonMinCorrelationInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonMinCorrelationInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonMinCorrelationInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
+
 		self.m_staticText9 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Min speech recognition score:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText9.Wrap( -1 )
 
@@ -163,6 +189,11 @@ class SettingsWin ( wx.Dialog ):
 		self.m_minWordProb = wx.SpinCtrlDouble( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 1, 0.3, 0.01 )
 		self.m_minWordProb.SetDigits( 2 )
 		fgSizer5.Add( self.m_minWordProb, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.m_buttonMinWordProbInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonMinWordProbInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonMinWordProbInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.BOTTOM|wx.RIGHT|wx.EXPAND, 5 )
 
 		self.m_staticText10 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Extractor jobs no:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText10.Wrap( -1 )
@@ -186,6 +217,11 @@ class SettingsWin ( wx.Dialog ):
 
 
 		fgSizer5.Add( fgSizer9, 1, wx.EXPAND, 5 )
+
+		self.m_buttonJobsNoInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonJobsNoInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonJobsNoInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
 
 
 		self.m_panelSynchro.SetSizer( fgSizer5 )

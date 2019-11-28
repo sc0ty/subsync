@@ -1,6 +1,7 @@
 import subsync.gui.layout.settingswin
 from subsync.gui.components.filedlg import showSaveFileDlg
 from subsync.settings import settings, Settings
+from subsync.data import descriptions
 from subsync import config
 import multiprocessing
 import wx
@@ -10,6 +11,14 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
     def __init__(self, parent):
         super().__init__(parent)
         self.m_outputCharEnc.SetString(0, _('same as input subtitles'))
+
+        self.m_buttonMaxPointDistInfo.message = descriptions.maxPointDistInfo
+        self.m_buttonMinPointsNoInfo.message = descriptions.minPointsNoInfo
+        self.m_buttonMinWordLenInfo.message = descriptions.minWordLenInfo
+        self.m_buttonMinWordSimInfo.message = descriptions.minWordSimInfo
+        self.m_buttonMinCorrelationInfo.message = descriptions.minCorrelationInfo
+        self.m_buttonMinWordProbInfo.message = descriptions.minWordProbInfo
+        self.m_buttonJobsNoInfo.message = descriptions.jobsNoInfo
 
         if not config.assetupd:
             self.m_textUpdates.Hide()
