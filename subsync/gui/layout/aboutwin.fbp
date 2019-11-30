@@ -143,7 +143,7 @@
                                     <property name="vgap">0</property>
                                     <object class="sizeritem" expanded="0">
                                         <property name="border">5</property>
-                                        <property name="flag">wxALL|wxALIGN_CENTER_VERTICAL|wxEXPAND|wxALIGN_RIGHT</property>
+                                        <property name="flag">wxALIGN_CENTER|wxALIGN_RIGHT|wxALL</property>
                                         <property name="proportion">0</property>
                                         <object class="wxStaticBitmap" expanded="0">
                                             <property name="BottomDockable">1</property>
