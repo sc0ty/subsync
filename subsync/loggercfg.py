@@ -22,7 +22,7 @@ def init(level=None, path=None):
         logging.root.removeHandler(handler)
 
     logging.basicConfig(
-            format='%(asctime)s.%(msecs)03i:%(threadName)12.12s:%(levelname)8.8s:%(name)24.24s: %(message)s',
+            format='%(asctime)s.%(msecs)03i: %(threadName)12.12s: %(levelname)8.8s: %(name)26s: %(message)s',
             datefmt='%H:%M:%S',
             level=numLevel,
             filename=path)
