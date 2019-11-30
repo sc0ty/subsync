@@ -18,6 +18,9 @@ from wx.lib.agw import ultimatelistctrl as ulc
 from functools import partial
 import os
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class BatchList(ulc.UltimateListCtrl):
     def __init__(self, parent, *args, **kw):
@@ -224,13 +227,13 @@ class BatchList(ulc.UltimateListCtrl):
         try:
             # workaround for broken UltimateListCtrl
             pos = -self._mainWin.GetScrollPos(wx.HORIZONTAL)
-            thumb = self.G_mainWin.etScrollThumb(wx.HORIZONTAL)
+            thumb = self._mainWin.GetScrollThumb(wx.HORIZONTAL)
             if pos and thumb:
                 pos *= self.GetClientSize().width / thumb
             else:
                 pos = 0
-        except:
-            pass
+        except Exception as e:
+            logger.warning('getInputCol: gathering scroll position failed: %s', e)
 
         for col in range(2):
             pos += self.GetColumnWidth(col)
@@ -242,8 +245,8 @@ class BatchList(ulc.UltimateListCtrl):
             row = self.FindItemAtPos(0, wx.Point(x, y))
             if row != wx.NOT_FOUND:
                 return row
-        except:
-            pass
+        except Exception as e:
+            logger.warning('getRow: UltimateListCtrl.FindItemAtPos failed: %s', e)
         return self.GetItemCount()
 
     def getCellCoords(self, cell):
