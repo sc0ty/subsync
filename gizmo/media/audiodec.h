@@ -33,6 +33,7 @@ class AudioDec : public Decoder
 		AVCodecContext *m_codecCtx;
 		AVFrame *m_frame;
 		std::shared_ptr<AVOutput> m_output;
+		bool m_firstPacket;
 		double m_timeBase;
 };
 #endif

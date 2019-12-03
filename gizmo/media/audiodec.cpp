@@ -11,6 +11,7 @@ AudioDec::AudioDec() :
 	m_codecCtx(NULL),
 	m_frame(NULL),
 	m_output(NULL),
+	m_firstPacket(true),
 	m_timeBase(0.0)
 {
 }
@@ -39,6 +40,7 @@ void AudioDec::start(const AVStream *stream)
 			.module("AudioDec");
 
 	m_timeBase = av_q2d(stream->time_base);
+	m_firstPacket = true;
 
 	int res = avcodec_open2(m_codecCtx, codec, NULL);
 	if (res < 0)
@@ -69,6 +71,17 @@ void AudioDec::connectOutput(shared_ptr<AVOutput> output)
 bool AudioDec::feed(const AVPacket *packet)
 {
 	int ret = avcodec_send_packet(m_codecCtx, packet);
+	if (m_firstPacket)
+	{
+		// workaround for first packet corrupted after seek
+		m_firstPacket = false;
+		if (ret == AVERROR_INVALIDDATA)
+		{
+			logger::warn("audiodec", "first packet corrupted, ignoring");
+			return false;
+		}
+	}
+
 	if ((ret < 0) && (ret != AVERROR(EAGAIN)) && (ret != AVERROR_EOF))
 		throw EXCEPTION_FFMPEG("audio decoder failed", ret)
 			.module("AudioDec", "avcodec_send_packet")

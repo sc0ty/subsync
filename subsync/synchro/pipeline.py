@@ -198,7 +198,7 @@ def createProducerPipelines(stream, no=None, timeWindows=None, runCb=None):
             else:
                 partTime = p.duration / no
                 begin = i * partTime
-                end = begin + partTime
+                end = begin + partTime + 1.0
                 start = None
 
             logger.info('job %i/%i time window set to %.2f - %.2f', i+1, no, begin, end)
