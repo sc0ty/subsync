@@ -4,6 +4,7 @@
 #include "text/translator.h"
 #include "general/thread.h"
 #include "general/scope.h"
+#include "general/logger.h"
 #include "general/exception.h"
 #include <pybind11/pybind11.h>
 #include <sstream>
@@ -82,7 +83,7 @@ void Correlator::run(const string threadName)
 		else if (id == WordId::REF)
 			newBestLine = addReference(word);
 		else if (id == WordId::BUCKET)
-			m_buckets[word.time + word.duration] = word.time;
+			m_buckets.insert(word.time + word.duration);
 
 		if (newBestLine)
 		{
@@ -222,13 +223,18 @@ CorrelationStats Correlator::correlate() const
 
 unsigned Correlator::countPoints(const Points &pts) const
 {
+	if (m_buckets.empty())
+		return pts.size();
+
 	set<float> has;
 
-	for (const Point pt : pts)
+	for (const Point &pt : pts)
 	{
 		Buckets::const_iterator it = m_buckets.lower_bound(pt.x);
-		if (it != m_buckets.end() && pt.x >= it->second && pt.x <= it->first)
-			has.insert(it->second);
+		if (it != m_buckets.end())
+			has.insert(*it);
+		else
+			logger::debug("correlator", "point outside existing buckets %f", pt.x);
 	}
 
 	return has.size();

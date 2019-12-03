@@ -30,7 +30,7 @@ class Correlator
 	public:
 		typedef std::function<void (CorrelationStats)> StatsCallback;
 		typedef std::set<Word> Entrys;
-		typedef std::map<float /* end */, float /* start */> Buckets;
+		typedef std::set<float> Buckets;
 
 	public:
 		Correlator(
