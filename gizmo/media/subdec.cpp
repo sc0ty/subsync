@@ -2,6 +2,7 @@
 #include "demux.h"
 #include "text/utf8.h"
 #include "general/scope.h"
+#include "general/logger.h"
 #include "general/exception.h"
 
 using namespace std;
@@ -29,6 +30,8 @@ void SubtitleDec::start(const AVStream *stream)
 	if (codec == NULL)
 		throw EXCEPTION("can't find suitable subtitle decoder")
 			.module("SubtitleDec", "avcodec_find_decoder");
+
+	logger::info("subdec", "using codec %s (%s)", codec->name, codec->long_name);
 
 	m_timeBase = av_q2d(stream->time_base);
 

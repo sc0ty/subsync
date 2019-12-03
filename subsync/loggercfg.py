@@ -8,7 +8,17 @@ class BlacklistFilter(logging.Filter):
         self.blacklist = set(names)
 
     def filter(self, record):
-        return record.name not in self.blacklist
+        if record.name in self.blacklist:
+            return False
+
+        try:
+            pos = -1
+            while True:
+                pos = record.name.index('.', pos+1)
+                if record.name[:pos] in self.blacklist:
+                    return False
+        except:
+            return True
 
 
 _activeFilter = None

@@ -1,5 +1,6 @@
 #include "demux.h"
 #include "general/scope.h"
+#include "general/logger.h"
 #include "general/exception.h"
 
 using namespace std;
@@ -41,6 +42,10 @@ Demux::Demux(const string &fileName, function<bool()> runCb) :
 	int res = avformat_open_input(&m_formatContext, fileName.c_str(), NULL, NULL);
 	if (res < 0 && res != AVERROR_EXIT)
 	{
+		logger::warn("demux", "avformat_open_input failed, trying to identify file by extension"
+				" file \"%s\", error %x: %s", fileName.c_str(), res,
+				ffmpegCodeDescription(res).c_str());
+
 		// try to detect container by file extension - works for slightly broken subtitles
 		AVInputFormat *fmt = getInputFormatByFname(fileName.c_str());
 		if (fmt && avformat_open_input(&m_formatContext, fileName.c_str(), fmt, NULL) == 0)
@@ -297,13 +302,18 @@ AVInputFormat *getInputFormatByFname(const char *path)
 	{
 		if (strcmp(ext.c_str(), formatExtensions[i]) == 0)
 		{
-			fmt = av_find_input_format(formatExtensions[i + 1]);
+			const char *name = formatExtensions[i + 1];
+			fmt = av_find_input_format(name);
+			logger::info("demux", "found format %s by extension for %s", name, path);
 			break;
 		}
 	}
 
 	if (fmt == NULL)
 		fmt = av_find_input_format(ext.c_str());
+
+	if (fmt == NULL)
+		logger::warn("demux", "couldn't find format by extension for %s", path);
 
 	return fmt;
 }

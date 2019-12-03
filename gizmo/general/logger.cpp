@@ -2,6 +2,7 @@
 #include "text/utf8.h"
 #include <sphinxbase/err.h>
 #include <string>
+#include <cstdarg>
 
 extern "C"
 {
@@ -9,7 +10,14 @@ extern "C"
 }
 
 
+#define MAX_LOG_SIZE 1024
+
+
+namespace logger
+{
+
 static LoggerCallback g_loggerCallback = NULL;
+static int g_logLevel = LOG_WARNING;
 static int g_ffmpegLogLevel = AV_LOG_WARNING;
 static int g_sphinxLogLevel = ERR_WARN;
 
@@ -31,12 +39,11 @@ void log(LogLevel level, const char *module, const char *msg)
 
 static void ffmpegLogCb(void *avcl, int level, const char *fmt, va_list vl)
 {
-	if (g_loggerCallback && level >= g_ffmpegLogLevel)
+	if (g_loggerCallback && level <= g_ffmpegLogLevel)
 	{
-		static const int lineSize = 1024;
-		char line[lineSize];
+		char line[MAX_LOG_SIZE];
 		static int printPrefix = 1;
-		av_log_format_line(avcl, level, fmt, vl, line, lineSize, &printPrefix);
+		av_log_format_line(avcl, level, fmt, vl, line, MAX_LOG_SIZE, &printPrefix);
 
 		LogLevel lvl = LOG_DEBUG;
 		if      (level >= AV_LOG_DEBUG)   lvl = LOG_DEBUG;
@@ -55,20 +62,18 @@ static void sphinxLogCb(void *user_data, err_lvl_t level, const char *fmt, ...)
 
 	if (g_loggerCallback && level != ERR_INFOCONT && level >= g_sphinxLogLevel)
 	{
-		static const int lineSize = 1024;
-		char line[lineSize];
-
+		char line[MAX_LOG_SIZE];
 		va_list args;
 		va_start(args, fmt);
-		vsnprintf(line, lineSize, fmt, args);
+		vsnprintf(line, MAX_LOG_SIZE, fmt, args);
 		va_end(args);
 
 		LogLevel lvl = LOG_INFO;
 		switch (level)
 		{
 			case ERR_DEBUG:    lvl = LOG_DEBUG;    break;
-			case ERR_INFO:     lvl = LOG_INFO;     break;
-			case ERR_INFOCONT: lvl = LOG_INFO;     break;
+			case ERR_INFO:     lvl = LOG_DEBUG;    break;
+			case ERR_INFOCONT: lvl = LOG_DEBUG;    break;
 			case ERR_WARN:     lvl = LOG_WARNING;  break;
 			case ERR_ERROR:    lvl = LOG_ERROR;    break;
 			case ERR_FATAL:    lvl = LOG_CRITICAL; break;
@@ -101,7 +106,7 @@ void setDebugLevel(int level)
 	}
 	else if (level >= LOG_INFO)
 	{
-		ffmpeg = AV_LOG_INFO;
+		ffmpeg = AV_LOG_VERBOSE;
 
 		// don't show INFO logs from sphinx here since there are tons of it
 		// and they are more like DEBUG logs anyway
@@ -113,6 +118,7 @@ void setDebugLevel(int level)
 		sphinx = ERR_DEBUG;
 	}
 
+	g_logLevel = level;
 	g_ffmpegLogLevel = ffmpeg;
 	g_sphinxLogLevel = sphinx;
 
@@ -126,4 +132,49 @@ void setLoggerCallback(LoggerCallback cb)
 
 	err_set_callback(sphinxLogCb, NULL);
 	err_set_logfp(NULL);
+}
+
+static void vlog(LogLevel level, const char *module, const char *fmt, va_list args)
+{
+	if (level >= g_logLevel)
+	{
+		char line[MAX_LOG_SIZE];
+		vsnprintf(line, MAX_LOG_SIZE, fmt, args);
+		const std::string m = std::string("gizmo.") + module;
+		log(level, m.c_str(), line);
+	}
+}
+
+void debug(const char *module, const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	vlog(LOG_DEBUG, module, fmt, va);
+	va_end(va);
+}
+
+void info(const char *module, const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	vlog(LOG_INFO, module, fmt, va);
+	va_end(va);
+}
+
+void warn(const char *module, const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	vlog(LOG_WARNING, module, fmt, va);
+	va_end(va);
+}
+
+void error(const char *module, const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	vlog(LOG_ERROR, module, fmt, va);
+	va_end(va);
+}
+
 }

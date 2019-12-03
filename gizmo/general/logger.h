@@ -3,6 +3,8 @@
 
 #include <functional>
 
+namespace logger
+{
 
 enum LogLevel
 {
@@ -20,5 +22,12 @@ void setDebugLevel(int level);
 void setLoggerCallback(LoggerCallback cb);
 
 void log(LogLevel level, const char *module, const char *msg);
+
+void debug(const char *module, const char *fmt, ...);
+void info(const char *module, const char *fmt, ...);
+void warn(const char *module, const char *fmt, ...);
+void error(const char *module, const char *fmt, ...);
+
+}
 
 #endif

@@ -1,6 +1,7 @@
 #include "audiodec.h"
 #include "demux.h"
 #include "avout.h"
+#include "general/logger.h"
 #include "general/exception.h"
 
 using namespace std;
@@ -24,6 +25,8 @@ void AudioDec::start(const AVStream *stream)
 	if (codec == NULL)
 		throw EXCEPTION("can't find suitable audio codec")
 			.module("AudioDec", "avcodec_find_decoder");
+
+	logger::info("audiodec", "using codec %s (%s)", codec->name, codec->long_name);
 
 	m_codecCtx = avcodec_alloc_context3(codec);
 
