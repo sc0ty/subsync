@@ -3,4 +3,4 @@ certifi
 cryptography>=2.8
 pysubs2>=0.2.4
 PyYAML
-wxPython>=4.0
+pybind11>=2.4

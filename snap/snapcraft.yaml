@@ -58,6 +58,7 @@ parts:
       - libtiff-dev
       - libsdl1.2-dev
       - libnotify-dev
+      - pkg-config
     stage-packages:
       - freeglut3
       - ibus-gtk3
@@ -74,36 +75,24 @@ parts:
       - libwebpdemux1
       - libcaca0
       - libsdl1.2debian
+      - libva1
+      - libva-drm1
+      - libva-x11-1
+      - libvdpau1
       - python3-yaml
       - python3-six
       - python3-chardet
       - python3-idna
       - python3-certifi
     after:
-      - gizmo
+      - pybind11
+      - ffmpeg
+      - pocketsphinx
       - desktop-gtk3
     python-packages:
       - https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04/wxPython-4.0.7.post2-cp35-cp35m-linux_x86_64.whl
     organize:
       share: usr/share
-    prime:
-      - -usr/include
-
-  gizmo:
-    plugin: python
-    python-version: python3
-    source: gizmo
-    build-packages:
-      - pkg-config
-    stage-packages:
-      - libva1
-      - libva-drm1
-      - libva-x11-1
-      - libvdpau1
-    after:
-      - pybind11
-      - ffmpeg
-      - pocketsphinx
     prime:
       - -usr/include
 
