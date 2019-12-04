@@ -1,18 +1,16 @@
 #include "correlator.h"
-#include "math/point.h"
-#include "math/line.h"
-#include "text/translator.h"
 #include "general/thread.h"
 #include "general/scope.h"
-#include "general/logger.h"
 #include "general/exception.h"
-#include <pybind11/pybind11.h>
 #include <sstream>
 #include <iomanip>
 #include <cmath>
 
 using namespace std;
-namespace py = pybind11;
+
+#ifdef USE_PYBIND11
+#include <pybind11/pybind11.h>
+#endif
 
 
 Correlator::Correlator(
@@ -23,13 +21,8 @@ Correlator::Correlator(
 		float minWordsSim) :
 	m_state(State::idle),
 	m_wordsNo(0),
-	m_lineFinder(5.0f, windowSize),
-	m_correlated(false),
-	m_windowSize(windowSize),
-	m_minCorrelation(minCorrelation),
-	m_maxDistanceSqr(maxDistance * maxDistance),
-	m_minPointsNo(minPointsNo),
-	m_minWordsSim(minWordsSim)
+	m_sync(windowSize, minCorrelation, maxDistance, minPointsNo, minWordsSim),
+	m_correlated(false)
 {
 }
 
@@ -79,15 +72,15 @@ void Correlator::run(const string threadName)
 		bool newBestLine = false;
 
 		if (id == WordId::SUB)
-			newBestLine = addSubtitle(word);
+			newBestLine = m_sync.addSubWord(word);
 		else if (id == WordId::REF)
-			newBestLine = addReference(word);
+			newBestLine = m_sync.addRefWord(word);
 		else if (id == WordId::BUCKET)
-			m_buckets.insert(word.time + word.duration);
+			m_sync.addSubtitle(word.time, word.time+word.duration);
 
 		if (newBestLine)
 		{
-			CorrelationStats stats = correlate();
+			CorrelationStats stats = m_sync.correlate();
 			if (m_statsCb && (stats.correlated || !m_correlated))
 			{
 				m_correlated = stats.correlated;
@@ -103,7 +96,9 @@ void Correlator::wait()
 	{
 		m_queue.release();
 
-		py::gil_scoped_release release;
+#ifdef USE_PYBIND11
+		pybind11::gil_scoped_release release;
+#endif
 		m_thread.join();
 	}
 
@@ -143,119 +138,22 @@ void Correlator::connectStatsCallback(StatsCallback callback)
 	m_statsCb = callback;
 }
 
-bool Correlator::addSubtitle(const Word &sub)
-{
-	m_subs.insert(sub);
-
-	auto first = m_refs.lower_bound(Word(sub.time - m_windowSize, 0.0f, 0.0f));
-	auto last  = m_refs.upper_bound(Word(sub.time + m_windowSize, 0.0f, 1.0f));
-	if (first == m_refs.end())
-		first = m_refs.begin();
-
-	bool newBestLine = false;
-
-	for (auto ref = first; ref != last; ++ref)
-	{
-		float sim = compareWords(sub.text, ref->text);// * sub.score * ref->score;
-		if (sim >= m_minWordsSim)
-		{
-			newBestLine |= m_lineFinder.addPoint(sub.time, ref->time);
-		}
-	}
-
-	return newBestLine;
-}
-
-bool Correlator::addReference(const Word &ref)
-{
-	m_refs.insert(ref);
-
-	auto first = m_subs.lower_bound(Word(ref.time - m_windowSize, 0.0f, 0.0f));
-	auto last  = m_subs.upper_bound(Word(ref.time + m_windowSize, 0.0f, 1.0f));
-	if (first == m_subs.end())
-		first = m_subs.begin();
-
-	bool newBestLine = false;
-
-	for (auto sub = first; sub != last; ++sub)
-	{
-		float sim = compareWords(ref.text, sub->text);// * ref.score * sub->score;
-		if (sim >= m_minWordsSim)
-		{
-			newBestLine |= m_lineFinder.addPoint(sub->time, ref.time);
-		}
-	}
-
-	return newBestLine;
-}
-
-CorrelationStats Correlator::correlate() const
-{
-	double factor = 0.0;
-
-	const Line bestLine = m_lineFinder.getBestLine();
-	const Points &points = m_lineFinder.getPoints();
-	Points hits = bestLine.getPointsInLine(points, 10.0f*m_maxDistanceSqr);
-
-	Line line(hits, NULL, NULL, &factor);
-	float distSqr = line.findFurthestPoint(hits);
-
-	while ((factor < m_minCorrelation || distSqr > m_maxDistanceSqr)
-			&& (countPoints(hits) > m_minPointsNo))
-	{
-		distSqr = line.removeFurthestPoint(hits);
-		line = Line(hits, NULL, NULL, &factor);
-	}
-
-	CorrelationStats stats;
-	stats.factor = factor;
-	stats.points = countPoints(hits);
-	stats.maxDistance = sqrt(distSqr);
-	stats.formula = line;
-
-	stats.correlated =
-		factor >= m_minCorrelation &&
-		distSqr <= m_maxDistanceSqr &&
-		stats.points >= m_minPointsNo;
-
-	return stats;
-}
-
-unsigned Correlator::countPoints(const Points &pts) const
-{
-	if (m_buckets.empty())
-		return pts.size();
-
-	set<float> has;
-
-	for (const Point &pt : pts)
-	{
-		Buckets::const_iterator it = m_buckets.lower_bound(pt.x);
-		if (it != m_buckets.end())
-			has.insert(*it);
-		else
-			logger::debug("correlator", "point outside existing buckets %f", pt.x);
-	}
-
-	return has.size();
-}
-
-Correlator::Entrys Correlator::getSubs() const
+const std::set<Word> &Correlator::getSubs() const
 {
 	if (m_state != State::idle)
 		throw EXCEPTION("subtitle words cannot be obtained when the correlator is running")
 			.module("Correlator");
 
-	return m_subs;
+	return m_sync.getSubs();
 }
 
-Correlator::Entrys Correlator::getRefs() const
+const std::set<Word> &Correlator::getRefs() const
 {
 	if (m_state != State::idle)
 		throw EXCEPTION("reference words cannot be obtained when the correlator is running")
 			.module("Correlator");
 
-	return m_refs;
+	return m_sync.getRefs();
 }
 
 Points Correlator::getAllPoints() const
@@ -264,7 +162,7 @@ Points Correlator::getAllPoints() const
 		throw EXCEPTION("points cannot be obtained when the correlator is running")
 			.module("Correlator");
 
-	return m_lineFinder.getPoints();
+	return m_sync.getAllPoints();
 }
 
 Points Correlator::getUsedPoints() const
@@ -273,32 +171,5 @@ Points Correlator::getUsedPoints() const
 		throw EXCEPTION("points cannot be obtained when the correlator is running")
 			.module("Correlator");
 
-	const CorrelationStats stats = correlate();
-	const Line line(stats.formula.a, stats.formula.b);
-	return line.getPointsInLine(m_lineFinder.getPoints(), m_maxDistanceSqr);
+	return m_sync.getUsedPoints();
 }
-
-
-/*** CorrelationStats ***/
-
-CorrelationStats::CorrelationStats() :
-	correlated(false),
-	factor(0.0),
-	points(0),
-	maxDistance(0.0f)
-{
-}
-
-string CorrelationStats::toString(const char *prefix, const char *suffix) const
-{
-	stringstream ss;
-	ss << prefix << fixed << setprecision(3)
-		<< "correlated=" << std::boolalpha << correlated
-		<< ", factor="   << 100.0 * factor << "%"
-		<< ", points="   << points
-		<< ", maxDist="  << maxDistance
-		<< ", formula="  << formula.toString()
-		<< suffix;
-	return ss.str();
-}
-

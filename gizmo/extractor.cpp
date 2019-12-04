@@ -2,11 +2,13 @@
 #include "general/thread.h"
 #include "general/scope.h"
 #include "general/exception.h"
-#include <pybind11/pybind11.h>
 #include <cfloat>
 
 using namespace std;
-namespace py = pybind11;
+
+#ifdef USE_PYBIND11
+#include <pybind11/pybind11.h>
+#endif
 
 
 Extractor::Extractor(shared_ptr<Demux> demux) :
@@ -139,7 +141,9 @@ void Extractor::wait()
 {
 	if (m_thread.joinable())
 	{
-		py::gil_scoped_release release;
+#ifdef USE_PYBIND11
+		pybind11::gil_scoped_release release;
+#endif
 		m_thread.join();
 	}
 

@@ -1,17 +1,16 @@
 #include "thread.h"
-#include <pybind11/embed.h>
-#include <memory>
 #include <string>
 
-namespace py = pybind11;
 
+#if defined(USE_PYBIND11)
 
+#include <pybind11/embed.h>
 static void renamePythonThread(const std::string &name)
 {
 	try
 	{
-		py::gil_scoped_acquire guard;
-		py::module threading = py::module::import("threading");
+		pybind11::gil_scoped_acquire guard;
+		pybind11::module threading = pybind11::module::import("threading");
 		auto current_thread = threading.attr("current_thread")();
 		current_thread.attr("setName")(name);
 	}
@@ -19,6 +18,12 @@ static void renamePythonThread(const std::string &name)
 	{
 	}
 }
+
+#else
+
+#define renamePythonThread(x)
+
+#endif
 
 
 #if defined(__linux__)

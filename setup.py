@@ -362,6 +362,7 @@ setup(
                 sources = [
                     'gizmo/extractor.cpp',
                     'gizmo/correlator.cpp',
+                    'gizmo/synchro/synchronizer.cpp',
                     'gizmo/media/demux.cpp',
                     'gizmo/media/stream.cpp',
                     'gizmo/media/audiodec.cpp',
@@ -390,7 +391,10 @@ setup(
                     'gizmo/python/translator.cpp',
                     ],
                 include_dirs = [ 'gizmo' ],
-                define_macros = [ ('NDEBUG', '1') ],
+                define_macros = [
+                    ('NDEBUG', '1')
+                    ('USE_PYBIND11', '1'),
+                    ],
                 language = 'c++',
                 ),
             ]
