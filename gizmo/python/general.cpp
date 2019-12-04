@@ -40,5 +40,5 @@ void initGeneralWrapper(py::module &m)
 
 	/*** logger configuration ***/
 	m.def("setLoggerCallback", &logger::setLoggerCallback);
-	m.def("setDebugLevel", logger::setDebugLevel);
+	m.def("setDebugLevel", &logger::setDebugLevel);
 }
