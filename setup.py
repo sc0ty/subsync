@@ -392,7 +392,7 @@ setup(
                     ],
                 include_dirs = [ 'gizmo' ],
                 define_macros = [
-                    ('NDEBUG', '1')
+                    ('NDEBUG', '1'),
                     ('USE_PYBIND11', '1'),
                     ],
                 language = 'c++',
