@@ -11,8 +11,8 @@ from subsync import loggercfg
 from subsync.settings import settings
 
 
-def subsync():
-    args = cmdargs.parseCmdArgs()
+def subsync(argv=None):
+    args = cmdargs.parseCmdArgs(argv)
     initConfig(args)
 
     if shouldUseCli():
