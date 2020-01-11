@@ -417,6 +417,7 @@ class BatchSynchronizer(object):
                 except Exception as err:
                     logger.warning('%r', err, exc_info=True)
                     self.onError(no, 'out', err)
+                    succeeded = False
 
             self.onJobEnd(no, status, succeeded, not self.running)
         except Exception as err:
