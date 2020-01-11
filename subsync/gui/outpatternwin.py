@@ -41,6 +41,7 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
         with wx.DirDialog(self, title, '', style) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 self.customFolder = dlg.GetPath()
+                return True
 
     def serializePredefinedPattern(self):
         res = []
@@ -130,7 +131,9 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
         self.m_buttonFolderCustom.Enable(customFolder)
 
         if customFolder and not self.customFolder:
-            self.selectCustomFolder()
+            selected = self.selectCustomFolder()
+            if not selected:
+                self.m_radioFolderRef.SetValue(True)
 
         self.updatePattern()
 
