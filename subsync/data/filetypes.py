@@ -1,8 +1,10 @@
 subtitleTypes = (
         ('SubRIP', '*.srt'),
-        ('MicroDVD', '*.txt'),
         ('Sub Station Alpha', '*.ssa'),
-        ('Advanced SSA', '*.ass'))
+        ('Advanced SSA', '*.ass'),
+        ('MicroDVD', '*.sub'),
+        ('TMP', '*.txt'),
+        )
 
 videoExt = (
         '*.webm', '*.mkv', '*.flv', '*.vob', '*.ogv', '*.avi', '*.mov',
