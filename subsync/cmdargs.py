@@ -6,14 +6,7 @@ import re
 
 
 def parseCmdArgs(argv=None):
-    args =  getParser().parse_args(argv)
-
-    if args.mode == 'sync':
-        parseSyncArgs(args)
-    elif args.mode == 'batch':
-        parseBatchArgs(args)
-
-    return args
+    return getParser().parse_args(argv)
 
 
 def parseSyncArgs(args):

@@ -12,16 +12,18 @@ from subsync.settings import settings
 
 
 def subsync(argv=None):
-    args = cmdargs.parseCmdArgs(argv)
-    initConfig(args)
+    try:
+        args = cmdargs.parseCmdArgs(argv)
+        initConfig(args)
 
-    if shouldUseCli():
-        startCli(args)
-    else:
-        startGui(args)
-        settings().save()
+        if shouldUseCli():
+            startCli(args)
+        else:
+            startGui(args)
+            settings().save()
 
-    loggercfg.terminate()
+    finally:
+        loggercfg.terminate()
 
 
 def initConfig(args):
@@ -73,9 +75,10 @@ def startGui(args):
     try:
         app = wx.App()
         win = None
+        tasks = loadTasks(args)
 
         if settings().mode == 'batch':
-            win = BatchWin(None, settings().tasks)
+            win = BatchWin(None, tasks)
         else:
             win = MainWin(None)
 
@@ -91,11 +94,28 @@ def startCli(args):
     from subsync import cli
 
     try:
+        loadTasks(args)
+
+    except Exception as err:
+        ind = '!'
+        for e in str(err).split('\n'):
+            print('[{}] {}'.format(ind, e))
+            ind = '-'
+        sys.exit(2)
+
+    try:
         app = cli.App(verbosity=args.verbose)
         app.runTasks()
 
     except Exception as err:
         logger.error('subsync failed, %r', err, exc_info=True)
+
+
+def loadTasks(args):
+    if args.mode == 'sync':
+        return cmdargs.parseSyncArgs(args)
+    elif args.mode == 'batch':
+        return cmdargs.parseBatchArgs(args)
 
 
 def version():
