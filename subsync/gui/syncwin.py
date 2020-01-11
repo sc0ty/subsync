@@ -198,17 +198,21 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
     def onButtonSaveClick(self, event):
         path = self.saveFileDlg(self.task.ref.path)
         if path != None:
-            try:
-                self.saveSynchronizedSubtitles(path, overwrite=True)
-
-            except pysubs2.exceptions.UnknownFPSError:
-                with fpswin.FpsWin(self, self.task.sub.fps, self.task.ref.fps) as dlg:
-                    if dlg.ShowModal() == wx.ID_OK:
-                        self.saveSynchronizedSubtitles(path, fps=dlg.getFps(), overwrite=True)
+            fps = self.selectOutputFpsIfNeeded(path)
+            if fps != -1:
+                self.saveSynchronizedSubtitles(path, fps=fps, overwrite=True)
 
     def saveSynchronizedSubtitles(self, path, enc=None, **kw):
         enc = enc or settings().outputCharEnc or self.task.sub.enc or 'UTF-8'
         self.sync.getSynchronizedSubtitles().save(path, encoding=enc, **kw)
+
+    def selectOutputFpsIfNeeded(self, path):
+        if subtitle.isFpsBased(path):
+            with fpswin.FpsWin(self, self.task.sub.fps, self.task.ref.fps) as dlg:
+                if dlg.ShowModal() == wx.ID_OK:
+                    return dlg.getFps()
+                else:
+                    return -1 # FPS is needed but not provided
 
     def onTextShowDetailsClick(self, event):
         self.m_panelDetails.Show()

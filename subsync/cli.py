@@ -164,7 +164,7 @@ class App(object):
         try:
             out.validateOutputPattern()
         except Exception as e:
-            pr.println(0, '[!] {}'.format(e))
+            pr.println(0, '[!] {!s}'.format(e))
             return False
 
         return True
@@ -191,12 +191,16 @@ class App(object):
                 self.printStats(status, endline=True)
                 path = task.getOutputPath()
                 pr.println(1, '[+] saving to {}'.format(path))
-                sync.getSynchronizedSubtitles().save(
-                        path=path,
-                        encoding=task.getOutputEnc(),
-                        fps=task.out.fps,
-                        overwrite=settings().overwrite)
-                pr.println(1, '[+] done')
+
+                try:
+                    sync.getSynchronizedSubtitles().save(
+                            path=path,
+                            encoding=task.getOutputEnc(),
+                            fps=task.out.fps,
+                            overwrite=settings().overwrite)
+                    pr.println(1, '[+] done')
+                except error.Error as e:
+                    pr.println(0, '[!] {}'.format(error.getExceptionMessage(e)))
 
             else:
                 pr.println(0, '[-] couldn\'t synchronize!')

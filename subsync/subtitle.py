@@ -39,9 +39,6 @@ class Subtitles(pysubs2.SSAFile):
         return res
 
     def save(self, path, encoding=u'utf-8', fmt=None, fps=None, overwrite=False):
-        if fmt == None and path.endswith('.txt'):
-            fmt = 'microdvd'
-
         if not overwrite and os.path.exists(path):
             logger.info('file "%s" exists, generating new path', path)
             path = genUniquePath(path)
@@ -50,15 +47,16 @@ class Subtitles(pysubs2.SSAFile):
                 utils.fmtstr(enc=encoding, fmt=fmt, fps=fps))
         try:
             super().save(path, encoding=encoding, format_=fmt, fps=fps)
-        except pysubs2.exceptions.UnknownFileExtensionError as err:
-            if fmt != None:
-                raise error.Error('Can\'t save subtitles file' + '\n' + str(err)) \
-                        .add('path', path) \
-                        .add('encodings', encoding) \
-                        .addn('format', fmt) \
-                        .addn('fps', fps)
+        except Exception as e:
+            if type(e) is pysubs2.exceptions.UnknownFileExtensionError:
+                descr = _('Unknown file extension') + ': {!s}'.format(e)
             else:
-                super().save(path, encoding=encoding, format_='microdvd', fps=fps)
+                descr = str(e)
+            raise error.Error(_('Can\'t save subtitle file') + '. ' + descr) \
+                    .add('path', path) \
+                    .add('encoding', encoding) \
+                    .addn('format', fmt) \
+                    .addn('fps', fps)
 
     def getMaxChange(self, formula):
         if len(self.events) > 0:
@@ -79,6 +77,12 @@ def genUniquePath(path):
         path = '{}{}{}'.format(prefix, i, ext)
 
     return path
+
+
+def isFpsBased(path):
+    _, ext = os.path.splitext(path)
+    fmt = pysubs2.formats.FILE_EXTENSION_TO_FORMAT_IDENTIFIER.get(ext)
+    return fmt == 'microdvd'
 
 
 class SubtitlesCollector(object):
