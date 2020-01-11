@@ -58,6 +58,8 @@ class Subtitles(pysubs2.SSAFile):
                     .addn('format', fmt) \
                     .addn('fps', fps)
 
+        return path
+
     def getMaxChange(self, formula):
         if len(self.events) > 0:
             return max(abs(formula.getY(x) - x) for x in

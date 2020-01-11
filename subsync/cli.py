@@ -193,11 +193,15 @@ class App(object):
                 pr.println(1, '[+] saving to {}'.format(path))
 
                 try:
-                    sync.getSynchronizedSubtitles().save(
+                    npath = sync.getSynchronizedSubtitles().save(
                             path=path,
                             encoding=task.getOutputEnc(),
                             fps=task.out.fps,
                             overwrite=settings().overwrite)
+
+                    if path != npath:
+                        pr.println(1, '[+] file exists, saving to {}'.format(npath))
+
                     pr.println(1, '[+] done')
                 except error.Error as e:
                     pr.println(0, '[!] {}'.format(error.getExceptionMessage(e)))

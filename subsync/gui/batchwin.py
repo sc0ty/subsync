@@ -165,8 +165,8 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.onJobUpdate(no)
 
     @gui_thread
-    def onJobEnd(self, no, status, success, terminated):
-        self.m_items.getJob(no).jobEnd(status, success, terminated)
+    def onJobEnd(self, no, status, success, terminated, path):
+        self.m_items.getJob(no).jobEnd(status, success, terminated, path)
         self.m_gaugeCurrentProgress.SetValue(100)
 
     @gui_thread
@@ -373,7 +373,7 @@ class BatchSynchronizer(object):
             if self.running:
                 self.runTask(task, no)
             if not self.running:
-                self.onJobEnd(no, None, False, not self.running)
+                self.onJobEnd(no, None, False, not self.running, None)
 
         self.onAllJobsEnd(not self.running)
         logger.info('thread terminated')
@@ -406,9 +406,11 @@ class BatchSynchronizer(object):
             sync.stop(force=True)
             status = sync.getStatus()
             succeeded = self.running and status and status.subReady
+            path = None
+
             if succeeded:
                 try:
-                    sync.getSynchronizedSubtitles().save(
+                    path = sync.getSynchronizedSubtitles().save(
                             path=task.getOutputPath(),
                             encoding=task.getOutputEnc(),
                             fps=task.out.fps,
@@ -419,7 +421,7 @@ class BatchSynchronizer(object):
                     self.onError(no, 'out', err)
                     succeeded = False
 
-            self.onJobEnd(no, status, succeeded, not self.running)
+            self.onJobEnd(no, status, succeeded, not self.running, path)
         except Exception as err:
             logger.warning('%r', err, exc_info=True)
             self.onError(no, 'core', err)

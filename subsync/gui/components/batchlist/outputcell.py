@@ -97,9 +97,12 @@ class OutputSyncCell(BaseCell):
             self.setDescription(_('synchronizing'), status=status)
             self.status = status
 
-    def jobEnd(self, status, success, terminated):
+    def jobEnd(self, status, success, terminated, path=None):
         self.status = status or self.status
         self.success = success
+
+        if path:
+            self.m_textName.SetLabel(os.path.basename(path))
 
         if success:
             self.setDescription(_('done'), status=self.status)
