@@ -195,6 +195,20 @@ class SettingsWin ( wx.Dialog ):
 		self.m_buttonMinWordProbInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
 		fgSizer5.Add( self.m_buttonMinWordProbInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.BOTTOM|wx.RIGHT|wx.EXPAND, 5 )
 
+		self.m_staticText16 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Output timing offset:"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText16.Wrap( -1 )
+
+		fgSizer5.Add( self.m_staticText16, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.m_outTimeOffset = wx.SpinCtrlDouble( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, -1e+07, 1e+07, 0, 0.1 )
+		self.m_outTimeOffset.SetDigits( 3 )
+		fgSizer5.Add( self.m_outTimeOffset, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+
+		self.m_buttonOutTimeOffsetInfo = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonOutTimeOffsetInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		fgSizer5.Add( self.m_buttonOutTimeOffsetInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
+
 		self.m_staticText10 = wx.StaticText( self.m_panelSynchro, wx.ID_ANY, _(u"Extractor jobs no:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText10.Wrap( -1 )
 

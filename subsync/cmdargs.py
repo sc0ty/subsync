@@ -85,6 +85,7 @@ def getParser():
     addOption(cfg, 'minWordLen', type=int, metavar='LEN', help=descriptions.minWordLenInfo)
     addOption(cfg, 'minCorrelation', type=float, metavar='CORRELATION', help=descriptions.minCorrelationInfo)
     addOption(cfg, 'minWordsSim', type=float, metavar='SIM', help=descriptions.minWordSimInfo)
+    addOption(cfg, 'outTimeOffset', type=float, metavar='OFFSET', help=descriptions.outTimeOffset)
 
     class LogLevelAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):

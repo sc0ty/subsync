@@ -18,6 +18,7 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
         self.m_buttonMinWordSimInfo.message = descriptions.minWordSimInfo
         self.m_buttonMinCorrelationInfo.message = descriptions.minCorrelationInfo
         self.m_buttonMinWordProbInfo.message = descriptions.minWordProbInfo
+        self.m_buttonOutTimeOffsetInfo.message = descriptions.outTimeOffset
         self.m_buttonJobsNoInfo.message = descriptions.jobsNoInfo
 
         if not config.assetupd:

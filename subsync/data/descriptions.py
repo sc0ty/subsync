@@ -29,5 +29,8 @@ minCorrelationInfo = _(
 minWordProbInfo = _(
 '''Minimum speech recognition score, between 0.0 and 1.0. Words transcribed with smaller score will be rejected.''')
 
+outTimeOffset = _(
+'''Fix output subtitle timestamps by given offset, in seconds.''')
+
 jobsNoInfo = _(
 '''Number of concurrent synchronization threads.''')

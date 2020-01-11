@@ -213,6 +213,12 @@ class Synchronizer(object):
     def getSynchronizedSubtitles(self):
         with self.statsLock:
             formula = self.stats.formula
+
+        if settings().outTimeOffset:
+            logger.info('adjusting timestamps by offset %.3f', settings().outTimeOffset)
+            b = formula.b + settings().outTimeOffset
+            formula = gizmo.Line(formula.a, b)
+
         return self.subtitlesCollector.getSynchronizedSubtitles(formula)
 
     def onStatsUpdate(self, stats):

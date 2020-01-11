@@ -20,6 +20,7 @@ persistent = {
         'minCorrelation': 0.9999,
         'minWordsSim': 0.6,
         'minEffort': 0.5,
+        'outTimeOffset': 0.0,
         'lastdir': '',
         'lastSubLang': None,
         'lastRefLang': None,
