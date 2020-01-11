@@ -115,7 +115,7 @@ class DictAsset(Asset):
                         version = ents[3])
 
         except Exception as e:
-            logger.warn('cannot load %s: %r', self.getPrettyName(), e)
+            logger.info('cannot load %s: %r', self.getPrettyName(), e)
             self.removeLocal()
 
     def getPrettyName(self):
