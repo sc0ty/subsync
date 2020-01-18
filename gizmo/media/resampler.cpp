@@ -1,6 +1,6 @@
 #include "resampler.h"
 #include "avout.h"
-#include "general/exception.h"
+#include "exception.h"
 
 using namespace std;
 

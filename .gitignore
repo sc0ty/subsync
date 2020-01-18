@@ -29,6 +29,7 @@ CppCheckResults.xml
 /parts
 /prime
 /stage
+/setup.cfg
 .eggs
 *.egg-info
 *.snap

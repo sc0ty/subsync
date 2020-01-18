@@ -4,6 +4,7 @@
 
 #include "general/exception.h"
 #include "general/logger.h"
+#include "media/logger.h"
 
 namespace py = pybind11;
 
@@ -37,8 +38,13 @@ void initGeneralWrapper(py::module &m)
 		}
 	});
 
-
 	/*** logger configuration ***/
-	m.def("setLoggerCallback", &logger::setLoggerCallback);
-	m.def("setDebugLevel", &logger::setDebugLevel);
+	m.def("setLoggerCallback", [](logger::LoggerCallback cb) {
+			logger::setLoggerCallback(cb);
+			media::setLoggerCallback(cb);
+	});
+	m.def("setDebugLevel", [](int level) {
+			logger::setDebugLevel(level);
+			media::setDebugLevel(level);
+	});
 }

@@ -3,7 +3,7 @@
 #include "text/utf8.h"
 #include "general/scope.h"
 #include "general/logger.h"
-#include "general/exception.h"
+#include "exception.h"
 
 using namespace std;
 
