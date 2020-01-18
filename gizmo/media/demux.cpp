@@ -6,7 +6,6 @@
 using namespace std;
 
 
-static void init();
 static AVInputFormat *getInputFormatByFname(const char *path);
 
 
@@ -25,8 +24,6 @@ Demux::Demux(const string &fileName, function<bool()> runCb) :
 	m_streamsNo(0),
 	m_runCb(runCb)
 {
-	init();
-
 	m_formatContext = avformat_alloc_context();
 	if (m_formatContext == NULL)
 		throw EXCEPTION("can't allocate AVFormatContext")
@@ -260,16 +257,6 @@ bool Demux::Stream::disconnectDecoder(shared_ptr<Decoder> decoder)
 
 
 /*** Helper functions ***/
-
-void init()
-{
-	static bool initialized = false;
-	if (!initialized)
-	{
-		av_register_all();
-		initialized = true;
-	}
-}
 
 AVInputFormat *getInputFormatByFname(const char *path)
 {
