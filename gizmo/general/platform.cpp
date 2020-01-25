@@ -21,7 +21,7 @@ static void renamePythonThread(const std::string &name)
 
 #else
 
-#define renamePythonThread(x)
+#define renamePythonThread(x) (void) (x)
 
 #endif
 
