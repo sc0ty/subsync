@@ -44,7 +44,8 @@ void SpeechRecognition::setParam(const string &key, const string &val)
 			else if (type & ARG_STRING)
 				cmd_ln_set_str_r(m_config, key.c_str(), val.c_str());
 			else if (type & ARG_BOOLEAN)
-				cmd_ln_set_boolean_r(m_config, key.c_str(), val.c_str());
+				cmd_ln_set_boolean_r(m_config, key.c_str(),
+						!(val.empty() || val == "0"));
 			else
 				throw EXCEPTION("invalid parameter type")
 					.module("SpeechRecognition", "setParameter")
