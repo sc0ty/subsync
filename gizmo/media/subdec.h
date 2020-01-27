@@ -21,10 +21,10 @@ class SubtitleDec : public Decoder
 		typedef std::function<void (
 				double /* startTime */,
 				double /* endTime */,
-				const char* /* text */ )>
+				const std::string& /* text */ )>
 			SubsListener;
 
-		typedef Notifier<double, double, const char*> SubsNotifier;
+		typedef Notifier<double, double, const std::string&> SubsNotifier;
 
 	public:
 		SubtitleDec();
