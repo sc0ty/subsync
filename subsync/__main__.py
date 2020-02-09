@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 from subsync import translations
 translations.init()
 
-import sys
+import sys, os
 from subsync import cmdargs
 from subsync import loggercfg
 from subsync.settings import settings
@@ -57,6 +57,8 @@ def initConfig(args):
 
 def shouldUseCli():
     if settings().cli:
+        return True
+    if os.path.basename(os.path.splitext(sys.argv[0])[0]) == 'subsync-cmd':
         return True
     try:
         import wx

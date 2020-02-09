@@ -45,8 +45,21 @@ main_dbg = EXE(main_pyz,
         console=True,
         icon='resources/icon.ico')
 
+main_cmd = EXE(main_pyz,
+        main_a.scripts,
+        [],
+        exclude_binaries=True,
+        name='subsync-cmd',
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        console=True,
+        icon='resources/icon.ico')
+
 main_coll = COLLECT(main_exe,
         main_dbg,
+        main_cmd,
         main_a.binaries,
         main_a.zipfiles,
         main_a.datas,
