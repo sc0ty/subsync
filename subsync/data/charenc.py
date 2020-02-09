@@ -1,9 +1,5 @@
 charEncodings = (
         ("UTF-8",            "Universal"                      ),
-        ("UTF-16",           "Universal"                      ),
-        ("UTF-16BE",         "Universal, big endian"          ),
-        ("UTF-16LE",         "Universal, little endian"       ),
-        ("GB18030",          "Universal, Chinese"             ),
 
         ("Windows-1250",     "Eastern European"               ),
         ("Windows-1251",     "Cyrillic"                       ),
@@ -34,6 +30,7 @@ charEncodings = (
         ("ISO-2022-JP-2",    "Japanese"                       ),
         ("ISO-2022-KR",      "Korean"                         ),
 
+        ("GB18030",          "Universal, Chinese"             ),
         ("IBM850",           "Western European"               ),
         ("KOI8-R",           "Russian"                        ),
         ("KOI8-U",           "Ukrainian"                      ),
