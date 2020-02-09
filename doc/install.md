@@ -126,6 +126,12 @@ Technically [snaps](https://snapcraft.io) are universal linux packages, but it l
 To build one, just type `snapcraft` in the project main directory.
 Thats it, no need to prepare virtual envirnoment, installing dependencies etc. Everything needed will be downloaded and built automatically.
 
+If process fails with message `ERROR: Failed building wheel for subsync`, try this workaround before `snapcraft`:
+```
+echo "[build_ext]" >> setup.cfg
+echo "include_dirs=$PWD/stage/include/python3.5m" >> setup.cfg
+```
+
 ## Running without installation
 To simplify development, SubSync can be run without main module installation. Dependencies and _gizmo_ module still must be installed:
 ```
