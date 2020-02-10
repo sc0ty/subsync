@@ -14,7 +14,7 @@ All versions (and changelog) could be download from [GitHub release page](https:
 (portable version - without installation)
 
 ## MacOS
-* [subsync-0.13.0-mac-x86_64.dmg](https://github.com/sc0ty/subsync/releases/download/0.13/subsync-0.13.0-mac-x86_64.dmg)
+* [subsync-0.14.0-mac-x86_64.dmg](https://github.com/sc0ty/subsync/releases/download/0.14/subsync-0.14.0-mac-x86_64.dmg)
 
 ## Linux
 * [subsync_0.14_amd64.snap](https://github.com/sc0ty/subsync/releases/download/0.14/subsync_0.14_amd64.snap) (or directly from [store](https://snapcraft.io/subsync))
