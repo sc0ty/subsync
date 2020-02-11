@@ -44,6 +44,8 @@ class BatchWin ( wx.Frame ):
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
 		fgSizer3 = wx.FlexGridSizer( 1, 0, 0, 0 )
+		fgSizer3.AddGrowableCol( 5 )
+		fgSizer3.AddGrowableRow( 0 )
 		fgSizer3.SetFlexibleDirection( wx.BOTH )
 		fgSizer3.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
@@ -77,6 +79,9 @@ class BatchWin ( wx.Frame ):
 		self.m_buttonAutoSort.Enable( False )
 
 		fgSizer3.Add( self.m_buttonAutoSort, 0, wx.ALL, 5 )
+
+		self.m_textAutoDrop = wx.TextCtrl( self.m_panelSettings, wx.ID_ANY, _(u"Drop files here to add & auto sort"), wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+		fgSizer3.Add( self.m_textAutoDrop, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
 		fgSizer2.Add( fgSizer3, 1, wx.EXPAND, 5 )

@@ -1,7 +1,7 @@
 import subsync.gui.layout.batchwin
 from subsync.gui.aboutwin import AboutWin
 from subsync.gui.busydlg import BusyDlg
-from subsync.gui.components import assetsdlg, filedlg
+from subsync.gui.components import assetsdlg, filedlg, filedrop
 from subsync.gui.components.thread import gui_thread
 from subsync.gui.components.update import update_lock
 from subsync.gui.errorwin import error_dlg
@@ -59,6 +59,8 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.Bind(wx.EVT_MENU, self.m_items.onMenuPatternClick, id=self.m_menuItemOutSel.GetId())
         self.Bind(wx.EVT_MENU, self.m_items.onMenuPropsClick, id=self.m_menuItemProps.GetId())
         self.Bind(wx.EVT_MENU, self.onMenuAboutClick, id=self.m_menuItemAbout.GetId())
+
+        filedrop.setFileDropTarget(self.m_textAutoDrop, OnDropFiles=self.onTextAutoDropFiles, children=False)
 
         if tasks:
             self.m_items.addTasks(tasks)
@@ -348,6 +350,11 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     @error_dlg
     def onMenuAboutClick(self, event):
         AboutWin(self).ShowModal()
+
+    @error_dlg
+    def onTextAutoDropFiles(self, x, y, filenames):
+        self.m_items.addFiles(filenames)
+        return True
 
 
 class BatchSynchronizer(object):

@@ -146,6 +146,10 @@ class BatchList(ulc.UltimateListCtrl):
             yield self.GetItemWindow(row, 2)
 
     def addFiles(self, paths, skipMissing=False, row=None, col=None):
+        if isinstance(self.GetDropTarget(), DropInternal):
+            # files are dragged from inside so we are removing them to avoid duplication
+            self.removeSelected()
+
         types = RefFile.types
         if col == 0:
             types = SubFile.types
@@ -178,6 +182,7 @@ class BatchList(ulc.UltimateListCtrl):
                 self.insertItems(row, 1, refs, select=True)
 
             self.updateOutputs()
+            self.EnsureVisible(row)
 
     def loadFiles(self, paths, types, skipMissing=False):
         items = []
