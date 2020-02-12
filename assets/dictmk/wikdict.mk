@@ -54,4 +54,4 @@ wikdict: $(WIKDICT_SQL)
 
 $(WIKDICT_SQL): 
 	@mkdir -p $(WIKDICT_TEMP_DIR)
-	wget -nv -O $@ http://download.wikdict.com/dictionaries/sqlite/2/$(notdir $@)
+	wget -nv -O $@ http://download.wikdict.com/dictionaries/sqlite/2/generic/$(notdir $@)
