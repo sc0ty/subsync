@@ -10,11 +10,17 @@ WIKI_LANGS = \
 WIKI_TRIANGLES = \
 			  ar_en_ku \
 			  ar_en_pl \
+			  de_en_hr \
+			  en_fr_hr \
+			  en_fr_ms \
 			  en_fr_zh \
+			  en_hr_ru \
 			  en_hu_id \
+			  en_hu_ms \
 			  en_id_pt \
 			  en_no_sv \
 			  en_pt_zh \
+			  en_ru_ms \
 			  en_ru_zh \
 			  fr_pt_zh \
 			  pt_ru_zh \
