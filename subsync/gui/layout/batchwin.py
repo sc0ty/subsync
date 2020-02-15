@@ -52,36 +52,53 @@ class BatchWin ( wx.Frame ):
 		self.m_buttonAdd = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Add"), wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		self.m_buttonAdd.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_NORMAL_FILE, wx.ART_BUTTON ) )
-		fgSizer3.Add( self.m_buttonAdd, 0, wx.ALL, 5 )
+		fgSizer3.Add( self.m_buttonAdd, 0, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_buttonRemove = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Remove"), wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		self.m_buttonRemove.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_DELETE, wx.ART_BUTTON ) )
 		self.m_buttonRemove.Enable( False )
 
-		fgSizer3.Add( self.m_buttonRemove, 0, wx.ALL, 5 )
+		fgSizer3.Add( self.m_buttonRemove, 0, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_buttonStreamSel = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Select stream"), wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		self.m_buttonStreamSel.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_HELP_SETTINGS, wx.ART_BUTTON ) )
 		self.m_buttonStreamSel.Enable( False )
 
-		fgSizer3.Add( self.m_buttonStreamSel, 0, wx.ALL, 5 )
+		fgSizer3.Add( self.m_buttonStreamSel, 0, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_buttonOutSel = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Select output"), wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		self.m_buttonOutSel.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_HELP_SETTINGS, wx.ART_BUTTON ) )
 		self.m_buttonOutSel.Enable( False )
 
-		fgSizer3.Add( self.m_buttonOutSel, 0, wx.ALL, 5 )
+		fgSizer3.Add( self.m_buttonOutSel, 0, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_buttonAutoSort = wx.Button( self.m_panelSettings, wx.ID_ANY, _(u"Auto sort"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_buttonAutoSort.Enable( False )
 
-		fgSizer3.Add( self.m_buttonAutoSort, 0, wx.ALL, 5 )
+		fgSizer3.Add( self.m_buttonAutoSort, 0, wx.ALL|wx.EXPAND, 5 )
 
-		self.m_textAutoDrop = wx.TextCtrl( self.m_panelSettings, wx.ID_ANY, _(u"Drop files here to add & auto sort"), wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
-		fgSizer3.Add( self.m_textAutoDrop, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_panelAutoDrop = wx.Panel( self.m_panelSettings, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_THEME|wx.TAB_TRAVERSAL )
+		self.m_panelAutoDrop.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+
+		fgSizer11 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer11.AddGrowableCol( 0 )
+		fgSizer11.AddGrowableRow( 0 )
+		fgSizer11.SetFlexibleDirection( wx.BOTH )
+		fgSizer11.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.m_staticText1 = wx.StaticText( self.m_panelAutoDrop, wx.ID_ANY, _(u"Drop files here to add sorted"), wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL|wx.ST_ELLIPSIZE_END )
+		self.m_staticText1.Wrap( -1 )
+
+		fgSizer11.Add( self.m_staticText1, 0, wx.ALIGN_CENTER|wx.ALL|wx.EXPAND, 5 )
+
+
+		self.m_panelAutoDrop.SetSizer( fgSizer11 )
+		self.m_panelAutoDrop.Layout()
+		fgSizer11.Fit( self.m_panelAutoDrop )
+		fgSizer3.Add( self.m_panelAutoDrop, 1, wx.EXPAND |wx.ALL, 5 )
 
 
 		fgSizer2.Add( fgSizer3, 1, wx.EXPAND, 5 )

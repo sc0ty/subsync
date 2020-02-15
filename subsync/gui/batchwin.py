@@ -60,7 +60,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.Bind(wx.EVT_MENU, self.m_items.onMenuPropsClick, id=self.m_menuItemProps.GetId())
         self.Bind(wx.EVT_MENU, self.onMenuAboutClick, id=self.m_menuItemAbout.GetId())
 
-        filedrop.setFileDropTarget(self.m_textAutoDrop, OnDropFiles=self.onTextAutoDropFiles, children=False)
+        filedrop.setFileDropTarget(self.m_panelAutoDrop, OnDropFiles=self.onPanelAutoDropFiles)
 
         if tasks:
             self.m_items.addTasks(tasks)
@@ -352,7 +352,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         AboutWin(self).ShowModal()
 
     @error_dlg
-    def onTextAutoDropFiles(self, x, y, filenames):
+    def onPanelAutoDropFiles(self, x, y, filenames):
         self.m_items.addFiles(filenames)
         return True
 
