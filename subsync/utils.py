@@ -30,37 +30,46 @@ def fileSizeFmt(val):
 
 
 def timeStampFmt(time):
-    t = int(time)
-    h = int(t / 3600)
-    m = int((t % 3600) / 60)
-    s = int(t % 60)
+    try:
+        t = int(time)
+        h = int(t / 3600)
+        m = int((t % 3600) / 60)
+        s = int(t % 60)
 
-    if t < 3600:
-        return '{:d}:{:02d}'.format(m, s)
-    else:
-        return '{:d}:{:02d}:{:02d}'.format(h, m, s)
+        if t < 3600:
+            return '{:d}:{:02d}'.format(m, s)
+        else:
+            return '{:d}:{:02d}:{:02d}'.format(h, m, s)
+    except:
+        return '-'
 
 
 def timeStampFractionFmt(time):
-    ms = int((time % 1) * 1000)
-    return '{}.{:03d}'.format(timeStampFmt(time), ms)
+    try:
+        ms = int((time % 1) * 1000)
+        return '{}.{:03d}'.format(timeStampFmt(time), ms)
+    except:
+        return '-'
 
 
 def timeStampApproxFmt(time):
-    h = time / 3600
-    if h >= 0.9:
-        return _('{} hours').format(round(max(h, 1)))
-    m = time / 60
-    if m <= 1:
-        return _('less than minute')
-    if m >= 15:
-        m = round(m / 5) * 5
-    else:
-        m = round(m)
-    if m == 1:
-        return _('1 minute')
-    else:
-        return _('{} minutes').format(m)
+    try:
+        h = time / 3600
+        if h >= 0.9:
+            return _('{} hours').format(round(max(h, 1)))
+        m = time / 60
+        if m <= 1:
+            return _('less than minute')
+        if m >= 15:
+            m = round(m / 5) * 5
+        else:
+            m = round(m)
+        if m == 1:
+            return _('1 minute')
+        else:
+            return _('{} minutes').format(m)
+    except:
+        return '-'
 
 
 def fmtobj(name, *args, **kw):
