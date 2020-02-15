@@ -56,6 +56,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
     def stop(self):
         self.running = False
 
+    @errorwin.error_dlg
     def syncJob(self):
         try:
             self.sync.onError = self.onError

@@ -375,6 +375,7 @@ class BatchSynchronizer(object):
     def stop(self):
         self.running = False
 
+    @error_dlg
     def syncJob(self):
         for no, task in enumerate(self.tasks):
             if self.running:

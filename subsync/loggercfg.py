@@ -1,4 +1,6 @@
 import logging
+import threading
+import sys
 import gizmo
 
 
@@ -37,11 +39,35 @@ def init(level=None, path=None):
             level=numLevel,
             filename=path)
 
+    def excepthook(type, exc, tb):
+        logging.getLogger('RUNTIME').critical("Unhandled exception", exc_info=(type, exc, tb))
+        sys.__excepthook__(type, exc, tb)
+
+    sys.excepthook = excepthook
+    setup_thread_excepthook()
+
     def print_log(level, m, msg):
         logging.getLogger(m).log(level, msg.strip().replace('\n', '; '))
 
     gizmo.setLoggerCallback(print_log)
     gizmo.setDebugLevel(numLevel)
+
+
+def setup_thread_excepthook():
+    # monkey patching threading.Thread to also call sys.excepthook
+    init_original = threading.Thread.__init__
+
+    def init(self, *args, **kwargs):
+        init_original(self, *args, **kwargs)
+        run_original = self.run
+
+        def run_with_except_hook(*args2, **kwargs2):
+            try:
+                run_original(*args2, **kwargs2)
+            except Exception:
+                sys.excepthook(*sys.exc_info())
+        self.run = run_with_except_hook
+    threading.Thread.__init__ = init
 
 
 def terminate():

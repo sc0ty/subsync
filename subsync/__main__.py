@@ -47,6 +47,7 @@ def initConfig(args):
     if settings().logBlacklist:
         loggercfg.setBlacklistFilters(settings().logBlacklist)
 
+    logger.info('starting subsync %s@%s', version()[1], sys.platform)
     translations.setLanguage(settings().language)
 
     if len(sys.argv) > 1:
