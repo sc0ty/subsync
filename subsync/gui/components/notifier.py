@@ -11,7 +11,8 @@ class SignalNotifier(object):
         self.listeners.append(listener)
 
     def removeListener(self, listener):
-        self.listeners.remove(listener)
+        if listener in self.listeners:
+            self.listeners.remove(listener)
 
     def enable(self, enabled=True):
         if enabled:
