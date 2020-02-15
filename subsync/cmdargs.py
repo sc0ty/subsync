@@ -15,11 +15,15 @@ def parseSyncArgs(args):
     sub = SubFile(path=args.sub)
     if args.sub_stream is not None:
         sub.select(args.sub_stream - 1)
+    elif args.sub_stream_by_lang:
+        sub.selectBy(lang=args.sub_stream_by_lang)
     sub.setNotNone(lang=args.sub_lang, enc=args.sub_enc, fps=args.sub_fps)
 
     ref = RefFile(path=args.ref)
     if args.ref_stream is not None:
         ref.select(args.ref_stream - 1)
+    elif args.ref_stream_by_type or args.ref_stream_by_lang:
+        ref.selectBy(type=args.ref_stream_by_type, lang=args.ref_stream_by_lang)
     ref.setNotNone(lang=args.ref_lang, enc=args.ref_enc, fps=args.ref_fps)
     if args.ref_channels is not None:
         ref.channels = ChannelsMap.deserialize(args.ref_channels)
@@ -46,12 +50,15 @@ def getParser():
     sync = subparsers.add_parser('sync', help=_('synchronization'))
     sync.set_defaults(mode='sync')
     sync.add_argument('--sub', '--sub-file', required=True, type=str, help=_('path to subtitle file'))
-    sync.add_argument('--sub-stream', type=int, help=_('subtitle stream ID'))
+    sync.add_argument('--sub-stream', type=int, metavar='NO', help=_('subtitle stream ID'))
+    sync.add_argument('--sub-stream-by-lang', type=str, metavar='LANG', help=_('select subtitle stream by language'))
     sync.add_argument('--sub-lang', type=str, help=_('subtitle language'))
     sync.add_argument('--sub-enc', type=str, help=_('subtitle character encoding'))
     sync.add_argument('--sub-fps', type=float, help=_('subtitle framerate'))
     sync.add_argument('--ref', '--ref-file', required=True, type=str, help=_('path to reference file'))
-    sync.add_argument('--ref-stream', type=int, help=_('reference stream ID'))
+    sync.add_argument('--ref-stream', type=int, metavar='NO', help=_('reference stream ID'))
+    sync.add_argument('--ref-stream-by-type', choices=['sub', 'audio'], help=_('select reference stream by type'))
+    sync.add_argument('--ref-stream-by-lang', type=str, metavar='LANG', help=_('select reference stream by language'))
     sync.add_argument('--ref-lang', type=str, help=_('reference language'))
     sync.add_argument('--ref-enc', type=str, help=_('reference character encoding (for subtitle references)'))
     sync.add_argument('--ref-fps', type=float, help=_('reference framerate'))

@@ -2,6 +2,7 @@ import gizmo
 from subsync.synchro.channels import ChannelsMap
 from subsync.data import languages
 from subsync import utils
+from subsync.error import Error
 import os
 
 
@@ -84,6 +85,20 @@ class InputFile(object):
             self.lang = getLangFromPath(self.path)
 
         return stream
+
+    def selectBy(self, type=None, lang=None):
+        for s in self.streams.values():
+            if self.types and s.type not in self.types:
+                continue
+            if type and not s.type.startswith(type):
+                continue
+            if lang and lang != s.lang.lower():
+                continue
+            return self.select(s.no)
+        err = Error(_('There is no matching stream in ') + self.path).add('path', self.path)
+        if type: err.add('type', type)
+        if lang: err.add('language', lang)
+        raise err
 
     def selectFirstMatchingStream(self, types=None):
         if types is not None:
