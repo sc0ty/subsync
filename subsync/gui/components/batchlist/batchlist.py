@@ -109,17 +109,21 @@ class BatchList(ulc.UltimateListCtrl):
             out = self.GetItemWindow(row, 2)
 
             if syncMode:
-                out = OutputSyncCell(self, out.item, sub.item, ref.item)
-                sub = InputSyncCell(self, sub.item)
-                ref = InputSyncCell(self, ref.item)
+                nout = OutputSyncCell(self, out.item, sub.item, ref.item)
+                nsub = InputSyncCell(self, sub.item)
+                nref = InputSyncCell(self, ref.item)
             else:
-                out = OutputEditCell(self, out.item, sub.item, ref.item)
-                sub = InputEditCell(self, sub.item)
-                ref = InputEditCell(self, ref.item)
+                nout = OutputEditCell(self, out.item, sub.item, ref.item)
+                nsub = InputEditCell(self, sub.item)
+                nref = InputEditCell(self, ref.item)
 
-            self.SetItemWindow(row, 0, sub, expand=True)
-            self.SetItemWindow(row, 1, ref, expand=True)
-            self.SetItemWindow(row, 2, out, expand=True)
+            self.SetItemWindow(row, 0, nsub, expand=True)
+            self.SetItemWindow(row, 1, nref, expand=True)
+            self.SetItemWindow(row, 2, nout, expand=True)
+
+            sub.Destroy()
+            ref.Destroy()
+            out.Destroy()
 
         self.updateEvent.emit()
 
