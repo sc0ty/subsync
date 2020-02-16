@@ -8,17 +8,19 @@
 
 namespace py = pybind11;
 
+using namespace std;
+
 
 void initTranslatorWrapper(py::module &m)
 {
-	py::class_<Dictionary> dictionary(m, "Dictionary");
+	py::class_<Dictionary, shared_ptr<Dictionary>> dictionary(m, "Dictionary");
 	dictionary.def(py::init<>());
 	dictionary.def("add", &Dictionary::add);
 	dictionary.def("size", &Dictionary::size);
 	dictionary.def("translate", &Dictionary::translate);
 
-	py::class_<Translator> translator(m, "Translator");
-	translator.def(py::init<const Dictionary&>());
+	py::class_<Translator, shared_ptr<Translator>> translator(m, "Translator");
+	translator.def(py::init<shared_ptr<const Dictionary>>());
 	translator.def("setMinWordsSim", &Translator::setMinWordsSim);
 	translator.def("pushWord", &Translator::pushWord);
 	translator.def("addWordsListener", &Translator::addWordsListener);

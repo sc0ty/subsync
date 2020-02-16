@@ -4,12 +4,13 @@
 #include "text/words.h"
 #include "text/dictionary.h"
 #include <string>
+#include <memory>
 
 
 class Translator
 {
 	public:
-		Translator(const Dictionary &dictionary);
+		Translator(std::shared_ptr<const Dictionary> dictionary);
 
 		void pushWord(const Word &word);
 
@@ -19,7 +20,7 @@ class Translator
 		void setMinWordsSim(float minSim);
 
 	private:
-		const Dictionary &m_dict;
+		std::shared_ptr<const Dictionary> m_dict;
 		WordsNotifier m_wordsNotifier;
 		float m_minSim;
 };

@@ -4,7 +4,9 @@
 using namespace std;
 
 
-Translator::Translator(const Dictionary &dict) : m_dict(dict), m_minSim(1.0f)
+Translator::Translator(shared_ptr<const Dictionary> dict) :
+	m_dict(dict),
+	m_minSim(1.0f)
 {
 }
 
@@ -25,11 +27,12 @@ void Translator::setMinWordsSim(float minSim)
 
 void Translator::pushWord(const Word &word)
 {
+	const Dictionary &dict = *m_dict;
 	const string lword = Utf8::toLower(word.text);
-	auto it1 = m_dict.bestGuess(lword);
+	auto it1 = dict.bestGuess(lword);
 	auto it2 = it1;
 
-	if (it1 == m_dict.end())
+	if (it1 == dict.end())
 		return;
 
 	while (true)
@@ -41,13 +44,13 @@ void Translator::pushWord(const Word &word)
 		for (auto &tr : it1->second)
 			m_wordsNotifier.notify(Word(tr, word.time, word.duration, word.score*sim));
 
-		if (it1 == m_dict.begin())
+		if (it1 == dict.begin())
 			break;
 
 		--it1;
 	}
 
-	for (++it2; it2 != m_dict.end(); ++it2)
+	for (++it2; it2 != dict.end(); ++it2)
 	{
 		float sim = compareWords(lword, it2->first);
 		if (sim < m_minSim)

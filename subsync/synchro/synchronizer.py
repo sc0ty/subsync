@@ -105,8 +105,8 @@ class Synchronizer(object):
         self.subPipeline.addWordsListener(self.correlator.pushSubWord)
 
         if self.sub.lang and self.ref.lang and self.sub.lang != self.ref.lang:
-            self.dictionary = dictionary.loadDictionary(self.ref.lang, self.sub.lang, settings().minWordLen)
-            self.translator = gizmo.Translator(self.dictionary)
+            d = dictionary.loadDictionary(self.ref.lang, self.sub.lang, settings().minWordLen)
+            self.translator = gizmo.Translator(d)
             self.translator.setMinWordsSim(settings().minWordsSim)
             self.translator.addWordsListener(self.correlator.pushRefWord)
             self.refWordsSink = self.translator.pushWord
