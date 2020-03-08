@@ -77,6 +77,7 @@ class Synchronizer(object):
         self.refPipelines = []
         self.pipelines = []
         self.translator = None
+        self.dictionary = None
         self.refWordsSink = None
 
         for wd in self.wordsDumpers:
@@ -105,8 +106,8 @@ class Synchronizer(object):
         self.subPipeline.addWordsListener(self.correlator.pushSubWord)
 
         if self.sub.lang and self.ref.lang and self.sub.lang != self.ref.lang:
-            d = dictionary.loadDictionary(self.ref.lang, self.sub.lang, settings().minWordLen)
-            self.translator = gizmo.Translator(d)
+            self.dictionary = dictionary.loadDictionary(self.ref.lang, self.sub.lang, settings().minWordLen)
+            self.translator = gizmo.Translator(self.dictionary)
             self.translator.setMinWordsSim(settings().minWordsSim)
             self.translator.addWordsListener(self.correlator.pushRefWord)
             self.refWordsSink = self.translator.pushWord
