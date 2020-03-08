@@ -22,7 +22,7 @@ def loadDictionary(langKey, langVal, minLen=0):
             if langValInfo.rightToLeft: val = val[::-1]
             for k in splitNgrams(key, langKeyInfo.ngrams):
                 for v in splitNgrams(val, langValInfo.ngrams):
-                    dictionary.add(key.lower(), val)
+                    dictionary.add(k.lower(), v)
 
     asset = assets.getAsset('dict', (langKey, langVal))
     if asset.isLocal():
