@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-09 10:54+0100\n"
-"PO-Revision-Date: 2020-02-09 11:00+0100\n"
+"POT-Creation-Date: 2020-03-15 12:21+0100\n"
+"PO-Revision-Date: 2020-03-15 12:42+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Poedit 2.3\n"
 
 #: subsync/assets/item.py:123
 msgid "dictionary {} / {}"
@@ -43,129 +43,141 @@ msgstr "Nieprawidłowa sygnatura"
 msgid "Got response {}: {}"
 msgstr "Serwer zwrócił kod {}: {}"
 
-#: subsync/cmdargs.py:41 subsync/gui/layout/mainwin.py:24
+#: subsync/cmdargs.py:45 subsync/gui/layout/mainwin.py:24
 msgid "Subtitle Speech Synchronizer"
 msgstr "Subtitle Speech Synchronizer"
 
-#: subsync/cmdargs.py:46
+#: subsync/cmdargs.py:50
 msgid "synchronization"
 msgstr "synchronizacja"
 
-#: subsync/cmdargs.py:48
+#: subsync/cmdargs.py:52
 msgid "path to subtitle file"
 msgstr "ścieżka do pliku napisów"
 
-#: subsync/cmdargs.py:49
+#: subsync/cmdargs.py:53
 msgid "subtitle stream ID"
 msgstr "numer strumienia napisów"
 
-#: subsync/cmdargs.py:50
+#: subsync/cmdargs.py:54
+msgid "select subtitle stream by language"
+msgstr "wybór strumienia napisów na podstawie języka"
+
+#: subsync/cmdargs.py:55
 msgid "subtitle language"
 msgstr "język napisów"
 
-#: subsync/cmdargs.py:51
+#: subsync/cmdargs.py:56
 msgid "subtitle character encoding"
 msgstr "kodowanie znaków napisów"
 
-#: subsync/cmdargs.py:52
+#: subsync/cmdargs.py:57
 msgid "subtitle framerate"
 msgstr "ilość klatek na sekundę napisów"
 
-#: subsync/cmdargs.py:53
+#: subsync/cmdargs.py:58
 msgid "path to reference file"
 msgstr "ścieżka do pliku referencji"
 
-#: subsync/cmdargs.py:54
+#: subsync/cmdargs.py:59
 msgid "reference stream ID"
 msgstr "numer strumienia referencji"
 
-#: subsync/cmdargs.py:55
+#: subsync/cmdargs.py:60
+msgid "select reference stream by type"
+msgstr "wybór strumienia referencyjnego na wg typu"
+
+#: subsync/cmdargs.py:61
+msgid "select reference stream by language"
+msgstr "wybór strumienia referencyjnego na podstawie języka"
+
+#: subsync/cmdargs.py:62
 msgid "reference language"
 msgstr "język referencji"
 
-#: subsync/cmdargs.py:56
+#: subsync/cmdargs.py:63
 msgid "reference character encoding (for subtitle references)"
 msgstr "kodowanie znaków referencji (dla referencji tekstowych)"
 
-#: subsync/cmdargs.py:57
+#: subsync/cmdargs.py:64
 msgid "reference framerate"
 msgstr "ilość klatek na sekundę referencji"
 
-#: subsync/cmdargs.py:58
+#: subsync/cmdargs.py:65
 msgid "reference audio channels mapping (for audio references)"
 msgstr "mapowanie kanałów audio referencji (dla referencji audio)"
 
-#: subsync/cmdargs.py:59
+#: subsync/cmdargs.py:66
 msgid "output file path (used with --cli)"
 msgstr "ścieżka pliku wyjściowego (używana z --cli)"
 
-#: subsync/cmdargs.py:60
+#: subsync/cmdargs.py:67
 msgid "output framerate (for fps-based subtitles)"
 msgstr ""
 "ilość klatek na sekundę napisów wyjściowych (dla napisów z czasem zależnym "
 "od klatek)"
 
-#: subsync/cmdargs.py:61
+#: subsync/cmdargs.py:68
 msgid "output character encoding"
 msgstr "kodowanie znaków napisów wyjściowych"
 
-#: subsync/cmdargs.py:62 subsync/cmdargs.py:73
+#: subsync/cmdargs.py:69 subsync/cmdargs.py:80
 msgid "how hard to try (0.0 - 1.0) (used with --cli)"
 msgstr "jak mocno próbować (0.0 - 1.0) (używane z --cli)"
 
-#: subsync/cmdargs.py:63
+#: subsync/cmdargs.py:70
 msgid "overwrite existing files (used with --cli)"
 msgstr "nadpisz istniejące pliki (używane z --cli)"
 
-#: subsync/cmdargs.py:65
+#: subsync/cmdargs.py:72
 msgid "batch synchronization"
 msgstr "synchronizacja seryjna"
 
-#: subsync/cmdargs.py:67
+#: subsync/cmdargs.py:74
 msgid "batch job yaml description"
 msgstr "plik yaml z listą plików do synchronizacji"
 
-#: subsync/cmdargs.py:68
+#: subsync/cmdargs.py:75
 msgid "how hard to try (0.0 - 1.0)"
 msgstr "jak mocno próbować (0.0 - 1.0)"
 
-#: subsync/cmdargs.py:69
+#: subsync/cmdargs.py:76
 msgid "overwrite existing files"
 msgstr "nadpisz istniejące pliki"
 
-#: subsync/cmdargs.py:71
+#: subsync/cmdargs.py:78
 msgid "change default settings"
 msgstr "zmień ustawienia domyślne"
 
-#: subsync/cmdargs.py:75
+#: subsync/cmdargs.py:82
 msgid "headless options"
 msgstr "opcje trybu linii komend"
 
-#: subsync/cmdargs.py:76
+#: subsync/cmdargs.py:83
 msgid "headless mode (command line only)"
 msgstr "tryb linii komend"
 
-#: subsync/cmdargs.py:77
+#: subsync/cmdargs.py:84
 msgid "verbosity level for headless job"
 msgstr "poziom szczegółowości komunikatów dla trybu linii komend"
 
-#: subsync/cmdargs.py:79
+#: subsync/cmdargs.py:86
 msgid "synchronization options"
 msgstr "opcje synchronizacji"
 
-#: subsync/cmdargs.py:80
+#: subsync/cmdargs.py:87
 msgid "0 for auto."
 msgstr ""
 
-#: subsync/cmdargs.py:81
+#: subsync/cmdargs.py:88
 msgid "In seconds."
-msgstr ""
+msgstr "W sekundach."
 
-#: subsync/cmdargs.py:112
+#: subsync/cmdargs.py:119
 msgid "debug options"
 msgstr "opcje debugowania"
 
-#: subsync/cmdargs.py:113
+#: subsync/cmdargs.py:120
 msgid ""
 "set logging level, numericall value or one of: DEBUG, INFO, WARNING, ERROR, "
 "CRITICAL"
@@ -173,11 +185,11 @@ msgstr ""
 "ustaw poziom logowania, wartość numeryczna lub jedna z: DEBUG, INFO, "
 "WARNING, ERROR, CRITICAL"
 
-#: subsync/cmdargs.py:115
+#: subsync/cmdargs.py:122
 msgid "dump logs to specified file"
 msgstr "zrzuć logi do wskazanego pliku"
 
-#: subsync/cmdargs.py:117
+#: subsync/cmdargs.py:124
 msgid ""
 "dump words to file, or to standard output if there is no PATH, SRC is one "
 "of: "
@@ -218,18 +230,24 @@ msgid ""
 "Maximum acceptable synchronization error, in seconds. Synchronization points "
 "with error greater than this will be discarded."
 msgstr ""
+"Maksymalny dopuszczalny błąd synchronizacji, w sekundach. Punkty "
+"synchronizacji z większym błędem zostaną odrzucone."
 
 #: subsync/data/descriptions.py:18
 msgid ""
 "Minumum number of synchronization points. Should not be set too high because "
 "it could result with generating large number of false positives."
 msgstr ""
+"Minimalna ilość punktów synchronizacji. Zbyt wysoka wartość może powodować "
+"generowanie dużej liczby wyników fałszywie dodatnich (false positive)."
 
 #: subsync/data/descriptions.py:21
 msgid ""
 "Minimum word length, in letters. Shorter words will not be used as "
 "synchronization points. Applies only to alphabet-based languages."
 msgstr ""
+"Minimalna długość słowa liczona jako ilość liter. Krótsze wyrazy nie zostaną "
+"użyte jako punkty synchronizacji. Dotyczy tylko języków alfabetycznych."
 
 #: subsync/data/descriptions.py:24
 msgid ""
@@ -242,16 +260,21 @@ msgid ""
 "synchronization result. If correlation factor is smaller than this, "
 "synchronization will fail."
 msgstr ""
+"Minimalny współczynnik korelacji, między 0.0 a 1.0. Używany do ustalenia "
+"wyniku synchronizacji. Jeżeli obliczony współczynnik będzie mniejszy od tej "
+"wartości, synchronizacja nie powiedzie się."
 
 #: subsync/data/descriptions.py:30
 msgid ""
 "Minimum speech recognition score, between 0.0 and 1.0. Words transcribed "
 "with smaller score will be rejected."
 msgstr ""
+"Minimalny współczynnik rozpoznawania mowy, między 0.0 a 1.0. Transkrypcja "
+"słów z wynikiem mniejszym nie zostanie użyta do synchronizacji."
 
 #: subsync/data/descriptions.py:33
 msgid "Fix output subtitle timestamps by given offset, in seconds."
-msgstr ""
+msgstr "Wprowadź korektę czasu napisów o podany offset, w sekundach."
 
 #: subsync/data/descriptions.py:36
 msgid "Number of concurrent synchronization threads."
@@ -437,85 +460,85 @@ msgstr "ukraiński"
 msgid "version "
 msgstr "wersja "
 
-#: subsync/gui/batchwin.py:89
+#: subsync/gui/batchwin.py:91
 msgid "Terminating..."
 msgstr "Zamykanie..."
 
-#: subsync/gui/batchwin.py:106 subsync/gui/layout/syncwin.py:34
+#: subsync/gui/batchwin.py:108 subsync/gui/layout/syncwin.py:34
 msgid "Initializing..."
 msgstr "ładowanie…"
 
-#: subsync/gui/batchwin.py:127
+#: subsync/gui/batchwin.py:129
 msgid "Synchronization terminated"
 msgstr "Synchronizacja przerwana"
 
-#: subsync/gui/batchwin.py:130
+#: subsync/gui/batchwin.py:132
 msgid "Total failure"
 msgstr "Całkowita porażka"
 
-#: subsync/gui/batchwin.py:132
+#: subsync/gui/batchwin.py:134
 msgid "Got errors, synchronization failed"
 msgstr "Napotkano błędy, synchronizacja nie powiodła się"
 
-#: subsync/gui/batchwin.py:134
+#: subsync/gui/batchwin.py:136
 msgid "Some tasks couldn't be synchronized"
 msgstr "Niektóre zadania nie powiodły się"
 
-#: subsync/gui/batchwin.py:137
+#: subsync/gui/batchwin.py:139
 msgid "Everything synchronized, but got errors"
 msgstr "Zsynchronizowano, ale napotkano błędy"
 
-#: subsync/gui/batchwin.py:139
+#: subsync/gui/batchwin.py:141
 msgid "Everything synchronized successfully"
 msgstr "Operacja zakończona sukcesem"
 
-#: subsync/gui/batchwin.py:203
+#: subsync/gui/batchwin.py:205
 msgid "Task:"
 msgstr "Zadanie:"
 
-#: subsync/gui/batchwin.py:205
+#: subsync/gui/batchwin.py:207
 msgid "Elapsed:"
 msgstr "Upłynęło:"
 
-#: subsync/gui/batchwin.py:209
+#: subsync/gui/batchwin.py:211
 msgid "ETA:"
 msgstr "Pozostało:"
 
-#: subsync/gui/batchwin.py:215 subsync/gui/mainwin.py:94
+#: subsync/gui/batchwin.py:217 subsync/gui/mainwin.py:94
 msgid "{} min"
 msgstr "{} min"
 
-#: subsync/gui/batchwin.py:241 subsync/gui/openwin.py:21
+#: subsync/gui/batchwin.py:243 subsync/gui/openwin.py:21
 msgid "All supported files"
 msgstr "Wszystkie wspierane pliki"
 
-#: subsync/gui/batchwin.py:242 subsync/gui/openwin.py:22
+#: subsync/gui/batchwin.py:244 subsync/gui/openwin.py:22
 msgid "Subtitle files"
 msgstr "Napisy"
 
-#: subsync/gui/batchwin.py:243 subsync/gui/openwin.py:23
+#: subsync/gui/batchwin.py:245 subsync/gui/openwin.py:23
 msgid "Video files"
 msgstr "Wideo"
 
-#: subsync/gui/batchwin.py:244 subsync/gui/batchwin.py:333
-#: subsync/gui/batchwin.py:342 subsync/gui/openwin.py:24
-#: subsync/gui/syncwin.py:235 subsync/gui/syncwin.py:297
+#: subsync/gui/batchwin.py:246 subsync/gui/batchwin.py:335
+#: subsync/gui/batchwin.py:344 subsync/gui/openwin.py:24
+#: subsync/gui/syncwin.py:236 subsync/gui/syncwin.py:298
 msgid "All files"
 msgstr "Wszystkie pliki"
 
-#: subsync/gui/batchwin.py:304 subsync/gui/syncwin.py:187
+#: subsync/gui/batchwin.py:306 subsync/gui/syncwin.py:188
 msgid "Terminating, please wait..."
 msgstr "Kończenie, proszę czekać..."
 
-#: subsync/gui/batchwin.py:317
+#: subsync/gui/batchwin.py:319
 msgid "Do you want to clear all items?"
 msgstr "Na pewno wyczyścić wszystko?"
 
-#: subsync/gui/batchwin.py:318
+#: subsync/gui/batchwin.py:320
 msgid "Remove items"
 msgstr "Usuń pliki"
 
-#: subsync/gui/batchwin.py:327
+#: subsync/gui/batchwin.py:329
 msgid "Select directory"
 msgstr "Wybierz folder"
 
@@ -645,12 +668,12 @@ msgid "Audio &channels"
 msgstr "Kanały &audio"
 
 #: subsync/gui/components/batchlist/batchlist.py:51
-#: subsync/gui/layout/batchwin.py:327
+#: subsync/gui/layout/batchwin.py:349
 msgid "Au&to sort"
-msgstr ""
+msgstr "Sor&tuj automatycznie"
 
 #: subsync/gui/components/batchlist/batchlist.py:53
-#: subsync/gui/layout/batchwin.py:331
+#: subsync/gui/layout/batchwin.py:353
 msgid "&Remove"
 msgstr "&Usuń"
 
@@ -662,19 +685,19 @@ msgstr "Wybór &strumieni"
 msgid "&Properties"
 msgstr "&Właściwości"
 
-#: subsync/gui/components/batchlist/batchlist.py:201 subsync/gui/openwin.py:65
+#: subsync/gui/components/batchlist/batchlist.py:210 subsync/gui/openwin.py:65
 msgid "There are no usable streams"
 msgstr "Brak użytecznych strumieni"
 
-#: subsync/gui/components/batchlist/batchlist.py:208 subsync/gui/openwin.py:31
+#: subsync/gui/components/batchlist/batchlist.py:217 subsync/gui/openwin.py:31
 msgid "Loading, please wait..."
 msgstr "Ładowanie, proszę czekać..."
 
-#: subsync/gui/components/batchlist/batchlist.py:212
+#: subsync/gui/components/batchlist/batchlist.py:221
 msgid "Following files could not be added:"
 msgstr "Następujących plików nie można było dodać:"
 
-#: subsync/gui/components/batchlist/batchlist.py:215
+#: subsync/gui/components/batchlist/batchlist.py:224
 msgid "and {} more"
 msgstr "i {} więcej"
 
@@ -724,7 +747,7 @@ msgstr "niepowodzenie"
 
 #: subsync/gui/components/batchlist/outputcell.py:133
 #: subsync/gui/errorwin.py:34 subsync/gui/layout/errorwin.py:21
-#: subsync/gui/layout/errorwin.py:43 subsync/gui/syncwin.py:230
+#: subsync/gui/layout/errorwin.py:43 subsync/gui/syncwin.py:231
 msgid "Error"
 msgstr "Błąd"
 
@@ -875,7 +898,7 @@ msgstr "Użyte technologie"
 msgid "Website"
 msgstr "Strona programu"
 
-#: subsync/gui/layout/aboutwin.py:97 subsync/gui/layout/batchwin.py:257
+#: subsync/gui/layout/aboutwin.py:97 subsync/gui/layout/batchwin.py:279
 #: subsync/gui/layout/mainwin.py:115 subsync/gui/layout/syncwin.py:229
 msgid "Close"
 msgstr "Zamknij"
@@ -888,152 +911,156 @@ msgstr "[błędy]"
 msgid "Batch Processing"
 msgstr "Synchronizacja Seryjna"
 
-#: subsync/gui/layout/batchwin.py:50
+#: subsync/gui/layout/batchwin.py:52
 msgid "Add"
 msgstr "Dodaj"
 
-#: subsync/gui/layout/batchwin.py:55
+#: subsync/gui/layout/batchwin.py:57
 msgid "Remove"
 msgstr "Usuń"
 
-#: subsync/gui/layout/batchwin.py:62 subsync/gui/layout/openwin.py:24
+#: subsync/gui/layout/batchwin.py:64 subsync/gui/layout/openwin.py:24
 msgid "Select stream"
 msgstr "Wybór strumieni"
 
-#: subsync/gui/layout/batchwin.py:69
+#: subsync/gui/layout/batchwin.py:71
 msgid "Select output"
 msgstr "Wybór miejsca zapisu"
 
-#: subsync/gui/layout/batchwin.py:76
+#: subsync/gui/layout/batchwin.py:78
 msgid "Auto sort"
 msgstr "Sortuj automatycznie"
 
-#: subsync/gui/layout/batchwin.py:92 subsync/gui/layout/openwin.py:72
+#: subsync/gui/layout/batchwin.py:92
+msgid "Drop files here to add sorted"
+msgstr "Przeciągnij tu pliki aby dodać automatycznie"
+
+#: subsync/gui/layout/batchwin.py:114 subsync/gui/layout/openwin.py:72
 #: subsync/gui/layout/settingswin.py:44
 msgid "Language:"
 msgstr "Język:"
 
-#: subsync/gui/layout/batchwin.py:110 subsync/gui/layout/mainwin.py:62
+#: subsync/gui/layout/batchwin.py:132 subsync/gui/layout/mainwin.py:62
 msgid "Max adjustment:"
 msgstr "Max zmiana:"
 
-#: subsync/gui/layout/batchwin.py:123 subsync/gui/layout/mainwin.py:75
+#: subsync/gui/layout/batchwin.py:145 subsync/gui/layout/mainwin.py:75
 msgid "999 min"
 msgstr ""
 
-#: subsync/gui/layout/batchwin.py:128
+#: subsync/gui/layout/batchwin.py:150
 msgid "Effort:"
 msgstr "Wysiłek:"
 
-#: subsync/gui/layout/batchwin.py:141
+#: subsync/gui/layout/batchwin.py:163
 msgid "0.50"
 msgstr ""
 
-#: subsync/gui/layout/batchwin.py:175
+#: subsync/gui/layout/batchwin.py:197
 msgid "Edit failed tasks"
 msgstr "Edytuj zakończone niepowodzeniem"
 
-#: subsync/gui/layout/batchwin.py:178
+#: subsync/gui/layout/batchwin.py:200
 msgid "Edit all tasks"
 msgstr "Edytuj wszystko"
 
-#: subsync/gui/layout/batchwin.py:181
+#: subsync/gui/layout/batchwin.py:203
 msgid "New synchronization"
 msgstr "Nowa synchronizacja"
 
-#: subsync/gui/layout/batchwin.py:201
+#: subsync/gui/layout/batchwin.py:223
 msgid "Status:"
 msgstr "Status:"
 
-#: subsync/gui/layout/batchwin.py:223
+#: subsync/gui/layout/batchwin.py:245
 msgid "Current file:"
 msgstr "Bieżący plik:"
 
-#: subsync/gui/layout/batchwin.py:232
+#: subsync/gui/layout/batchwin.py:254
 msgid "Total progress:"
 msgstr "Postęp całkowity:"
 
-#: subsync/gui/layout/batchwin.py:260 subsync/gui/layout/syncwin.py:234
+#: subsync/gui/layout/batchwin.py:282 subsync/gui/layout/syncwin.py:234
 msgid "Stop"
 msgstr "Stop"
 
-#: subsync/gui/layout/batchwin.py:265 subsync/gui/layout/mainwin.py:118
+#: subsync/gui/layout/batchwin.py:287 subsync/gui/layout/mainwin.py:118
 msgid "Start"
 msgstr "Start"
 
-#: subsync/gui/layout/batchwin.py:286
+#: subsync/gui/layout/batchwin.py:308
 msgid "&New"
 msgstr "&Nowy"
 
-#: subsync/gui/layout/batchwin.py:292
+#: subsync/gui/layout/batchwin.py:314
 msgid "&Add files (auto sort)"
 msgstr "&Dodaj pliki (auto sort)"
 
-#: subsync/gui/layout/batchwin.py:296
+#: subsync/gui/layout/batchwin.py:318
 msgid "Add &subtitles"
 msgstr "Dodaj &napisy"
 
-#: subsync/gui/layout/batchwin.py:300
+#: subsync/gui/layout/batchwin.py:322
 msgid "Add &references"
 msgstr "Dodaj &referencje"
 
-#: subsync/gui/layout/batchwin.py:304
+#: subsync/gui/layout/batchwin.py:326
 msgid "Add &folder"
 msgstr "Dodaj &folder"
 
-#: subsync/gui/layout/batchwin.py:310
+#: subsync/gui/layout/batchwin.py:332
 msgid "&Import list"
 msgstr "&Import listy"
 
-#: subsync/gui/layout/batchwin.py:314
+#: subsync/gui/layout/batchwin.py:336
 msgid "&Export list"
 msgstr "&Eksport listy"
 
-#: subsync/gui/layout/batchwin.py:320
+#: subsync/gui/layout/batchwin.py:342
 msgid "&Close"
 msgstr "&Zamknij"
 
-#: subsync/gui/layout/batchwin.py:324
+#: subsync/gui/layout/batchwin.py:346
 msgid "&File"
 msgstr "&Plik"
 
-#: subsync/gui/layout/batchwin.py:338
+#: subsync/gui/layout/batchwin.py:360
 msgid "Select &all"
 msgstr "Z&aznacz wszystko"
 
-#: subsync/gui/layout/batchwin.py:341
+#: subsync/gui/layout/batchwin.py:363
 msgid "Select all &subtitles"
 msgstr "Zaznacz wszystkie &napisy"
 
-#: subsync/gui/layout/batchwin.py:344
+#: subsync/gui/layout/batchwin.py:366
 msgid "Select all &references"
 msgstr "Zaznacz wszystkie &referencje"
 
-#: subsync/gui/layout/batchwin.py:347
+#: subsync/gui/layout/batchwin.py:369
 msgid "Select all o&utputs"
 msgstr "Zaznacz wszystkie &wyjścia"
 
-#: subsync/gui/layout/batchwin.py:352
+#: subsync/gui/layout/batchwin.py:374
 msgid "Set &input stream"
 msgstr "Wybierz &strumień"
 
-#: subsync/gui/layout/batchwin.py:356
+#: subsync/gui/layout/batchwin.py:378
 msgid "Set &output location"
 msgstr "Wybierz miejsce &zapisu"
 
-#: subsync/gui/layout/batchwin.py:359
+#: subsync/gui/layout/batchwin.py:381
 msgid "&Propeties"
 msgstr "&Właściwości"
 
-#: subsync/gui/layout/batchwin.py:364
+#: subsync/gui/layout/batchwin.py:386
 msgid "&Edit"
 msgstr "&Edycja"
 
-#: subsync/gui/layout/batchwin.py:367
+#: subsync/gui/layout/batchwin.py:389
 msgid "&About"
 msgstr "&O programie"
 
-#: subsync/gui/layout/batchwin.py:370
+#: subsync/gui/layout/batchwin.py:392
 msgid "&Help"
 msgstr "&Pomoc"
 
@@ -1347,7 +1374,7 @@ msgstr "Min współczynnik rozpoznawania mowy:"
 
 #: subsync/gui/layout/settingswin.py:198
 msgid "Output timing offset:"
-msgstr ""
+msgstr "Offset czasu:"
 
 #: subsync/gui/layout/settingswin.py:212
 msgid "Extractor jobs no:"
@@ -1547,27 +1574,27 @@ msgstr "<nieokreślony>"
 msgid "<empty>"
 msgstr "<pusty>"
 
-#: subsync/gui/syncwin.py:87
+#: subsync/gui/syncwin.py:88
 msgid "Synchronizing..."
 msgstr "Synchronizacja..."
 
-#: subsync/gui/syncwin.py:95
+#: subsync/gui/syncwin.py:96
 msgid "Synchronization: {} points"
 msgstr "Synchronizacja: {} punktów"
 
-#: subsync/gui/syncwin.py:128
+#: subsync/gui/syncwin.py:129
 msgid "Subtitles synchronized"
 msgstr "Napisy zsynchronizowane"
 
-#: subsync/gui/syncwin.py:130
+#: subsync/gui/syncwin.py:131
 msgid "No need to synchronize"
 msgstr "Synchronizacja niekonieczna"
 
-#: subsync/gui/syncwin.py:138
+#: subsync/gui/syncwin.py:139
 msgid "Synchronization inconclusive"
 msgstr "Synchronizacja niepełna"
 
-#: subsync/gui/syncwin.py:140
+#: subsync/gui/syncwin.py:141
 msgid "Couldn't synchronize"
 msgstr "Nie można zsynchronizować"
 
@@ -1577,7 +1604,7 @@ msgstr "Błąd odczytu ustawień, {}"
 
 #: subsync/subtitle.py:52
 msgid "Unknown file extension"
-msgstr ""
+msgstr "Nieznane rozszerzenie pliku"
 
 #: subsync/subtitle.py:55
 msgid "Can't save subtitle file"
@@ -1586,6 +1613,10 @@ msgstr "Nie można zapisać napisów"
 #: subsync/synchro/dictionary.py:38
 msgid "There is no dictionary for transaltion from {} to {}"
 msgstr "Brak słownika dla translacji z {} do {}"
+
+#: subsync/synchro/input.py:98
+msgid "There is no matching stream in "
+msgstr "Brak użytecznego strumienia w "
 
 #: subsync/synchro/output.py:100
 msgid "Invalid output pattern, invalid keyword: {}"
@@ -1607,19 +1638,19 @@ msgstr "Brak modelu rozpoznawania mowy dla języka {}"
 msgid "Invalid speech audio format"
 msgstr "Nieprawidłowy format audio"
 
-#: subsync/utils.py:52
+#: subsync/utils.py:59
 msgid "{} hours"
 msgstr "{} godzin"
 
-#: subsync/utils.py:55
+#: subsync/utils.py:62
 msgid "less than minute"
 msgstr "poniżej minuty"
 
-#: subsync/utils.py:61
+#: subsync/utils.py:68
 msgid "1 minute"
 msgstr "1 minuta"
 
-#: subsync/utils.py:63
+#: subsync/utils.py:70
 msgid "{} minutes"
 msgstr "{} minut"
 
