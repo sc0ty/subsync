@@ -369,8 +369,6 @@ setup(
                     'gizmo/media/resampler.cpp',
                     'gizmo/media/subdec.cpp',
                     'gizmo/media/speechrec.cpp',
-                    'gizmo/media/exception.cpp',
-                    'gizmo/media/logger.cpp',
                     'gizmo/text/translator.cpp',
                     'gizmo/text/dictionary.cpp',
                     'gizmo/text/words.cpp',

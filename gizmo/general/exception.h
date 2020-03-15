@@ -7,7 +7,6 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include <cmath>
 
 
 class Exception : public std::exception
@@ -66,11 +65,15 @@ class ExceptionTerminated : public Exception
 
 
 std::string makeSourceString(const char *file, int line, const char *func) throw();
+std::string ffmpegCodeDescription(int code) throw();
 
 #define EXCEPTION_ADD_SOURCE \
 	add("source", makeSourceString(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION))
 
 #define EXCEPTION(msg) \
 	Exception(msg).EXCEPTION_ADD_SOURCE
+
+#define EXCEPTION_FFMPEG(msg, val) \
+	Exception(msg, ffmpegCodeDescription(val)).averror(val).EXCEPTION_ADD_SOURCE
 
 #endif

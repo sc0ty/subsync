@@ -1,7 +1,7 @@
 #include "demux.h"
 #include "general/scope.h"
 #include "general/logger.h"
-#include "exception.h"
+#include "general/exception.h"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ Demux::Demux(const string &fileName, function<bool()> runCb) :
 	{
 		logger::warn("demux", "avformat_open_input failed, trying to identify file by extension"
 				" file \"%s\", error %x: %s", fileName.c_str(), res,
-				FFmpegException::codeDescription(res).c_str());
+				ffmpegCodeDescription(res).c_str());
 
 		// try to detect container by file extension - works for slightly broken subtitles
 		AVInputFormat *fmt = getInputFormatByFname(fileName.c_str());
