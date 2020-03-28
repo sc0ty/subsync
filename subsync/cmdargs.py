@@ -47,6 +47,8 @@ def getParser():
     parser.set_defaults(mode=None)
     parser.set_defaults(effort=None)
 
+    parser.add_argument('-v', '--version', action='store_true', help=_('print version number'))
+
     sync = subparsers.add_parser('sync', help=_('synchronization'))
     sync.set_defaults(mode='sync')
     sync.add_argument('--sub', '--sub-file', required=True, type=str, help=_('path to subtitle file'))

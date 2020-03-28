@@ -14,6 +14,10 @@ from subsync.settings import settings
 def subsync(argv=None):
     try:
         args = cmdargs.parseCmdArgs(argv)
+        if args.version:
+            print('subsync version {} on {}'.format(version()[0], sys.platform))
+            return 0
+
         initConfig(args)
 
         if shouldUseCli():
