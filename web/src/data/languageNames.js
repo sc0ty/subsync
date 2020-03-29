@@ -1,0 +1,53 @@
+/**
+ * This is used only for i18n schema generation.
+ * It's not used anywhere in the code and it's not bundled.
+ **/
+
+import i18n from 'es2015-i18n-tag';
+
+var names = [
+  i18n`Albanian`,
+  i18n`Arabic`,
+  i18n`Belarusian`,
+  i18n`Bulgarian`,
+  i18n`Catalan`,
+  i18n`Chinese`,
+  i18n`Czech`,
+  i18n`Danish`,
+  i18n`Dutch`,
+  i18n`English`,
+  i18n`Estonian`,
+  i18n`Faroese`,
+  i18n`Finnish`,
+  i18n`French`,
+  i18n`German`,
+  i18n`Gaelic`,
+  i18n`Galician`,
+  i18n`Greek`,
+  i18n`Hebrew`,
+  i18n`Croatian`,
+  i18n`Hungarian`,
+  i18n`Icelandic`,
+  i18n`Indonesian`,
+  i18n`Italian`,
+  i18n`Japanese`,
+  i18n`Korean`,
+  i18n`Latin`,
+  i18n`Latvian`,
+  i18n`Lithuanian`,
+  i18n`Malay`,
+  i18n`Malagasy`,
+  i18n`Maltese`,
+  i18n`Norwegian`,
+  i18n`Polish`,
+  i18n`Portuguese`,
+  i18n`Romanian`,
+  i18n`Russian`,
+  i18n`Slovak`,
+  i18n`Slovenian`,
+  i18n`Spanish`,
+  i18n`Serbian`,
+  i18n`Swedish`,
+  i18n`Turkish`,
+  i18n`Ukrainian`,
+];

@@ -1,0 +1,78 @@
+{
+  "name": "subsync",
+  "version": "1.0.0",
+  "description": "Subtitle Speech Synchronizer",
+  "scripts": {
+    "install": "napa",
+    "postinstall": "docker build -t subsync-web-build . && npm run make -j4",
+    "make": "docker run --rm -v $(pwd)/..:/src --user $(id -u):$(id -g) -w /src/web subsync-web-build emmake make",
+    "build": "browserify src/main.js -o scripts/subsync.js",
+    "watch": "watchify src/main.js -o scripts/subsync.js -v -d",
+    "gen-version": "sh -c \"echo '{\\\"version\\\":\\\"$(git describe --tags)\\\",\\\"hash\\\":\\\"$(git rev-parse HEAD)\\\"}'\" > version.json",
+    "locale-gen-schema": "i18n-tag-schema ./src --schema ./translation.schema.json -i 2",
+    "locale-validate": "i18n-tag-schema ./src/translations --validate --schema ./translation.schema.json",
+    "locale-validate-pl": "i18n-tag-schema ./src/translations/pl.json --validate --schema ./translation.schema.json"
+  },
+  "author": "sc0ty",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@babel/runtime": "^7.8.4",
+    "browserify": "^16.5.0",
+    "comlink": "^4.2.0",
+    "es2015-i18n-tag": "^1.6.1",
+    "extract-zip": "^1.6.7",
+    "js-cookie": "^2.2.1",
+    "jszip": "^3.2.2",
+    "napa": "^3.0.0",
+    "redom": "^3.25.1",
+    "watchify": "^3.11.1",
+    "webworkify": "^1.5.0",
+    "ws": "^7.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sc0ty/subsync.git"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "@babel/preset-env"
+          ],
+          "plugins": [
+            [
+              "@babel/plugin-transform-runtime",
+              {
+                "regenerator": true
+              }
+            ],
+            "babel-plugin-transform-redom-jsx",
+            [
+              "@babel/plugin-transform-react-jsx",
+              {
+                "pragma": "el"
+              }
+            ]
+          ]
+        }
+      ]
+    ]
+  },
+  "napa": {
+    "ffmpeg": "FFmpeg/FFmpeg#n4.2",
+    "sphinxbase": "cmusphinx/sphinxbase",
+    "pocketsphinx": "cmusphinx/pocketsphinx"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/plugin-transform-react-jsx": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.4",
+    "babel-plugin-transform-redom-jsx": "^2.0.1",
+    "babelify": "^10.0.0",
+    "i18n-tag-schema": "^2.5.0"
+  }
+}

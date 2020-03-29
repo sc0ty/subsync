@@ -1,0 +1,9 @@
+/scripts
+/deps
+/obj
+/assets/data
+/node_modules
+/package-lock.json
+/translation.schema.json
+/version.json
+/src/data/assets.json

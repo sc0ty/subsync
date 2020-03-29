@@ -2,6 +2,7 @@ SCRIPTS_DIR = scripts
 
 URL ?= https://github.com/sc0ty/subsync/releases/download/assets/
 URL_LOCAL ?= http://localhost:8000/assets/
+URL_ONLINE ?= assets/data/
 
 DICT_DIR   = dict
 SPEECH_DIR = speech
@@ -20,7 +21,7 @@ EXTRA_ASSETS  = $(patsubst $(EXTRA_DIR)/%.json,$(ASSET_DIR)/%.zip,$(EXTRAS))
 
 ASSETS = $(DICT_ASSETS) $(SPEECH_ASSETS) $(EXTRA_ASSETS)
 SIGNS = $(addsuffix .asc,$(ASSETS))
-INDEX = assets.json assets_local.json
+INDEX = assets.json assets_local.json ../web/src/data/assets.json
 
 
 all: $(ASSETS) $(SIGNS) $(INDEX)
@@ -52,5 +53,8 @@ assets.json: $(ASSETS) $(SIGNS)
 
 assets_local.json: $(ASSETS) $(SIGNS)
 	$(SCRIPTS_DIR)/mkindex.py $(URL_LOCAL) $(ASSET_DIR) $(EXTRA_DIR) $@
+
+../web/src/data/assets.json: $(ASSETS) $(SIGNS)
+	$(SCRIPTS_DIR)/mkindex.py $(URL_ONLINE) $(ASSET_DIR) $@
 
 .PHONY: all clean
