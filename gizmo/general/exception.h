@@ -18,6 +18,8 @@ class Exception : public std::exception
 		Exception(const Exception &ex) throw();
 		virtual ~Exception() throw();
 
+		static const Exception *getCurrentException();
+
 		virtual const char* what() const throw();
 		const char *message() const throw();
 		const std::map<std::string, std::string> &fields() const throw();

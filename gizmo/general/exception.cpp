@@ -1,4 +1,5 @@
 #include "exception.h"
+#include <list>
 #include <iomanip>
 
 extern "C"
@@ -12,26 +13,47 @@ using namespace std;
 
 
 static string averrorCodeName(int code) throw();
+static void registerException(const Exception *e) throw();
+static void unregisterException(const Exception *e) throw();
+static const Exception *getRegisteredException() throw();
+
+#ifdef TRACK_EXCEPTIONS
+static list<const Exception*> g_exceptions;
+#endif
 
 
 /*** Exception ***/
 
+const Exception *Exception::getCurrentException()
+{
+	return getRegisteredException();
+}
+
 Exception::Exception() throw()
-{}
+{
+	registerException(this);
+}
 
 Exception::Exception(const string &msg) throw() : msg(msg)
-{}
+{
+	registerException(this);
+}
 
 Exception::Exception(const string &msg, const string &detail) throw()
 {
+	registerException(this);
 	this->msg = msg + ": " + detail;
 }
 
 Exception::Exception(const Exception &ex) throw() : msg(ex.msg), vals(ex.vals)
-{}
+{
+	registerException(this);
+}
 
 Exception::~Exception() throw()
-{}
+{
+	unregisterException(this);
+}
 
 const char* Exception::what() const throw()
 {
@@ -267,3 +289,44 @@ string averrorCodeName(int code) throw()
 		default: return "";
 	}
 }
+
+#ifdef TRACK_EXCEPTIONS
+
+void registerException(const Exception *exc) throw()
+{
+	for (const Exception *e : g_exceptions)
+	{
+		if (e == exc)
+			return;
+	}
+	g_exceptions.push_front(exc);
+}
+
+void unregisterException(const Exception *exc) throw()
+{
+	g_exceptions.remove(exc);
+}
+
+const Exception *getRegisteredException() throw()
+{
+	return g_exceptions.empty() ? nullptr : g_exceptions.front();
+}
+
+#else // TRACK_EXCEPTIONS
+
+void registerException(const Exception *exc) throw()
+{
+	(void) exc;
+}
+
+void unregisterException(const Exception *exc) throw()
+{
+	(void) exc;
+}
+
+const Exception *getRegisteredException() throw()
+{
+	return nullptr;
+}
+
+#endif // TRACK_EXCEPTIONS

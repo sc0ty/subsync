@@ -140,9 +140,6 @@ unsigned Synchronizer::countBuckets(const Points &pts) const
 		Buckets::const_iterator it = m_buckets.lower_bound(pt.x);
 		if (it != m_buckets.end())
 			has.insert(*it);
-		else
-			logger::debug("synchronizer", "point outside existing buckets %f",
-					pt.x);
 	}
 
 	return has.size();
