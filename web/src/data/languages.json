@@ -7,7 +7,7 @@
   {"code3": "chi", "code2": "zh", "name": "Chinese", "enc": ["GB18030"], "ngrams": 2, "extraCodes": ["cht", "chs", "cmn"]},
   {"code3": "cze", "code2": "cs", "name": "Czech", "enc": ["Windows-1250", "ISO-8859-2"]},
   {"code3": "dan", "code2": "da", "name": "Danish", "enc": ["Windows-1252", "ISO-8859-1"]},
-  {"code3": "dut", "code2": "nl", "name": "Dutch", "enc": ["Windows-1252", "ISO-8859-1"]},
+  {"code3": "dut", "code2": "nl", "name": "Dutch", "enc": ["Windows-1252", "ISO-8859-1"], "extraCodes": ["nld"]},
   {"code3": "eng", "code2": "en", "name": "English", "enc": ["Windows-1252", "ISO-8859-1"]},
   {"code3": "est", "code2": "et", "name": "Estonian", "enc": ["ISO-8859-15"]},
   {"code3": "fao", "code2": "fo", "name": "Faroese", "enc": ["Windows-1252", "ISO-8859-1"]},
