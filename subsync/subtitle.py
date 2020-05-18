@@ -36,6 +36,10 @@ class Subtitles(pysubs2.SSAFile):
         res = copy.deepcopy(self)
         res.transform_framerate(formula.a*25.0, 25.0)
         res.shift(s=formula.b)
+        res.sort()
+        while len(res) and res[0].end <= 0:
+            logger.debug('removing subtitle line with negative time: %r', res[0])
+            res.pop(0)
         return res
 
     def save(self, path, encoding=u'utf-8', fmt=None, fps=None, overwrite=False):
