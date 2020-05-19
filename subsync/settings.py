@@ -11,7 +11,7 @@ persistent = {
         'language': None,
         'maxPointDist': 2.0,
         'minPointsNo': 20,
-        'appendLangCode': True,
+        'appendLangCode': 3,
         'outputCharEnc': 'UTF-8',
         'windowSize': 30.0 * 60.0,
         'minWordProb': 0.3,

@@ -37,6 +37,9 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
             if val != None:
                 field.SetValue(val)
 
+        self.m_appendLangCode2.SetValue(settings.appendLangCode == 2)
+        self.m_appendLangCode3.SetValue(settings.appendLangCode in [3, True])
+
         jobsNo = self.settings.jobsNo
         self.m_checkAutoJobsNo.SetValue(jobsNo == None)
         self.m_jobsNo.Enable(jobsNo != None)
@@ -59,6 +62,12 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
     def getSettings(self):
         for field, key, val in self.settingsFieldsGen():
             setattr(self.settings, key, field.GetValue())
+
+        self.settings.appendLangCode = False
+        if self.m_appendLangCode2.IsChecked():
+            self.settings.appendLangCode = 2
+        elif self.m_appendLangCode3.IsChecked():
+            self.settings.appendLangCode = 3
 
         if self.m_checkAutoJobsNo.IsChecked():
             self.settings.jobsNo = None
@@ -85,6 +94,14 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
             field = 'm_' + key
             if hasattr(self, field):
                 yield getattr(self, field), key, self.settings.get(key)
+
+    def onAppendLangCode2Check(self, event):
+        if self.m_appendLangCode2.IsChecked():
+            self.m_appendLangCode3.SetValue(False)
+
+    def onAppendLangCode3Check(self, event):
+        if self.m_appendLangCode3.IsChecked():
+            self.m_appendLangCode2.SetValue(False)
 
     def onCheckAutoJobsNoCheck(self, event):
         auto = self.m_checkAutoJobsNo.IsChecked()

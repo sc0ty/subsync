@@ -66,9 +66,15 @@ class SettingsWin ( wx.Dialog ):
 
 		fgSizer4.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_appendLangCode = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"append language code"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_appendLangCode.SetValue(True)
-		fgSizer4.Add( self.m_appendLangCode, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_appendLangCode2 = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"append 2-letters language code (ISO 639-1)"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer4.Add( self.m_appendLangCode2, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+
+		fgSizer4.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		self.m_appendLangCode3 = wx.CheckBox( self.m_panelGeneral, wx.ID_ANY, _(u"append 3-letters language code (ISO 639-2/B)"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_appendLangCode3.SetValue(True)
+		fgSizer4.Add( self.m_appendLangCode3, 0, wx.ALL, 5 )
 
 		self.m_textUpdates = wx.StaticText( self.m_panelGeneral, wx.ID_ANY, _(u"Updates:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textUpdates.Wrap( -1 )
@@ -340,6 +346,8 @@ class SettingsWin ( wx.Dialog ):
 		bSizer1.Fit( self )
 
 		# Connect Events
+		self.m_appendLangCode2.Bind( wx.EVT_CHECKBOX, self.onAppendLangCode2Check )
+		self.m_appendLangCode3.Bind( wx.EVT_CHECKBOX, self.onAppendLangCode3Check )
 		self.m_checkAutoJobsNo.Bind( wx.EVT_CHECKBOX, self.onCheckAutoJobsNoCheck )
 		self.m_checkLogToFile.Bind( wx.EVT_CHECKBOX, self.onCheckLogToFileCheck )
 		self.m_buttonLogFileSelect.Bind( wx.EVT_BUTTON, self.onButtonLogFileSelectClick )
@@ -350,6 +358,12 @@ class SettingsWin ( wx.Dialog ):
 
 
 	# Virtual event handlers, overide them in your derived class
+	def onAppendLangCode2Check( self, event ):
+		event.Skip()
+
+	def onAppendLangCode3Check( self, event ):
+		event.Skip()
+
 	def onCheckAutoJobsNoCheck( self, event ):
 		event.Skip()
 

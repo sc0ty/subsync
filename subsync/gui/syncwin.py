@@ -6,7 +6,7 @@ from subsync.gui import fpswin
 from subsync.gui import errorwin
 from subsync.gui import busydlg
 from subsync.gui.components.thread import gui_thread
-from subsync.data import filetypes
+from subsync.data import filetypes, languages
 from subsync import subtitle
 from subsync.settings import settings
 from subsync import utils
@@ -249,7 +249,12 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
                 res.append(suffix)
 
             elif settings().appendLangCode and self.task.sub.lang:
-                res.append(self.task.sub.lang)
+                if settings().appendLangCode in [3, True]:
+                    res.append(self.task.sub.lang)
+                elif settings().appendLangCode == 2:
+                    lang = languages.get(code=self.task.sub.lang)
+                    if lang.code2:
+                        res.append(lang.code2)
 
             res.append('srt')
             return '.'.join(res)
