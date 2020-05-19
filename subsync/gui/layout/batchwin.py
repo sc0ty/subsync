@@ -137,10 +137,10 @@ class BatchWin ( wx.Frame ):
 		self.m_buttonMaxDistInfo = PopupInfoButton( self.m_panelSettings, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.m_buttonMaxDistInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
-		fgSizer4.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer4.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_sliderMaxDist = wx.Slider( self.m_panelSettings, wx.ID_ANY, 30, 5, 180, wx.DefaultPosition, wx.Size( -1,-1 ), wx.SL_HORIZONTAL )
-		fgSizer4.Add( self.m_sliderMaxDist, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer4.Add( self.m_sliderMaxDist, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_textMaxDist = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"999 min"), wx.DefaultPosition, wx.DefaultSize, wx.ST_NO_AUTORESIZE )
 		self.m_textMaxDist.Wrap( -1 )
@@ -155,10 +155,10 @@ class BatchWin ( wx.Frame ):
 		self.m_buttonEffortInfo = PopupInfoButton( self.m_panelSettings, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.m_buttonEffortInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
-		fgSizer4.Add( self.m_buttonEffortInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		fgSizer4.Add( self.m_buttonEffortInfo, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_sliderEffort = wx.Slider( self.m_panelSettings, wx.ID_ANY, 50, 0, 100, wx.DefaultPosition, wx.Size( -1,-1 ), wx.SL_HORIZONTAL )
-		fgSizer4.Add( self.m_sliderEffort, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, 5 )
+		fgSizer4.Add( self.m_sliderEffort, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND|wx.ALL, 5 )
 
 		self.m_textEffort = wx.StaticText( self.m_panelSettings, wx.ID_ANY, _(u"0.50"), wx.DefaultPosition, wx.DefaultSize, wx.ST_NO_AUTORESIZE )
 		self.m_textEffort.Wrap( -1 )

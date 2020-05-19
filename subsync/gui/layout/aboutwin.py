@@ -75,7 +75,7 @@ class AboutWin ( wx.Dialog ):
 		fgSizer1.Add( ( 0, 10), 1, wx.EXPAND, 5 )
 
 		self.m_staticline1 = wx.StaticLine( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		fgSizer1.Add( self.m_staticline1, 0, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		fgSizer1.Add( self.m_staticline1, 0, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		fgSizer3 = wx.FlexGridSizer( 1, 0, 0, 0 )
 		fgSizer3.AddGrowableCol( 2 )

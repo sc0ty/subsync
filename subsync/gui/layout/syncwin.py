@@ -80,7 +80,7 @@ class SyncWin ( wx.Dialog ):
 		self.m_panelError.SetSizer( fgSizer3 )
 		self.m_panelError.Layout()
 		fgSizer3.Fit( self.m_panelError )
-		fgSizer2.Add( self.m_panelError, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		fgSizer2.Add( self.m_panelError, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 
 		fgSizer5 = wx.FlexGridSizer( 1, 0, 0, 0 )
 		fgSizer5.AddGrowableCol( 2 )
@@ -190,7 +190,7 @@ class SyncWin ( wx.Dialog ):
 
 		self.m_textInitialSyncInfo.Hide()
 
-		fgSizer2.Add( self.m_textInitialSyncInfo, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 10 )
+		fgSizer2.Add( self.m_textInitialSyncInfo, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 10 )
 
 		self.m_staticline1 = wx.StaticLine( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer2.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )

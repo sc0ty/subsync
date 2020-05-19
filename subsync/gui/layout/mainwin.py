@@ -67,10 +67,10 @@ class MainWin ( wx.Frame ):
 		self.m_buttonMaxDistInfo = PopupInfoButton( self.m_panel2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.m_buttonMaxDistInfo.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
-		fgSizer5.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
+		fgSizer5.Add( self.m_buttonMaxDistInfo, 0, wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
 		self.m_sliderMaxDist = wx.Slider( self.m_panel2, wx.ID_ANY, 30, 5, 180, wx.DefaultPosition, wx.DefaultSize, wx.SL_HORIZONTAL )
-		fgSizer5.Add( self.m_sliderMaxDist, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer5.Add( self.m_sliderMaxDist, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_textMaxDist = wx.StaticText( self.m_panel2, wx.ID_ANY, _(u"999 min"), wx.DefaultPosition, wx.DefaultSize, wx.ST_NO_AUTORESIZE )
 		self.m_textMaxDist.Wrap( -1 )
