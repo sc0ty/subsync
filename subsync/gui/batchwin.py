@@ -1,6 +1,7 @@
 import subsync.gui.layout.batchwin
 from subsync.gui.aboutwin import AboutWin
 from subsync.gui.busydlg import BusyDlg
+from subsync.gui.suspendlock import SuspendBlocker
 from subsync.gui.components import assetsdlg, filedlg, filedrop
 from subsync.gui.components.thread import gui_thread
 from subsync.gui.components.update import update_lock
@@ -85,6 +86,10 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
             self.synchro.onError = self.onJobError
 
             self.synchro.start(tasks)
+
+            self.suspendBlocker = SuspendBlocker()
+            if settings().preventSystemSuspend:
+                self.suspendBlocker.lock()
 
     def stop(self):
         self.synchro and self.synchro.stop()
@@ -193,6 +198,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     def onAllJobsEnd(self, terminated):
         self.m_gaugeTotalProgress.SetValue(self.m_gaugeTotalProgress.GetRange())
         self.goToDoneMode(terminated)
+        self.suspendBlocker.unlock()
 
     @gui_thread
     def onJobError(self, no, source, error):

@@ -5,6 +5,7 @@ from subsync.gui.components import filedlg
 from subsync.gui import fpswin
 from subsync.gui import errorwin
 from subsync.gui import busydlg
+from subsync.gui import suspendlock
 from subsync.gui.components.thread import gui_thread
 from subsync.data import filetypes, languages
 from subsync import subtitle
@@ -52,6 +53,10 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
         self.thread = threading.Thread(target=self.syncJob, name='Synchro')
         self.thread.start()
+
+        self.suspendBlocker = suspendlock.SuspendBlocker()
+        if settings().preventSystemSuspend:
+            self.suspendBlocker.lock()
 
     def stop(self):
         self.running = False
@@ -144,6 +149,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
         self.Fit()
         self.Layout()
+
+        self.suspendBlocker.unlock()
 
     @gui_thread
     def onError(self, source, err):

@@ -1,5 +1,6 @@
 import subsync.gui.layout.settingswin
 from subsync.gui.components.filedlg import showSaveFileDlg
+from subsync.gui.suspendlock import SuspendBlocker
 from subsync.settings import settings, Settings
 from subsync.data import descriptions
 from subsync import config
@@ -20,6 +21,10 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
         self.m_buttonMinWordProbInfo.message = descriptions.minWordProbInfo
         self.m_buttonOutTimeOffsetInfo.message = descriptions.outTimeOffset
         self.m_buttonJobsNoInfo.message = descriptions.jobsNoInfo
+        self.m_panelSynchro.GetSizer().AddGrowableCol(1)
+
+        if not SuspendBlocker.hasLock():
+            self.m_preventSystemSuspend.Hide()
 
         if not config.assetupd:
             self.m_textUpdates.Hide()
