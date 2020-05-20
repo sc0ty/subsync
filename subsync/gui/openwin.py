@@ -43,6 +43,9 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
         if allowOpen:
             filedrop.setFileDropTarget(self, OnDropFile=self.onDropFile)
 
+        self.Fit()
+        self.Layout()
+
     @error_dlg
     def openStream(self, file=None, path=None):
         if path:

@@ -92,7 +92,7 @@ class BatchWin ( wx.Frame ):
 		self.m_staticText1 = wx.StaticText( self.m_panelAutoDrop, wx.ID_ANY, _(u"Drop files here to add sorted"), wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL|wx.ST_ELLIPSIZE_END )
 		self.m_staticText1.Wrap( -1 )
 
-		fgSizer11.Add( self.m_staticText1, 0, wx.ALIGN_CENTER|wx.ALL|wx.EXPAND, 5 )
+		fgSizer11.Add( self.m_staticText1, 0, wx.ALL|wx.EXPAND, 5 )
 
 
 		self.m_panelAutoDrop.SetSizer( fgSizer11 )

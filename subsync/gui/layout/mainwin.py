@@ -91,6 +91,8 @@ class MainWin ( wx.Frame ):
 		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
 		self.m_buttonMenu = wx.Button( self.m_panel2, wx.ID_ANY, _(u"Menu"), wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
+		self.m_buttonMenu.SetMinSize( wx.Size( 30,-1 ) )
+
 		self.m_menu = wx.Menu()
 		self.m_menuItemBatchProcessing = wx.MenuItem( self.m_menu, wx.ID_ANY, _(u"Batch processing"), wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu.Append( self.m_menuItemBatchProcessing )

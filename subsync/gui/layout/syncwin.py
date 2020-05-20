@@ -201,6 +201,7 @@ class SyncWin ( wx.Dialog ):
 
 		self.m_buttonDebugMenu = wx.Button( self.m_panelMain, wx.ID_ANY, _(u"Debug"), wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
 		self.m_buttonDebugMenu.Hide()
+		self.m_buttonDebugMenu.SetMinSize( wx.Size( 20,-1 ) )
 
 		self.m_menuDebug = wx.Menu()
 		self.m_menuItemEnableSave = wx.MenuItem( self.m_menuDebug, wx.ID_ANY, _(u"Enable save button"), wx.EmptyString, wx.ITEM_NORMAL )
@@ -224,7 +225,7 @@ class SyncWin ( wx.Dialog ):
 
 		self.m_buttonDebugMenu.Bind( wx.EVT_RIGHT_DOWN, self.m_buttonDebugMenuOnContextMenu )
 
-		fgSizer6.Add( self.m_buttonDebugMenu, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer6.Add( self.m_buttonDebugMenu, 1, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_buttonClose = wx.Button( self.m_panelMain, wx.ID_CANCEL, _(u"Close"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_buttonClose.Hide()

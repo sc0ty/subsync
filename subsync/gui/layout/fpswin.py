@@ -38,10 +38,10 @@ class FpsWin ( wx.Dialog ):
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 
 		self.m_radioRef = wx.RadioButton( self.m_panel1, wx.ID_ANY, _(u"same as reference file"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer2.Add( self.m_radioRef, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer2.Add( self.m_radioRef, 0, wx.ALL, 5 )
 
 		self.m_radioSub = wx.RadioButton( self.m_panel1, wx.ID_ANY, _(u"same as input subtitles"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer2.Add( self.m_radioSub, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer2.Add( self.m_radioSub, 0, wx.ALL, 5 )
 
 		fgSizer2 = wx.FlexGridSizer( 0, 2, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )

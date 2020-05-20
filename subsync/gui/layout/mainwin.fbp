@@ -830,7 +830,7 @@
                                                         <property name="maximum_size"></property>
                                                         <property name="min_size"></property>
                                                         <property name="minimize_button">0</property>
-                                                        <property name="minimum_size"></property>
+                                                        <property name="minimum_size">30,-1</property>
                                                         <property name="moveable">1</property>
                                                         <property name="name">m_buttonMenu</property>
                                                         <property name="pane_border">1</property>
