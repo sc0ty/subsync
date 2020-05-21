@@ -1,5 +1,6 @@
 from subsync import error
 from subsync import utils
+from subsync.data import filetypes
 import bisect
 import pysubs2
 import copy
@@ -49,14 +50,21 @@ class Subtitles(pysubs2.SSAFile):
 
         logger.info('saving subtitles to "%s", %s', path,
                 utils.fmtstr(enc=encoding, fmt=fmt, fps=fps))
+
         try:
-            super().save(path, encoding=encoding, format_=fmt, fps=fps)
+            if fmt is None:
+                ext = os.path.splitext(path)[1].lower()
+                fmts = [ x['type'] for x in filetypes.subtitleTypes if x['ext'] == ext ]
+                if len(fmts):
+                    fmt = fmts[0]
+            if fmt is None:
+                raise Exception(_('Unknown file extension'))
+
+            with open(path, 'w', encoding=encoding, errors='replace') as fp:
+                super().to_file(fp, format_=fmt, fps=fps)
+
         except Exception as e:
-            if type(e) is pysubs2.exceptions.UnknownFileExtensionError:
-                descr = _('Unknown file extension') + ': {!s}'.format(e)
-            else:
-                descr = str(e)
-            raise error.Error(_('Can\'t save subtitle file') + '. ' + descr) \
+            raise error.Error(_('Can\'t save subtitle file') + '. ' + str(e)) \
                     .add('path', path) \
                     .add('encoding', encoding) \
                     .addn('format', fmt) \

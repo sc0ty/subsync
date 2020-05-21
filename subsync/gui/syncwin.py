@@ -239,8 +239,8 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     def saveFileDlg(self, path=None, suffix=None):
         props = {}
-        filters = '|'.join('|'.join(x) for x in filetypes.subtitleTypes)
-        props['wildcard'] = '{}|{}|*.*'.format(filters, _('All files'))
+        filters = filetypes.subtitleTypes + [ { 'name': _('All files'), 'ext': '.*' } ]
+        props['wildcard'] = '|'.join([ '{}|*{}'.format(f['name'], f['ext']) for f in filters ])
         props['defaultFile'] = self.genDefaultFileName(path, suffix)
         if path:
             props['defaultDir'] = os.path.dirname(path)
