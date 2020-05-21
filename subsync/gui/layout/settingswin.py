@@ -230,7 +230,7 @@ class SettingsWin ( wx.Dialog ):
 
 		self.m_checkAutoJobsNo = wx.CheckBox( self.m_panelSynchro, wx.ID_ANY, _(u"auto"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_checkAutoJobsNo.SetValue(True)
-		fgSizer9.Add( self.m_checkAutoJobsNo, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer9.Add( self.m_checkAutoJobsNo, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
 
 		self.m_jobsNo = wx.SpinCtrl( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 1, 1000, 4 )
 		self.m_jobsNo.Enable( False )

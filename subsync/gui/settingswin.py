@@ -33,6 +33,9 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
 
         self.setSettings(settings())
 
+        self.m_panelSynchro.Fit()
+        self.Fit()
+
     def setSettings(self, settings):
         self.settings = Settings(settings)
 
