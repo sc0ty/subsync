@@ -124,7 +124,12 @@ class SettingsWin ( wx.Dialog ):
 		gbSizer1.Add( self.m_staticText4, wx.GBPosition( 0, 0 ), wx.GBSpan( 1, 1 ), wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_preventSystemSuspend = wx.CheckBox( self.m_panelSynchro, wx.ID_ANY, _(u"Prevent from going to sleep during synchronization"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.m_preventSystemSuspend, wx.GBPosition( 8, 0 ), wx.GBSpan( 1, 2 ), wx.ALL|wx.ALIGN_RIGHT, 5 )
+		gbSizer1.Add( self.m_preventSystemSuspend, wx.GBPosition( 8, 0 ), wx.GBSpan( 1, 2 ), wx.ALL|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.m_buttonPreventSystemSuspend = PopupInfoButton( self.m_panelSynchro, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.m_buttonPreventSystemSuspend.SetBitmap( wx.ArtProvider.GetBitmap( wx.ART_TIP, wx.ART_BUTTON ) )
+		gbSizer1.Add( self.m_buttonPreventSystemSuspend, wx.GBPosition( 8, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
 
 		self.m_maxPointDist = wx.SpinCtrlDouble( self.m_panelSynchro, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 1000, 2, 0.01 )
 		self.m_maxPointDist.SetDigits( 2 )

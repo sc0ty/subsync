@@ -34,3 +34,7 @@ outTimeOffset = _(
 
 jobsNoInfo = _(
 '''Number of concurrent synchronization threads.''')
+
+preventSystemSuspendInfo = _(
+'''Prevents system from going to sleep during synchronization.
+It could not work on all platforms.''')

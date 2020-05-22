@@ -21,10 +21,12 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
         self.m_buttonMinWordProbInfo.message = descriptions.minWordProbInfo
         self.m_buttonOutTimeOffsetInfo.message = descriptions.outTimeOffset
         self.m_buttonJobsNoInfo.message = descriptions.jobsNoInfo
+        self.m_buttonPreventSystemSuspend.message = descriptions.preventSystemSuspendInfo
         self.m_panelSynchro.GetSizer().AddGrowableCol(1)
 
         if not SuspendBlocker.hasLock():
             self.m_preventSystemSuspend.Hide()
+            self.m_buttonPreventSystemSuspend.Hide()
 
         if not config.assetupd:
             self.m_textUpdates.Hide()
