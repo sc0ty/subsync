@@ -11,12 +11,16 @@ using namespace std;
 static const char DEFAULT_WORD_DELIMITERS[] = " \t.,!?[]{}():<>|\\/\"#$%-+`";
 
 
+static double calcSubtitleDurationByContent(const AVSubtitle &sub);
+
+
 SubtitleDec::SubtitleDec() :
 	m_codecCtx(NULL),
 	m_ssaParser(DEFAULT_WORD_DELIMITERS),
 	m_minWordLen(0),
 	m_timeBase(0.0),
-	m_position(0.0)
+	m_position(0.0),
+	m_trimDuration(false)
 {
 }
 
@@ -32,6 +36,12 @@ void SubtitleDec::start(const AVStream *stream)
 			.module("SubtitleDec", "avcodec_find_decoder");
 
 	logger::info("subdec", "using codec %s (%s)", codec->name, codec->long_name);
+
+	if (codec->id == AV_CODEC_ID_VPLAYER)
+	{
+		logger::info("subdec", "format without end time, enabling duration heuristics");
+		m_trimDuration = true;
+	}
 
 	m_timeBase = av_q2d(stream->time_base);
 
@@ -105,9 +115,17 @@ bool SubtitleDec::feedOutput(AVSubtitle &sub, double duration)
 	bool gotSub = false;
 
 	double begin = m_position + ((double)sub.start_display_time / 1000.0);
-	double end = sub.end_display_time ?
+	double end = sub.end_display_time > 0 ?
 		m_position + (double)sub.end_display_time / 1000.0 :
 		begin + duration;
+
+	if (m_trimDuration || end <= begin)
+	{
+		double newDuration = calcSubtitleDurationByContent(sub);
+		if (duration > 0.0 && newDuration > duration)
+			newDuration = duration;
+		end = begin + newDuration;
+	}
 
 	for (unsigned i = 0; i < sub.num_rects; i++)
 	{
@@ -196,3 +214,24 @@ void SubtitleDec::setRightToLeft(bool rightToLeft)
 {
 	m_ssaParser.setRightToLeft(rightToLeft);
 }
+
+
+double calcSubtitleDurationByContent(const AVSubtitle &sub)
+{
+	static const double charDuration = 0.06;
+	double duration = 0.0;
+
+	for (unsigned i = 0; i < sub.num_rects; i++)
+	{
+		AVSubtitleRect *rect = sub.rects[i];
+		const char *text = rect->type == SUBTITLE_ASS ? rect->ass : rect->text;
+		if (text)
+			duration += charDuration * Utf8::size(text) + charDuration;
+	}
+
+	if (duration < 0.8)
+		duration = 0.8;
+
+	return duration;
+}
+

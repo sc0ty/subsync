@@ -68,6 +68,7 @@ class SubtitleDec : public Decoder
 
 		double m_timeBase;
 		double m_position;
+		bool m_trimDuration;
 		std::string m_encoding;
 };
 
