@@ -47,10 +47,9 @@ void initCorrelatorWrapper(py::module &m)
 	corrStats.def_readonly("points", &CorrelationStats::points);
 	corrStats.def_readonly("maxDistance", &CorrelationStats::maxDistance);
 	corrStats.def_readonly("formula", &CorrelationStats::formula);
+	corrStats.def_readonly("coverage", &CorrelationStats::coverage);
 	corrStats.def("__repr__", &CorrelationStats::toString);
-	corrStats.def("__str__", [](const CorrelationStats &s) {
-			return s.toString("", "");
-	});
+	corrStats.def("__str__", &CorrelationStats::toString);
 
 	/*** class Line ***/
 	py::class_<Line> line(m, "Line");

@@ -15,16 +15,17 @@ CorrelationStats::CorrelationStats() :
 {
 }
 
-string CorrelationStats::toString(const char *prefix, const char *suffix) const
+string CorrelationStats::toString() const
 {
 	stringstream ss;
-	ss << prefix << fixed << setprecision(3)
+	ss << "<CorrelationStats " << fixed << setprecision(3)
 		<< "correlated=" << std::boolalpha << correlated
 		<< ", factor="   << 100.0 * factor << "%"
 		<< ", points="   << points
 		<< ", maxDist="  << maxDistance
 		<< ", formula="  << formula.toString()
-		<< suffix;
+		<< ", coverage=" << coverage
+		<< ">";
 	return ss.str();
 }
 
@@ -108,7 +109,7 @@ CorrelationStats Synchronizer::correlate() const
 	float distSqr = line.findFurthestPoint(hits);
 
 	while ((factor < m_minCorrelation || distSqr > m_maxDistanceSqr)
-			&& (countBuckets(hits) > m_minPointsNo))
+			&& (countUniquePoints(hits) > m_minPointsNo))
 	{
 		distSqr = line.removeFurthestPoint(hits);
 		line = Line(hits, NULL, NULL, &factor);
@@ -116,9 +117,10 @@ CorrelationStats Synchronizer::correlate() const
 
 	CorrelationStats stats;
 	stats.factor = factor;
-	stats.points = countBuckets(hits);
+	stats.points = countUniquePoints(hits);
 	stats.maxDistance = sqrt(distSqr);
 	stats.formula = line;
+	stats.coverage = countPointsCoverage(hits);
 
 	stats.correlated =
 		factor >= m_minCorrelation &&
@@ -128,7 +130,7 @@ CorrelationStats Synchronizer::correlate() const
 	return stats;
 }
 
-unsigned Synchronizer::countBuckets(const Points &pts) const
+unsigned Synchronizer::countUniquePoints(const Points &pts) const
 {
 	if (m_buckets.empty())
 		return pts.size();
@@ -143,6 +145,27 @@ unsigned Synchronizer::countBuckets(const Points &pts) const
 	}
 
 	return has.size();
+}
+
+float Synchronizer::countPointsCoverage(const Points &pts) const
+{
+	if (!pts.empty())
+	{
+		float size = pts.crbegin()->x;
+		if (size < 1.0f)
+			size = 1.0f;
+
+		float sum = 0.0f;
+		float prev = 0.0f;
+		for (const Point &pt : pts)
+		{
+			sum += (pt.x - prev) * (pt.x - prev);
+			prev = pt.x;
+		}
+
+		return 1.0f - (sqrt(sum) / size);
+	}
+	return 0.0f;
 }
 
 const Synchronizer::Entrys &Synchronizer::getSubs() const

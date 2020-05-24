@@ -15,11 +15,10 @@ struct CorrelationStats
 	unsigned points;
 	float    maxDistance;
 	Line     formula;
+	float    coverage;
 
 	CorrelationStats();
-	std::string toString(
-			const char *prefix="<CorrelationStats ",
-			const char *suffix=">") const;
+	std::string toString() const;
 };
 
 
@@ -50,7 +49,8 @@ class Synchronizer
 		Points getUsedPoints() const;
 
 	private:
-		unsigned countBuckets(const Points &pts) const;
+		unsigned countUniquePoints(const Points &pts) const;
+		float countPointsCoverage(const Points &pts) const;
 
 	private:
 		Entrys m_subs;
