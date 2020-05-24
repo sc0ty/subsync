@@ -33,7 +33,7 @@ WordId WordsQueue::pop(Word &word)
 
 	if (!m_queue.empty())
 	{
-		const Entry &e = m_queue.front();
+		const Entry &e = m_queue.top();
 		id = e.id;
 		word = e.word;
 		m_queue.pop();
@@ -59,6 +59,9 @@ bool WordsQueue::empty() const
 	return m_queue.empty();
 }
 
+
+/*** WordsQueue::Entry ***/
+
 WordsQueue::Entry::Entry() : id(WordId::NONE)
 {}
 
@@ -66,3 +69,9 @@ WordsQueue::Entry::Entry(WordId id, const Word &word)
 	: id(id), word(word)
 {}
 
+bool WordsQueue::Entry::operator< (const WordsQueue::Entry &ent) const
+{
+	if (id != ent.id)
+		return id > ent.id;
+	return word.score < ent.word.score;
+}

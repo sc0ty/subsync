@@ -30,10 +30,8 @@ typedef Notifier<const Word &> WordsNotifier;
 
 enum class WordId
 {
-	NONE = -1,
-	SUB = 0,
-	REF = 1,
-	BUCKET,
+	// ids in priority order, highest up front
+	NONE, BUCKET, SUB, REF
 };
 
 #endif

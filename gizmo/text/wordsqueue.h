@@ -17,6 +17,7 @@ class WordsQueue
 
 			Entry();
 			Entry(WordId id, const Word &word);
+			bool operator< (const Entry &ent) const;
 		};
 
 	public:
@@ -31,7 +32,7 @@ class WordsQueue
 		bool empty() const;
 
 	private:
-		std::queue<Entry> m_queue;
+		std::priority_queue<Entry> m_queue;
 		mutable std::mutex m_mutex;
 		Semaphore m_sem;
 };
