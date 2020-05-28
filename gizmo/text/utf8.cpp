@@ -232,6 +232,16 @@ string toUpper(const string &str)
 
 uint32_t lowerToUpper(uint32_t lower, uint32_t defval)
 {
+	if (lower < g_caseGroup1[0].lower && lower < g_caseGroup1[0].upper &&
+		lower < g_caseGroup2[0].lower && lower < g_caseGroup2[0].upper &&
+		lower < g_caseSingle[0].lower && lower < g_caseSingle[0].upper)
+	{
+		if (lower >= 'a' && lower <= 'z')
+			return lower - 'a' + 'A';
+		else
+			return defval;
+	}
+
 	for (unsigned i = 0; i < sizeof(g_caseGroup1) / sizeof(Utf8CaseGroup); i++)
 	{
 		const Utf8CaseGroup &gr = g_caseGroup1[i];
@@ -267,6 +277,16 @@ uint32_t lowerToUpper(uint32_t lower, uint32_t defval)
 
 uint32_t upperToLower(uint32_t upper, uint32_t defval)
 {
+	if (upper < g_caseGroup1[0].lower && upper < g_caseGroup1[0].upper &&
+		upper < g_caseGroup2[0].lower && upper < g_caseGroup2[0].upper &&
+		upper < g_caseSingle[0].lower && upper < g_caseSingle[0].upper)
+	{
+		if (upper >= 'A' && upper <= 'Z')
+			return upper - 'A' + 'a';
+		else
+			return defval;
+	}
+
 	for (unsigned i = 0; i < sizeof(g_caseGroup1) / sizeof(Utf8CaseGroup); i++)
 	{
 		const Utf8CaseGroup &gr = g_caseGroup1[i];

@@ -15,8 +15,13 @@ struct Utf8CaseMapping
 };
 
 
+/*
+ * In this group upper letters are shifted by constant offset.
+ * There are count letters in every set.
+ * lower + n corresponds to upper + n, where n is in <0, count)
+ */
 static const Utf8CaseGroup g_caseGroup1[] = {
-	{0x0061, 0x0041, 26},
+	//{0x0061, 0x0041, 26},  // handled separately as optimization
 	{0x00e0, 0x00c0, 23},
 	{0x00f8, 0x00d8, 7},
 	{0x023f, 0x2c7e, 2},
@@ -84,6 +89,12 @@ static const Utf8CaseGroup g_caseGroup1[] = {
 	{0xe0061, 0xe0041, 26},
 };
 
+
+/*
+ * In this group upper and lower letters are mixed, casing is determined by
+ * LSB bit.
+ * lower + 2*n corresponds to upper + 2*n, where n in in <0, count)
+ */
 static const Utf8CaseGroup g_caseGroup2[] = {
 	{0x0101, 0x0100, 24},
 	{0x0133, 0x0132, 3},
@@ -123,6 +134,10 @@ static const Utf8CaseGroup g_caseGroup2[] = {
 	{0xa7a1, 0xa7a0, 5},
 };
 
+
+/*
+ * Simple 1-1 mapping of lower and upper letters.
+ */
 static const Utf8CaseMapping g_caseSingle[] = {
 	{0x00df, 0x1e9e},
 	{0x00ff, 0x0178},
