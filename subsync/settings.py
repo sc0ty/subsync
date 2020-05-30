@@ -2,6 +2,7 @@ from subsync import config
 from subsync.error import Error
 import os
 import json
+import multiprocessing
 
 import logging
 logger = logging.getLogger(__name__)
@@ -143,6 +144,17 @@ class Settings(object):
                 logger.debug('configuration: %r', self.keep)
             except Exception as e:
                 logger.warning('cannot save configuration to %s: %r', config.configpath, e)
+
+    def getJobsNo(self):
+        if type(self.jobsNo) is int and self.jobsNo >= 1:
+            return self.jobsNo
+        else:
+            count = multiprocessing.cpu_count()
+            if count > 8:
+                count -= 2
+            elif count > 4:
+                count -= 1
+            return max(count, 2)
 
 _settings = Settings()
 

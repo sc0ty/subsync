@@ -3,19 +3,10 @@ from subsync import subtitle
 from subsync.settings import settings
 from subsync.synchro import pipeline, dictionary, encdetect, wordsdump
 import threading
-import multiprocessing
 from collections import namedtuple
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-def getJobsNo():
-    no = settings().jobsNo
-    if type(no) is int and no >= 1:
-        return no
-    else:
-        return max(multiprocessing.cpu_count(), 2)
 
 
 SyncStatus = namedtuple('SyncStatus', [
@@ -112,7 +103,7 @@ class Synchronizer(object):
             self.translator.addWordsListener(self.correlator.pushRefWord)
             self.refWordsSink = self.translator.pushWord
 
-        self.refPipelines = pipeline.createProducerPipelines(self.ref, no=getJobsNo(), runCb=runCb)
+        self.refPipelines = pipeline.createProducerPipelines(self.ref, no=settings().getJobsNo(), runCb=runCb)
 
         for p in self.refPipelines:
             p.connectEosCallback(self.onRefEos)

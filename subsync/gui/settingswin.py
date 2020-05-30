@@ -4,7 +4,6 @@ from subsync.gui.suspendlock import SuspendBlocker
 from subsync.settings import settings, Settings
 from subsync.data import descriptions
 from subsync import config
-import multiprocessing
 import wx
 
 
@@ -41,7 +40,7 @@ class SettingsWin(subsync.gui.layout.settingswin.SettingsWin):
     def setSettings(self, settings):
         self.settings = Settings(settings)
 
-        self.m_jobsNo.SetValue(max(multiprocessing.cpu_count(), 2))
+        self.m_jobsNo.SetValue(settings.getJobsNo())
 
         for field, key, val in self.settingsFieldsGen():
             if val != None:
