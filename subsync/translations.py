@@ -11,9 +11,10 @@ logger = logging.getLogger(__name__)
 def init():
     gettext.install('messages', localedir=config.localedir)
 
-def setLanguage(lang):
+def setLanguage(language):
     try:
-        if lang == None:
+        lang = language
+        if lang is None:
             lang = locale.getdefaultlocale()[0].split('_', 1)[0]
 
         logger.info('changing translation language to %s', lang)
@@ -34,7 +35,10 @@ def setLanguage(lang):
         importlib.reload(subsync.data.descriptions)
 
     except Exception as e:
-        logger.warning('translation language setup failed, %r', e, exc_info=False)
+        if language is None:
+            logger.debug('translation language setup failed, %r', e, exc_info=False)
+        else:
+            logger.warning('translation language setup failed, %r', e, exc_info=False)
 
 def listLanguages():
     try:

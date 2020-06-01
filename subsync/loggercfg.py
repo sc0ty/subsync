@@ -23,6 +23,7 @@ class BlacklistFilter(logging.Filter):
             return True
 
 
+initialized = False
 _activeFilter = None
 
 
@@ -52,6 +53,9 @@ def init(level=None, path=None):
     gizmo.setLoggerCallback(print_log)
     gizmo.setDebugLevel(numLevel)
 
+    global initialized
+    initialized = True
+
 
 def setup_thread_excepthook():
     # monkey patching threading.Thread to also call sys.excepthook
@@ -71,7 +75,8 @@ def setup_thread_excepthook():
 
 
 def terminate():
-    gizmo.setLoggerCallback(None)
+    if initialized:
+        gizmo.setLoggerCallback(None)
 
 
 def setLevel(level):

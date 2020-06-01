@@ -16,4 +16,5 @@ if config.assetupd:
     config.assetupd += '-portable'
 
 import subsync
-subsync.subsync()
+res = subsync.subsync()
+sys.exit(res)

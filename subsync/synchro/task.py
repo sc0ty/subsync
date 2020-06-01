@@ -28,9 +28,9 @@ class SyncTask(object):
 
     def deserialize(data):
         if data:
-            sub = SubFile.deserialize(data.get('sub', None))
-            ref = RefFile.deserialize(data.get('ref', None))
-            out = OutputFile.deserialize(data.get('out', None))
+            sub = SubFile.deserialize(data.get('sub'))
+            ref = RefFile.deserialize(data.get('ref'))
+            out = OutputFile.deserialize(data.get('out'))
             res = SyncTask(sub, ref, out)
             return res
 
@@ -43,12 +43,30 @@ class SyncTask(object):
 
 
 class SyncTaskList(object):
+    def deserialize(data):
+        return [ SyncTask.deserialize(d) for d in data ]
+
     def load(path):
         with open(path, 'r') as fp:
             data = yaml.safe_load(fp)
-        return [ SyncTask.deserialize(d) for d in data ]
+        return SyncTaskList.deserialize(data)
 
     def save(tasks, path):
         data = [ task.serialize() for task in tasks ]
         with open(path, 'w') as fp:
             yaml.dump(data, fp, default_flow_style=False)
+
+    def parseArgs(args):
+        tasks = []
+        if 'sub' in args or 'ref' in args or 'out' in args:
+            tasks.append(SyncTask.deserialize({
+                    'sub': args.get('sub'),
+                    'ref': args.get('ref'),
+                    'out': args.get('out'),
+            }))
+        if 'sync' in args:
+            tasks += [ SyncTask.deserialize(sync) for sync in args['sync'] ]
+        if 'import' in args:
+            tasks += SyncTaskList.load(args['import'])
+        return tasks
+

@@ -42,13 +42,9 @@ persistent = {
 
 
 volatile = {
-        'cli': False,
-        'mode': None,
-        'tasks': None,
-        'verbose': 1,
-        'exitWhenDone': False,
         'overwrite': False,
         'dumpWords': [],
+        'test': False,
         }
 
 

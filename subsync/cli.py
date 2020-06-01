@@ -112,12 +112,15 @@ class App(object):
         pr.verbosity = verbosity
         self.assetsDownloader = AssetsDownloader(offline)
 
-    def runTasks(self):
-        if not settings().tasks:
+    def runTasks(self, tasks):
+        if not tasks:
             pr.println(1, '[-] nothing to do')
-            return
+            return 0
 
-        for task in settings().tasks:
+        succeeded = 0
+        errors = 0
+
+        for task in tasks:
             try:
                 pr.println(1, '[*] starting synchronization {}'.format(task.sub.path))
                 pr.println(2, '[+] sub: {}'.format(task.sub))
@@ -130,15 +133,24 @@ class App(object):
                 if not self.assetsDownloader.getMissingAssets(task):
                     continue
 
-                self.synchronize(task)
+                if self.synchronize(task):
+                    succeeded += 1
 
             except KeyboardInterrupt:
                 pr.println(1, '[-] interrupted by user')
                 break
 
             except Exception as err:
+                errors += 1
                 logger.error('task: %r', task)
                 logger.error('task failed, %r', err, exc_info=True)
+
+        if errors:
+            return 1
+        if len(tasks) == succeeded:
+            return 0
+        else:
+            return 2
 
     def validate(self, task):
         sub = task.sub
@@ -163,11 +175,11 @@ class App(object):
 
         try:
             out.validateOutputPattern()
+            return True
+
         except Exception as e:
             pr.println(0, '[!] {!s}'.format(e))
             return False
-
-        return True
 
     def synchronize(self, task):
         sync = Synchronizer(task.sub, task.ref)
@@ -203,11 +215,15 @@ class App(object):
                         pr.println(1, '[+] file exists, saving to {}'.format(npath))
 
                     pr.println(1, '[+] done')
+                    return True
+
                 except error.Error as e:
                     pr.println(0, '[!] {}'.format(error.getExceptionMessage(e)))
+                    raise
 
             else:
                 pr.println(0, '[-] couldn\'t synchronize!')
+                return False
 
         finally:
             sync.destroy()

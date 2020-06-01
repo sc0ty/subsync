@@ -54,7 +54,7 @@ def logRunCmd(task):
 
 
 class MainWin(subsync.gui.layout.mainwin.MainWin):
-    def __init__(self, parent):
+    def __init__(self, parent, task=None):
         super().__init__(parent)
 
         img.setWinIcon(self)
@@ -66,15 +66,9 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         if config.assetupd == None:
             self.m_menu.Remove(self.m_menuItemCheckUpdate.GetId())
 
-        if settings().mode == 'sync' and settings().tasks and settings().tasks[0]:
-            sub = settings().tasks[0].sub
-            ref = settings().tasks[0].ref
-        else:
-            sub = None
-            ref = None
-
-        self.m_panelSub.setStream(sub)
-        self.m_panelRef.setStream(ref)
+        if task:
+            self.m_panelSub.setStream(task.sub)
+            self.m_panelRef.setStream(task.ref)
 
         self.m_sliderMaxDist.SetValue(settings().windowSize / 60.0)
         self.onSliderMaxDistScroll(None)

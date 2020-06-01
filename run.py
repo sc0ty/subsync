@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
 from subsync.__main__ import subsync
-subsync()
+
+res = subsync()
+sys.exit(res)

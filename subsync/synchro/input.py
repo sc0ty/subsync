@@ -143,14 +143,15 @@ class InputFile(object):
 
     def deserialize(data, types=None):
         if data:
-            path = data.get('path', None)
+            path = data.get('path')
             res = InputFile(path=path, types=types)
-
-            if 'stream' in data: res.select(data['stream'] - 1)
-            if 'lang' in data: res.lang = data['lang']
-            if 'enc' in data: res.enc = data['enc']
-            if 'fps' in data: res.fps = data['fps']
-            if 'channels' in data: res.channels = ChannelsMap.deserialize(data['channels'])
+            if 'stream' in data:
+                res.select(data['stream'] - 1)
+            elif 'streamByType' in data or 'streamByLang' in data:
+                res.selectBy(type=data['streamByType'], lang=data['streamByLang'])
+            res.setNotNone(lang=data.get('lang'), enc=data.get('enc'), fps=data.get('fps'))
+            if 'channels' in data:
+                res.channels = ChannelsMap.deserialize(data['channels'])
             return res
 
     def __repr__(self):

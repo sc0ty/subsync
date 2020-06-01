@@ -1,137 +1,245 @@
-from subsync.settings import settings, wordsDumpIds
 from subsync.data import descriptions
-import argparse
-import logging
-import re
+import textwrap
+import sys
 
 
 def parseCmdArgs(argv=None):
-    return getParser().parse_args(argv)
+    argvReader = ArgvReader(argv or sys.argv)
+    try:
+        opts = parse(argvReader, options)
+        if len(argvReader) > 0:
+            raise Exception("unrecognized option '{}'".format(argvReader.peekKey()))
+        return opts
+    except Exception as e:
+        print(str(e), file=sys.stderr)
 
+def printHelp(argv=None):
+    app = (argv or sys.argv or [ 'subsync' ])[0]
+    print('Usage: {} [OPTIONS]'.format(app))
 
-def parseSyncArgs(args):
-    from subsync.synchro import SyncTask, SubFile, RefFile, OutputFile, ChannelsMap
-
-    sub = SubFile(path=args.sub)
-    if args.sub_stream is not None:
-        sub.select(args.sub_stream - 1)
-    elif args.sub_stream_by_lang:
-        sub.selectBy(lang=args.sub_stream_by_lang)
-    sub.setNotNone(lang=args.sub_lang, enc=args.sub_enc, fps=args.sub_fps)
-
-    ref = RefFile(path=args.ref)
-    if args.ref_stream is not None:
-        ref.select(args.ref_stream - 1)
-    elif args.ref_stream_by_type or args.ref_stream_by_lang:
-        ref.selectBy(type=args.ref_stream_by_type, lang=args.ref_stream_by_lang)
-    ref.setNotNone(lang=args.ref_lang, enc=args.ref_enc, fps=args.ref_fps)
-    if args.ref_channels is not None:
-        ref.channels = ChannelsMap.deserialize(args.ref_channels)
-
-    out = args.out and OutputFile(path=args.out, fps=args.out_fps, enc=args.out_enc)
-    task = SyncTask(sub, ref, out)
-    settings().tasks = [ task ]
-    return task
-
-
-def parseBatchArgs(args):
-    from subsync.synchro import SyncTaskList
-    tasks = SyncTaskList.load(args.batch)
-    settings().tasks = tasks
-    return tasks
-
-
-def getParser():
-    parser = argparse.ArgumentParser(description=_('Subtitle Speech Synchronizer'))
-    subparsers = parser.add_subparsers()
-    parser.set_defaults(mode=None)
-    parser.set_defaults(effort=None)
-
-    parser.add_argument('-v', '--version', action='store_true', help=_('print version number'))
-
-    sync = subparsers.add_parser('sync', help=_('synchronization'))
-    sync.set_defaults(mode='sync')
-    sync.add_argument('--sub', '--sub-file', required=True, type=str, help=_('path to subtitle file'))
-    sync.add_argument('--sub-stream', type=int, metavar='NO', help=_('subtitle stream ID'))
-    sync.add_argument('--sub-stream-by-lang', type=str, metavar='LANG', help=_('select subtitle stream by language'))
-    sync.add_argument('--sub-lang', type=str, help=_('subtitle language'))
-    sync.add_argument('--sub-enc', type=str, help=_('subtitle character encoding'))
-    sync.add_argument('--sub-fps', type=float, help=_('subtitle framerate'))
-    sync.add_argument('--ref', '--ref-file', required=True, type=str, help=_('path to reference file'))
-    sync.add_argument('--ref-stream', type=int, metavar='NO', help=_('reference stream ID'))
-    sync.add_argument('--ref-stream-by-type', choices=['sub', 'audio'], help=_('select reference stream by type'))
-    sync.add_argument('--ref-stream-by-lang', type=str, metavar='LANG', help=_('select reference stream by language'))
-    sync.add_argument('--ref-lang', type=str, help=_('reference language'))
-    sync.add_argument('--ref-enc', type=str, help=_('reference character encoding (for subtitle references)'))
-    sync.add_argument('--ref-fps', type=float, help=_('reference framerate'))
-    sync.add_argument('--ref-channels', type=str, help=_('reference audio channels mapping (for audio references)'))
-    sync.add_argument('--out', '--out-file', type=str, help=_('output file path (used with --cli)'))
-    sync.add_argument('--out-fps', type=float, help=_('output framerate (for fps-based subtitles)'))
-    sync.add_argument('--out-enc', type=str, help=_('output character encoding'))
-    sync.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
-    sync.add_argument('--overwrite', action='store_true', help=_('overwrite existing files (used with --cli)'))
-
-    batch = subparsers.add_parser('batch', help=_('batch synchronization'))
-    batch.set_defaults(mode='batch')
-    batch.add_argument('batch', type=str, help=_('batch job yaml description'))
-    batch.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0)'))
-    batch.add_argument('--overwrite', action='store_true', help=_('overwrite existing files'))
-
-    setup = subparsers.add_parser('settings', help=_('change default settings'))
-    setup.set_defaults(mode='settings')
-    setup.add_argument('--effort', dest='minEffort', type=float, help=_('how hard to try (0.0 - 1.0) (used with --cli)'))
-
-    cli = parser.add_argument_group(_('headless options'))
-    cli.add_argument('--cli', action='store_true', help=_('headless mode (command line only)'))
-    cli.add_argument('--verbose', type=int, default=1, help=_('verbosity level for headless job'))
-
-    cfg = parser.add_argument_group(_('synchronization options'))
-    addOption(cfg, 'jobsNo', '--jobs', type=int, metavar='NO', help=descriptions.jobsNoInfo + ' ' + _('0 for auto.'))
-    addOption(cfg, 'windowSize', type=float, metavar='SIZE', help=descriptions.maxDistInfo + ' ' + _('In seconds.'))
-    addOption(cfg, 'maxPointDist', type=float, metavar='DIST', help=descriptions.maxPointDistInfo)
-    addOption(cfg, 'minPointsNo', type=int, metavar='NO', help=descriptions.minPointsNoInfo)
-    addOption(cfg, 'minWordProb', type=float, metavar='PROB', help=descriptions.minWordProbInfo)
-    addOption(cfg, 'minWordLen', type=int, metavar='LEN', help=descriptions.minWordLenInfo)
-    addOption(cfg, 'minCorrelation', type=float, metavar='CORRELATION', help=descriptions.minCorrelationInfo)
-    addOption(cfg, 'minWordsSim', type=float, metavar='SIM', help=descriptions.minWordSimInfo)
-    addOption(cfg, 'outTimeOffset', type=float, metavar='OFFSET', help=descriptions.outTimeOffset)
-
-    class LogLevelAction(argparse.Action):
-        def __call__(self, parser, args, values, option_string=None):
-            if values in [ 'DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'CRITICAL' ]:
-                setattr(args, self.dest, getattr(logging, values))
+    def printHelpFor(opts, prefix=''):
+        for opt in opts:
+            if type(opt) is dict:
+                name = getOptionName(opt, withGroup=True)
+                descr = descriptions.cmdopts.get(prefix + name)
+                if descr:
+                    msg = '  ' + formatOptArg(opt) + '  '
+                    msg += ' ' * (30 - len(msg))
+                    msg += descr
+                    print(textwrap.fill(msg, width=80, subsequent_indent=' ' * 30))
+                if 'opts' in opt:
+                    printHelpFor(opt['opts'], prefix=name + '.')
             else:
-                try:
-                    setattr(args, self.dest, int(values))
-                except ValueError:
-                    raise argparse.ArgumentError(self, 'unrecognized level {}'.format(values))
+                print('')
+                print(opt)
 
-    class WordsDumpAction(argparse.Action):
-        def __call__(self, parser, args, values, option_string=None):
-            if ':' in values:
-                src, path = values.split(':', 1)
+    printHelpFor(options)
+
+
+class ArgvReader(object):
+    def __init__(self, argv):
+        self.argv = argv[1:]
+        self.offset = 0
+
+    def __len__(self):
+        return len(self.argv)
+
+    def peekKey(self):
+        if len(self.argv) > 0:
+            return self.argv[0].split('=', 1)[0]
+
+    def popKey(self):
+        if len(self.argv) > 0:
+            if self.offset:
+                raise Exception("option '{}' doesn't allow an argument".format(self.argv[0]))
+            arg = self.argv[0].split('=', 1)
+            if len(arg) == 1:
+                self.argv.pop(0)
             else:
-                src, path = values, None
-            if src not in wordsDumpIds:
-                raise argparse.ArgumentError(self, 'unrecognized source {}, should be one of {}'.format(src, wordsDumpIds))
-            res = getattr(args, self.dest, None) or []
-            res.append((src, path))
-            setattr(args, self.dest, res)
+                self.offset = len(arg[0]) + 1
+            return arg[0]
 
-    dbg = parser.add_argument_group(_('debug options'))
-    addOption(dbg, 'logLevel', '--loglevel', type=str, action=LogLevelAction, help=_('set logging level, '
-        'numericall value or one of: DEBUG, INFO, WARNING, ERROR, CRITICAL'))
-    addOption(dbg, 'logFile', '--logfile', type=str, help=_('dump logs to specified file'))
-    addOption(dbg, 'dumpWords', type=str, metavar='SRC[:PATH]', action=WordsDumpAction,
-            help=_('dump words to file, or to standard output if there is no PATH, SRC is one of: ') + ', '.join(wordsDumpIds))
-
-    return parser
+    def popValue(self):
+        if len(self.argv) == 0:
+            raise Exception('last option requires an argument')
+        res = self.argv.pop(0)[self.offset:]
+        self.offset = 0
+        return res
 
 
-def addOption(parser, name, option=None, **kw):
-    if not option:
-        recase = re.compile('([A-Z])')
-        option = '--' + recase.sub(r'-\1', name).lower()
-    if not 'dest' in kw:
-        kw['dest'] = name
-    parser.add_argument(option, **kw)
+### Helper functions ###
+
+def parse(argv, opts):
+    res = {}
+    while len(argv) > 0:
+        key = argv.peekKey()
+        opt = findOption(opts, key)
+        if opt is None:
+            break
+        argv.popKey()
+        parserFn = opt.get('parser', parseVar)
+        readArgs = parserFn(argv, res, key, **opt)
+
+    for opt in opts:
+        if type(opt) is dict and opt.get('required'):
+            name = getOptionName(opt)
+            group = opt.get('group')
+            r = res
+            if group:
+                r = res.get(group, {})
+            if name not in r:
+                raise Exception("missing required option '{}'".format(name))
+    return res
+
+def findOption(options, name):
+    for opt in options:
+        if type(opt) is dict:
+            if 'alias' in opt:
+                if name == opt['alias']:
+                    return opt
+            elif 'aliases' in opt:
+                if name in opt['aliases']:
+                    return opt
+            elif name == '--' + opt['name']:
+                return opt
+
+def getOptionName(opt, withGroup=False):
+    name = opt['name'].split('-')
+    name = name[0] + ''.join([ n.capitalize() for n in name[1:] ])
+    if withGroup and 'group' in opt:
+        name = '{}.{}'.format(opt['group'], name)
+    return name
+
+def addOptionVal(res, opt, value):
+    name = getOptionName(opt)
+    group = opt.get('group')
+    if group:
+        res[group] = res.get(group, {})
+        res = res[group]
+
+    if opt.get('multiple'):
+        if name not in res:
+            res[name] = []
+        res[name].append(value)
+    else:
+        if name in res:
+            raise Exception("duplicated option '{}'".format(opt[name]))
+        res[name] = value
+
+def formatOptArg(opt):
+    name = opt['name']
+    descr = descriptions.cmdopts.get(name)
+    args = opt.get('aliases') or [ opt.get('alias') or '--' + name ]
+
+    arglong =  [ arg for arg in args if arg.startswith('--') or not arg.startswith('-') ]
+    argshort = [ arg for arg in args if arg not in arglong ]
+    res = ', '.join(argshort + arglong)
+
+    if 'values' in opt:
+        res += '={{{}}}'.format(','.join(opt['values']))
+
+    elif opt.get('parser') in [ None, parseVar ]:
+        val = opt.get('metavar') or args[0].split('-')[-1].upper()
+        res += '=' + val
+
+    return res
+
+
+### Specialized parsers used in options ###
+
+def parseConst(argv, res, key, value=True, **opt):
+    addOptionVal(res, opt, value)
+    return 0
+
+def parseVar(argv, res, key, type=str, **opt):
+    try:
+        addOptionVal(res, opt, type(argv.popValue()))
+    except ValueError:
+        raise Exception("invalid argument for option '{}', expected {}"
+                .format(key, getattr(type, '__name__', str(type))))
+    return 1
+
+def parseEnum(argv, res, key, values, **opt):
+    val = argv.popValue()
+    if val not in values:
+        raise Exception(
+                "illegal value for option '{}', valid values are: {}".format(key,
+                    ', '.join([ "'{}'".format(v) for v in values ])))
+    addOptionVal(res, opt, val)
+    return 1
+
+def parseCmd(argv, res, key, opts, **opt):
+    no = len(argv)
+    addOptionVal(res, opt, parse(argv, opts))
+    return no - len(argv)
+
+def parseWordsDump(argv, res, key, **opt):
+    vals = argv.popValue().split(':', 1)
+    src = vals[0]
+    path = None
+    if len(vals) == 2:
+        path = vals[1]
+    addOptionVal(res, opt, (src, path))
+
+
+### Command line options ###
+
+options = [
+        _('General options:'),
+        { 'name': 'help', 'parser': parseConst, 'aliases': ['--help', '-h'] },
+        { 'name': 'version', 'parser': parseConst, 'aliases': ['--version', '-v'] },
+        { 'group': 'options', 'name': 'language' },
+
+        _('Headless options:'),
+        { 'name': 'cli', 'parser': parseConst, 'aliases': ['--cli', '-c'] },
+        { 'name': 'verbose', 'type': int },
+
+        _('GUI options:'),
+        { 'name': 'batch', 'parser': parseConst },
+
+        _('Synchronization job:'),
+        { 'name': 'sync', 'parser': parseCmd, 'alias': 'sync', 'multiple': True, 'opts': [
+            { 'group': 'sub', 'name': 'path', 'aliases': ['--sub', '--sub-file', '-s'], 'metavar': 'PATH', 'required': True },
+            { 'group': 'sub', 'name': 'stream', 'alias': '--sub-stream', 'type': int, 'metavar': 'NO' },
+            { 'group': 'sub', 'name': 'streamByLang', 'alias': '--sub-stream-by-lang' },
+            { 'group': 'sub', 'name': 'lang', 'alias': '--sub-lang' },
+            { 'group': 'sub', 'name': 'enc', 'alias': '--sub-enc' },
+            { 'group': 'sub', 'name': 'fps', 'alias': '--sub-fps', 'type': float },
+
+            { 'group': 'ref', 'name': 'path', 'aliases': ['--ref', '--ref-file', '-r'], 'metavar': 'PATH', 'required': True },
+            { 'group': 'ref', 'name': 'stream', 'alias': '--ref-stream', 'type': int, 'metavar': 'NO' },
+            { 'group': 'ref', 'name': 'streamByType', 'alias': '--ref-stream-by-type', 'parser': parseEnum,
+                'values': ['sub', 'audio'] },
+            { 'group': 'ref', 'name': 'streamByLang', 'alias': '--ref-stream-by-lang' },
+            { 'group': 'ref', 'name': 'lang', 'alias': '--ref-lang' },
+            { 'group': 'ref', 'name': 'enc', 'alias': '--ref-enc' },
+            { 'group': 'ref', 'name': 'fps', 'alias': '--ref-fps', 'type': float },
+            { 'group': 'ref', 'name': 'channels', 'alias': '--ref-channels' },
+
+            { 'group': 'out', 'name': 'path', 'alias': '--out', 'aliases': ['--out', '--out-file', '-o'] },
+            { 'group': 'out', 'name': 'enc', 'alias': '--out-enc' },
+            { 'group': 'out', 'name': 'fps', 'alias': '--out-fps', 'type': float },
+        ]},
+
+        _('Synchronization options:'),
+        { 'name': 'import', 'metavar': 'PATH' },
+        { 'group': 'options', 'name': 'minEffort', 'alias': '--effort', 'type': float },
+        { 'group': 'options', 'name': 'overwrite', 'parser': parseConst },
+        { 'group': 'options', 'name': 'jobsNo',          'type': int, 'aliases': ['--jobs', '-j'], 'metavar': 'NO' },
+        { 'group': 'options', 'name': 'window-size',     'type': float },
+        { 'group': 'options', 'name': 'max-point-dist',  'type': float },
+        { 'group': 'options', 'name': 'min-points-no',   'type': int },
+        { 'group': 'options', 'name': 'min-word-prob',   'type': float },
+        { 'group': 'options', 'name': 'min-word-len',    'type': int },
+        { 'group': 'options', 'name': 'min-correlation', 'type': float, 'metavar': 'COR' },
+        { 'group': 'options', 'name': 'min-words-sim',   'type': float },
+        { 'group': 'options', 'name': 'out-time-offset', 'type': float },
+
+        _('Debug options:'),
+        { 'group': 'options', 'name': 'logLevel', 'alias': '--loglevel', 'parser': parseEnum,
+                'values': ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] },
+        { 'group': 'options', 'name': 'logFile', 'alias': '--logfile' },
+        { 'group': 'options', 'name': 'dump-words', 'metavar': 'SRC[:PATH]', 'parser': parseWordsDump, 'multiple': True },
+        { 'group': 'options', 'name': 'test', 'parser': parseConst },
+]
+

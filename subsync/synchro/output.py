@@ -30,9 +30,9 @@ class OutputFile(object):
 
     def deserialize(data):
         if data:
-            path = data.get('path', None)
+            path = data.get('path')
             enc = data.get('enc', 'UTF-8')
-            fps = data.get('fps', None)
+            fps = data.get('fps')
 
             res = OutputFile(path, enc, fps)
             return res

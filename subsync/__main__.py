@@ -14,115 +14,103 @@ from subsync.settings import settings
 def subsync(argv=None):
     try:
         args = cmdargs.parseCmdArgs(argv)
-        if args.version:
+        if args is None:
+            return 1
+
+        options = args.get('options', {})
+        if options.get('logLevel') or options.get('logFile'):
+            loggercfg.init(level=options.get('logLevel'), path=options.get('logFile'))
+        if options.get('language'):
+            translations.setLanguage(options.get('language'))
+
+        if args:
+            logger.debug('running with arguments: %r', args)
+
+        if args.get('help'):
+            cmdargs.printHelp()
+            return 0
+
+        if args.get('version'):
             print('subsync version {} on {}'.format(version()[0], sys.platform))
             return 0
 
-        initConfig(args)
+        if not args.get('cli'):
+            if os.path.basename(os.path.splitext(sys.argv[0])[0]) == 'subsync-cmd':
+                logger.info("running command 'subsync-cmd', starting in headless mode")
+                args['cli'] = True
+            else:
+                try:
+                    import wx
+                except Exception as e:
+                    logger.warning("couldn't start wx, falling back to headless mode, %r", e)
+                    args['cli'] = True
 
-        if shouldUseCli():
-            startCli(args)
+        if args.get('cli'):
+            return cli(**args)
         else:
-            startGui(args)
-            settings().save()
+            return gui(**args)
 
     finally:
         loggercfg.terminate()
 
 
-def initConfig(args):
-    loggerInit = False
-    if args.logLevel is not None or args.logFile is not None:
-        loggercfg.init(level=args.logLevel, path=args.logFile)
-        loggerInit = True
+def gui(options={}, **args):
+    import wx
+    from subsync.gui.mainwin import MainWin
+    from subsync.gui.batchwin import BatchWin
+    from subsync.gui.errorwin import showExceptionDlg
+    from subsync.synchro import SyncTaskList
 
     try:
         settings().load()
     except Exception as e:
         logger.warning('settings load failed, %r', e, exc_info=True)
 
-    s = { k: v for k, v in vars(args).items() if k in settings().keys() and v is not None }
-    tempSettings = args.mode != 'settings'
-    settings().set(temp=tempSettings, **s)
-
-    if not loggerInit or args.logLevel != settings().logLevel or args.logFile != settings().logFile:
-        loggercfg.init(level=settings().logLevel, path=settings().logFile)
-
-    if settings().logBlacklist:
-        loggercfg.setBlacklistFilters(settings().logBlacklist)
-
-    logger.info('starting subsync %s@%s', version()[1], sys.platform)
-    translations.setLanguage(settings().language)
-
-    if len(sys.argv) > 1:
-        logger.info('command line parameters: %s', args)
-
-    settings().save()
-
-
-def shouldUseCli():
-    if settings().cli:
-        return True
-    if os.path.basename(os.path.splitext(sys.argv[0])[0]) == 'subsync-cmd':
-        return True
-    try:
-        import wx
-        return False
-    except Exception as e:
-        logger.warning('couldn\'t start wx, falling back to headless mode, %r', e)
-        return True
-
-
-def startGui(args):
-    import wx
-    from subsync.gui.mainwin import MainWin
-    from subsync.gui.batchwin import BatchWin
-    from subsync.gui.errorwin import showExceptionDlg
-
     try:
         app = wx.App()
-        win = None
-        tasks = loadTasks(args)
+        _init(options)
+        tasks = SyncTaskList.parseArgs(args)
 
-        if settings().mode == 'batch':
+        if 'batch' in args or len(tasks) > 1:
             win = BatchWin(None, tasks)
         else:
-            win = MainWin(None)
+            task = None
+            if len(tasks) > 0:
+                task = tasks[0]
+            win = MainWin(None, task)
 
         win.Show()
         app.MainLoop()
+        return 0
 
     except Exception as err:
         logger.error('subsync failed, %r', err, exc_info=True)
         showExceptionDlg()
+        return 1
+
+    finally:
+        settings().save()
 
 
-def startCli(args):
+def cli(options={}, **args):
     from subsync import cli
+    from subsync.synchro import SyncTaskList
 
     try:
-        loadTasks(args)
+        _init(options)
+        tasks = SyncTaskList.parseArgs(args)
 
     except Exception as err:
-        ind = '!'
-        for e in str(err).split('\n'):
-            print('[{}] {}'.format(ind, e))
-            ind = '-'
-        sys.exit(2)
+        print('[!] ' + str(err).replace('\n', '\n[-] '), file=sys.stderr)
+        return 1
 
     try:
-        app = cli.App(verbosity=args.verbose)
-        app.runTasks()
+        app = cli.App(verbosity=args.get('verbose', 1))
+        return app.runTasks(tasks)
 
     except Exception as err:
         logger.error('subsync failed, %r', err, exc_info=True)
-
-
-def loadTasks(args):
-    if args.mode == 'sync':
-        return cmdargs.parseSyncArgs(args)
-    elif args.mode == 'batch':
-        return cmdargs.parseBatchArgs(args)
+        return 1
 
 
 def version():
@@ -133,6 +121,27 @@ def version():
         return None, 'UNDEFINED'
 
 
+def _init(options={}):
+    if options:
+        settings().set(temp=True, **options)
+
+    if not loggercfg.initialized \
+            or options.get('logLevel') != settings().logLevel \
+            or options.get('logFile') != settings().logFile:
+        loggercfg.init(level=settings().logLevel, path=settings().logFile)
+
+    if settings().logBlacklist:
+        loggercfg.setBlacklistFilters(settings().logBlacklist)
+
+    logger.info('starting subsync %s@%s', version()[1], sys.platform)
+    translations.setLanguage(settings().language)
+
+    if settings().test:
+        print("[!] TEST MODE ENABLED! You're on your own!", file=sys.stderr)
+        logger.warning("TEST MODE ENABLED! You're on your own!")
+
+
 if __name__ == "__main__":
-    subsync()
+    res = subsync()
+    sys.exit(res)
 

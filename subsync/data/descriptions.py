@@ -38,3 +38,55 @@ jobsNoInfo = _(
 preventSystemSuspendInfo = _(
 '''Prevents system from going to sleep during synchronization.
 It could not work on all platforms.''')
+
+
+### Command line options ###
+
+cmdopts = {
+'help':                    _('display this help text and exit'),
+'version':                 _('display version information and exit'),
+'options.language':        _('set user interface language'),
+
+'cli':                     _('run in headless mode (without GUI)'),
+'verbose':                 _('verbosity level (0 - 3)'),
+
+'batch':                   _('open batch processing window'),
+
+'sync':                    _('begin synchronization job, can be repeated multiple times'),
+'sync.sub.path':           _('path to subtitle file'),
+'sync.sub.stream':         _('subtitle stream no'),
+'sync.sub.streamByLang':   _('select subtitle stream by language'),
+'sync.sub.lang':           _('subtitle language'),
+'sync.sub.enc':            _('subtitle character encoding'),
+'sync.sub.fps':            _('subtitle framerate (for FPS-based subtitles)'),
+'sync.ref.path':           _('path to reference file'),
+'sync.ref.stream':         _('reference stream no'),
+'sync.ref.streamByType':   _('select reference stream by type'),
+'sync.ref.streamByLang':   _('select reference stream by language'),
+'sync.ref.lang':           _('reference language'),
+'sync.ref.enc':            _('reference character encoding (for subtitle references)'),
+'sync.ref.fps':            _('reference framerate'),
+'sync.ref.channels':       _('reference audio channels mapping (for audio references)'),
+'sync.out.path':           _('output file path or pattern'),
+'sync.out.fps':            _('output framerate (for FPS-based subtitles)'),
+'sync.out.enc':            _('output character encoding'),
+
+'import':                  _('import list of tasks from YAML file'),
+'options.minEffort':       _('how hard to try (0.0 - 1.0)'),
+'options.overwrite':       _('overwrite existing files'),
+
+'options.jobsNo':          jobsNoInfo + ' ' + _('0 for auto.'),
+'options.windowSize':      maxDistInfo + ' ' + _('In seconds.'),
+'options.maxPointDist':    maxPointDistInfo,
+'options.minPointsNo':     minPointsNoInfo,
+'options.minWordProb':     minWordProbInfo,
+'options.minWordLen':      minWordLenInfo,
+'options.minCorrelation':  minCorrelationInfo,
+'options.minWordsSim':     minWordSimInfo,
+'options.outTimeOffset':   outTimeOffset,
+
+'options.logLevel':        _('set logging level'),
+'options.logFile':         _('dump logs to specified file'),
+'options.dumpWords':       _('dump words to file, or to standard output if there is no PATH, SRC is one of:  ') + \
+        ', '.join([ 'sub', 'subPipe', 'subRaw', 'ref', 'refPipe', 'refRaw' ])
+}
