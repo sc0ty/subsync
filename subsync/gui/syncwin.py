@@ -1,6 +1,6 @@
 import subsync.gui.layout.syncwin
 import wx
-from subsync.synchro import Synchronizer
+from subsync.synchro import SyncController
 from subsync.gui.components import filedlg
 from subsync.gui import fpswin
 from subsync.gui import errorwin
@@ -13,8 +13,6 @@ from subsync.settings import settings
 from subsync import utils
 from subsync import error
 import pysubs2.exceptions
-import threading
-import time
 import os
 
 import logging
@@ -44,56 +42,25 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
         self.task = task
 
-        self.sync = Synchronizer(task.sub, task.ref)
-        self.sync.onError = self.onError
-
-        self.running = True
         self.closing = False
         self.runTime = wx.StopWatch()
 
-        self.thread = threading.Thread(target=self.syncJob, name='Synchro')
-        self.thread.start()
+        self.sync = SyncController(listener=self)
+        self.sync.synchronize(task)
 
         self.suspendBlocker = suspendlock.SuspendBlocker()
         if settings().preventSystemSuspend:
             self.suspendBlocker.lock()
 
     def stop(self):
-        self.running = False
-
-    @errorwin.error_dlg
-    def syncJob(self):
-        try:
-            self.sync.onError = self.onError
-            self.sync.init(runCb=lambda: self.running)
-            if self.running:
-                self.sync.start()
-            self.updateStatusStarted()
-
-            while self.running and self.sync.isRunning():
-                time.sleep(0.5)
-                self.updateStatus(self.sync.getStatus())
-        except Exception as err:
-            logger.warning('%r', err, exc_info=True)
-            self.onError('core', err)
-
-        try:
-            self.sync.stop(force=True)
-        except Exception as err:
-            logger.warning('%r', err, exc_info=True)
-            self.onError('core', err)
-        finally:
-            self.updateStatusDone(self.sync.getStatus(), self.running)
-            self.running = False
-            self.sync.destroy()
-            logger.info('thread terminated')
+        self.sync.terminate()
 
     @gui_thread
-    def updateStatusStarted(self):
+    def onJobInit(self, task):
         self.m_textStatus.SetLabel(_('Synchronizing...'))
 
     @gui_thread
-    def updateStatus(self, status, finished=False):
+    def onJobUpdate(self, task, status, finished=False):
         elapsed = self.runTime.Time() / 1000
         self.m_textElapsedTime.SetLabel(utils.timeStampFmt(elapsed))
 
@@ -119,12 +86,12 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.updateStatusErrors()
 
     @gui_thread
-    def updateStatusDone(self, status=None, finished=False):
+    def onJobEnd(self, task, status, result):
         self.runTime.Pause()
         self.showCloseButton()
 
         if status:
-            self.updateStatus(status, finished)
+            self.onJobUpdate(task, status, not result.terminated)
 
         if status and status.subReady:
             self.m_buttonSave.Enable()
@@ -137,13 +104,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         else:
             self.m_bitmapTick.Hide()
             self.m_bitmapCross.Show()
-            if (finished and status.points > settings().minPointsNo/2 and
-                    status.factor > settings().minCorrelation**10 and
-                    status.maxDistance < 2*settings().maxPointDist):
-                self.m_buttonSave.Enable()
-                self.m_textStatus.SetLabel(_('Synchronization inconclusive'))
-            else:
-                self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
+            self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
 
         self.updateStatusErrors()
 
@@ -153,7 +114,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.suspendBlocker.unlock()
 
     @gui_thread
-    def onError(self, source, err):
+    def onError(self, thread, source, err):
         msg = errorwin.syncErrorToString(source, err)
         self.errors.add(msg, source, err)
         self.pendingErrors = True
@@ -191,9 +152,9 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.closing = True
             self.stop()
 
-            if self.thread.is_alive():
+            if self.sync.running():
                 with busydlg.BusyDlg(self, _('Terminating, please wait...')) as dlg:
-                    dlg.ShowModalWhile(self.thread.is_alive)
+                    dlg.ShowModalWhile(self.sync.running)
 
         if event:
             event.Skip()
@@ -279,11 +240,11 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     @errorwin.error_dlg
     def onMenuItemDumpSubWordsClick(self, event):
-        self.saveWordsDlg(self.task.sub, self.sync.correlator.getSubs())
+        self.saveWordsDlg(self.task.sub, self.sync._sync.correlator.getSubs())
 
     @errorwin.error_dlg
     def onMenuItemDumpRefWordsClick(self, event):
-        self.saveWordsDlg(self.task.ref, self.sync.correlator.getRefs())
+        self.saveWordsDlg(self.task.ref, self.sync._sync.correlator.getRefs())
 
     def saveWordsDlg(self, stream, words):
         subs = subtitle.Subtitles()
@@ -301,10 +262,10 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     @errorwin.error_dlg
     def onMenuItemDumpAllSyncPointsClick(self, event):
-        self.saveSyncPoints(self.sync.correlator.getAllPoints())
+        self.saveSyncPoints(self.sync._sync.correlator.getAllPoints())
 
     def onMenuItemDumpUsedSyncPointsClick(self, event):
-        self.saveSyncPoints(self.sync.correlator.getUsedPoints())
+        self.saveSyncPoints(self.sync._sync.correlator.getUsedPoints())
 
     def saveSyncPoints(self, pts):
         wildcard = '*.csv|*.csv|{}|*.*'.format(_('All files'))
