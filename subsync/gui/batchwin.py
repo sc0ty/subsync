@@ -6,7 +6,7 @@ from subsync.gui.components import assetsdlg, filedlg, filedrop
 from subsync.gui.components.thread import gui_thread
 from subsync.gui.components.update import update_lock
 from subsync.gui.errorwin import error_dlg
-from subsync.synchro import Synchronizer, SyncTaskList, InputFile, SubFile, RefFile
+from subsync.synchro import Synchronizer, SyncTaskList
 from subsync.settings import settings
 from subsync import img, utils
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
@@ -399,7 +399,7 @@ class BatchSynchronizer(object):
             sync = Synchronizer(task.sub, task.ref)
             sync.onError = lambda source, error: self.onError(no, source, error)
 
-            sync.init(runCb=lambda: self.running)
+            sync.init(settings().getSynchronizationOptions(), runCb=lambda: self.running)
             if self.running:
                 sync.start()
 

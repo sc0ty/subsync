@@ -186,7 +186,7 @@ class App(object):
         try:
             sync.onError = self.onError
 
-            sync.init()
+            sync.init(settings().getSynchronizationOptions())
             sync.start()
 
             effort = -1

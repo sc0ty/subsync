@@ -3,6 +3,7 @@ from collections import namedtuple
 from typing import Iterable
 import time
 from .synchronizer import Synchronizer
+from subsync.settings import settings
 
 import logging
 logger = logging.getLogger(__name__)
@@ -13,8 +14,7 @@ SyncJobResult = namedtuple('SyncJobResult', [ 'success', 'terminated', 'path' ])
 
 class SyncController(object):
     def __init__(self, onJobStart=None, onJobInit=None, onJobEnd=None,
-            onJobUpdate=None, onFinish=None, onError=None, listener=None, **config):
-        self._config = config
+            onJobUpdate=None, onFinish=None, onError=None, listener=None):
 
         self._onJobStart = onJobStart or getattr(listener, 'onJobStart', lambda task: None)
         self._onJobInit = onJobInit or getattr(listener, 'onJobInit', lambda task: None)
@@ -23,8 +23,15 @@ class SyncController(object):
         self._onFinish = onFinish or getattr(listener, 'onFinish', lambda terminated: None)
         self._onError = onError or getattr(listener, 'onError', lambda task, source, error: None)
 
+        self._options = settings().getSynchronizationOptions()
         self._thread = None
         self._sync = None
+
+    def configure(self, **options):
+        for key, val in options.items():
+            if key not in self._options:
+                raise TypeError("Unexpected keyword argument '{}'".format(key))
+            self._options[key] = val
 
     def synchronize(self, tasks):
         if self.running():
@@ -54,6 +61,25 @@ class SyncController(object):
             raise RuntimeError('Subtitles not synchronized')
         return self._sync.getSynchronizedSubtitles()
 
+    def saveSynchronizedSubtitles(self, path=None, task=None):
+        if not path and not task:
+            raise RuntimeError('At least one of the following arguments must be set: path or task')
+
+        subs = self.getSynchronizedSubtitles()
+        offset = self._options.get('outTimeOffset')
+        if offset:
+            logger.info('adjusting timestamps by offset %.3f', offset)
+            subs.shift(s=offset)
+
+        enc = (task and task.out and task.out.enc) \
+                or self._options.get('outputCharEnc') \
+                or (task and task.sub and task.sub.enc) or 'UTF-8'
+
+        return subs.save(path=path or task.getOutputPath(),
+                encoding=enc,
+                fps=task and task.out and task.out.fps,
+                overwrite=self._options.get('overwrite'))
+
     def _run(self, tasks):
         try:
             for no, task in enumerate(tasks):
@@ -78,13 +104,13 @@ class SyncController(object):
             self._sync = sync = Synchronizer(task.sub, task.ref)
             sync.onError = lambda src, err: self._onError(task, src, err)
 
-            sync.init(runCb=lambda: not self._terminated)
+            sync.init(self._options, runCb=lambda: not self._terminated)
             if not self._terminated:
                 sync.start()
 
             self._onJobInit(task)
 
-            minEffort = self._config.get('effort', 1.0)
+            minEffort = self._options.get('minEffort', 1.0)
             effort = -1
 
             while not self._terminated and sync.isRunning() \
@@ -101,16 +127,13 @@ class SyncController(object):
         try:
             sync.stop(force=True)
             status = sync.getStatus()
+            logger.info('result: %r', status)
             succeeded = not self._terminated and status and status.subReady
             path = None
 
             if succeeded and task.out:
                 try:
-                    path = sync.getSynchronizedSubtitles().save(
-                            path=task.getOutputPath(),
-                            encoding=task.getOutputEnc(),
-                            fps=task.out.fps,
-                            overwrite=False)
+                    path = self.saveSynchronizedSubtitle(task=task)
 
                 except Exception as err:
                     logger.warning('subtitle save failed: %r', err, exc_info=True)

@@ -53,6 +53,22 @@ outdated = [
         ]
 
 
+synchronizationOptions = [
+        'maxPointDist',
+        'minPointsNo',
+        'appendLangCode',
+        'outputCharEnc',
+        'windowSize',
+        'minWordProb',
+        'jobsNo',
+        'minWordLen',
+        'minCorrelation',
+        'minWordsSim',
+        'minEffort',
+        'outTimeOffset',
+        'overwrite',
+        ]
+
 wordsDumpIds = [ 'sub', 'subPipe', 'subRaw', 'ref', 'refPipe', 'refRaw' ]
 
 
@@ -140,6 +156,12 @@ class Settings(object):
                 logger.debug('configuration: %r', self.keep)
             except Exception as e:
                 logger.warning('cannot save configuration to %s: %r', config.configpath, e)
+
+    def getSynchronizationOptions(self):
+        options = { key: self.get(key) for key in synchronizationOptions }
+        options['jobsNo'] = self.getJobsNo()
+        options['overwrite'] = self.overwriteExistingFiles or self.overwrite
+        return options
 
     def getJobsNo(self):
         if type(self.jobsNo) is int and self.jobsNo >= 1:
