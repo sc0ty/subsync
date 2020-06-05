@@ -6,7 +6,7 @@ from subsync.synchro.output import OutputFile
 from subsync.synchro.channels import ChannelsMap
 
 __all__ = [
-        'Synchronizer', 'SyncController'
+        'Synchronizer', 'SyncController', 'SyncJobResult',
         'SyncTask', 'SyncTaskList',
         'InputFile', 'SubFile', 'RefFile', 'OutputFile',
         'ChannelsMap' ]

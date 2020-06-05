@@ -139,7 +139,7 @@ class BatchList(ulc.UltimateListCtrl):
             sub = self.GetItemWindow(row, 0).item
             ref = self.GetItemWindow(row, 1).item
             out = self.GetItemWindow(row, 2).item
-            tasks.append( SyncTask(sub, ref, out) )
+            tasks.append( SyncTask(sub, ref, out, data={'no': row}) )
         return tasks
 
     def getJob(self, no):

@@ -1,23 +1,18 @@
 from subsync.synchro.input import SubFile, RefFile
 from subsync.synchro.output import OutputFile
-from subsync.settings import settings
 from subsync import utils
-from collections import namedtuple
 import yaml
 
 
 class SyncTask(object):
-    def __init__(self, sub=None, ref=None, out=None):
+    def __init__(self, sub=None, ref=None, out=None, data=None):
         self.sub = sub
         self.ref = ref
         self.out = out
+        self.data = data
 
     def getOutputPath(self):
         return self.out and self.out.getPath(self.sub, self.ref)
-
-    def getOutputEnc(self):
-        return (self.out and self.out.enc) or settings().outputCharEnc or \
-                (self.sub and self.sub.enc) or 'UTF-8'
 
     def serialize(self):
         res = {}

@@ -71,6 +71,7 @@ class OutputSyncCell(BaseCell):
         self.status = None
         self.success = None
         self.errors = error.ErrorsCollector()
+        self.ended = False
 
         self.setIcon('subtitle-file')
         self.m_textName.SetLabel(os.path.basename(item.getPath(sub, ref)))
@@ -97,26 +98,27 @@ class OutputSyncCell(BaseCell):
             self.setDescription(_('synchronizing'), status=status)
             self.status = status
 
-    def jobEnd(self, status, success, terminated, path=None):
+    def jobEnd(self, status, result):
         self.status = status or self.status
-        self.success = success
+        self.success = result.success
+        self.ended = True
 
-        if path:
-            self.m_textName.SetLabel(os.path.basename(path))
+        if result.path:
+            self.m_textName.SetLabel(os.path.basename(result.path))
 
-        if success:
+        if result.success:
             self.setDescription(_('done'), status=self.status)
             self.setStatusIcon(wx.ART_TICK_MARK)
 
         else:
             if self.errors:
                 self.setStatusIcon(wx.ART_ERROR)
-            elif terminated:
+            elif result.terminated:
                 self.setStatusIcon('wait')
             else:
                 self.setStatusIcon(wx.ART_CROSS_MARK)
 
-            if terminated:
+            if result.terminated:
                 self.setDescription(_('terminated'), status=self.status)
             else:
                 self.setDescription(_('couldn\'t synchronize'), status=self.status)

@@ -5,14 +5,13 @@ from subsync.gui.suspendlock import SuspendBlocker
 from subsync.gui.components import assetsdlg, filedlg, filedrop
 from subsync.gui.components.thread import gui_thread
 from subsync.gui.components.update import update_lock
-from subsync.gui.errorwin import error_dlg
-from subsync.synchro import Synchronizer, SyncTaskList
+from subsync.gui.errorwin import error_dlg, showExceptionDlg
+from subsync.synchro import SyncController, SyncTaskList
 from subsync.settings import settings
 from subsync import img, utils
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
 from subsync.data import descriptions
 import wx
-import threading
 import time
 
 import logging
@@ -36,8 +35,9 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_textMaxDist.SetMinSize(wx.Size(int(self.m_textMaxDist.GetSize().width * 1.1), -1))
         self.m_textEffort.SetMinSize(wx.Size(int(self.m_textEffort.GetSize().width * 1.1), -1))
 
-        self.synchro = None
+        self.sync = None
         self.closing = False
+        self.startTime = 0.0
 
         self.m_items.updateEvent.addListener(self.onItemsUpdate)
 
@@ -69,30 +69,22 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.Layout()
 
     def start(self):
-        if self.synchro:
-            self.synchro.stop()
-
         tasks = self.m_items.getTasks()
 
         if assetsdlg.validateAssets(self, tasks, askForLang=True):
             self.m_gaugeTotalProgress.SetRange(100 * len(tasks))
             self.goToSyncMode()
 
-            self.synchro = BatchSynchronizer()
-            self.synchro.onJobStart = self.onJobStart
-            self.synchro.onJobEnd = self.onJobEnd
-            self.synchro.onJobUpdate = self.onJobUpdate
-            self.synchro.onAllJobsEnd = self.onAllJobsEnd
-            self.synchro.onError = self.onJobError
-
-            self.synchro.start(tasks)
+            self.sync = SyncController(listener=self)
+            self.sync.synchronize(tasks)
+            self.startTime = time.monotonic()
 
             self.suspendBlocker = SuspendBlocker()
             if settings().preventSystemSuspend:
                 self.suspendBlocker.lock()
 
     def stop(self):
-        self.synchro and self.synchro.stop()
+        self.sync and self.sync.terminate()
         self.m_textStatusVal.SetLabel(_('Terminating...'))
 
     @update_lock
@@ -164,20 +156,23 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
 
     @gui_thread
     @update_lock
-    def onJobStart(self, no):
+    def onJobStart(self, task):
+        no = task.data['no']
         self.m_items.clearSelection()
         self.m_items.selectRow(no)
         self.m_items.EnsureVisible(no)
         self.m_items.getJob(no).jobStart()
-        self.onJobUpdate(no)
+        self.onJobUpdate(task)
 
     @gui_thread
-    def onJobEnd(self, no, status, success, terminated, path):
-        self.m_items.getJob(no).jobEnd(status, success, terminated, path)
+    def onJobEnd(self, task, status, result):
+        no = task.data['no']
+        self.m_items.getJob(no).jobEnd(status, result)
         self.m_gaugeCurrentProgress.SetValue(100)
 
     @gui_thread
-    def onJobUpdate(self, no, status=None):
+    def onJobUpdate(self, task, status=None):
+        no = task.data['no']
         if status is not None:
             self.m_items.getJob(no).update(status)
 
@@ -190,23 +185,33 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_gaugeCurrentProgress.SetValue(100 * progress)
         self.m_gaugeTotalProgress.SetValue(100 * (no + progress))
 
-        if self.synchro.running:
+        if self.sync.running():
             self.updateProgressText(no, progress)
 
     @gui_thread
     @update_lock
-    def onAllJobsEnd(self, terminated):
+    def onFinish(self, terminated):
         self.m_gaugeTotalProgress.SetValue(self.m_gaugeTotalProgress.GetRange())
         self.goToDoneMode(terminated)
         self.suspendBlocker.unlock()
 
+        if terminated:
+            result = SyncJobResult(False, True, None)
+            for job in self.m_items.iterJobs():
+                if not job.ended:
+                    job.jobEnd(None, result)
+
     @gui_thread
-    def onJobError(self, no, source, error):
-        self.m_items.getJob(no).addError(source, error)
+    def onError(self, task, source, error):
+        if task:
+            no = task.data['no']
+            self.m_items.getJob(no).addError(source, error)
+        else:
+            showExceptionDlg(self, error)
 
     def updateProgressText(self, no, progress):
         total = self.m_items.GetItemCount()
-        elapsed = self.synchro.runTime.Time() / 1000
+        elapsed = time.monotonic() - self.startTime
 
         msg = [ _('Task:'), '{} / {}'.format(no+1, total) ]
         if elapsed > 1:
@@ -304,13 +309,14 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_buttonStart.Enable(self.m_items.isReadyToSynchronize())
 
     def onClose(self, event):
-        self.closing = True
-        self.m_items.updateEvent.removeListener(self.onItemsUpdate)
-        self.stop()
+        if not self.closing:
+            self.closing = True
+            self.m_items.updateEvent.removeListener(self.onItemsUpdate)
+            self.stop()
 
-        if self.synchro and self.synchro.thread.is_alive():
-            with BusyDlg(self, _('Terminating, please wait...')) as dlg:
-                dlg.ShowModalWhile(self.synchro.thread.is_alive)
+            if self.sync and self.sync.running():
+                with BusyDlg(self, _('Terminating, please wait...')) as dlg:
+                    dlg.ShowModalWhile(self.sync.running)
 
         parent = self.GetParent()
         if parent:
@@ -361,83 +367,3 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
     def onPanelAutoDropFiles(self, x, y, filenames):
         self.m_items.addFiles(filenames)
         return True
-
-
-class BatchSynchronizer(object):
-    def __init__(self):
-        self.onJobStart = lambda no: None
-        self.onJobEnd = lambda no, status, success, terminated: None
-        self.onJobUpdate = lambda no, status: None
-        self.onAllJobsEnd = lambda terminated: None
-        self.onError = lambda no, source, error: None
-
-    def start(self, tasks):
-        self.tasks = tasks
-        self.running = True
-        self.runTime = wx.StopWatch()
-        self.thread = threading.Thread(target=self.syncJob, name='BatchSync')
-        self.thread.start()
-
-    def stop(self):
-        self.running = False
-
-    @error_dlg
-    def syncJob(self):
-        for no, task in enumerate(self.tasks):
-            if self.running:
-                self.runTask(task, no)
-            if not self.running:
-                self.onJobEnd(no, None, False, not self.running, None)
-
-        self.onAllJobsEnd(not self.running)
-        logger.info('thread terminated')
-
-    def runTask(self, task, no):
-        logger.info('running task %i: %r', no, task)
-        try:
-            self.onJobStart(no)
-            sync = Synchronizer(task.sub, task.ref)
-            sync.onError = lambda source, error: self.onError(no, source, error)
-
-            sync.init(settings().getSynchronizationOptions(), runCb=lambda: self.running)
-            if self.running:
-                sync.start()
-
-            minEffort = settings().minEffort
-            effort = -1
-
-            while self.running and sync.isRunning() and (minEffort >= 1.0 or effort < minEffort):
-                status = sync.getStatus()
-                effort = status.effort
-                self.onJobUpdate(no, status)
-                time.sleep(0.5)
-
-        except Exception as err:
-            logger.warning('%r', err, exc_info=True)
-            self.onError(no, 'core', err)
-
-        try:
-            sync.stop(force=True)
-            status = sync.getStatus()
-            succeeded = self.running and status and status.subReady
-            path = None
-
-            if succeeded:
-                try:
-                    path = sync.getSynchronizedSubtitles().save(
-                            path=task.getOutputPath(),
-                            encoding=task.getOutputEnc(),
-                            fps=task.out.fps,
-                            overwrite=settings().overwriteExistingFiles or settings().overwrite)
-
-                except Exception as err:
-                    logger.warning('%r', err, exc_info=True)
-                    self.onError(no, 'out', err)
-                    succeeded = False
-
-            self.onJobEnd(no, status, succeeded, not self.running, path)
-        except Exception as err:
-            logger.warning('%r', err, exc_info=True)
-            self.onError(no, 'core', err)
-
-        sync.destroy()

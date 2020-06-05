@@ -37,6 +37,8 @@ class SyncController(object):
         if self.running():
             raise RuntimeError('Another synchronization in progress')
 
+        logger.debug('synchronization options: %s', self._options)
+
         self._terminated = False
         if isinstance(tasks, Iterable):
             self._thread = Thread(
@@ -55,6 +57,11 @@ class SyncController(object):
 
     def running(self):
         return self._thread and self._thread.is_alive()
+
+    def wait(self):
+        if self._thread:
+            self._thread.join()
+        return not self._terminated
 
     def getSynchronizedSubtitles(self):
         if self._sync is None:
@@ -84,11 +91,10 @@ class SyncController(object):
         try:
             for no, task in enumerate(tasks):
                 if not self._terminated:
-                    logger.info('running task %i/%i: %r', task, len(tasks), task)
+                    logger.info('running task %i/%i: %r', no, len(tasks), task)
                     self._runTask(task)
                 else:
-                    res = SyncJobResult(False, True, None)
-                    self._onJobEnd(task, None, res)
+                    break
 
         except Exception as err:
             logger.warning('%r', err, exc_info=True)
@@ -115,10 +121,10 @@ class SyncController(object):
 
             while not self._terminated and sync.isRunning() \
                     and (minEffort >= 1.0 or effort < minEffort):
+                time.sleep(0.5)
                 status = sync.getStatus()
                 effort = status.effort
                 self._onJobUpdate(task, status)
-                time.sleep(0.5)
 
         except Exception as err:
             logger.warning('%r', err, exc_info=True)
@@ -133,7 +139,7 @@ class SyncController(object):
 
             if succeeded and task.out:
                 try:
-                    path = self.saveSynchronizedSubtitle(task=task)
+                    path = self.saveSynchronizedSubtitles(task=task)
 
                 except Exception as err:
                     logger.warning('subtitle save failed: %r', err, exc_info=True)
