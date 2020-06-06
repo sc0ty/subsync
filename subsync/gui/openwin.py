@@ -1,6 +1,6 @@
 import subsync.gui.layout.openwin
 import wx
-from subsync.synchro import InputFile, ChannelsMap
+from subsync.synchro import ChannelsMap
 from subsync.gui.components import filedlg
 from subsync.gui.components import filedrop
 from subsync.gui import channelswin
@@ -9,6 +9,7 @@ from subsync.gui.errorwin import error_dlg
 from subsync.error import Error
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
 from subsync.data import languages
+from copy import copy
 
 
 @error_dlg
@@ -24,19 +25,22 @@ def showOpenFileDlg(parent, file):
             _('All files'), '*.*' ])
 
     path = filedlg.showOpenFileDlg(parent, **props)
-    return readStream(parent, path, file.types)
+    if path:
+        return readStream(parent, file, path)
 
 
-def readStream(parent, path, types):
+def readStream(parent, file, path):
     msg = _('Loading, please wait...')
-    return showBusyDlgAsyncJob(parent, msg, InputFile, path=path, types=types)
+    f = copy(file)
+    showBusyDlgAsyncJob(parent, msg, f.open, path=path)
+    return f
 
 
 class OpenWin(subsync.gui.layout.openwin.OpenWin):
     def __init__(self, parent, file, allowOpen=True, defaultLang=None):
         super().__init__(parent)
         self.defaultLang = defaultLang
-        self.file = InputFile(stream=file)
+        self.file = copy(file)
         self.openStream(self.file)
 
         self.m_buttonOpen.Show(allowOpen)
@@ -49,7 +53,7 @@ class OpenWin(subsync.gui.layout.openwin.OpenWin):
     @error_dlg
     def openStream(self, file=None, path=None):
         if path:
-            file = readStream(self, path, self.file.types)
+            file = readStream(self, self.file, path)
 
         self.file = file
         self.m_textPath.SetValue(self.file.path)

@@ -2,6 +2,7 @@ from .cell import BaseCell
 from subsync.gui.openwin import OpenWin
 from subsync.synchro import InputFile
 import wx
+import os
 
 
 class DropPlaceholderItem(object):
@@ -18,7 +19,7 @@ class InputSyncCell(BaseCell):
         if item is not self.item or force:
             self.item = item
 
-            if type(item) is InputFile:
+            if isinstance(item, InputFile):
                 s = item.stream()
                 desc = [ '{} {}: {}'.format(_('stream'), s.no+1, s.type.split('/')[0]) ]
 
@@ -33,10 +34,10 @@ class InputSyncCell(BaseCell):
                 if item.enc and s.type == 'subtitle/text':
                     desc.append(item.enc)
 
-                self.m_textName.SetLabel(item.getBaseName())
+                self.m_textName.SetLabel(os.path.basename(item.path))
                 self.m_textDetails.SetLabel('; '.join(desc))
 
-            elif type(item) is DropPlaceholderItem:
+            elif isinstance(item, DropPlaceholderItem):
                 self.m_textName.SetLabel(_('drop here'))
                 self.m_textDetails.SetLabel('')
 
@@ -47,12 +48,12 @@ class InputSyncCell(BaseCell):
             self.parent.updateEvent.emit()
 
     def drawIcon(self, item):
-        if type(item) is InputFile:
+        if isinstance(item, InputFile):
             if self.selected:
                 self.setIcon('selected-file')
             else:
                 self.setIcon( (item.filetype or 'unknown').split('/')[0] + '-file' )
-        elif type(item) is DropPlaceholderItem:
+        elif isinstance(item, DropPlaceholderItem):
             self.setIcon('new-file')
 
 
@@ -87,7 +88,7 @@ class InputEditCell(InputSyncCell):
             self.drawIcon(self.item)
 
     def isFile(self):
-        return type(self.item) is InputFile
+        return isinstance(self.item, InputFile)
 
     def onMouseMove(self, event):
         if self.visible is not None and event.Dragging() and event.LeftIsDown():

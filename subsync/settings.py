@@ -56,7 +56,6 @@ outdated = [
 synchronizationOptions = [
         'maxPointDist',
         'minPointsNo',
-        'appendLangCode',
         'outputCharEnc',
         'windowSize',
         'minWordProb',

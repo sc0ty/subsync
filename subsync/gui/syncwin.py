@@ -14,6 +14,7 @@ from subsync import utils
 from subsync import error
 import pysubs2.exceptions
 import os
+import time
 
 import logging
 logger = logging.getLogger(__name__)
@@ -43,10 +44,10 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.task = task
 
         self.closing = False
-        self.runTime = wx.StopWatch()
+        self.startTime = time.monotonic()
 
         self.sync = SyncController(listener=self)
-        self.sync.synchronize(task)
+        self.sync.synchronize(task, timeout=0.5)
 
         self.suspendBlocker = suspendlock.SuspendBlocker()
         if settings().preventSystemSuspend:
@@ -61,39 +62,35 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     @gui_thread
     def onJobUpdate(self, task, status, finished=False):
-        elapsed = self.runTime.Time() / 1000
+        elapsed = time.monotonic() - self.startTime
         self.m_textElapsedTime.SetLabel(utils.timeStampFmt(elapsed))
 
-        if status:
-            self.m_textSync.SetLabel(_('Synchronization: {} points').format(status.points))
-            self.m_textCorrelation.SetLabel('{:.2f} %'.format(100 * status.factor))
-            self.m_textFormula.SetLabel(str(status.formula))
-            self.m_textMaxChange.SetLabel(utils.timeStampFractionFmt(status.maxChange))
-            if finished:
-                self.m_gaugeProgress.SetValue(100)
-            else:
-                self.m_gaugeProgress.SetValue(100 * status.progress)
+        self.m_textSync.SetLabel(_('Synchronization: {} points').format(status.points))
+        self.m_textCorrelation.SetLabel('{:.2f} %'.format(100 * status.factor))
+        self.m_textFormula.SetLabel(str(status.formula))
+        self.m_textMaxChange.SetLabel(utils.timeStampFractionFmt(status.maxChange))
+        if finished:
+            self.m_gaugeProgress.SetValue(100)
+        else:
+            self.m_gaugeProgress.SetValue(100 * status.progress)
 
-            if status.subReady and not self.m_bitmapTick.IsShown():
-                self.m_bitmapCross.Hide()
-                self.m_bitmapTick.Show()
-                self.m_buttonSave.Enable()
-                if status.running:
-                    self.m_textInitialSyncInfo.Show()
-                self.Fit()
-                self.Layout()
+        if status.correlated and not self.m_bitmapTick.IsShown():
+            self.m_bitmapCross.Hide()
+            self.m_bitmapTick.Show()
+            self.m_buttonSave.Enable()
+            if self.sync.isRunning():
+                self.m_textInitialSyncInfo.Show()
+            self.Fit()
+            self.Layout()
 
         self.updateStatusErrors()
 
     @gui_thread
     def onJobEnd(self, task, status, result):
-        self.runTime.Pause()
         self.showCloseButton()
+        self.onJobUpdate(task, status, not result.terminated)
 
-        if status:
-            self.onJobUpdate(task, status, not result.terminated)
-
-        if status and status.subReady:
+        if status.correlated:
             self.m_buttonSave.Enable()
             self.m_bitmapTick.Show()
             self.m_bitmapCross.Hide()
@@ -105,8 +102,6 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.m_bitmapTick.Hide()
             self.m_bitmapCross.Show()
             self.m_textStatus.SetLabel(_('Couldn\'t synchronize'))
-
-        self.updateStatusErrors()
 
         self.Fit()
         self.Layout()
@@ -152,9 +147,9 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
             self.closing = True
             self.stop()
 
-            if self.sync.running():
+            if self.sync.isRunning():
                 with busydlg.BusyDlg(self, _('Terminating, please wait...')) as dlg:
-                    dlg.ShowModalWhile(self.sync.running)
+                    dlg.ShowModalWhile(self.sync.isRunning)
 
         if event:
             event.Skip()

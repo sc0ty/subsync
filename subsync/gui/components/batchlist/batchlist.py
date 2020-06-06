@@ -1,7 +1,7 @@
 from .drop import DropExternal, DropInternal
 from .inputcell import InputEditCell, InputSyncCell
 from .outputcell import OutputEditCell, OutputSyncCell
-from subsync.synchro import SyncTask, InputFile, RefFile, SubFile, ChannelsMap
+from subsync.synchro import SyncTask, RefFile, SubFile, ChannelsMap
 from subsync.gui import busydlg
 from subsync.gui.errorwin import error_dlg, ErrorWin
 from subsync.gui.langwin import LanguagesWin
@@ -154,10 +154,10 @@ class BatchList(ulc.UltimateListCtrl):
             # files are dragged from inside so we are removing them to avoid duplication
             self.removeSelected()
 
-        types = RefFile.types
+        type = RefFile
         if col == 0:
-            types = SubFile.types
-        items = self.loadFiles(paths, types, skipMissing=skipMissing)
+            type = SubFile
+        items = self.loadFiles(paths, type, skipMissing=skipMissing)
 
         subs, refs = [], []
         if col == 0:
@@ -188,7 +188,7 @@ class BatchList(ulc.UltimateListCtrl):
             self.updateOutputs()
             self.EnsureVisible(row)
 
-    def loadFiles(self, paths, types, skipMissing=False):
+    def loadFiles(self, paths, type, skipMissing=False):
         items = []
         errors = []
 
@@ -203,7 +203,7 @@ class BatchList(ulc.UltimateListCtrl):
 
         def loadFile(path, skipMissing):
             try:
-                item = InputFile(path=path, types=types)
+                item = type(path=path)
                 if item.hasMatchingStream():
                     items.append(item)
                 elif not skipMissing:

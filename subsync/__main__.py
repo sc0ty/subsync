@@ -54,12 +54,11 @@ def subsync(argv=None):
         loggercfg.terminate()
 
 
-def gui(options={}, **args):
+def gui(sync=None, fromFile=None, batch=False, options={}, **args):
     import wx
     from subsync.gui.mainwin import MainWin
     from subsync.gui.batchwin import BatchWin
     from subsync.gui.errorwin import showExceptionDlg
-    from subsync.synchro import SyncTaskList
 
     try:
         settings().load()
@@ -69,9 +68,9 @@ def gui(options={}, **args):
     try:
         app = wx.App()
         _init(options)
-        tasks = SyncTaskList.parseArgs(args)
+        tasks = _loadTasks(sync, fromFile)
 
-        if 'batch' in args or len(tasks) > 1:
+        if batch or len(tasks) > 1:
             win = BatchWin(None, tasks)
         else:
             task = None
@@ -92,20 +91,19 @@ def gui(options={}, **args):
         settings().save()
 
 
-def cli(options={}, **args):
+def cli(sync=None, fromFile=None, verbose=1, options={}, **args):
     from subsync import cli
-    from subsync.synchro import SyncTaskList
 
     try:
         _init(options)
-        tasks = SyncTaskList.parseArgs(args)
+        tasks = _loadTasks(sync, fromFile)
 
     except Exception as err:
-        print('[!] ' + str(err).replace('\n', '\n[-] '), file=sys.stderr)
+        cli.pr.printException(0, err)
         return 1
 
     try:
-        app = cli.App(verbosity=args.get('verbose', 1))
+        app = cli.App(verbosity=verbose)
         return app.runTasks(tasks)
 
     except Exception as err:
@@ -139,6 +137,15 @@ def _init(options={}):
     if settings().test:
         print("[!] TEST MODE ENABLED! You're on your own!", file=sys.stderr)
         logger.warning("TEST MODE ENABLED! You're on your own!")
+
+
+def _loadTasks(sync=None, fromFile=None):
+    from subsync.synchro import SyncTaskList
+    if sync:
+        return SyncTaskList.deserialize(sync)
+    if fromFile:
+        return SyncTaskList.load(fromFile)
+    return []
 
 
 if __name__ == "__main__":

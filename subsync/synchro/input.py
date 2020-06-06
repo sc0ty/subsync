@@ -3,15 +3,14 @@ from subsync.synchro.channels import ChannelsMap
 from subsync.data import languages
 from subsync import utils
 from subsync.error import Error
-import os
 
 
 class InputFile(object):
-    def __init__(self, path=None, types=None, stream=None):
+    def __init__(self, path=None, stream=None, streamByType=None, streamByLang=None,
+            lang=None, enc=None, fps=None, channels=None):
         self.path    = path
         self.no      = None
         self.type    = None
-        self.types   = types
         self.streams = {}
         self.fps     = None
         self.lang    = None
@@ -19,11 +18,25 @@ class InputFile(object):
         self.channels = ChannelsMap.auto()
         self.filetype = None
 
+        if not hasattr(self, 'types'):
+            self.types = None
+
         if path != None:
             self.open(path)
 
-        if stream != None:
-            self.assign(stream)
+        if stream is not None:
+            self.select(stream - 1)
+
+        if streamByType or streamByLang:
+            self.selectBy(type=streamByType, lang=streamByLang)
+        self.lang = lang or self.lang
+        self.enc = enc or self.enc
+        self.fps = fps or self.fps
+
+        if type(channels) is str:
+            self.channels = ChannelsMap.deserialize(data['channels'])
+        elif channels is not None:
+            self.channels = channels
 
     def __lt__(self, other):
         if self.path != other.path:
@@ -57,23 +70,6 @@ class InputFile(object):
 
         if len(streams) > 0:
             self.selectFirstMatchingStream()
-
-    def assign(self, s):
-        self.path    = s.path
-        self.no      = s.no
-        self.type    = s.type
-        self.types   = s.types
-        self.streams = s.streams
-        self.fps     = s.fps
-        self.lang    = s.lang
-        self.enc     = s.enc
-        self.channels= s.channels
-        self.filetype= s.filetype
-
-    def setNotNone(self, **kw):
-        for key, val in kw.items():
-            if val != None:
-                setattr(self, key, val)
 
     def select(self, no):
         stream = self.streams[no]
@@ -127,9 +123,6 @@ class InputFile(object):
     def isSelect(self):
         return self.path != None and self.no != None
 
-    def getBaseName(self):
-        return self.path and os.path.basename(self.path)
-
     def serialize(self):
         res = {}
         if self.path: res['path'] = self.path
@@ -140,19 +133,6 @@ class InputFile(object):
         if self.channels and self.channels.type != 'auto':
             res['channels'] = self.channels.serialize()
         return res
-
-    def deserialize(data, types=None):
-        if data:
-            path = data.get('path')
-            res = InputFile(path=path, types=types)
-            if 'stream' in data:
-                res.select(data['stream'] - 1)
-            elif 'streamByType' in data or 'streamByLang' in data:
-                res.selectBy(type=data['streamByType'], lang=data['streamByLang'])
-            res.setNotNone(lang=data.get('lang'), enc=data.get('enc'), fps=data.get('fps'))
-            if 'channels' in data:
-                res.channels = ChannelsMap.deserialize(data['channels'])
-            return res
 
     def __repr__(self):
         return utils.fmtobj(self.__class__.__name__,
@@ -177,20 +157,16 @@ class SubFile(InputFile):
     types = ('subtitle/text',)
 
     def __init__(self, *args, **kw):
-        super().__init__(types=SubFile.types, *args, **kw)
-
-    def deserialize(data):
-        return InputFile.deserialize(data, types=SubFile.types)
+        self.types = SubFile.types
+        super().__init__(*args, **kw)
 
 
 class RefFile(InputFile):
     types = ('subtitle/text', 'audio')
 
     def __init__(self, *args, **kw):
-        super().__init__(types=RefFile.types, *args, **kw)
-
-    def deserialize(data):
-        return InputFile.deserialize(data, types=RefFile.types)
+        self.types = RefFile.types
+        super().__init__(*args, **kw)
 
 
 def getLangFromPath(path):

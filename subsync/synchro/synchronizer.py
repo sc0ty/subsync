@@ -9,11 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 SyncStatus = namedtuple('SyncStatus', [
-    'subReady',
-    'running',
+    'correlated',
     'maxChange',
     'progress',
-    'correlated',
     'factor',
     'points',
     'maxDistance',
@@ -56,7 +54,6 @@ class Synchronizer(object):
         if self.correlator:
             self.correlator.wait()
             self.correlator.connectStatsCallback(None)
-            self.correlator = None
 
         self.subPipeline = None
         self.refPipelines = []
@@ -155,7 +152,7 @@ class Synchronizer(object):
             p.stop()
 
     def isRunning(self):
-        if self.correlator.isRunning():
+        if self.correlator and self.correlator.isRunning():
             return True
 
         for p in self.pipelines:
@@ -173,8 +170,11 @@ class Synchronizer(object):
                 psum += pr
                 plen += 1
 
-        cp = self.correlator.getProgress()
-        res = cp * cp
+        if self.correlator:
+            cp = self.correlator.getProgress()
+            res = cp * cp
+        else:
+            res = 0.0
 
         if plen > 0:
             res *= psum / plen
@@ -190,20 +190,18 @@ class Synchronizer(object):
             begin = self.effortBegin
 
         effort = -1
-        if begin is not None:
-            if progress == None or progress <= 0:
-                effort = 0
-            elif progress >= 1:
-                effort = 1
+        if begin is not None and begin < 1.0:
+            if progress <= 0.0:
+                effort = 0.0
+            elif progress >= 1.0:
+                effort = 1.0
             else:
-                effort = (progress - begin) / (1 - begin)
+                effort = (progress - begin) / (1.0 - begin)
 
         return SyncStatus(
-                subReady    = stats.correlated and self.subPipeline and not self.subPipeline.isRunning(),
-                running     = self.isRunning(),
+                correlated  = stats.correlated and self.subPipeline and not self.subPipeline.isRunning(),
                 maxChange   = self.subtitlesCollector.getMaxSubtitleDiff(stats.formula),
                 progress    = progress,
-                correlated  = stats.correlated,
                 factor      = stats.factor,
                 points      = stats.points,
                 maxDistance = stats.maxDistance,
@@ -213,12 +211,6 @@ class Synchronizer(object):
     def getSynchronizedSubtitles(self):
         with self.statsLock:
             formula = self.stats.formula
-
-        #if settings().outTimeOffset:
-            #logger.info('adjusting timestamps by offset %.3f', settings().outTimeOffset)
-            #b = formula.b + settings().outTimeOffset
-            #formula = gizmo.Line(formula.a, b)
-
         return self.subtitlesCollector.getSynchronizedSubtitles(formula)
 
     def onStatsUpdate(self, stats):

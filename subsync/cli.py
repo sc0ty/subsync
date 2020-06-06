@@ -1,9 +1,10 @@
-from subsync.synchro import Synchronizer
+from subsync.synchro import SyncController
 from subsync.assets import assetManager, assetListUpdater
 from subsync.settings import settings
 from subsync import utils
 from subsync import error
-from time import sleep
+import time
+import threading
 
 import logging
 logger = logging.getLogger(__name__)
@@ -11,22 +12,30 @@ logger = logging.getLogger(__name__)
 
 class Printer(object):
     def __init__(self, verbosity=1):
+        self.lock = threading.Lock()
         self.verbosity = verbosity
-        self.lineTerminated = True
+        self.lineLen = 0
 
     def println(self, v, *args, **kwargs):
         if self.verbosity >= v:
-            if not self.lineTerminated:
-                self.lineTerminated = True
-                print('')
-            print(*args, **kwargs)
+            with self.lock:
+                if self.lineLen:
+                    print('', **kwargs)
+                    self.lineLen = 0
+                print(*args, **kwargs)
 
-    def reprint(self, v, msg, endline=False):
+    def reprint(self, v, msg, **kwargs):
         if self.verbosity >= v:
-            print('\r{}        '.format(msg), end='')
-            if endline:
-                print('')
-            self.lineTerminated = endline
+            with self.lock:
+                padding = ' ' * (len(msg) - self.lineLen)
+                print('{}{}\r'.format(msg, padding), end='', flush=True, **kwargs)
+                self.lineLen = len(msg)
+
+    def printException(self, v, exc, msg=None):
+        res = error.getExceptionMessage(exc)
+        if msg:
+            res = '{}: {}'.format(msg, res)
+        self.println(v, '[!] ' + res.replace('\n', '\n[-] '))
 
 
 pr = Printer()
@@ -78,20 +87,20 @@ class AssetsDownloader(object):
 
         while updater.isRunning():
             self.printDownloadStats(name, updater.getStatus())
-            sleep(1)
+            time.sleep(1)
 
         status = updater.getStatus()
         if status.state == 'done' and status.detail == 'success':
-            self.printDownloadStats(name, status, endline=True)
+            self.printDownloadStats(name, status)
             return True
         else:
             pr.println(0, '[!] FAILED')
             if status.error:
-                pr.println(1, '[!] {}'.format(error.getExceptionMessage(status.error[1])))
+                pr.printException(1, status.error[1])
                 pr.println(2, error.getExceptionDetails(status.error))
             return False
 
-    def printDownloadStats(self, name, status, endline=False):
+    def printDownloadStats(self, name, status):
         pos, size = status.progress or (None, None)
         msg = [ '[+] downloading ', name ]
         if pos is not None and size:
@@ -104,7 +113,7 @@ class AssetsDownloader(object):
         if pr.verbosity >= 3:
             pr.println(1, ''.join(msg))
         else:
-            pr.reprint(1, ''.join(msg), endline)
+            pr.reprint(1, ''.join(msg))
 
 
 class App(object):
@@ -117,125 +126,90 @@ class App(object):
             pr.println(1, '[-] nothing to do')
             return 0
 
-        succeeded = 0
-        errors = 0
+        self.startTime = time.monotonic()
+        self.lastTime = -1000
+        self.succeeded = 0
+        sync = None
 
-        for task in tasks:
-            try:
-                pr.println(1, '[*] starting synchronization {}'.format(task.sub.path))
-                pr.println(2, '[+] sub: {}'.format(task.sub))
-                pr.println(2, '[+] ref: {}'.format(task.ref))
-                pr.println(2, '[+] out: {}'.format(task.out))
+        try:
+            validTasks = [ task for task in tasks if self.validate(task) ]
+            readyTasks = [ task for task in validTasks if self.assetsDownloader.getMissingAssets(task) ]
 
-                if not self.validate(task):
-                    continue
+            sync = SyncController(listener=self)
+            sync.synchronize(readyTasks, timeout=1.0)
+            sync.wait()
 
-                if not self.assetsDownloader.getMissingAssets(task):
-                    continue
+            if self.succeeded == len(tasks):
+                return 0
+            else:
+                return 2
 
-                if self.synchronize(task):
-                    succeeded += 1
-
-            except KeyboardInterrupt:
-                pr.println(1, '[-] interrupted by user')
-                break
-
-            except Exception as err:
-                errors += 1
-                logger.error('task: %r', task)
-                logger.error('task failed, %r', err, exc_info=True)
-
-        if errors:
+        except KeyboardInterrupt:
+            pr.println(1, '[-] interrupted by user')
+            sync and sync.terminate()
             return 1
-        if len(tasks) == succeeded:
-            return 0
-        else:
-            return 2
+
+    def onJobStart(self, task):
+        pr.println(1, '[*] starting synchronization {}'.format(task.sub.path))
+        pr.println(2, '[+] sub: {}'.format(task.sub))
+        pr.println(2, '[+] ref: {}'.format(task.ref))
+        pr.println(2, '[+] out: {}'.format(task.out))
+
+    def onJobUpdate(self, task, status):
+        self.printStats(status)
+
+    def onJobEnd(self, task, status, result):
+        if status and not result.terminated:
+            self.printStats(status, force=True)
+        if result.success:
+            pr.println(1, '[+] done, saved to {}'.format(result.path))
+            self.succeeded += 1
+        elif not result.terminated:
+            pr.println(0, '[-] couldn\'t synchronize!')
+        pr.println(1, '')
 
     def validate(self, task):
         sub = task.sub
         ref = task.ref
         out = task.out
 
+        fails = []
         if sub is None or not sub.path or sub.no is None:
-            pr.println(0, '[!] subtitles not set')
-            return False
+            fails.append('subtitles not set')
         if ref is None or not ref.path or ref.no is None:
-            pr.println(0, '[!] reference file not set')
-            return False
+            fails.append('reference file not set')
         if out is None or not out.path:
-            pr.println(0, '[!] output file not set')
-            return False
+            fails.append('output file not set')
         if sub.path == ref.path and sub.no == ref.no:
-            pr.println(0, '[!] subtitles can\'t be the same as reference')
-            return False
+            fails.append('subtitles can\'t be the same as reference')
         if ref.type == 'audio' and not ref.lang:
-            pr.println(0, '[!] select reference language')
-            return False
+            fails.append('select reference language')
 
         try:
             out.validateOutputPattern()
+        except Exception as e:
+            fails.append(str(e))
+
+        if fails:
+            pr.println(0, '[!] cannot synchronize task {}'.format(sub and sub.path))
+            for fail in fails:
+                pr.println(1, '[-] {}'.format(fail))
+            pr.println(1, '')
+            return False
+        else:
             return True
 
-        except Exception as e:
-            pr.println(0, '[!] {!s}'.format(e))
-            return False
-
-    def synchronize(self, task):
-        sync = Synchronizer(task.sub, task.ref)
-        try:
-            sync.onError = self.onError
-
-            sync.init(settings().getSynchronizationOptions())
-            sync.start()
-
-            effort = -1
-            while sync.isRunning() and effort < settings().minEffort:
-                status = sync.getStatus()
-                effort = status.effort
-                self.printStats(status)
-                sleep(1)
-
-            sync.stop()
-            status = sync.getStatus()
-
-            if status and status.subReady:
-                self.printStats(status, endline=True)
-                path = task.getOutputPath()
-                pr.println(1, '[+] saving to {}'.format(path))
-
-                try:
-                    npath = sync.getSynchronizedSubtitles().save(
-                            path=path,
-                            encoding=task.getOutputEnc(),
-                            fps=task.out.fps,
-                            overwrite=settings().overwrite)
-
-                    if path != npath:
-                        pr.println(1, '[+] file exists, saving to {}'.format(npath))
-
-                    pr.println(1, '[+] done')
-                    return True
-
-                except error.Error as e:
-                    pr.println(0, '[!] {}'.format(error.getExceptionMessage(e)))
-                    raise
-
-            else:
-                pr.println(0, '[-] couldn\'t synchronize!')
-                return False
-
-        finally:
-            sync.destroy()
-
-    def printStats(self, status, endline=False):
+    def printStats(self, status, force=False):
         if pr.verbosity >= 1:
             progress = status.progress
             effort = settings().minEffort
             if effort:
                 progress = min(max(progress, status.effort / effort, 0), 1)
 
-            msg = '[+] synchronization {:3.0f}%: {} points'.format(100 * progress, status.points)
+            msg = '[+] {}: progress {:3.0f}%, {} points'.format(
+                    utils.timeStampFmt(time.monotonic() - self.startTime),
+                    100 * progress,
+                    status.points)
             if pr.verbosity >= 2:
                 msg += ', correlation={:.2f}, formula={}, maxChange={}'.format(
                         100 * status.factor,
@@ -245,8 +219,8 @@ class App(object):
             if pr.verbosity >= 3:
                 pr.println(1, msg)
             else:
-                pr.reprint(1, msg, endline)
+                pr.reprint(1, msg)
 
+    def onError(self, task, source, err):
+        pr.printException(1, err, source)
 
-    def onError(self, source, err):
-        pr.println(2, source, err)

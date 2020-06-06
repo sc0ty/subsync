@@ -64,7 +64,6 @@ class Correlator
 		std::atomic_size_t m_wordsNo;
 
 		Synchronizer m_sync;
-		bool m_correlated;
 		StatsCallback m_statsCb;
 };
 

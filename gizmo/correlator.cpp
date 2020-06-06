@@ -21,8 +21,7 @@ Correlator::Correlator(
 		float minWordsSim) :
 	m_state(State::idle),
 	m_wordsNo(0),
-	m_sync(windowSize, minCorrelation, maxDistance, minPointsNo, minWordsSim),
-	m_correlated(false)
+	m_sync(windowSize, minCorrelation, maxDistance, minPointsNo, minWordsSim)
 {
 }
 
@@ -50,7 +49,15 @@ void Correlator::pushSubtitle(double start, double end, const char* text)
 
 void Correlator::run(const string threadName)
 {
-	ScopeExit done([this](){ m_state = State::idle; });
+	CorrelationStats bestStats;
+
+	ScopeExit done([this, &bestStats]()
+	{
+		m_state = State::idle;
+
+		if (m_statsCb)
+			m_statsCb(bestStats);
+	});
 
 	if (!threadName.empty())
 		renameThread(threadName);
@@ -81,9 +88,9 @@ void Correlator::run(const string threadName)
 		if (newBestLine)
 		{
 			CorrelationStats stats = m_sync.correlate();
-			if (m_statsCb && (stats.correlated || !m_correlated))
+			if (m_statsCb && (stats.correlated || !bestStats.correlated))
 			{
-				m_correlated = stats.correlated;
+				bestStats = stats;
 				m_statsCb(stats);
 			}
 		}

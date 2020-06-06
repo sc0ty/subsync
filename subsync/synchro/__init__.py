@@ -1,5 +1,5 @@
 from subsync.synchro.synchronizer import Synchronizer
-from subsync.synchro.controller import SyncController
+from subsync.synchro.controller import SyncController, SyncJobResult
 from subsync.synchro.task import SyncTask, SyncTaskList
 from subsync.synchro.input import InputFile, SubFile, RefFile
 from subsync.synchro.output import OutputFile

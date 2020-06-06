@@ -41,7 +41,7 @@ class InputPanel(subsync.gui.layout.subpanel.SubtitlePanel):
 
         @error_dlg
         def showOpenWinWithFile(filename):
-            stream = openwin.readStream(self, filename, self.stream.types)
+            stream = openwin.readStream(self, self.stream, filename)
             settings().lastdir = os.path.dirname(filename)
             self.showOpenWin(stream)
 
@@ -52,7 +52,7 @@ class InputPanel(subsync.gui.layout.subpanel.SubtitlePanel):
 
     def setStream(self, stream):
         if stream != None and stream.isOpen():
-            self.stream.assign(stream)
+            self.stream = stream
             self.m_textSubPath.SetValue('{}:{}'.format(self.stream.path, self.stream.no + 1))
             self.m_textSubPath.SetInsertionPoint(self.m_textSubPath.GetLastPosition())
             self.m_choiceSubLang.SetValue(self.stream.lang)

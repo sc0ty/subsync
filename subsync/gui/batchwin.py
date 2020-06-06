@@ -6,7 +6,7 @@ from subsync.gui.components import assetsdlg, filedlg, filedrop
 from subsync.gui.components.thread import gui_thread
 from subsync.gui.components.update import update_lock
 from subsync.gui.errorwin import error_dlg, showExceptionDlg
-from subsync.synchro import SyncController, SyncTaskList
+from subsync.synchro import SyncController, SyncTaskList, SyncJobResult
 from subsync.settings import settings
 from subsync import img, utils
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
@@ -76,7 +76,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
             self.goToSyncMode()
 
             self.sync = SyncController(listener=self)
-            self.sync.synchronize(tasks)
+            self.sync.synchronize(tasks, timeout=1.0)
             self.startTime = time.monotonic()
 
             self.suspendBlocker = SuspendBlocker()
@@ -185,7 +185,7 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.m_gaugeCurrentProgress.SetValue(100 * progress)
         self.m_gaugeTotalProgress.SetValue(100 * (no + progress))
 
-        if self.sync.running():
+        if self.sync.isRunning():
             self.updateProgressText(no, progress)
 
     @gui_thread
@@ -314,9 +314,9 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
             self.m_items.updateEvent.removeListener(self.onItemsUpdate)
             self.stop()
 
-            if self.sync and self.sync.running():
+            if self.sync and self.sync.isRunning():
                 with BusyDlg(self, _('Terminating, please wait...')) as dlg:
-                    dlg.ShowModalWhile(self.sync.running)
+                    dlg.ShowModalWhile(self.sync.isRunning)
 
         parent = self.GetParent()
         if parent:

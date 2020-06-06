@@ -71,7 +71,7 @@ cmdopts = {
 'sync.out.fps':            _('output framerate (for FPS-based subtitles)'),
 'sync.out.enc':            _('output character encoding'),
 
-'import':                  _('import list of tasks from YAML file'),
+'fromFile':                _('import list of tasks from YAML file'),
 'options.minEffort':       _('how hard to try (0.0 - 1.0)'),
 'options.overwrite':       _('overwrite existing files'),
 

@@ -7,9 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 class OutputFile(object):
-    def __init__(self, path=None, enc='UTF-8', fps=None):
+    def __init__(self, path=None, enc=None, fps=None):
         self.path = path
-        self.enc  = enc
+        self.enc  = enc or 'UTF-8'
         self.fps  = fps
         self.pathFormatter = None
 
@@ -27,15 +27,6 @@ class OutputFile(object):
         if self.enc:  res['enc'] = self.enc
         if self.fps:  res['fps'] = self.fps
         return res
-
-    def deserialize(data):
-        if data:
-            path = data.get('path')
-            enc = data.get('enc', 'UTF-8')
-            fps = data.get('fps')
-
-            res = OutputFile(path, enc, fps)
-            return res
 
     def __repr__(self):
         return utils.fmtobj(self.__class__.__name__,
@@ -73,7 +64,7 @@ class PathFormatter(object):
                 self.d[ prefix + 'path' ] = item.path
                 self.d[ prefix + 'no'   ] = str(item.no + 1)
                 self.d[ prefix + 'lang' ] = item.lang or ''
-                self.d[ prefix + 'name' ] = os.path.splitext(item.getBaseName())[0]
+                self.d[ prefix + 'name' ] = os.path.splitext(os.path.basename(item.path))[0]
                 self.d[ prefix + 'dir'  ] = os.path.dirname(item.path)
 
         path = formatPattern(pattern, self.d)

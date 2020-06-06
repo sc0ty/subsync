@@ -222,7 +222,7 @@ options = [
         ]},
 
         _('Synchronization options:'),
-        { 'name': 'import', 'metavar': 'PATH' },
+        { 'name': 'fromFile', 'alias': '--import', 'metavar': 'PATH' },
         { 'group': 'options', 'name': 'minEffort', 'alias': '--effort', 'type': float },
         { 'group': 'options', 'name': 'overwrite', 'parser': parseConst },
         { 'group': 'options', 'name': 'jobsNo',          'type': int, 'aliases': ['--jobs', '-j'], 'metavar': 'NO' },
