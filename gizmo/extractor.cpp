@@ -39,6 +39,11 @@ void Extractor::selectTimeWindow(double begin, double end)
 	m_endTime = end;
 }
 
+void Extractor::selectEndTime(double end)
+{
+	m_endTime = end;
+}
+
 void Extractor::connectEosCallback(EosCallback callback)
 {
 	m_eosCb = callback;
@@ -79,7 +84,9 @@ void Extractor::run(string threadName)
 
 	try
 	{
-		demux->seek(m_beginTime);
+		if (m_beginTime)
+			demux->seek(m_beginTime);
+
 		demux->start();
 
 		while (m_state == State::running)

@@ -22,6 +22,7 @@ class Extractor
 		const StreamsFormat &getStreamsInfo() const;
 
 		void selectTimeWindow(double beginTime, double endTime);
+		void selectEndTime(double endTime);
 
 		void connectEosCallback(EosCallback callback);
 		void connectErrorCallback(ErrorCallback callback);

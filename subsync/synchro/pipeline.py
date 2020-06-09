@@ -22,15 +22,14 @@ class BasePipeline(object):
         self.extractor.connectEosCallback(None)
         self.extractor.connectErrorCallback(None)
 
-    def selectTimeWindow(self, begin, end, start=None):
-        if end > self.duration:
+    def selectTimeWindow(self, begin, end=math.inf):
+        if begin != 0.0:
+            self.demux.seek(begin)
+        if end is not math.inf:
+            self.extractor.selectEndTime(end)
+        else:
             end = self.duration
-        if begin > end:
-            begin = end
         self.timeWindow = (begin, end)
-        if start == None:
-            start = begin
-        self.extractor.selectTimeWindow(start, end)
 
     def start(self, threadName=None):
         self.extractor.start(threadName=threadName)
@@ -200,11 +199,25 @@ def createProducerPipelines(stream, no=None, runCb=None):
 
     if len(pipes) > 1:
         no = len(pipes)
-        partTime = pipes[0].duration / no
+        duration = pipes[0].duration
+        partTime = duration / no
         for i, p in enumerate(pipes):
             begin = i * partTime
             end = begin + partTime + 1.0 # overlap to catch whole words
+            if end >= duration:
+                end = math.inf
             logger.info('job %i/%i time window set to %.2f - %.2f', i+1, no, begin, end)
-            p.selectTimeWindow(begin, end)
+
+            try:
+                p.selectTimeWindow(begin, end)
+            except gizmo.Error:
+                logger.warning('seek failed, using only %i jobs', i, exc_info=True)
+                no = i
+                pipes = pipes[:no]
+                if pipes:
+                    logger.info('updating job %i/%i time window set to %.2f - %.2f',
+                            no, no, begin - partTime, duration)
+                    pipes[-1].selectTimeWindow(begin - partTime, duration)
+                break
 
     return pipes

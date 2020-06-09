@@ -16,6 +16,7 @@ void initExtractorWrapper(py::module &m)
 	extractor.def(py::init<std::shared_ptr<Demux>>());
 	extractor.def("getStreamsInfo", &Extractor::getStreamsInfo);
 	extractor.def("selectTimeWindow", &Extractor::selectTimeWindow);
+	extractor.def("selectEndTime", &Extractor::selectEndTime);
 	extractor.def("connectEosCallback", &Extractor::connectEosCallback);
 	extractor.def("connectErrorCallback", &Extractor::connectErrorCallback);
 	extractor.def("start", &Extractor::start, py::arg("threadName") = "");
