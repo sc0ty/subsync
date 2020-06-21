@@ -10,9 +10,10 @@ def loadSpeechModel(lang):
     logger.info('loading speech recognition model for language %s', lang)
 
     asset = assets.getAsset('speech', [lang])
-    if asset.isLocal():
-        logger.debug('model ready: %s', asset.getLocal())
-        return asset.getLocal()
+    if asset.localVersion():
+        model = asset.readSpeechModel()
+        logger.debug('model ready: %s', model)
+        return model
 
     raise error.Error(_('There is no speech recognition model for language {}')
             .format(lang)).add('language', lang)

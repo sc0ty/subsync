@@ -1,30 +1,37 @@
 import subsync.gui.layout.downloadwin
-from subsync.gui import errorwin
 import wx
-from subsync.assets import assetManager
+from subsync.gui import errorwin
 from subsync.gui.components.thread import gui_thread
 from subsync import utils
 from subsync.error import Error
+import time
+import sys
 
 import logging
 logger = logging.getLogger(__name__)
 
 
 class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
-    def __init__(self, parent, title, updater):
+    def __init__(self, parent, asset):
         super().__init__(parent)
-        self.m_textName.SetLabel(title)
+        self.m_textName.SetLabel(asset.getPrettyName())
 
-        status = updater.getStatus()
-        if not status.state == 'run' and not (status.state == 'done' and status.detail == 'success'):
-            updater.start()
+        self.lastPos = 0
+        self.startTime = time.monotonic()
 
-        self.updater = updater
-        self.lastPos = None
+        self.downloader = asset.download(
+                onUpdate=self.onUpdate,
+                onEnd=self.onEnd,
+                timeout=0.5)
 
-        self.progressTimer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.onProgressTimerTick, self.progressTimer)
-        self.progressTimer.Start(200)
+        if not self.downloader.isRunning():
+            try:
+                done = self.downloader.wait(reraise=True)
+                exception = None
+            except:
+                done = False
+                exception = sys.exc_info()
+            wx.CallAfter(self.onEnd, asset, not done, exception)
 
     def ShowModal(self):
         try:
@@ -33,95 +40,60 @@ class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
             self.onClose(None)
 
     def onClose(self, event):
-        self.updater.stop()
-        if self.progressTimer.IsRunning():
-            self.progressTimer.Stop()
+        if self.downloader and self.downloader.isRunning():
+            self.downloader.terminate()
+            self.downloader.unregisterCallbacks(onUpdate=self.onUpdate, onEnd=self.onEnd)
+            self.downloader = None
 
-    def onProgressTimerTick(self, event):
-        status = self.updater.getStatus()
-
-        if status.state == 'run':
-            if status.detail == 'download':
-                self.setStatus(_('downloading'), status.progress)
-            else:
-                self.setStatus(_('processing...'))
-            self.setProgress(status.progress)
-
-        elif status.state == 'done':
-            self.progressTimer.Stop()
-            res = None
-
-            if status.detail == 'success':
-                self.setStatus(_('operation finished successfully'))
-                self.setProgress(1)
-                res = wx.ID_OK
-
-            elif status.detail == 'fail':
-                self.setStatus(_('operation failed'))
-                if status.error is not None:
-                    errorwin.showExceptionDlg(self, status.error)
-                res = wx.ID_CANCEL
-
-            elif status.detail == 'cancel':
-                self.setStatus(_('operation cancelled by the user'))
-                res = wx.ID_CANCEL
-
-            wx.Yield()
-
-            if self.IsModal():
-                self.EndModal(res)
-
-    def setStatus(self, desc, progress=None):
-        msg = [ desc ]
-        if progress is not None:
-            pos, size = progress
-            msg += [ utils.fileSizeFmt(pos) ]
-            if size != None:
-                msg += [ '/', utils.fileSizeFmt(size) ]
-            msg += [ self.getDownloadSpeed(pos) ]
-        self.m_textDetails.SetLabel(' '.join(msg))
-
-    def setProgress(self, progress):
-        if isinstance(progress, tuple):
-            pos, size = progress
-        else:
-            pos, size = progress, 1
-
-        if pos is None or size is None:
-            self.m_gaugeProgress.Pulse()
-        else:
-            p = max(min(pos / size, 1.0), 0.0)
-            self.m_gaugeProgress.SetValue(int(100.0 * p))
-
-    def getDownloadSpeed(self, pos):
-        res = ''
-        if pos != None and self.lastPos != None:
-            delta = pos - self.lastPos
-            if delta > 0:
-                interval = self.progressTimer.GetInterval() / 1000.0
-                res = '({}/s)'.format(utils.fileSizeFmt(delta / interval))
-        self.lastPos = pos
-        return res
+        if event:
+            event.Skip()
 
     @gui_thread
-    def onUpdateComplete(self, upd, success):
-        if success:
-            self.setProgress(1.0)
-            self.setStatus('operation finished successfully')
-            if self.IsModal():
-                self.EndModal(wx.ID_OK)
+    def onUpdate(self, asset, progress, size):
+        msg = _('downloading')
+        if progress and size:
+            self.m_gaugeProgress.SetValue(int(100.0 * progress / size))
+            msg = '{} {} / {} {}'.format(
+                    msg,
+                    utils.fileSizeFmt(progress),
+                    utils.fileSizeFmt(size),
+                    self.getDownloadSpeed(progress) or '')
+        elif progress:
+            self.m_gaugeProgress.Pulse()
+            msg = '{} {} {}'.format(
+                    msg,
+                    utils.fileSizeFmt(progress),
+                    self.getDownloadSpeed(progress) or '')
         else:
-            self.setStatus('operation failed')
-            if self.IsModal():
-                self.EndModal(wx.ID_CANCEL)
+            msg = '{}...'.format(msg)
+        self.m_textDetails.SetLabel(msg)
 
+    @gui_thread
+    def onEnd(self, asset, terminated, error):
+        if not terminated and not error:
+            self.m_gaugeProgress.SetValue(100)
+            self.m_textDetails.SetLabel(_('operation finished successfully'))
+            res = wx.ID_OK
+        else:
+            if terminated:
+                self.m_textDetails.SetLabel('operation cancelled')
+            elif error:
+                self.m_textDetails.SetLabel(_('operation failed'))
+                errorwin.showExceptionDlg(self, error)
+            res = wx.ID_CANCEL
 
-class SelfUpdateWin(DownloadWin):
-    def __init__(self, parent):
-        title = _('Application upgrade')
-        asset = assetManager.getSelfUpdaterAsset()
-        updater = asset and asset.getUpdater()
-        if not updater:
-            raise Error('Application upgrade is not available')
+        wx.Yield()
+        if self.IsModal():
+            self.EndModal(res)
+        else:
+            self.Close()
 
-        super().__init__(parent, title, updater)
+    def getDownloadSpeed(self, pos):
+        if pos is not None:
+            delta = pos - self.lastPos
+            if delta > 0:
+                self.lastPos = pos
+                now = time.monotonic()
+                interval = now - self.startTime
+                if interval > 0:
+                    return '({})'.format(utils.transferSpeedFmt(delta, interval))

@@ -25,20 +25,20 @@ def loadDictionary(langKey, langVal, minLen=0):
                     dictionary.add(k.lower(), v)
 
     asset = assets.getAsset('dict', (langKey, langVal))
-    if asset.isLocal():
-        for key, val in loadDictionaryFromFile(asset.path):
+    if asset.localVersion():
+        for key, val in asset.readDictionary():
             addEntry(key, val)
     else:
         asset = assets.getAsset('dict', (langVal, langKey))
-        if asset.isLocal():
-            for key, val in loadDictionaryFromFile(asset.path):
+        if asset.localVersion():
+            for key, val in asset.readDictionary():
                 addEntry(val, key)
 
-    if not asset.isLocal():
-        raise Error(_('There is no dictionary for transaltion from {} to {}')
-                    .format(langKey, langVal)) \
-                    .add('language1', langKey) \
-                    .add('language2', langVal)
+    if not asset.localVersion():
+        raise Error(_('There is no dictionary for transaltion from {} to {}') \
+                .format(langKey, langVal)) \
+                .add('language1', langKey) \
+                .add('language2', langVal)
 
     logger.info('dictionary ready with %u entries', dictionary.size())
     return dictionary
@@ -50,15 +50,3 @@ def splitNgrams(word, size):
             yield word[i:i+size]
     else:
         yield word
-
-
-def loadDictionaryFromFile(path):
-    logger.info('loading dictionary: "%s"', path)
-    with open(path, 'r', encoding='utf8') as fp:
-        for line in fp:
-            if len(line) > 0 and line[0] != '#':
-                ents = line.strip().split('|')
-                if len(ents) >= 2:
-                    key = ents[0]
-                    for val in ents[1:]:
-                        yield (key, val)

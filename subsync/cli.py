@@ -1,13 +1,9 @@
 from subsync.synchro import SyncController
-from subsync.assets import assetManager, assetListUpdater
+from subsync.assets import assetManager
 from subsync.settings import settings
-from subsync import utils
-from subsync import error
+from subsync import validator, utils, error
 import time
 import threading
-
-import logging
-logger = logging.getLogger(__name__)
 
 
 class Printer(object):
@@ -36,73 +32,67 @@ class Printer(object):
         if msg:
             res = '{}: {}'.format(msg, res)
         self.println(v, '[!] ' + res.replace('\n', '\n[-] '))
+        if isinstance(exc, error.Error):
+            for key, val in exc.fields.items():
+                self.println(v+1, '[-] {}: {}'.format(key, val))
 
 
 pr = Printer()
 
 
-class AssetsDownloader(object):
-    def __init__(self, offline=False):
-        self.gotAssetList = False
-        self.offline = offline
+class AssetsVerifier(object):
+    def run(self, tasks):
+        assets = assetManager.getAssetsForTasks(tasks)
 
-    def getMissingAssets(self, task):
-        needed = assetManager.getAssetsForTask(task)
-        nonLocal= [ asset for asset in needed if not asset.isLocal() ]
-
-        if nonLocal and not self.offline:
-            self.downloadAssetList()
-
-            missing = [ asset for asset in nonLocal if asset.isMissing() ]
-            if missing:
-                self.printMissingAssets(missing)
-                return False
-
-            for asset in nonLocal:
-                if not self.downloadAsset(asset):
-                    return False
-
-            missing = [ asset for asset in needed if not asset.isLocal() ]
-            if missing:
-                self.printMissingAssets(missing)
-                return False
-
-        return True
+        if assets.notInstalled():
+            self.printMissingAssets(self.notInstalled())
+            return False
+        else:
+            return True
 
     def printMissingAssets(self, assets):
         pr.println(0, '[!] there is no assets needed to perform synchronization')
         for asset in assets:
             pr.println(1, '[-] asset {} is missing'.format(asset.getPrettyName()))
 
-    def downloadAssetList(self, force=False):
-        if force or not self.gotAssetList:
-            pr.println(1, '[+] updating asset list')
-            assetListUpdater.startSynchronous(updateList=True, autoUpdate=False)
-            self.gotAssetList = True
 
-    def downloadAsset(self, asset):
-        name = asset.getPrettyName()
-        updater = asset.getUpdater()
-        updater.start()
+class AssetsDownloader(AssetsVerifier):
+    def run(self, tasks):
+        self.updateAssetList()
+        assets = assetManager.getAssetsForTasks(tasks)
 
-        while updater.isRunning():
-            self.printDownloadStats(name, updater.getStatus())
-            time.sleep(1)
-
-        status = updater.getStatus()
-        if status.state == 'done' and status.detail == 'success':
-            self.printDownloadStats(name, status)
-            return True
-        else:
-            pr.println(0, '[!] FAILED')
-            if status.error:
-                pr.printException(1, status.error[1])
-                pr.println(2, error.getExceptionDetails(status.error))
+        if assets.missing():
+            self.printMissingAssets(assets.missing())
             return False
 
-    def printDownloadStats(self, name, status):
-        pos, size = status.progress or (None, None)
-        msg = [ '[+] downloading ', name ]
+        return self.installAssets(assets.notInstalled()) \
+                and self.installAssets(assets.hasUpdate())
+
+    def updateAssetList(self):
+        listUpdater = assetManager.getAssetListUpdater()
+        if not listUpdater.isRunning() and not listUpdater.isUpdated():
+            pr.println(2, '[+] updating assets list')
+            listUpdater.run()
+            listUpdater.wait()
+        return listUpdater.isUpdated()
+
+    def installAssets(self, assets):
+        for asset in assets:
+            downloader = asset.download(onUpdate=self.onUpdate, timeout=0.5)
+            try:
+                downloader.wait(reraise=True)
+
+            except KeyboardInterrupt:
+                downloader.terminate()
+                raise
+
+            except error.Error as err:
+                pr.printException(0, err)
+                return False
+        return True
+
+    def onUpdate(self, asset, pos=None, size=None, start=False):
+        msg = [ '[+] downloading ', asset.getPrettyName() ]
         if pos is not None and size:
             msg += [ ' {:3.0f}%'.format(100 * pos / size) ]
         if pos is not None:
@@ -110,7 +100,7 @@ class AssetsDownloader(object):
         if size:
             msg += [ ' / ', utils.fileSizeFmt(size) ]
 
-        if pr.verbosity >= 3:
+        if start or pr.verbosity >= 3:
             pr.println(1, ''.join(msg))
         else:
             pr.reprint(1, ''.join(msg))
@@ -119,7 +109,10 @@ class AssetsDownloader(object):
 class App(object):
     def __init__(self, verbosity=1, offline=False):
         pr.verbosity = verbosity
-        self.assetsDownloader = AssetsDownloader(offline)
+        if offline:
+            self.assetsDownloader = AssetsVerifier()
+        else:
+            self.assetsDownloader = AssetsDownloader()
 
     def runTasks(self, tasks):
         if not tasks:
@@ -132,11 +125,17 @@ class App(object):
         sync = None
 
         try:
-            validTasks = [ task for task in tasks if self.validate(task) ]
-            readyTasks = [ task for task in validTasks if self.assetsDownloader.getMissingAssets(task) ]
+            validator.validateTasks(tasks, outputRequired=True)
+        except Exception as err:
+            pr.printException(0, err)
+            return 1
+
+        try:
+            if not self.assetsDownloader.run(tasks):
+                return 2
 
             sync = SyncController(listener=self)
-            sync.synchronize(readyTasks, timeout=1.0)
+            sync.synchronize(tasks, timeout=1.0)
             sync.wait()
 
             if self.succeeded == len(tasks):
@@ -149,6 +148,10 @@ class App(object):
             sync and sync.terminate()
             return 1
 
+        except error.Error as err:
+            pr.printException(0, err)
+            raise
+
     def onJobStart(self, task):
         pr.println(1, '[*] starting synchronization {}'.format(task.sub.path))
         pr.println(2, '[+] sub: {}'.format(task.sub))
@@ -160,7 +163,7 @@ class App(object):
 
     def onJobEnd(self, task, status, result):
         if status and not result.terminated:
-            self.printStats(status, force=True)
+            self.printStats(status, finished=True)
         if result.success:
             pr.println(1, '[+] done, saved to {}'.format(result.path))
             self.succeeded += 1
@@ -168,43 +171,15 @@ class App(object):
             pr.println(0, '[-] couldn\'t synchronize!')
         pr.println(1, '')
 
-    def validate(self, task):
-        sub = task.sub
-        ref = task.ref
-        out = task.out
-
-        fails = []
-        if sub is None or not sub.path or sub.no is None:
-            fails.append('subtitles not set')
-        if ref is None or not ref.path or ref.no is None:
-            fails.append('reference file not set')
-        if out is None or not out.path:
-            fails.append('output file not set')
-        if sub.path == ref.path and sub.no == ref.no:
-            fails.append('subtitles can\'t be the same as reference')
-        if ref.type == 'audio' and not ref.lang:
-            fails.append('select reference language')
-
-        try:
-            out.validateOutputPattern()
-        except Exception as e:
-            fails.append(str(e))
-
-        if fails:
-            pr.println(0, '[!] cannot synchronize task {}'.format(sub and sub.path))
-            for fail in fails:
-                pr.println(1, '[-] {}'.format(fail))
-            pr.println(1, '')
-            return False
-        else:
-            return True
-
-    def printStats(self, status, force=False):
+    def printStats(self, status, finished=False):
         if pr.verbosity >= 1:
-            progress = status.progress
-            effort = settings().minEffort
-            if effort:
-                progress = min(max(progress, status.effort / effort, 0), 1)
+            if finished:
+                progress = 1.0
+            else:
+                progress = status.progress
+                effort = settings().minEffort
+                if effort:
+                    progress = min(max(progress, status.effort / effort, 0), 1)
 
             msg = '[+] {}: progress {:3.0f}%, {} points'.format(
                     utils.timeStampFmt(time.monotonic() - self.startTime),
@@ -223,4 +198,3 @@ class App(object):
 
     def onError(self, task, source, err):
         pr.printException(1, err, source)
-

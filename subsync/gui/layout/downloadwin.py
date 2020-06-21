@@ -18,9 +18,9 @@ import wx.xrc
 class DownloadWin ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"Downloading"), pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE|wx.MAXIMIZE_BOX|wx.RESIZE_BORDER )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"Downloading"), pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
 
-		self.SetSizeHints( wx.Size( -1,-1 ), wx.DefaultSize )
+		self.SetSizeHints( wx.Size( 400,-1 ), wx.DefaultSize )
 
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 
@@ -45,7 +45,7 @@ class DownloadWin ( wx.Dialog ):
 		self.m_textDetails = wx.StaticText( self.m_panelMain, wx.ID_ANY, _(u"processing..."), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textDetails.Wrap( -1 )
 
-		fgSizer2.Add( self.m_textDetails, 0, wx.EXPAND|wx.RIGHT|wx.LEFT, 5 )
+		fgSizer2.Add( self.m_textDetails, 0, wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
 
 		self.m_line = wx.StaticLine( self.m_panelMain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer2.Add( self.m_line, 0, wx.EXPAND|wx.TOP|wx.RIGHT|wx.LEFT, 10 )

@@ -91,10 +91,10 @@ class InputFile(object):
             if lang and lang != s.lang.lower():
                 continue
             return self.select(s.no)
-        err = Error(_('There is no matching stream in ') + self.path).add('path', self.path)
-        if type: err.add('type', type)
-        if lang: err.add('language', lang)
-        raise err
+        raise Error(_('There is no matching stream in {}').format(self.path)) \
+                .addn('path', self.path) \
+                .addn('type', type) \
+                .addn('language', lang)
 
     def selectFirstMatchingStream(self, types=None):
         if types is not None:

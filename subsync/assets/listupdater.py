@@ -1,111 +1,59 @@
 from subsync import config
-from subsync import utils
-from subsync import thread
-from subsync import async_utils
-from subsync.error import Error
-import asyncio
+import threading, requests, json
 import sys
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-class AssetListUpdater(thread.AsyncJob):
-    def __init__(self, mgr):
-        super().__init__(self.updateJob, name='AssetListUpdater')
-        self.mgr = mgr
-        self.isListReady = False
-        self.error = None
+class ListUpdater(object):
+    def __init__(self, onUpdate=None):
+        self._thread = None
+        self._updated = False
+        self._exception = None
+        self._onUpdate = onUpdate
 
-    def hasList(self):
-        if self.error:
-            e = self.error[1]
-            self.error = None
-            msg = '{}\n{}'.format(_('Communication with server failed'), str(e))
-            raise Error(msg) from e
-        return self.isListReady
+    def run(self, autoUpdate=False):
+        if self.isRunning():
+            raise RuntimeError(_('Another update in progress'))
 
-    async def updateJob(self, updateList=True, autoUpdate=False):
-        self.error = None
-        await self.loadRemoteAssetList()
-        if updateList:
-            await self.downloadRemoteAssetList()
-            self.isListReady = not self.error
-        self.removeOldInstaller()
-        if autoUpdate:
-            await self.runAutoUpdater()
+        self._exception = None
+        self._updated = False
+        self._thread = threading.Thread(
+                target=self._run,
+                name='AssetListUpdater')
+        self._thread.start()
 
-    async def loadRemoteAssetList(self):
+    def isUpdated(self):
+        return self._updated
+
+    def isRunning(self):
+        return self._thread and self._thread.is_alive()
+
+    def wait(self, reraise=False):
+        self._thread.join()
+        if reraise and self._exception:
+            _, ex, tb = self._exception
+            raise ex.with_traceback(tb)
+
+    def _run(self):
         try:
-            logger.info('reading remote asset list from %s', config.assetspath)
-            assets = await async_utils.readJsonFile(config.assetspath)
-            if assets:
-                self.updateRemoteAssetsData(assets)
+            logger.info('downloading remote asset list from %s', config.assetsurl)
+            r = requests.get(config.assetsurl, timeout=5)
+            r.raise_for_status()
+            assets = r.json()
+            self._onUpdate and self._onUpdate(assets)
+            self._updated = True
 
-        except asyncio.CancelledError:
-            raise
+            try:
+                with open(config.assetspath, 'w', encoding='utf8') as fp:
+                    json.dump(assets, fp, indent=4)
+            except:
+                    logger.info('cannot save asset list to %s',
+                            config.assetspath, exc_info=True)
 
-        except Exception as e:
-            logger.error('cannot read asset list from %s: %r',
-                    config.assetspath, e, exc_info=True)
+        except:
+            logger.error('cannot download asset list from %s',
+                    config.assetsurl, exc_info=True)
+            self._exception = sys.exc_info()
 
-    async def downloadRemoteAssetList(self):
-        try:
-            if config.assetsurl:
-                logger.info('downloading remote assets list from %s', config.assetsurl)
-                assets = await async_utils.downloadJson(config.assetsurl)
-                if assets:
-                    await async_utils.writeJsonFile(config.assetspath, assets)
-                    self.updateRemoteAssetsData(assets)
-
-        except asyncio.CancelledError:
-            raise
-
-        except Exception as e:
-            logger.error('cannot download asset list from %s: %r', config.assetsurl, e)
-            self.error = sys.exc_info()
-
-    async def runAutoUpdater(self):
-        try:
-            updAsset = self.mgr.getSelfUpdaterAsset()
-            updater = updAsset and updAsset.getUpdater()
-            cur = utils.getCurrentVersion()
-
-            if updater and cur:
-                loc = updAsset.localVersion(None)
-                rem = updAsset.remoteVersion(None)
-
-                if (loc and cur >= loc) or (loc and rem and rem > loc):
-                    updAsset.removeLocal()
-                    loc = None
-
-                if rem and not loc and rem > cur:
-                    logger.info('new version available to download, %s -> %s',
-                            utils.versionToString(cur),
-                            utils.versionToString(rem))
-
-                    updater.start()
-
-        except asyncio.CancelledError:
-            raise
-
-        except Exception as e:
-            logger.error('update processing failed: %r', e, exc_info=True)
-            self.error = sys.exc_info()
-
-    def removeOldInstaller(self):
-        cur = utils.getCurrentVersion()
-        if cur:
-            updAsset = self.mgr.getSelfUpdaterAsset()
-            if updAsset:
-                loc = updAsset.localVersion(None)
-                rem = updAsset.remoteVersion(None)
-                if loc and loc <= cur:
-                    updAsset.removeLocal()
-                elif loc and rem and loc < rem:
-                    updAsset.removeLocal()
-
-    def updateRemoteAssetsData(self, remoteData):
-        logger.info('update remote asset list, got %i assets', len(remoteData))
-        for id, remote in remoteData.items():
-            self.mgr.getAsset(id).updateRemote(remote)

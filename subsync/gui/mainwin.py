@@ -3,16 +3,14 @@ import wx
 from subsync.gui.syncwin import SyncWin
 from subsync.gui.batchwin import BatchWin
 from subsync.gui.settingswin import SettingsWin
-from subsync.gui.downloadwin import SelfUpdateWin
+from subsync.gui.downloadwin import DownloadWin
 from subsync.gui.aboutwin import AboutWin
 from subsync.gui.components import assetsdlg
 from subsync.gui.busydlg import BusyDlg
 from subsync.gui.errorwin import error_dlg, showExceptionDlg
 from subsync.synchro import SyncTask
-from subsync.assets import assetManager, assetListUpdater
-from subsync import img
-from subsync import config
-from subsync import loggercfg
+from subsync.assets import assetManager
+from subsync import img, validator, config, loggercfg
 from subsync.settings import settings
 from subsync.data import descriptions
 import sys
@@ -81,7 +79,9 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.SetSizeHints(minW=size.GetWidth(), minH=size.GetHeight(),
                 maxH=size.GetHeight())
 
-        assetListUpdater.start(autoUpdate=settings().autoUpdate)
+        listUpdater = assetManager.getAssetListUpdater(autoUpdate=settings().autoUpdate)
+        if not listUpdater.isUpdated() and not listUpdater.isRunning():
+            listUpdater.run()
 
     def onSliderMaxDistScroll(self, event):
         val = self.m_sliderMaxDist.GetValue()
@@ -118,10 +118,10 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
     @error_dlg
     def onMenuItemCheckUpdateClick(self, event):
-        update = self.checkForUpdate()
-        if update:
-            if update.hasUpdate():
-                if self.runUpdater():
+        updAsset = self.checkForUpdate()
+        if updAsset:
+            if updAsset.hasUpdate():
+                if self.installUpdate():
                     self.Close(force=True)
             else:
                 dlg = wx.MessageDialog(
@@ -145,9 +145,9 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
 
     @error_dlg
     def start(self, task, askForLang=True):
+        validator.validateTask(task)
+        logRunCmd(task)
         if assetsdlg.validateAssets(self, [task], askForLang=askForLang):
-            logRunCmd(task)
-
             with SyncWin(self, task) as dlg:
                 dlg.ShowModal()
 
@@ -169,28 +169,22 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     @error_dlg
     def onClose(self, event):
         if event.CanVeto() and settings().askForUpdate:
-            self.runUpdater()
-
-        assetListUpdater.stop()
+            self.installUpdate()
         event.Skip()
 
     def checkForUpdate(self):
         updAsset = assetManager.getSelfUpdaterAsset()
         if updAsset:
-            if not assetListUpdater.isRunning() and not updAsset.hasUpdate():
-                assetListUpdater.start(updateList=True, autoUpdate=True)
+            listUpdater = assetManager.getAssetListUpdater()
+            if not listUpdater.isRunning():
+                listUpdater.run()
 
-            if assetListUpdater.isRunning():
-                with BusyDlg(self, _('Checking for update...'), cancellable=True) as dlg:
-                    if dlg.ShowModalWhile(assetListUpdater.isRunning) == wx.ID_OK:
-                        if assetListUpdater.hasList():
-                            return updAsset
-                    else:
-                        assetListUpdater.stop()
-            else:
-                return updAsset
+            if listUpdater.isRunning():
+                with BusyDlg(self, _('Checking for update...')) as dlg:
+                    dlg.ShowModalWhile(listUpdater.isRunning)
+            return updAsset
 
-    def runUpdater(self):
+    def installUpdate(self):
         updAsset = assetManager.getSelfUpdaterAsset()
         if updAsset and updAsset.hasUpdate():
             dlg = wx.MessageDialog(
@@ -200,10 +194,10 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
                     wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION)
             if dlg.ShowModal() == wx.ID_YES:
 
-                if not updAsset.hasLocalUpdate():
-                    SelfUpdateWin(self).ShowModal()
+                if not updAsset.hasInstaller():
+                    DownloadWin(self, updAsset).ShowModal()
 
-                if updAsset.hasLocalUpdate():
-                    updAsset.installUpdate()
+                if updAsset.hasInstaller():
+                    updAsset.install()
                     return True
         return False

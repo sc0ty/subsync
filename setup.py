@@ -330,13 +330,13 @@ setup(
             'pybind11>=2.4',
             ],
         install_requires = [
-            'aiohttp>=2.3',
             'certifi',
             'pysubs2>=0.2.4',
             'pycryptodome>=3.9;platform_system=="Linux"',
             'cryptography>=2.8;platform_system!="Linux"',
             'PyYAML',
             'pybind11>=2.4',
+            'requests>=2.0',
             ],
         extras_require = {
             'GUI': [ 'wxPython>=4.0' ],

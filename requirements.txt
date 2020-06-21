@@ -1,6 +1,6 @@
-aiohttp>=2.3
 certifi
 cryptography>=2.8
 pysubs2>=0.2.4
 PyYAML
 pybind11>=2.4
+requests>=2.0

@@ -29,6 +29,10 @@ def fileSizeFmt(val):
     return '{:.1f} {}'.format(val, unit)
 
 
+def transferSpeedFmt(size, interval):
+    return '{}/s'.format(fileSizeFmt(size / interval))
+
+
 def timeStampFmt(time):
     try:
         t = int(time)

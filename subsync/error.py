@@ -5,10 +5,11 @@ import sys
 
 
 class Error(Exception):
-    def __init__(self, msg, **fields):
+    def __init__(self, msg, task=None, **fields):
         super(Error, self).__init__(msg)
         self.message = msg
         self.fields = fields
+        self.addTask(task)
 
     def __repr__(self):
         return '{}; {}'.format(str(self.message),
@@ -25,6 +26,13 @@ class Error(Exception):
     def addn(self, key, val):
         if val != None:
             self.fields[key] = val
+        return self
+
+    def addTask(self, task):
+        if task:
+            self.addn('sub', task.sub)
+            self.addn('ref', task.ref)
+            self.addn('out', task.out)
         return self
 
 

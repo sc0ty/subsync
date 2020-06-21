@@ -4,6 +4,7 @@ import time
 import threading
 from .synchronizer import Synchronizer
 from subsync.settings import settings
+from subsync.error import Error
 
 import logging
 logger = logging.getLogger(__name__)
@@ -43,11 +44,15 @@ class SyncController(object):
 
         self._terminated = False
         if isinstance(tasks, Iterable):
+            for task in tasks:
+                self.validateTask(task)
+
             self._thread = threading.Thread(
                     target=self._run,
                     args=(tasks, timeout),
                     name='Synchronizer')
         else:
+            self.validateTask(tasks)
             self._thread = threading.Thread(
                     target=self._runTask,
                     args=(tasks, timeout),
@@ -55,8 +60,9 @@ class SyncController(object):
         self._thread.start()
 
     def terminate(self):
-        self._terminated = True
-        self._semaphore.release()
+        if self.isRunning():
+            self._terminated = True
+            self._semaphore.release()
 
     def isRunning(self):
         return self._thread and self._thread.is_alive()
@@ -95,6 +101,17 @@ class SyncController(object):
                 encoding=enc,
                 fps=task and task.out and task.out.fps,
                 overwrite=self._options.get('overwrite'))
+
+    def validateTask(self, task):
+        sub, ref, out = task.sub, task.ref, task.out
+        if sub is None or not sub.path or sub.no is None:
+            raise Error('subtitles not set', task=task)
+        if ref is None or not ref.path or ref.no is None:
+            raise Error('reference file not set', task=task)
+        if out and not out.path:
+            raise Error('output path not set', task=task)
+        if out and out.path:
+            out.validateOutputPattern()
 
     def _run(self, tasks, timeout):
         try:

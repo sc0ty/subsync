@@ -8,7 +8,7 @@ from subsync.gui.components.update import update_lock
 from subsync.gui.errorwin import error_dlg, showExceptionDlg
 from subsync.synchro import SyncController, SyncTaskList, SyncJobResult
 from subsync.settings import settings
-from subsync import img, utils
+from subsync import img, validator, utils
 from subsync.data.filetypes import subtitleWildcard, videoWildcard
 from subsync.data import descriptions
 import wx
@@ -69,19 +69,24 @@ class BatchWin(subsync.gui.layout.batchwin.BatchWin):
         self.Layout()
 
     def start(self):
-        tasks = self.m_items.getTasks()
+        try:
+            tasks = self.m_items.getTasks()
+            validator.validateTasks(tasks, outputRequired=True)
 
-        if assetsdlg.validateAssets(self, tasks, askForLang=True):
-            self.m_gaugeTotalProgress.SetRange(100 * len(tasks))
-            self.goToSyncMode()
+            if assetsdlg.validateAssets(self, tasks, askForLang=True):
+                self.m_gaugeTotalProgress.SetRange(100 * len(tasks))
+                self.goToSyncMode()
 
-            self.sync = SyncController(listener=self)
-            self.sync.synchronize(tasks, timeout=1.0)
-            self.startTime = time.monotonic()
+                self.sync = SyncController(listener=self)
+                self.sync.synchronize(tasks, timeout=1.0)
+                self.startTime = time.monotonic()
 
-            self.suspendBlocker = SuspendBlocker()
-            if settings().preventSystemSuspend:
-                self.suspendBlocker.lock()
+                self.suspendBlocker = SuspendBlocker()
+                if settings().preventSystemSuspend:
+                    self.suspendBlocker.lock()
+        except:
+            self.goToEditMode()
+            raise
 
     def stop(self):
         self.sync and self.sync.terminate()

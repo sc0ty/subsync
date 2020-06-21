@@ -1,4 +1,4 @@
-from subsync.assets.updater import Updater
+from subsync.assets.downloader import Downloader
 from subsync import config
 from subsync import utils
 from subsync.data import languages
@@ -18,195 +18,194 @@ class Asset(object):
         self.type = type
         self.params = params
 
-        self.local = None
-        self.remote = None
-        self.updater = None
+        self._local = {}
+        self._remote = {}
+        self._updaterRunning = False
 
         fname = '{}.{}'.format('-'.join(params), type)
         self.path = os.path.join(config.assetdir, type, fname)
         self.localDir = None
 
-    def updateLocal(self):
-        self.local = {}
-
-    def updateRemote(self, remote):
-        self.remote = remote
-
-    def getPrettyName(self):
+    def getId(self):
         return mkId(self.type, self.params)
 
-    def getLocal(self, key=None, defaultValue=None):
-        if self.local == None:
-            self.updateLocal()
-        local = self.local or {}
-        if key:
-            return local.get(key, defaultValue)
-        else:
-            return local
+    def getPrettyName(self):
+        return self.getId()
 
-    def getRemote(self, key=None, defaultValue=None):
-        remote = self.remote or {}
-        if key:
-            return remote.get(key, defaultValue)
-        else:
-            return remote
+    def download(self, onUpdate=None, onEnd=None, timeout=None):
+        if self._updaterRunning:
+            raise RuntimeError(_('Asset downloader is already running'))
 
-    def getUpdater(self):
-        if not self.updater and self.remote:
-            self.updater = Updater(self)
-        return self.updater
-
-    def isLocal(self):
-        return bool(self.getLocal())
-
-    def isRemote(self):
-        return bool(self.getRemote())
+        downloader = Downloader()
+        downloader.registerCallbacks(onUpdate=onUpdate, onEnd=onEnd)
+        downloader.run(self, timeout=timeout)
+        return downloader
 
     def isMissing(self):
-        return not self.isLocal() and not self.isRemote()
+        return bool(not self.localVersion() and not self.remoteVersion())
 
-    def localVersion(self, defaultVersion=(0, 0, 0)):
-        return utils.parseVersion(self.getLocal('version'), defaultVersion)
+    def localVersion(self):
+        if not self._local:
+            try:
+                self._local = self._readLocalData() or {}
+            except Exception as e:
+                logger.info('cannot load %s: %r', self.getPrettyName(), e)
+                self._removeLocalData()
+        return utils.parseVersion(self._local.get('version'))
 
-    def remoteVersion(self, defaultVersion=(0, 0, 0)):
-        return utils.parseVersion(self.getRemote('version'), defaultVersion)
+    def remoteVersion(self):
+        return utils.parseVersion(self._remote.get('version'))
 
-    def validateLocal(self):
-        pass
+    def hasUpdate(self):
+        local = self.localVersion()
+        remote = self.remoteVersion()
+        return bool(local and remote and remote > local)
 
-    def removeLocal(self):
+    def _removeLocalData(self):
+        self._local = {}
         try:
             if self.path and os.path.isfile(self.path):
                 logger.info('removing %s', self.path)
                 os.remove(self.path)
-        except Exception as e:
-            logger.error('cannot remove %s: %r', self.getPrettyName(), e, exc_info=True)
+        except:
+            logger.error('cannot remove %s', self.getPrettyName(), exc_info=True)
 
         try:
             if self.localDir and os.path.isdir(self.localDir):
                 logger.info('removing %s', self.localDir)
                 shutil.rmtree(self.localDir, ignore_errors=True)
-        except Exception as e:
-            logger.error('cannot remove %s: %r', self.getPrettyName(), e, exc_info=True)
-
-        self.local = {}
-
-    def isUpgradable(self):
-        return self.isRemote() and self.remoteVersion() > self.localVersion()
+        except:
+            logger.error('cannot remove %s', self.getPrettyName(), exc_info=True)
 
     def __repr__(self):
-        return '<Asset {} local={} remote={} path={}>'.format(
-                mkId(self.type, self.params),
-                self.getLocal(),
-                self.isRemote(),
-                self.path)
+        return '<Asset {} local={} remote={}>'.format(
+                self.getId(),
+                self.localVersion(),
+                self.remoteVersion())
 
 
 class DictAsset(Asset):
-    def updateLocal(self):
-        try:
-            with open(self.path, encoding='utf8') as fp:
-                ents = fp.readline().strip().split('/', 3)
+    def _readLocalData(self):
+        with open(self.path, encoding='utf8') as fp:
+            ents = fp.readline().strip().split('/', 3)
 
-            if len(ents) >= 4 and ents[0] == '#dictionary':
-                self.local = dict(
-                        lang1 = ents[1],
-                        lang2 = ents[2],
-                        version = ents[3])
-
-        except Exception as e:
-            logger.info('cannot load %s: %r', self.getPrettyName(), e)
-            self.removeLocal()
+        if len(ents) >= 4 and ents[0] == '#dictionary':
+            return { 'lang1': ents[1], 'lang2': ents[2], 'version': ents[3] }
+        else:
+            return { 'version': '0.0.0' }
 
     def getPrettyName(self):
-        if len(self.params) >= 2:
-            return _('dictionary {} / {}').format(
-                    languages.getName(self.params[0]),
-                    languages.getName(self.params[1]))
-        else:
-            super().getPrettyName()
+        return _('dictionary {} / {}').format(
+                languages.getName(self.params[0]),
+                languages.getName(self.params[1]))
+
+    def readDictionary(self):
+        logger.info('reading dictionary from file "%s"', self.path)
+        with open(self.path, 'r', encoding='utf8') as fp:
+            for line in fp:
+                line = line.strip()
+                if not line or line[0] == '#':
+                    continue
+                ents = line.split('|')
+                if len(ents) >= 2:
+                    for val in ents[1:]:
+                        yield (ents[0], val)
+                else:
+                    logger.warning("invalid dictionary entry '%s'", line)
 
 
 class SpeechAsset(Asset):
-    def updateLocal(self):
-        try:
-            with open(self.path, encoding='utf8') as fp:
-                local = json.load(fp)
+    def _readLocalData(self):
+        with open(self.path, encoding='utf8') as fp:
+            local = json.load(fp)
 
-            # fix local paths
-            dirname = os.path.abspath(os.path.dirname(self.path))
-            sphinx = local.get('sphinx', None)
-            if sphinx:
-                for key, val in sphinx.items():
-                    if val.startswith('./'):
-                        sphinx[key] = os.path.join(dirname, *val.split('/')[1:])
+        if 'version' not in local:
+            local['version'] = '0.0.0'
 
-            localDir = local.get('dir', None)
-            if localDir and localDir.startswith('./'):
-                localDir = os.path.join(dirname, *localDir.split('/')[1:])
+        # fix local paths
+        dirname = os.path.abspath(os.path.dirname(self.path))
+        sphinx = local.get('sphinx', None)
+        if sphinx:
+            for key, val in sphinx.items():
+                if val.startswith('./'):
+                    sphinx[key] = os.path.join(dirname, *val.split('/')[1:])
 
-            self.local = local
-            self.localDir = localDir
+        localDir = local.get('dir', None)
+        if localDir and localDir.startswith('./'):
+            localDir = os.path.join(dirname, *localDir.split('/')[1:])
 
-        except Exception as e:
-            logger.warn('cannot load %s: %r', self.getPrettyName(), e)
-            self.removeLocal()
+        self.localDir = localDir
+        return local
 
     def getPrettyName(self):
-        if len(self.params) >= 1:
-            return _('{} speech recognition model').format(
-                    languages.getName(self.params[0]))
-        else:
-            super().getPrettyName()
+        return _('{} speech recognition model').format(
+                languages.getName(self.params[0]))
+
+    def readSpeechModel(self):
+        self.localVersion()
+        return self._local
 
 
-class UpdateAsset(Asset):
+class SelfUpdaterAsset(Asset):
     def __init__(self, type, params):
         super().__init__(type, params)
         self.localDir = os.path.join(config.assetdir, 'upgrade')
         self.path = os.path.join(self.localDir, 'upgrade.json')
+        self._updater = None
 
-    def updateLocal(self):
+    def localVersion(self):
+        return utils.getCurrentVersion()
+
+    def installerVersion(self):
+        return super().localVersion()
+
+    def _readLocalData(self):
+        if os.path.isfile(self.path):
+            with open(self.path, encoding='utf8') as fp:
+                return json.load(fp)
+
+    def getPrettyName(self):
+        return _('Application upgrade')
+
+    def download(self, onUpdate=None, onEnd=None, timeout=None):
+        upd = self._updater
         try:
-            if os.path.isfile(self.path):
-                with open(self.path, encoding='utf8') as fp:
-                    self.local = json.load(fp)
+            upd and not upd.isRunning() and upd.wait(reraise=True)
+        except:
+            upd = None
 
-        except Exception as e:
-            logger.warn('cannot load %s: %r', self.getPrettyName(), e)
-            self.removeLocal()
+        if upd:
+            upd.registerCallbacks(onUpdate=onUpdate, onEnd=onEnd)
+        else:
+            self._updater = upd = super().download(onUpdate, onEnd, timeout)
+        return upd
 
-    def installUpdate(self):
+    def hasInstaller(self):
+        local = self.localVersion()
+        installer = self.installerVersion()
+        return bool(local and installer and installer > local)
+
+    def install(self):
         try:
-            instPath = os.path.join(self.localDir, self.getLocal('install'))
+            self.installerVersion()
+            instPath = os.path.join(self.localDir, self._local.get('install'))
             logger.info('executing installer %s', instPath)
             mode = os.stat(instPath).st_mode
             if (mode & stat.S_IEXEC) == 0:
                 os.chmod(instPath, mode | stat.S_IEXEC)
             subprocess.Popen(instPath, cwd=self.localDir)
 
-        except Exception as e:
-            logger.error('cannot install update %s: %r', self.path, e, exc_info=True)
-            self.removeLocal()
+        except:
+            logger.error('cannot install update %s', self.path, exc_info=True)
+            self._removeLocalData()
             raise Error(_('Update instalation failed miserably'))
-
-    def hasUpdate(self):
-        return self.hasRemoteUpdate() or self.hasLocalUpdate()
-
-    def hasLocalUpdate(self):
-        cur = utils.getCurrentVersion()
-        return cur and self.isLocal() and self.localVersion() > cur
-
-    def hasRemoteUpdate(self):
-        cur = utils.getCurrentVersion()
-        return cur and self.isRemote() and self.remoteVersion() > cur
 
 
 def getAssetTypeByName(typ, params=None):
     types = {
             'dict':    DictAsset,
             'speech':  SpeechAsset,
-            'subsync': UpdateAsset,
+            'subsync': SelfUpdaterAsset,
             }
 
     T = types.get(typ, Asset)
@@ -226,3 +225,14 @@ def parseId(id):
     else:
         return None, None
 
+
+def validateRemoteData(data):
+    if data.get('type') not in [ 'zip' ]:
+        return False
+    if not isinstance(data.get('url'), str):
+        return False
+    if not isinstance(data.get('sig'), str):
+        return False
+    if not utils.parseVersion(data.get('version')):
+        return False
+    return True
