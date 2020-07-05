@@ -98,20 +98,20 @@ void Synchronizer::addSubtitle(double startTime, double endTime)
 
 CorrelationStats Synchronizer::correlate() const
 {
-	double factor = 0.0;
-
 	const Line bestLine = m_lineFinder.getBestLine();
 	const Points &points = m_lineFinder.getPoints();
 	Points hits = bestLine.getPointsInLine(points, 10.0f*m_maxDistanceSqr);
 
-	Line line(hits, NULL, NULL, &factor);
+	Line line;
+	double factor = line.interpolate(hits);
 	float distSqr = line.findFurthestPoint(hits);
 
 	while ((factor < m_minCorrelation || distSqr > m_maxDistanceSqr)
-			&& (countBuckets(hits) > m_minPointsNo))
+			&& hits.size() > m_minPointsNo
+			&& countBuckets(hits, m_minPointsNo + 1) > m_minPointsNo)
 	{
 		distSqr = line.removeFurthestPoint(hits);
-		line = Line(hits, NULL, NULL, &factor);
+		factor = line.interpolate(hits);
 	}
 
 	CorrelationStats stats;
@@ -128,7 +128,7 @@ CorrelationStats Synchronizer::correlate() const
 	return stats;
 }
 
-unsigned Synchronizer::countBuckets(const Points &pts) const
+unsigned Synchronizer::countBuckets(const Points &pts, unsigned limit) const
 {
 	if (m_buckets.empty())
 		return pts.size();
@@ -139,7 +139,11 @@ unsigned Synchronizer::countBuckets(const Points &pts) const
 	{
 		Buckets::const_iterator it = m_buckets.lower_bound(pt.x);
 		if (it != m_buckets.end())
-			has.insert(*it);
+		{
+			const bool inserted = has.insert(*it).second;
+			if (inserted && has.size() >= limit)
+				break;
+		}
 	}
 
 	return has.size();

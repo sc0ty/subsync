@@ -15,11 +15,11 @@ class Line
 		Line();
 		Line(float a, float b);
 		Line(const Point &p1, const Point &p2);
-		Line(const Points &points, double *da=NULL, double *db=NULL,
-				double *cor=NULL);
 
 		inline float getX(float y) const { return (y-b) / a; }
 		inline float getY(float x) const { return a*x + b; }
+
+		double interpolate(const Points &points);
 
 		float getDistanceSqr(const Point &point) const;
 		float getDistance(const Point &point) const;

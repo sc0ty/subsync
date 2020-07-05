@@ -18,19 +18,12 @@ Line::Line(const Point &p1, const Point &p2)
 	b = p1.y - a*p1.x;
 }
 
-Line::Line(const Points &points, double *da, double *db, double *cor)
+double Line::interpolate(const Points &points)
 {
 	if (points.size() < 2)
 	{
 		a = 1.0f;
 		b = 0.0f;
-		if (da && db)
-		{
-			*da = HUGE_VALF;
-			*db = HUGE_VALF;
-		}
-		if (cor)
-			*cor = 0.0f;
 	}
 
 	double sx  = 0.0;	// sum of x
@@ -57,25 +50,12 @@ Line::Line(const Points &points, double *da, double *db, double *cor)
 	const double ty = n*sy2 - sy*sy;
 
 	if ((tx == 0.0) || (ty == 0.0))
-	{
-		if (cor)
-			*cor = 0.0;
-		return;
-	}
+		return 0.0;
 
 	a =  txy / tx;
 	b = (sy - a*sx) / n;
 
-	if (da && db)
-	{
-		const double t3 = sy2 - a*sxy - b*sy;
-
-		*da = sqrt(n/(n-2) * t3/tx);
-		*db = *da * sqrt(sx2/n);
-	}
-
-	if (cor)
-		*cor = (txy * txy) / (tx * ty);
+	return (txy * txy) / (tx * ty);
 }
 
 float Line::getDistance(const Point &point) const

@@ -6,6 +6,7 @@
 #include "math/linefinder.h"
 #include <set>
 #include <cmath>
+#include <climits>
 
 
 struct CorrelationStats
@@ -50,7 +51,7 @@ class Synchronizer
 		Points getUsedPoints() const;
 
 	private:
-		unsigned countBuckets(const Points &pts) const;
+		unsigned countBuckets(const Points &pts, unsigned limit=UINT_MAX) const;
 
 	private:
 		Entrys m_subs;
