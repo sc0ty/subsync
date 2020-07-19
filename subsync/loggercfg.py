@@ -34,11 +34,16 @@ def init(level=None, path=None):
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
 
-    logging.basicConfig(
+    config = dict(
             format='%(asctime)s.%(msecs)03i: %(threadName)12.12s: %(levelname)8.8s: %(name)26s: %(message)s',
             datefmt='%H:%M:%S',
-            level=numLevel,
-            filename=path)
+            level=numLevel)
+
+    try:
+        logging.basicConfig(**config, filename=path)
+    except:
+        logging.basicConfig(**config)
+        logging.getLogger().error("invalid log file path '%s', ignoring", path, exc_info=True)
 
     def excepthook(type, exc, tb):
         logging.getLogger('RUNTIME').critical("Unhandled exception", exc_info=(type, exc, tb))
