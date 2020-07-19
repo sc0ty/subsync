@@ -47,7 +47,7 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
         self.startTime = time.monotonic()
 
         self.sync = SyncController(listener=self)
-        self.sync.synchronize(task, timeout=0.5)
+        self.sync.synchronize(task, timeout=0.5, interactive=True)
 
         self.suspendBlocker = suspendlock.SuspendBlocker()
         if settings().preventSystemSuspend:

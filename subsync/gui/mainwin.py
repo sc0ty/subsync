@@ -79,7 +79,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
         self.SetSizeHints(minW=size.GetWidth(), minH=size.GetHeight(),
                 maxH=size.GetHeight())
 
-        listUpdater = assetManager.getAssetListUpdater(autoUpdate=settings().autoUpdate)
+        listUpdater = assetManager().getAssetListUpdater(autoUpdate=settings().autoUpdate)
         if not listUpdater.isUpdated() and not listUpdater.isRunning():
             listUpdater.run()
 
@@ -169,13 +169,14 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
     @error_dlg
     def onClose(self, event):
         if event.CanVeto() and settings().askForUpdate:
+            event.Veto()
             self.installUpdate()
         event.Skip()
 
     def checkForUpdate(self):
-        updAsset = assetManager.getSelfUpdaterAsset()
+        updAsset = assetManager().getSelfUpdaterAsset()
         if updAsset:
-            listUpdater = assetManager.getAssetListUpdater()
+            listUpdater = assetManager().getAssetListUpdater()
             if not listUpdater.isRunning():
                 listUpdater.run()
 
@@ -185,7 +186,7 @@ class MainWin(subsync.gui.layout.mainwin.MainWin):
             return updAsset
 
     def installUpdate(self):
-        updAsset = assetManager.getSelfUpdaterAsset()
+        updAsset = assetManager().getSelfUpdaterAsset()
         if updAsset and updAsset.hasUpdate():
             dlg = wx.MessageDialog(
                     self,

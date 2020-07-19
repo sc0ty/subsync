@@ -3,7 +3,7 @@ from subsync.gui.downloadwin import DownloadWin
 from subsync.gui.busydlg import BusyDlg
 from subsync.gui.components import popups
 from subsync.assets import assetManager
-from subsync.data import descriptions, languages
+from subsync.data import descriptions
 from subsync.settings import settings
 from subsync.error import Error
 
@@ -13,13 +13,12 @@ def validateAssets(parent, tasks, updateAssets=True, askForLang=True, autoSave=F
         if not askForLangSelection(parent, tasks):
             return False
 
-    assets = assetManager.getAssetsForTasks(tasks)
+    assets = assetManager().getAssetsForTasks(tasks)
 
     if assets.notInstalled():
         updateAssetList(parent)
 
-    if assets.missing():
-        raiseNotSupportedAssets(assets.missing())
+    assets.validate()
 
     if assets.notInstalled():
         if not askForDownloadAssets(parent, assets.notInstalled()):
@@ -31,7 +30,7 @@ def validateAssets(parent, tasks, updateAssets=True, askForLang=True, autoSave=F
     return True
 
 def updateAssetList(parent):
-    listUpdater = assetManager.getAssetListUpdater()
+    listUpdater = assetManager().getAssetListUpdater()
     if not listUpdater.isRunning() and not listUpdater.isUpdated():
         listUpdater.run()
 
@@ -40,24 +39,6 @@ def updateAssetList(parent):
             dlg.ShowModalWhile(listUpdater.isRunning)
 
     return listUpdater.isUpdated()
-
-def raiseNotSupportedAssets(assets):
-    msg = []
-    speech = [ asset for asset in assets if asset.type == 'speech' ]
-    dicts  = [ asset for asset in assets if asset.type == 'dict' ]
-
-    if speech:
-        langs = ', '.join([ languages.getName(a.params[0]) for a in speech ])
-        msg += [ _('Synchronization with {} audio is currently not supported.') \
-                .format(langs) ]
-    if dicts:
-        langs = [ ' - '.join([ languages.getName(p) for p in a.params ]) for a in dicts ]
-        msg += [ _('Synchronization between languages {} is currently not supported.') \
-                .format(', '.join(langs)) ]
-
-    msg += [ '', _('missing assets:') ]
-    msg += [ ' - ' + asset.getPrettyName() for asset in assets ]
-    raise Error('\n'.join(msg))
 
 def askForDownloadAssets(parent, assetList):
     msg  = [ _('Following assets must be download to continue:') ]

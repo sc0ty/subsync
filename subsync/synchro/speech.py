@@ -1,6 +1,7 @@
 import gizmo
 from subsync import assets
 from subsync import error
+from subsync.translations import _
 
 import logging
 logger = logging.getLogger(__name__)

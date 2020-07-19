@@ -1,23 +1,10 @@
 import gizmo
 from subsync import subtitle
-from subsync.synchro import pipeline, dictionary, encdetect, wordsdump
+from subsync.synchro import pipeline, dictionary, encdetect, wordsdump, controller
 import threading
-from collections import namedtuple
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-SyncStatus = namedtuple('SyncStatus', [
-    'correlated',
-    'maxChange',
-    'progress',
-    'factor',
-    'points',
-    'maxDistance',
-    'formula',
-    'effort',
-])
 
 
 class Synchronizer(object):
@@ -198,13 +185,12 @@ class Synchronizer(object):
             else:
                 effort = (progress - begin) / (1.0 - begin)
 
-        return SyncStatus(
+        return controller.SyncStatus(
                 correlated  = stats.correlated and self.subPipeline and not self.subPipeline.isRunning(),
                 maxChange   = self.subtitlesCollector.getMaxSubtitleDiff(stats.formula),
                 progress    = progress,
                 factor      = stats.factor,
                 points      = stats.points,
-                maxDistance = stats.maxDistance,
                 formula     = stats.formula,
                 effort      = effort)
 

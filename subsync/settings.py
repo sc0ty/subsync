@@ -1,4 +1,5 @@
 from subsync import config
+from subsync.translations import _
 from subsync.error import Error
 import os
 import json
@@ -66,6 +67,7 @@ synchronizationOptions = [
         'minEffort',
         'outTimeOffset',
         'overwrite',
+        'test',
         ]
 
 wordsDumpIds = [ 'sub', 'subPipe', 'subRaw', 'ref', 'refPipe', 'refRaw' ]
@@ -173,9 +175,13 @@ class Settings(object):
                 count -= 1
             return max(count, 2)
 
-_settings = Settings()
+
+_settings = None
 
 
 def settings():
+    global _settings
+    if _settings is None:
+        _settings = Settings()
     return _settings
 

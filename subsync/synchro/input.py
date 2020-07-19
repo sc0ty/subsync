@@ -1,13 +1,46 @@
 import gizmo
 from subsync.synchro.channels import ChannelsMap
 from subsync.data import languages
+from subsync.translations import _
 from subsync import utils
 from subsync.error import Error
 
 
 class InputFile(object):
-    def __init__(self, path=None, stream=None, streamByType=None, streamByLang=None,
-            lang=None, enc=None, fps=None, channels=None):
+    """Subtitle/reference input file.
+
+    You should use either `SubFile` or `RefFile` instead of this base class.
+    """
+
+    def __init__(self, path=None, stream=None, *, streamByType=None,
+            streamByLang=None, lang=None, enc=None, fps=None, channels=None):
+        """
+        Parameters
+        ----------
+        path: str
+            Input file path.
+        stream: int, optional
+            Stream number, 1-based.
+        streamByType: str, optional
+            Select stream by type ('sub' or 'audio').
+        streamByLang: str, optional
+            Select stream by 3-letter language code, relies of file metadata.
+        lang: str, optional
+            Stream language as 2- or 3-letter ISO code.
+        enc: str, optional
+            Character encoding, `None` for auto detection based by `lang`.
+        fps: float, optional
+            Framerate.
+        channels: str or subsync.synchro.channels.ChannelsMap, optional
+            Audio channels to listen to, could be 'auto' or `None` for auto
+            selection, 'all' to listen to all channels, or comma separated
+            channels abbreviation, e.g. 'FL,FR'.
+
+        Notes
+        -----
+        Here stream number is 1-based (first stream in file has number 1) but
+        other methods expects 0-based numbers.
+        """
         self.path    = path
         self.no      = None
         self.type    = None
@@ -21,7 +54,7 @@ class InputFile(object):
         if not hasattr(self, 'types'):
             self.types = None
 
-        if path != None:
+        if path is not None:
             self.open(path)
 
         if stream is not None:
@@ -34,7 +67,7 @@ class InputFile(object):
         self.fps = fps or self.fps
 
         if type(channels) is str:
-            self.channels = ChannelsMap.deserialize(data['channels'])
+            self.channels = ChannelsMap.deserialize(channels)
         elif channels is not None:
             self.channels = channels
 
@@ -44,9 +77,12 @@ class InputFile(object):
         return self.no < other.no
 
     def stream(self):
-        return self.streams[self.no] if self.no != None else None
+        """Return selected stream."""
+        if self.no is not None:
+            return self.streams[self.no]
 
     def open(self, path):
+        """Open input file."""
         ss = gizmo.Demux(path).getStreamsInfo()
         streams = {s.no: s for s in ss}
 
@@ -72,6 +108,7 @@ class InputFile(object):
             self.selectFirstMatchingStream()
 
     def select(self, no):
+        """Select stream by number."""
         stream = self.streams[no]
         self.no = no
         self.type = stream.type
@@ -83,6 +120,7 @@ class InputFile(object):
         return stream
 
     def selectBy(self, type=None, lang=None):
+        """Select stream by type and language (or only one of them)."""
         for s in self.streams.values():
             if self.types and s.type not in self.types:
                 continue
@@ -118,9 +156,11 @@ class InputFile(object):
         return False
 
     def isOpen(self):
+        """Check whether file is opened."""
         return self.path != None
 
     def isSelect(self):
+        """Check whether stream is selected."""
         return self.path != None and self.no != None
 
     def serialize(self):
@@ -154,7 +194,10 @@ class InputFile(object):
 
 
 class SubFile(InputFile):
+    """Input subtitle file."""
+
     types = ('subtitle/text',)
+    """Supported stream types."""
 
     def __init__(self, *args, **kw):
         self.types = SubFile.types
@@ -162,7 +205,10 @@ class SubFile(InputFile):
 
 
 class RefFile(InputFile):
+    """Reference file."""
+
     types = ('subtitle/text', 'audio')
+    """Supported stream types."""
 
     def __init__(self, *args, **kw):
         self.types = RefFile.types
@@ -170,9 +216,21 @@ class RefFile(InputFile):
 
 
 def getLangFromPath(path):
-    ''' Returns two- or three-letters language code from filename in form
-    name.code.extension, e.g. subtitles.eng.srt or subtitles-fr.srt
-    '''
+    """Get language code from file name.
+
+    Reads 2- or 3-letter language code from file name, if code is present as
+    last thing before file extension.
+
+    Returns
+    -------
+    str
+        3-letter language code or `None` if code is not present.
+
+    Examples
+    --------
+    - `subtitles.eng.srt` - eng
+    - `subtitles-fr.srt` - fre
+    """
 
     name = path.rsplit('.', 1)[0]
     size = 0

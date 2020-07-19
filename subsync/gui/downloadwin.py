@@ -5,7 +5,6 @@ from subsync.gui.components.thread import gui_thread
 from subsync import utils
 from subsync.error import Error
 import time
-import sys
 
 import logging
 logger = logging.getLogger(__name__)
@@ -19,19 +18,12 @@ class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
         self.lastPos = 0
         self.startTime = time.monotonic()
 
-        self.downloader = asset.download(
-                onUpdate=self.onUpdate,
-                onEnd=self.onEnd,
-                timeout=0.5)
+        self.downloader = asset.downloader()
+        if not self.downloader:
+            raise Error(_('Update not available'))
 
-        if not self.downloader.isRunning():
-            try:
-                done = self.downloader.wait(reraise=True)
-                exception = None
-            except:
-                done = False
-                exception = sys.exc_info()
-            wx.CallAfter(self.onEnd, asset, not done, exception)
+        self.downloader.registerCallbacks(self)
+        self.downloader.run(timeout=0.5)
 
     def ShowModal(self):
         try:
@@ -40,9 +32,9 @@ class DownloadWin(subsync.gui.layout.downloadwin.DownloadWin):
             self.onClose(None)
 
     def onClose(self, event):
-        if self.downloader and self.downloader.isRunning():
+        if self.downloader:
+            self.downloader.unregisterCallbacks(self)
             self.downloader.terminate()
-            self.downloader.unregisterCallbacks(onUpdate=self.onUpdate, onEnd=self.onEnd)
             self.downloader = None
 
         if event:

@@ -1,3 +1,6 @@
+from subsync.translations import _
+
+
 def parseVersion(version, defaultVer=None):
     try:
         return tuple(int(x) for x in version.split('.'))

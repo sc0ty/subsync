@@ -1,24 +1,65 @@
 from subsync import utils
+from subsync.translations import _
 from subsync.error import Error
 import os
 
 import logging
 logger = logging.getLogger(__name__)
 
+__pdoc__ = {
+        'PathFormatter': False,
+        'ConditionalFormatter': False,
+        }
+
 
 class OutputFile(object):
-    def __init__(self, path=None, enc=None, fps=None):
+    """Subtitle target description - specifies where output should be saved."""
+
+    def __init__(self, path=None, *, enc=None, fps=None):
+        """
+        Parameters
+        ----------
+        path: str
+            Output path or pattern. Path could be literal or may contain
+            following variables:
+
+              - `{sub_path}`/`{ref_path}` - subtitle/reference full path;
+              - `{sub_no}`/`{ref_no}` - stream number;
+              - `{sub_lang}`/`{ref_lang}` - 3-letter language code;
+              - `{sub_name}`/`{ref_name}` - file name (without path and extension);
+              - `{sub_dir}`/`{ref_dir}` - directory path;
+              - `{if:<field>:<value>}` - if field is set, append value;
+              - `{if_not:<field>:<value>}` - if field is not set, append value.
+
+        enc: str, optional
+            Character encoding, default is 'UTF-8'.
+        fps: float, optional
+            Framerate, applies only for frame-based subtitles.
+
+        Notes
+        -----
+        Subtitle format is derived from file extension, thus path must end with
+        one of the supported extensions.
+
+        Examples
+        --------
+        `{ref_dir}/{ref_name}{if:sub_lang:.}{sub_lang}.srt`
+
+        `{sub_dir}/{sub_name}-out.ssa`
+        """
         self.path = path
         self.enc  = enc or 'UTF-8'
         self.fps  = fps
         self.pathFormatter = None
 
     def getPath(self, sub, ref):
+        """Compile path pattern for given `sub` and `ref`."""
         if self.pathFormatter is None:
             self.pathFormatter = PathFormatter()
         return self.pathFormatter.format(self.path, sub, ref)
 
     def validateOutputPattern(self):
+        """Raise exception for invalid path pattern."""
         validatePattern(self.path)
 
     def serialize(self):
@@ -67,20 +108,21 @@ class PathFormatter(object):
                 self.d[ prefix + 'name' ] = os.path.splitext(os.path.basename(item.path))[0]
                 self.d[ prefix + 'dir'  ] = os.path.dirname(item.path)
 
-        path = formatPattern(pattern, self.d)
+        path = _formatPattern(pattern, self.d)
         self.cache = (cacheKey, pattern, path)
         return path
 
 
 def validatePattern(pattern):
+    """Raise exception for invalid path pattern."""
     d = {}
     for prefix in [ 'sub_', 'ref_' ]:
         for name in [ 'path', 'no', 'lang', 'name', 'dir' ]:
             d[ prefix + name ] = ''
-    formatPattern(pattern, d)
+    _formatPattern(pattern, d)
 
 
-def formatPattern(pattern, formatter):
+def _formatPattern(pattern, formatter):
     try:
         return pattern.format(**formatter, **{
             'if': ConditionalFormatter(formatter),

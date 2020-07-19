@@ -1,6 +1,5 @@
 import gizmo
-
-audio_channel_center_id = 4
+from subsync.translations import _
 
 
 class ChannelsMap(object):

@@ -23,6 +23,7 @@ tags
 *.msi
 .env
 CppCheckResults.xml
+/subsync/messages.po
 /snap/.snapcraft
 /build
 /dist
@@ -30,6 +31,7 @@ CppCheckResults.xml
 /prime
 /stage
 /setup.cfg
+/doc/api
 .eggs
 *.egg-info
 *.snap

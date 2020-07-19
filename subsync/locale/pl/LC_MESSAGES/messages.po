@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: subsync\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-03-15 12:21+0100\n"
-"PO-Revision-Date: 2020-03-15 12:42+0100\n"
+"PO-Revision-Date: 2020-07-19 17:12+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.3.1\n"
 
 #: subsync/assets/item.py:123
 msgid "dictionary {} / {}"
@@ -85,7 +85,7 @@ msgstr "numer strumienia referencji"
 
 #: subsync/cmdargs.py:60
 msgid "select reference stream by type"
-msgstr "wybór strumienia referencyjnego na wg typu"
+msgstr "wybór strumienia referencyjnego na podstawie typu"
 
 #: subsync/cmdargs.py:61
 msgid "select reference stream by language"
@@ -167,7 +167,7 @@ msgstr "opcje synchronizacji"
 
 #: subsync/cmdargs.py:87
 msgid "0 for auto."
-msgstr ""
+msgstr "0 dla auto."
 
 #: subsync/cmdargs.py:88
 msgid "In seconds."
@@ -203,7 +203,7 @@ msgid ""
 "Higher value will result in longer synchronization, but if you set this too "
 "low, synchronization will fail."
 msgstr ""
-"Maksymalna poprawka. Czas napisów zostanie zmieniony maksymalnie o tą "
+"Maksymalna poprawka. Czas napisów zostanie zmieniony maksymalnie o tę "
 "wartość. Wyższa wartość zaowocuje dłuższą synchronizacją, ale zbyt niska "
 "wartość sprawi, że synchronizacja nie powiedzie się."
 
@@ -1398,23 +1398,23 @@ msgstr "wszystko"
 
 #: subsync/gui/layout/settingswin.py:265
 msgid "debug"
-msgstr "debug"
+msgstr ""
 
 #: subsync/gui/layout/settingswin.py:265
 msgid "info"
-msgstr "info"
+msgstr ""
 
 #: subsync/gui/layout/settingswin.py:265
 msgid "warning"
-msgstr "warning"
+msgstr ""
 
 #: subsync/gui/layout/settingswin.py:265
 msgid "error"
-msgstr "błąd"
+msgstr ""
 
 #: subsync/gui/layout/settingswin.py:265
 msgid "critical"
-msgstr "critical"
+msgstr ""
 
 #: subsync/gui/layout/settingswin.py:279
 msgid "log to file"
@@ -1653,6 +1653,132 @@ msgstr "1 minuta"
 #: subsync/utils.py:70
 msgid "{} minutes"
 msgstr "{} minut"
+
+#~ msgid "Asset installation failed"
+#~ msgstr "Instalacja nie powiodła się"
+
+#~ msgid "Another update in progress"
+#~ msgstr "Inna aktualizacja w toku"
+
+#~ msgid "Usage: {} [OPTIONS]"
+#~ msgstr "Składnia: {} [OPCJE]"
+
+#~ msgid "General options:"
+#~ msgstr "Opcje ogólne:"
+
+#~ msgid "Headless options:"
+#~ msgstr "Opcje trybu headless:"
+
+#~ msgid "GUI options:"
+#~ msgstr "Opcje GUI:"
+
+#~ msgid "Synchronization job:"
+#~ msgstr "Synchronizacja:"
+
+#~ msgid "Synchronization options:"
+#~ msgstr "Opcje synchronizacji:"
+
+#~ msgid "Debug options:"
+#~ msgstr "Opcje debugowe:"
+
+#~ msgid ""
+#~ "Prevents system from going to sleep during synchronization.\n"
+#~ "It could not work on all platforms."
+#~ msgstr ""
+#~ "Zapobiega uśpieniu systemu podczas synchronizacji.\n"
+#~ "Funkcja nie jest wspierana przez wszystkie platformy."
+
+#~ msgid "display this help text and exit"
+#~ msgstr "pokaż pomoc i wyjdź"
+
+#~ msgid "display version information and exit"
+#~ msgstr "pokaż informacje o wersji i wyjdź"
+
+#~ msgid "user interface language (2-letter ISO code)"
+#~ msgstr "język interfejsu użytkownika (2-literowy kod ISO)"
+
+#~ msgid "run in headless mode (without GUI)"
+#~ msgstr "uruchom w trybie headless (bez GUI)"
+
+#~ msgid "verbosity level (0 - 3)"
+#~ msgstr "ilość danych wypisywanych na konsoli (0 - 3)"
+
+#~ msgid "don't attempt to contact remote server to get missing assets"
+#~ msgstr "nie pobieraj brakujących elementów z serwera"
+
+#~ msgid "open batch processing window"
+#~ msgstr "otwórz okno synchronizacji seryjnej"
+
+#~ msgid "define synchronization task, can be repeated multiple times"
+#~ msgstr "zdefiniuj zadanie synchronizacji, może być powtórzone wielokrotnie"
+
+#~ msgid "subtitle stream no"
+#~ msgstr "numer strumienia napisów"
+
+#~ msgid "select subtitle stream by language (3-letter ISO code)"
+#~ msgstr "wybór strumienia napisów na podstawie języka (3-literowy kod ISO)"
+
+#~ msgid "subtitle language (2- or 3-letter ISO code)"
+#~ msgstr "język napisów (2- lub 3-literowy kod ISO)"
+
+#~ msgid "subtitle framerate (for FPS-based subtitles)"
+#~ msgstr "ilość klatek na sekundę (dla napisów opartych o numer klatki)"
+
+#~ msgid "reference stream no"
+#~ msgstr "numer strumienia referencji"
+
+#~ msgid "select reference stream by language (3-letter ISO code)"
+#~ msgstr ""
+#~ "wybór strumienia referencji na podstawie języka (3-literowy kod ISO)"
+
+#~ msgid "reference language (2- or 3-letter ISO code)"
+#~ msgstr "język napisów (2- lub 3-literowy kod ISO)"
+
+#~ msgid "output file path or pattern"
+#~ msgstr "ścieżka pliku wyjściowego lub wzór"
+
+#~ msgid "output framerate (for FPS-based subtitles)"
+#~ msgstr "ilość klatek na sekundę (dla napisów opartych o numer klatki)"
+
+#~ msgid "import list of tasks from YAML file"
+#~ msgstr "import listy zadań z pliku YAML"
+
+#~ msgid "set logging level"
+#~ msgstr "wybierz poziom logowania"
+
+#~ msgid ""
+#~ "dump words to file, or to standard output if there is no PATH, SRC is one "
+#~ "of:  "
+#~ msgstr ""
+#~ "zrzuć wyrazy do pliku lub na standardowe wyjście jeżeli nie podano PATH, "
+#~ "SRC przyjmuje wartości: "
+
+#~ msgid "Update not available"
+#~ msgstr "Aktualizacja niedostępna"
+
+#~ msgid "append 2-letters language code (ISO 639-1)"
+#~ msgstr "dodaj 2-literowy kod języka (ISO 639-1)"
+
+#~ msgid "append 3-letters language code (ISO 639-2/B)"
+#~ msgstr "dodaj 3-literowy kod języka (ISO 639-2/B)"
+
+#~ msgid "Prevent from going to sleep during synchronization"
+#~ msgstr "Zapobiegaj uśpieniu systemu podczas synchronizacji"
+
+#~ msgid "There is no matching stream in {}"
+#~ msgstr "Brak obsługiwanych strumieni w {}"
+
+#~ msgid "Output file not set"
+#~ msgstr "Plik wyjściowy nie ustawiony"
+
+#~ msgid "Invalid output pattern"
+#~ msgstr "Niedozwolony wzór wyjściowy"
+
+#~ msgid "set user interface language"
+#~ msgstr "wybierz język interfejsu"
+
+#~ msgid "begin synchronization job, can be repeated multiple times"
+#~ msgstr "zdefiniuj zadanie synchronizacji, może być użyte wielokrotnie"
 
 #~ msgid "maximum correction (in seconds)"
 #~ msgstr "maksymalna zmiana (w sekundach)"

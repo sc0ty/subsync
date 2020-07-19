@@ -14,10 +14,8 @@ from subsync.settings import settings
 def subsync(argv=None):
     try:
         args = cmdargs.parseCmdArgs(argv)
-        if args is None:
-            return 1
-
         options = args.get('options', {})
+
         if options.get('logLevel') or options.get('logFile'):
             loggercfg.init(level=options.get('logLevel'), path=options.get('logFile'))
         if options.get('language'):
@@ -91,7 +89,7 @@ def gui(sync=None, fromFile=None, batch=False, options={}, **args):
         settings().save()
 
 
-def cli(sync=None, fromFile=None, verbose=1, options={}, **args):
+def cli(sync=None, fromFile=None, verbose=1, offline=False, options={}, **args):
     from subsync import cli
 
     try:
@@ -103,7 +101,7 @@ def cli(sync=None, fromFile=None, verbose=1, options={}, **args):
         return 1
 
     try:
-        app = cli.App(verbosity=verbose)
+        app = cli.App(verbosity=verbose, offline=offline)
         return app.runTasks(tasks)
 
     except Exception as err:
@@ -123,9 +121,7 @@ def _init(options={}):
     if options:
         settings().set(temp=True, **options)
 
-    if not loggercfg.initialized \
-            or options.get('logLevel') != settings().logLevel \
-            or options.get('logFile') != settings().logFile:
+    if not loggercfg.initialized:
         loggercfg.init(level=settings().logLevel, path=settings().logFile)
 
     if settings().logBlacklist:

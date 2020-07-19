@@ -1,4 +1,5 @@
 from collections import namedtuple, ChainMap
+from subsync.translations import _
 
 
 LanguageInfo = namedtuple('LanguageInfo', [

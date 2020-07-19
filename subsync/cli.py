@@ -42,10 +42,10 @@ pr = Printer()
 
 class AssetsVerifier(object):
     def run(self, tasks):
-        assets = assetManager.getAssetsForTasks(tasks)
+        assets = assetManager().getAssetsForTasks(tasks)
 
         if assets.notInstalled():
-            self.printMissingAssets(self.notInstalled())
+            self.printMissingAssets(assets.notInstalled())
             return False
         else:
             return True
@@ -59,17 +59,16 @@ class AssetsVerifier(object):
 class AssetsDownloader(AssetsVerifier):
     def run(self, tasks):
         self.updateAssetList()
-        assets = assetManager.getAssetsForTasks(tasks)
+        assets = assetManager().getAssetsForTasks(tasks)
 
         if assets.missing():
             self.printMissingAssets(assets.missing())
             return False
 
-        return self.installAssets(assets.notInstalled()) \
-                and self.installAssets(assets.hasUpdate())
+        return self.installAssets(assets.hasUpdate())
 
     def updateAssetList(self):
-        listUpdater = assetManager.getAssetListUpdater()
+        listUpdater = assetManager().getAssetListUpdater()
         if not listUpdater.isRunning() and not listUpdater.isUpdated():
             pr.println(2, '[+] updating assets list')
             listUpdater.run()
@@ -78,8 +77,10 @@ class AssetsDownloader(AssetsVerifier):
 
     def installAssets(self, assets):
         for asset in assets:
-            downloader = asset.download(onUpdate=self.onUpdate, timeout=0.5)
+            downloader = asset.downloader()
             try:
+                downloader.registerCallbacks(self)
+                downloader.run(timeout=0.5)
                 downloader.wait(reraise=True)
 
             except KeyboardInterrupt:
@@ -89,6 +90,10 @@ class AssetsDownloader(AssetsVerifier):
             except error.Error as err:
                 pr.printException(0, err)
                 return False
+
+            finally:
+                downloader and downloader.unregisterCallbacks(self)
+
         return True
 
     def onUpdate(self, asset, pos=None, size=None, start=False):
@@ -135,7 +140,7 @@ class App(object):
                 return 2
 
             sync = SyncController(listener=self)
-            sync.synchronize(tasks, timeout=1.0)
+            sync.synchronize(tasks, timeout=1)
             sync.wait()
 
             if self.succeeded == len(tasks):

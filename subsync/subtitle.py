@@ -1,6 +1,7 @@
 from subsync import error
 from subsync import utils
 from subsync.data import filetypes
+from subsync.translations import _
 import bisect
 import pysubs2
 import copy

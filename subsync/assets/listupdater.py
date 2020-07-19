@@ -1,4 +1,5 @@
 from subsync import config
+from subsync.translations import _
 import threading, requests, json
 import sys
 
@@ -7,13 +8,20 @@ logger = logging.getLogger(__name__)
 
 
 class ListUpdater(object):
+    """Update assets list from remote server.
+
+    Don't instantiate it manually, use
+    `subsync.assets.mgr.AssetManager.getAssetListUpdater`.
+    """
+
     def __init__(self, onUpdate=None):
         self._thread = None
         self._updated = False
         self._exception = None
         self._onUpdate = onUpdate
 
-    def run(self, autoUpdate=False):
+    def run(self):
+        """Start updater (asynchronously)."""
         if self.isRunning():
             raise RuntimeError(_('Another update in progress'))
 
@@ -25,16 +33,28 @@ class ListUpdater(object):
         self._thread.start()
 
     def isUpdated(self):
+        """Check if update was run and succeeded."""
         return self._updated
 
     def isRunning(self):
+        """Check if update is running."""
         return self._thread and self._thread.is_alive()
 
     def wait(self, reraise=False):
-        self._thread.join()
-        if reraise and self._exception:
-            _, ex, tb = self._exception
-            raise ex.with_traceback(tb)
+        """Wait for update to finish.
+
+        Blocks until update finishes, if running.
+
+        Parameters
+        ----------
+        reraise: bool, optional
+            If set, eventual exception from update thread will be raised here.
+        """
+        if self._thread:
+            self._thread.join()
+            if reraise and self._exception:
+                _, ex, tb = self._exception
+                raise ex.with_traceback(tb)
 
     def _run(self):
         try:

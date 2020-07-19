@@ -1,17 +1,21 @@
-import gettext
-import locale
-import os
-import importlib
+import os, builtins
 from subsync import config
 
 import logging
 logger = logging.getLogger(__name__)
 
 
+initialized = False
+
+
 def init():
+    import gettext
     gettext.install('messages', localedir=config.localedir)
+    global initialized
+    initialized = True
 
 def setLanguage(language):
+    import gettext, locale, importlib
     try:
         lang = language
         if lang is None:
@@ -27,6 +31,9 @@ def setLanguage(language):
                     localedir=config.localedir,
                     languages=[lang])
             tr.install()
+
+        global initialized
+        initialized = True
 
         # workaround for languages being loaded before language is set
         import subsync.data.languages
@@ -50,3 +57,10 @@ def listLanguages():
         langs.append('en')
 
     return langs
+
+def _(msg):
+    if initialized:
+        gettext = builtins.__dict__.get('_', None)
+        if gettext is not None:
+            return gettext(msg)
+    return msg

@@ -3,9 +3,30 @@ from subsync.synchro.output import OutputFile
 from subsync import utils
 import yaml
 
+__pdoc__ = { 'SyncTaskList': False }
+
 
 class SyncTask(object):
+    """Synchronization task."""
+
     def __init__(self, sub=None, ref=None, out=None, data=None):
+        """
+        Parameters
+        ----------
+        sub: subsync.SubFile or subsync.InputFile or dict
+            Input subtitle file description. Proper object instance or `dict`
+            with fields same as arguments to `subsync.InputFile`.
+        ref: subsync.RefFile or subsync.InputFile or dict
+            Reference file description. Proper object instance or `dict` with
+            fields same as arguments to `subsync.InputFile`.
+        out: subsync.OutputFile or dict
+            Output subtitle file description. Proper object instance or `dict`
+            with fields same as arguments to `subsync.OutputFile`.
+        data: any, optional
+            Any user defined data, useful for passing extra information via
+            `subsync.SyncController` callbacks.
+        """
+
         if isinstance(sub, dict): sub = SubFile(**sub)
         if isinstance(ref, dict): ref = RefFile(**ref)
         if isinstance(out, dict): out = OutputFile(**out)

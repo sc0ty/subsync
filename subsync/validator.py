@@ -1,3 +1,4 @@
+from subsync.translations import _
 from subsync.error import Error
 
 

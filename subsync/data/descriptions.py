@@ -1,3 +1,6 @@
+from subsync.translations import _
+
+
 maxDistInfo = _(
 '''Max adjustement. Subtitle time will be changed no more than this value. Higher value will result in longer synchronization, but if you set this too low, synchronization will fail.''')
 
@@ -45,25 +48,26 @@ It could not work on all platforms.''')
 cmdopts = {
 'help':                    _('display this help text and exit'),
 'version':                 _('display version information and exit'),
-'options.language':        _('set user interface language'),
+'options.language':        _('user interface language (2-letter ISO code)'),
 
 'cli':                     _('run in headless mode (without GUI)'),
 'verbose':                 _('verbosity level (0 - 3)'),
+'offline':                 _('don\'t attempt to contact remote server to get missing assets'),
 
 'batch':                   _('open batch processing window'),
 
-'sync':                    _('begin synchronization job, can be repeated multiple times'),
+'sync':                    _('define synchronization task, can be repeated multiple times'),
 'sync.sub.path':           _('path to subtitle file'),
 'sync.sub.stream':         _('subtitle stream no'),
-'sync.sub.streamByLang':   _('select subtitle stream by language'),
-'sync.sub.lang':           _('subtitle language'),
+'sync.sub.streamByLang':   _('select subtitle stream by language (3-letter ISO code)'),
+'sync.sub.lang':           _('subtitle language (2- or 3-letter ISO code)'),
 'sync.sub.enc':            _('subtitle character encoding'),
 'sync.sub.fps':            _('subtitle framerate (for FPS-based subtitles)'),
 'sync.ref.path':           _('path to reference file'),
 'sync.ref.stream':         _('reference stream no'),
 'sync.ref.streamByType':   _('select reference stream by type'),
-'sync.ref.streamByLang':   _('select reference stream by language'),
-'sync.ref.lang':           _('reference language'),
+'sync.ref.streamByLang':   _('select reference stream by language (3-letter ISO code)'),
+'sync.ref.lang':           _('reference language (2- or 3-letter ISO code)'),
 'sync.ref.enc':            _('reference character encoding (for subtitle references)'),
 'sync.ref.fps':            _('reference framerate'),
 'sync.ref.channels':       _('reference audio channels mapping (for audio references)'),

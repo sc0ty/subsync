@@ -1,6 +1,7 @@
 import gizmo
 from subsync.synchro import speech
 from subsync.data import languages
+from subsync.translations import _
 from subsync.error import Error
 import math
 
@@ -194,7 +195,7 @@ def createProducerPipelines(stream, no=None, runCb=None):
                 logger.info('using only %i jobs due to short duration', i+1)
                 break
         else:
-            logger.warn('cannot get duration - using single pipeline')
+            logger.info('cannot get duration - using single pipeline')
             break
 
     if len(pipes) > 1:

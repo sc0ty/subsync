@@ -222,20 +222,25 @@ class gen_gui(distutils.cmd.Command):
         files = glob.glob(os.path.join('subsync', 'gui', 'layout', '*.fbp'))
         excludeRe = self._mk_pattern('import gettext', '_ = gettext.gettext')
 
-        for src in files:
-            subprocess.check_call([self.wxformbuilder, '-g', src])
+        try:
+            for src in files:
+                subprocess.check_call([self.wxformbuilder, '-g', src])
 
-            dst = src[0:-4] + '.py'
-            lines = []
+                dst = src[0:-4] + '.py'
+                lines = []
 
-            with open(dst, 'r') as fp:
-                for line in fp:
-                    if not excludeRe.match(line):
-                        lines.append(line)
+                with open(dst, 'r') as fp:
+                    for line in fp:
+                        if not excludeRe.match(line):
+                            lines.append(line)
 
-            with open(dst, 'w') as fp:
-                for line in lines:
-                    fp.write(line)
+                with open(dst, 'w') as fp:
+                    for line in lines:
+                        fp.write(line)
+
+        except FileNotFoundError:
+            print('Make sure you have installed wxFormBuilder')
+            raise
 
     def _mk_pattern(self, *args):
         pattern = '|'.join([ '^{}$\\s'.format(x.replace(' ', '\\s')) for x in args ])
@@ -257,9 +262,14 @@ class gen_locales(distutils.cmd.Command):
         pass
 
     def run(self):
-        files = glob.glob(os.path.join('subsync', '**', '*.py'), recursive=True)
-        cmd = [self.xgettext, '--language=Python', '-o', self.out_path] + sorted(files)
-        subprocess.check_call(cmd)
+        try:
+            files = glob.glob(os.path.join('subsync', '**', '*.py'), recursive=True)
+            cmd = [self.xgettext, '--language=Python', '-o', self.out_path] + sorted(files)
+            subprocess.check_call(cmd)
+
+        except FileNotFoundError:
+            print('Make sure you have installed xgettext')
+            raise
 
 
 class gen_version(distutils.cmd.Command):
@@ -277,6 +287,30 @@ class gen_version(distutils.cmd.Command):
     def run(self):
         version_long, version = read_version()
         write_version_file(version_long, version, self.out_path)
+
+
+class gen_doc(distutils.cmd.Command):
+    description = 'Generate API documentation'
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            subprocess.check_call([
+                'pdoc',
+                '--html', 'subsync',
+                '--output-dir', os.path.join('doc', 'api'),
+                '--force',
+                '--config=docformat="numpy"',
+                ])
+        except FileNotFoundError:
+            print('Make sure you have installed pdoc3 package')
+            raise
 
 
 def read_version():
@@ -348,6 +382,7 @@ setup(
             'gen_gui': gen_gui,
             'gen_locales': gen_locales,
             'gen_version': gen_version,
+            'gen_doc': gen_doc,
             },
         package_data = {
             'subsync': [

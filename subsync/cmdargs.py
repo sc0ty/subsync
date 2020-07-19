@@ -6,7 +6,7 @@ import sys
 def parseCmdArgs(argv=None):
     argvReader = ArgvReader(argv or sys.argv)
     try:
-        opts = parse(argvReader, options)
+        opts = parse(argvReader, options())
         if len(argvReader) > 0:
             raise Exception("unrecognized option '{}'".format(argvReader.peekKey()))
         return opts
@@ -15,7 +15,7 @@ def parseCmdArgs(argv=None):
 
 def printHelp(argv=None):
     app = (argv or sys.argv or [ 'subsync' ])[0]
-    print('Usage: {} [OPTIONS]'.format(app))
+    print(_('Usage: {} [OPTIONS]').format(app))
 
     def printHelpFor(opts, prefix=''):
         for opt in opts:
@@ -33,7 +33,7 @@ def printHelp(argv=None):
                 print('')
                 print(opt)
 
-    printHelpFor(options)
+    printHelpFor(options())
 
 
 class ArgvReader(object):
@@ -184,15 +184,17 @@ def parseWordsDump(argv, res, key, **opt):
 
 ### Command line options ###
 
-options = [
+def options():
+    return [
         _('General options:'),
         { 'name': 'help', 'parser': parseConst, 'aliases': ['--help', '-h'] },
         { 'name': 'version', 'parser': parseConst, 'aliases': ['--version', '-v'] },
-        { 'group': 'options', 'name': 'language' },
+        { 'group': 'options', 'name': 'language', 'alias': '--lang' },
 
         _('Headless options:'),
         { 'name': 'cli', 'parser': parseConst, 'aliases': ['--cli', '-c'] },
         { 'name': 'verbose', 'type': int },
+        { 'name': 'offline', 'parser': parseConst },
 
         _('GUI options:'),
         { 'name': 'batch', 'parser': parseConst },

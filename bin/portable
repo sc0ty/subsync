@@ -15,6 +15,6 @@ config.assetdir   = os.path.join(config.shareddir, 'assets')
 if config.assetupd:
     config.assetupd += '-portable'
 
-import subsync
-res = subsync.subsync()
+from subsync.__main__ import subsync
+res = subsync()
 sys.exit(res)

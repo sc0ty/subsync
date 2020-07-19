@@ -1,6 +1,7 @@
 import gizmo
 from subsync import assets
 from subsync.data import languages
+from subsync.translations import _
 from subsync.error import Error
 
 import logging
