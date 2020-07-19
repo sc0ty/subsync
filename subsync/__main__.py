@@ -92,6 +92,16 @@ def gui(sync=None, fromFile=None, batch=False, options={}, **args):
 def cli(sync=None, fromFile=None, verbose=1, offline=False, options={}, **args):
     from subsync import cli
 
+    if sys.platform == 'win32':
+        try:
+            import ctypes
+            ctypes.windll.kernel32.AllocConsole()
+            sys.stdout = open('CONOUT$', 'w')
+            sys.stderr = open('CONOUT$', 'w')
+            sys.stdin = open('CONIN$', 'r')
+        except Exception as err:
+            cli.pr.printException(0, err, 'console allocation failed')
+
     try:
         _init(options)
         tasks = _loadTasks(sync, fromFile)
