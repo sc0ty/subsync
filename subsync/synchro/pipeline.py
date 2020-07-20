@@ -90,7 +90,8 @@ class SubtitlePipeline(BasePipeline):
         self.demux.connectDec(self.dec, stream.no)
 
     def configure(self, minWordLen, minWordProb=None):
-        self.dec.setMinWordLen(minWordLen)
+        if self.ngramSplitter is None:
+            self.dec.setMinWordLen(minWordLen)
 
     def destroy(self):
         super().destroy()
@@ -151,7 +152,8 @@ class SpeechPipeline(BasePipeline):
 
     def configure(self, minWordLen, minWordProb):
         self.speechRec.setMinWordProb(minWordProb)
-        self.speechRec.setMinWordLen(minWordLen)
+        if self.ngramSplitter is None:
+            self.speechRec.setMinWordLen(minWordLen)
 
     def destroy(self):
         super().destroy()
