@@ -1,8 +1,6 @@
 # SubSync installation
 You could download release builds from [download page](https://sc0ty.github.io/subsync/en/download.html).
 
-Since version 0.14 subsync is build in single step. You don't have to build _gizmo_ module separately.
-
 ## Prerequisites
 - C++11 compatible compiler (or better C++14);
 - pybind11;
@@ -57,7 +55,7 @@ Run SubSync from your virtual environment:
 ```
 
 ### MacOS installer
-MacOS binary distribution and installer are generated using pyinstaller utility. To build executable, with gizmo installed, type:
+MacOS binary distribution and installer are generated using pyinstaller utility.
 ```
 pip install pyinstaller
 pyinstaller macos.spec
@@ -104,7 +102,7 @@ python bin\subsync
 ```
 
 ### Windows installer
-Windows binary distribution and installer are generated using pyinstaller utility. To build executable, with gizmo installed, type:
+Windows binary distribution and installer are generated using pyinstaller utility.
 ```
 pip install pyinstaller
 pyinstaller windows.spec
@@ -133,9 +131,9 @@ echo "include_dirs=$PWD/stage/include/python3.5m" >> setup.cfg
 ```
 
 ## Running without installation
-To simplify development, SubSync can be run without main module installation. Dependencies and _gizmo_ module still must be installed:
+To simplify development, SubSync can be run without main module installation.
 ```
 pip install -r requirements
-pip install .
+python setup.py install
 python run.py
 ```
