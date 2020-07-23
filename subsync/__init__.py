@@ -4,12 +4,6 @@ This is an automatic movie subtitle synchronization library.
 """
 
 import gizmo
-import logging
-import atexit
-
-gizmo.setLoggerCallback(lambda lvl, m, msg: logging.getLogger(m).log(lvl, msg.strip().replace('\n', '; ')))
-atexit.register(gizmo.setLoggerCallback, None)
-
 from .synchro import SyncController, SyncTask, InputFile, SubFile, RefFile, OutputFile
 from .assets import assetManager, AssetList
 

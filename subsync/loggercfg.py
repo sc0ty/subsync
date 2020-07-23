@@ -46,16 +46,12 @@ def init(level=None, path=None):
         logging.getLogger().error("invalid log file path '%s', ignoring", path, exc_info=True)
 
     def excepthook(type, exc, tb):
-        logging.getLogger('RUNTIME').critical("Unhandled exception", exc_info=(type, exc, tb))
+        logging.getLogger().critical("Unhandled exception", exc_info=(type, exc, tb))
         sys.__excepthook__(type, exc, tb)
 
     sys.excepthook = excepthook
     setup_thread_excepthook()
 
-    def print_log(level, m, msg):
-        logging.getLogger(m).log(level, msg.strip().replace('\n', '; '))
-
-    gizmo.setLoggerCallback(print_log)
     gizmo.setDebugLevel(numLevel)
 
     global initialized
@@ -77,11 +73,6 @@ def setup_thread_excepthook():
                 sys.excepthook(*sys.exc_info())
         self.run = run_with_except_hook
     threading.Thread.__init__ = init
-
-
-def terminate():
-    if initialized:
-        gizmo.setLoggerCallback(None)
 
 
 def setLevel(level):
@@ -117,4 +108,3 @@ def setBlacklistFilters(filters):
 
         for handler in logging.root.handlers:
             handler.addFilter(_activeFilter)
-

@@ -12,44 +12,40 @@ from subsync.settings import settings
 
 
 def subsync(argv=None):
-    try:
-        args = cmdargs.parseCmdArgs(argv)
-        options = args.get('options', {})
+    args = cmdargs.parseCmdArgs(argv)
+    options = args.get('options', {})
 
-        if options.get('logLevel') or options.get('logFile'):
-            loggercfg.init(level=options.get('logLevel'), path=options.get('logFile'))
-        if options.get('language'):
-            translations.setLanguage(options.get('language'))
+    if options.get('logLevel') or options.get('logFile'):
+        loggercfg.init(level=options.get('logLevel'), path=options.get('logFile'))
+    if options.get('language'):
+        translations.setLanguage(options.get('language'))
 
-        if args:
-            logger.debug('running with arguments: %r', args)
+    if args:
+        logger.debug('running with arguments: %r', args)
 
-        if args.get('help'):
-            cmdargs.printHelp()
-            return 0
+    if args.get('help'):
+        cmdargs.printHelp()
+        return 0
 
-        if args.get('version'):
-            print('subsync version {} on {}'.format(version()[0], sys.platform))
-            return 0
+    if args.get('version'):
+        print('subsync version {} on {}'.format(version()[0], sys.platform))
+        return 0
 
-        if not args.get('cli'):
-            if os.path.basename(os.path.splitext(sys.argv[0])[0]) == 'subsync-cmd':
-                logger.info("running command 'subsync-cmd', starting in headless mode")
-                args['cli'] = True
-            else:
-                try:
-                    import wx
-                except Exception as e:
-                    logger.warning("couldn't start wx, falling back to headless mode, %r", e)
-                    args['cli'] = True
-
-        if args.get('cli'):
-            return cli(**args)
+    if not args.get('cli'):
+        if os.path.basename(os.path.splitext(sys.argv[0])[0]) == 'subsync-cmd':
+            logger.info("running command 'subsync-cmd', starting in headless mode")
+            args['cli'] = True
         else:
-            return gui(**args)
+            try:
+                import wx
+            except Exception as e:
+                logger.warning("couldn't start wx, falling back to headless mode, %r", e)
+                args['cli'] = True
 
-    finally:
-        loggercfg.terminate()
+    if args.get('cli'):
+        return cli(**args)
+    else:
+        return gui(**args)
 
 
 def gui(sync=None, fromFile=None, batch=False, options={}, **args):

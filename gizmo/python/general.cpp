@@ -41,4 +41,23 @@ void initGeneralWrapper(py::module &m)
 	/*** logger configuration ***/
 	m.def("setLoggerCallback", &logger::setLoggerCallback);
 	m.def("setDebugLevel", &logger::setDebugLevel);
+
+
+	/*** default logger callback ***/
+	auto logging = py::module::import("logging");
+	auto getLogger = logging.attr("getLogger");
+	logger::setLoggerCallback([getLogger](int level, const char* mod, const char* msg)
+	{
+		pybind11::gil_scoped_acquire acquire;
+		auto logger = getLogger(mod);
+		auto message = py::cast(msg).attr("strip")().attr("replace")("\n", "; ");
+		logger.attr("log") (level, message);
+	});
+
+	/*** unregister logger callback at exit ***/
+	auto atexit = py::module::import("atexit");
+	atexit.attr("register")(py::cpp_function([]()
+	{
+		logger::setLoggerCallback(nullptr);
+	}));
 }
