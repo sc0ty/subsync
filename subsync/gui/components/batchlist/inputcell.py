@@ -100,7 +100,8 @@ class InputEditCell(InputSyncCell):
     def onLeftDClick(self, event):
         if self.item is not None:
             self.showPropsWin()
-        event.Skip()
+        else:
+            event.Skip()
 
     def showPropsWin(self):
         self.parent.clearSelection(exclude=[ self ])

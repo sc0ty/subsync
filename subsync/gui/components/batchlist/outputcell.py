@@ -61,7 +61,8 @@ class OutputEditCell(BaseCell):
     def onLeftDClick(self, event):
         if self.visible:
             self.showPropsWin()
-        event.Skip()
+        else:
+            event.Skip()
 
 
 class OutputSyncCell(BaseCell):

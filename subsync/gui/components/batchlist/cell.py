@@ -66,15 +66,15 @@ class BaseCell(subsync.gui.layout.batchlistitem.BatchListItem):
                 self.parent.setPickedCell(self)
         else:
             self.parent.clearSelection()
-        event.Skip()
 
     def onLeftUp(self, event):
         if self.visible and not event.ControlDown() and not event.ShiftDown() \
-                    and not event.GetId() == self.m_bitmapIcon.GetId():
-                self.parent.clearSelection(exclude=[ self ])
-                self.select(True)
-                self.parent.setPickedCell(self)
-        event.Skip()
+                and not event.GetId() == self.m_bitmapIcon.GetId():
+            self.parent.clearSelection(exclude=[ self ])
+            self.select(True)
+            self.parent.setPickedCell(self)
+        else:
+            event.Skip()
 
     def onLeftDClick(self, event):
         event.Skip()

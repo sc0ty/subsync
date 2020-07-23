@@ -487,7 +487,6 @@ class BatchList(ulc.UltimateListCtrl):
     @update_lock
     def onLeftDown(self, event):
         self.clearSelection()
-        event.Skip()
 
     @update_lock
     def onResize(self, event):
@@ -569,7 +568,6 @@ class BatchList(ulc.UltimateListCtrl):
             with ChannelsWin(self, channelIds=ids) as dlg:
                 if dlg.ShowModal() == wx.ID_OK:
                     self.updateSelectedInputs(channels=dlg.GetValue())
-        event.Skip()
 
     @error_dlg
     @update_lock
