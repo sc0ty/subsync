@@ -36,11 +36,11 @@ apps:
 plugs:
   gtk-3-themes:
     interface: content
-    target: $SNAP/share/themes
-    default-provider: gtk-common-themes:gtk-3-themes
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
   icon-themes:
     interface: content
-    target: $SNAP/share/icons
+    target: $SNAP/data-dir/icons
     default-provider: gtk-common-themes:icon-themes
   sound-themes:
     interface: content
