@@ -62,7 +62,7 @@ class InputFile(object):
 
         if streamByType or streamByLang:
             self.selectBy(type=streamByType, lang=streamByLang)
-        self.lang = lang or self.lang
+        self.lang = languages.get(lang).code3 or self.lang
         self.enc = enc or self.enc
         self.fps = fps or self.fps
 
