@@ -51,6 +51,7 @@ languages = [
         mkLanguage( 'mlg', 'mg', _('Malagasy'), [] ),
         mkLanguage( 'mlt', 'mt', _('Maltese'), ['ISO-8859-3'] ),
         mkLanguage( 'nor', 'no', _('Norwegian'), ['Windows-1252', 'ISO-8859-1'] ),
+        mkLanguage( 'per', 'fa', _('Persian'), ['Windows-1256', 'ISO-639-1'], rightToLeft=True ),
         mkLanguage( 'pol', 'pl', _('Polish'), ['Windows-1250', 'ISO-8859-2'] ),
         mkLanguage( 'por', 'pt', _('Portuguese'), ['Windows-1252', 'ISO-8859-1'], extraCodes=[ 'pob' ]),
         mkLanguage( 'rum', 'ro', _('Romanian'), ['Windows-1250', 'ISO-8859-2'] ),
