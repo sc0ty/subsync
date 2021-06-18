@@ -56,6 +56,9 @@ class InputSyncCell(BaseCell):
         elif isinstance(item, DropPlaceholderItem):
             self.setIcon('new-file')
 
+    def isFile(self):
+        return isinstance(self.item, InputFile)
+
 
 class InputEditCell(InputSyncCell):
     def __init__(self, parent, item=None, selected=False):
@@ -86,9 +89,6 @@ class InputEditCell(InputSyncCell):
     def select(self, selected=True):
         if super().select(selected):
             self.drawIcon(self.item)
-
-    def isFile(self):
-        return isinstance(self.item, InputFile)
 
     def onMouseMove(self, event):
         if self.visible is not None and event.Dragging() and event.LeftIsDown():
