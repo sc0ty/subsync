@@ -105,6 +105,17 @@ class Dictionary(object):
             print(errs + ' errors detected, keys: ' + str(len(self.d)) + ', values: ' + str(valsNo))
         return err
 
+    def items(self):
+        for key, vals in self.d.items():
+            for val in vals:
+                yield(key, val)
+
+    def items_count(self):
+        cnt = 0
+        for key, vals in self.d.items():
+            cnt += len(vals)
+        return cnt
+
     def __repr__(self):
         return 'Dictionary {}/{} {} {} keys'.format(self.lang1, self.lang2, self.version, len(self.d))
 
