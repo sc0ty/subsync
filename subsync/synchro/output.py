@@ -1,5 +1,6 @@
 from subsync import utils
 from subsync.translations import _
+from subsync.data import languages
 from subsync.error import Error
 import os
 
@@ -26,6 +27,7 @@ class OutputFile(object):
               - `{sub_path}`/`{ref_path}` - subtitle/reference full path;
               - `{sub_no}`/`{ref_no}` - stream number;
               - `{sub_lang}`/`{ref_lang}` - 3-letter language code;
+              - `{sub_lang2}`/`{ref_lang2}` - 2-letter language code;
               - `{sub_name}`/`{ref_name}` - file name (without path and extension);
               - `{sub_dir}`/`{ref_dir}` - directory path;
               - `{if:<field>:<value>}` - if field is set, append value;
@@ -105,6 +107,7 @@ class PathFormatter(object):
                 self.d[ prefix + 'path' ] = item.path
                 self.d[ prefix + 'no'   ] = str(item.no + 1)
                 self.d[ prefix + 'lang' ] = item.lang or ''
+                self.d[ prefix + 'lang2' ] = languages.get(code3=item.lang).code2 or ''
                 self.d[ prefix + 'name' ] = os.path.splitext(os.path.basename(item.path))[0]
                 self.d[ prefix + 'dir'  ] = os.path.dirname(item.path)
 
@@ -112,12 +115,11 @@ class PathFormatter(object):
         self.cache = (cacheKey, pattern, path)
         return path
 
-
 def validatePattern(pattern):
     """Raise exception for invalid path pattern."""
     d = {}
     for prefix in [ 'sub_', 'ref_' ]:
-        for name in [ 'path', 'no', 'lang', 'name', 'dir' ]:
+        for name in [ 'path', 'no', 'lang', 'lang2', 'name', 'dir' ]:
             d[ prefix + name ] = ''
     _formatPattern(pattern, d)
 

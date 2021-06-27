@@ -72,12 +72,15 @@ class OutputPatternWin ( wx.Dialog ):
 		self.m_radioFileSub = wx.RadioButton( self.m_panelPredef, wx.ID_ANY, _(u"same as input subtitles"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		gbSizer1.Add( self.m_radioFileSub, wx.GBPosition( 2, 3 ), wx.GBSpan( 1, 1 ), wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_checkFileAppendLang = wx.CheckBox( self.m_panelPredef, wx.ID_ANY, _(u"append language code"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_checkFileAppendLang = wx.CheckBox( self.m_panelPredef, wx.ID_ANY, _(u"append 3-letters language code (ISO 639-2/B)"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_checkFileAppendLang.SetValue(True)
 		gbSizer1.Add( self.m_checkFileAppendLang, wx.GBPosition( 3, 3 ), wx.GBSpan( 1, 1 ), wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
+		self.m_checkFileAppendLang2 = wx.CheckBox( self.m_panelPredef, wx.ID_ANY, _(u"append 2-letters language code (ISO 639-1)"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		gbSizer1.Add( self.m_checkFileAppendLang2, wx.GBPosition( 4, 3 ), wx.GBSpan( 1, 1 ), wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
 		self.m_checkFileAppendStreamNo = wx.CheckBox( self.m_panelPredef, wx.ID_ANY, _(u"append stream number"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		gbSizer1.Add( self.m_checkFileAppendStreamNo, wx.GBPosition( 4, 3 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
+		gbSizer1.Add( self.m_checkFileAppendStreamNo, wx.GBPosition( 5, 3 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
 
 		self.m_staticText3 = wx.StaticText( self.m_panelPredef, wx.ID_ANY, _(u"File type:"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3.Wrap( -1 )
@@ -184,72 +187,91 @@ class OutputPatternWin ( wx.Dialog ):
 
 		gbSizer2.Add( self.m_staticText11, wx.GBPosition( 2, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
-		self.m_staticText12 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"subtitle/reference language"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText12 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"subtitle/reference 3-letters language code"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText12.Wrap( -1 )
 
 		gbSizer2.Add( self.m_staticText12, wx.GBPosition( 2, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+
+		self.m_staticText23 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{sub_lang2}"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText23.Wrap( -1 )
+
+		self.m_staticText23.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
+
+		gbSizer2.Add( self.m_staticText23, wx.GBPosition( 3, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+
+		self.m_staticText24 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{ref_lang2}"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText24.Wrap( -1 )
+
+		self.m_staticText24.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
+
+		gbSizer2.Add( self.m_staticText24, wx.GBPosition( 3, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+
+		self.m_staticText25 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"subtitle/reference 2-letters language code"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText25.Wrap( -1 )
+
+		gbSizer2.Add( self.m_staticText25, wx.GBPosition( 3, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText13 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{sub_name}"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText13.Wrap( -1 )
 
 		self.m_staticText13.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 
-		gbSizer2.Add( self.m_staticText13, wx.GBPosition( 3, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText13, wx.GBPosition( 4, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText14 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{ref_name}"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText14.Wrap( -1 )
 
 		self.m_staticText14.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 
-		gbSizer2.Add( self.m_staticText14, wx.GBPosition( 3, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText14, wx.GBPosition( 4, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText15 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"file name (without path and extension)"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText15.Wrap( -1 )
 
-		gbSizer2.Add( self.m_staticText15, wx.GBPosition( 3, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText15, wx.GBPosition( 4, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText16 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{sub_dir}"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
 
 		self.m_staticText16.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 
-		gbSizer2.Add( self.m_staticText16, wx.GBPosition( 4, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText16, wx.GBPosition( 5, 0 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText17 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{ref_dir}"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText17.Wrap( -1 )
 
 		self.m_staticText17.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 
-		gbSizer2.Add( self.m_staticText17, wx.GBPosition( 4, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText17, wx.GBPosition( 5, 1 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText18 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"directory path"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText18.Wrap( -1 )
 
-		gbSizer2.Add( self.m_staticText18, wx.GBPosition( 4, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText18, wx.GBPosition( 5, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText19 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{if:<field>:<value>}"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
 
 		self.m_staticText19.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 
-		gbSizer2.Add( self.m_staticText19, wx.GBPosition( 5, 0 ), wx.GBSpan( 1, 2 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText19, wx.GBPosition( 6, 0 ), wx.GBSpan( 1, 2 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText20 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"if <field> is set, append <value>"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText20.Wrap( -1 )
 
-		gbSizer2.Add( self.m_staticText20, wx.GBPosition( 5, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
+		gbSizer2.Add( self.m_staticText20, wx.GBPosition( 6, 2 ), wx.GBSpan( 1, 1 ), wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText21 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"{if_not:<field>:<value>}"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText21.Wrap( -1 )
 
 		self.m_staticText21.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 
-		gbSizer2.Add( self.m_staticText21, wx.GBPosition( 6, 0 ), wx.GBSpan( 1, 2 ), wx.ALL, 5 )
+		gbSizer2.Add( self.m_staticText21, wx.GBPosition( 7, 0 ), wx.GBSpan( 1, 2 ), wx.ALL, 5 )
 
 		self.m_staticText22 = wx.StaticText( self.m_panelCustom, wx.ID_ANY, _(u"if <field> is not set, append <value>"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText22.Wrap( -1 )
 
-		gbSizer2.Add( self.m_staticText22, wx.GBPosition( 6, 2 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
+		gbSizer2.Add( self.m_staticText22, wx.GBPosition( 7, 2 ), wx.GBSpan( 1, 1 ), wx.ALL, 5 )
 
 
 		fgSizer3.Add( gbSizer2, 1, wx.EXPAND, 5 )
@@ -303,7 +325,8 @@ class OutputPatternWin ( wx.Dialog ):
 		self.m_buttonFolderCustom.Bind( wx.EVT_BUTTON, self.onButtonFolderCustomClick )
 		self.m_radioFileRef.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
 		self.m_radioFileSub.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
-		self.m_checkFileAppendLang.Bind( wx.EVT_CHECKBOX, self.onNameSel )
+		self.m_checkFileAppendLang.Bind( wx.EVT_CHECKBOX, self.onCheckFileAppendLangCheck )
+		self.m_checkFileAppendLang2.Bind( wx.EVT_CHECKBOX, self.onCheckFileAppendLang2Check )
 		self.m_checkFileAppendStreamNo.Bind( wx.EVT_CHECKBOX, self.onNameSel )
 		self.m_radioTypeSrt.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
 		self.m_radioTypeSsa.Bind( wx.EVT_RADIOBUTTON, self.onNameSel )
@@ -330,6 +353,11 @@ class OutputPatternWin ( wx.Dialog ):
 
 
 
+	def onCheckFileAppendLangCheck( self, event ):
+		event.Skip()
+
+	def onCheckFileAppendLang2Check( self, event ):
+		event.Skip()
 
 
 

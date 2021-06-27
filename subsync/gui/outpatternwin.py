@@ -62,6 +62,9 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
         if self.m_checkFileAppendLang.GetValue():
             res.append('{if:sub_lang:.}{sub_lang}')
 
+        if self.m_checkFileAppendLang2.GetValue():
+            res.append('{if:sub_lang2:.}{sub_lang2}')
+
         if self.m_checkFileAppendStreamNo.GetValue():
             res.append('.{ref_no}')
 
@@ -111,6 +114,7 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
                     return False
 
                 self.m_checkFileAppendLang.SetValue('{sub_lang}' in items)
+                self.m_checkFileAppendLang2.SetValue('{sub_lang2}' in items)
                 self.m_checkFileAppendStreamNo.SetValue('{ref_no}' in items)
                 return self.serializePredefinedPattern() == pattern
 
@@ -136,6 +140,14 @@ class OutputPatternWin(subsync.gui.layout.outpatternwin.OutputPatternWin):
                 self.m_radioFolderRef.SetValue(True)
 
         self.updatePattern()
+
+    def onCheckFileAppendLangCheck(self, event):
+        self.m_checkFileAppendLang2.SetValue(False)
+        self.onNameSel(event)
+
+    def onCheckFileAppendLang2Check(self, event):
+        self.m_checkFileAppendLang.SetValue(False)
+        self.onNameSel(event)
 
     def onButtonFolderCustomClick(self, event):
         self.selectCustomFolder()
