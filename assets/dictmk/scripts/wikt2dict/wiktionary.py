@@ -68,7 +68,7 @@ class Wiktionary(object):
                 self.outf.write('\t'.join(pair[0:4]) + '\n')
 
     def read_dump(self):
-        with open(self.cfg.dump_path) as f:
+        with open(self.cfg.dump_path, errors='replace') as f:
             title = u''
             article = u''
             page_sep = '%%#PAGE'
