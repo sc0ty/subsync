@@ -366,8 +366,8 @@ setup(
         install_requires = [
             'certifi',
             'pysubs2>=0.2.4',
-            'pycryptodome>=3.9;platform_system=="Linux"',
-            'cryptography>=2.8;platform_system!="Linux"',
+            'pycryptodome>=3.9;platform_system!="Darwin"',
+            'cryptography>=2.8;platform_system=="Darwin"',
             'PyYAML',
             'pybind11>=2.4',
             'requests>=2.0',
