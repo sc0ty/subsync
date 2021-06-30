@@ -290,14 +290,14 @@ AVInputFormat *getInputFormatByFname(const char *path)
 		if (strcmp(ext.c_str(), formatExtensions[i]) == 0)
 		{
 			const char *name = formatExtensions[i + 1];
-			fmt = av_find_input_format(name);
+			fmt = (AVInputFormat*) av_find_input_format(name);
 			logger::info("demux", "found format %s by extension for %s", name, path);
 			break;
 		}
 	}
 
 	if (fmt == NULL)
-		fmt = av_find_input_format(ext.c_str());
+		fmt = (AVInputFormat*) av_find_input_format(ext.c_str());
 
 	if (fmt == NULL)
 		logger::warn("demux", "couldn't find format by extension for %s", path);

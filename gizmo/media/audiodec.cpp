@@ -22,7 +22,7 @@ AudioDec::~AudioDec()
 
 void AudioDec::start(const AVStream *stream)
 {
-	AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+	AVCodec *codec = (AVCodec*) avcodec_find_decoder(stream->codecpar->codec_id);
 	if (codec == NULL)
 		throw EXCEPTION("can't find suitable audio codec")
 			.module("AudioDec", "avcodec_find_decoder");

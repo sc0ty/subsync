@@ -2,6 +2,11 @@
 #include <string>
 #include <sstream>
 
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+}
+
 using namespace std;
 
 
@@ -32,7 +37,7 @@ static AVCodecContext *makeCodecContext(const AVStream *stream)
 	if (stream->codecpar == NULL)
 		return NULL;
 
-	AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+	AVCodec *codec = (AVCodec*) avcodec_find_decoder(stream->codecpar->codec_id);
 	if (codec == NULL)
 		return NULL;
 
@@ -56,7 +61,7 @@ StreamFormat::StreamFormat(unsigned no, const AVStream *stream) : no(no)
 	if (stream == NULL)
 		return;
 
-	if (AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id))
+	if (AVCodec *codec = (AVCodec*) avcodec_find_decoder(stream->codecpar->codec_id))
 	{
 		this->codec = codec->name ? codec->name : "";
 	}
