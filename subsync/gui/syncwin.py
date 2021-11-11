@@ -168,7 +168,11 @@ class SyncWin(subsync.gui.layout.syncwin.SyncWin):
 
     def saveSynchronizedSubtitles(self, path, enc=None, **kw):
         enc = enc or settings().outputCharEnc or self.task.sub.enc or 'UTF-8'
-        self.sync.getSynchronizedSubtitles().save(path, encoding=enc, **kw)
+        subs = self.sync.getSynchronizedSubtitles()
+        if settings().outTimeOffset:
+            logger.info('adjusting timestamps by offset %.3f', settings().outTimeOffset)
+            subs.shift(s=settings().outTimeOffset)
+        subs.save(path, encoding=enc, **kw)
 
     def selectOutputFpsIfNeeded(self, path):
         if subtitle.isFpsBased(path):
