@@ -4,6 +4,7 @@
 #include "avout.h"
 #include "text/words.h"
 #include <pocketsphinx.h>
+#include "util/cmd_ln.h"
 #include <string>
 
 
