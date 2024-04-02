@@ -12,15 +12,7 @@
       type = "github";
       owner = "cmusphinx";
       repo = "pocketsphinx";
-      ref = "last-pre-1.0";
-      flake = false;
-    };
-    sphinxbase-src = {
-      type = "github";
-      owner = "cmusphinx";
-      repo = "sphinxbase";
-      # Latest commit (deprecated)
-      rev = "617e53691889336a482631380f75b453445d0dae";
+      ref = "v5.0.3";
       flake = false;
     };
   };
@@ -29,7 +21,6 @@
     self,
     nixpkgs,
     pocketsphinx-src,
-    sphinxbase-src,
   }: let
     supportedSystems = ["x86_64-linux"];
 
@@ -47,15 +38,13 @@
       ]);
       date = mkDate (self.lastModifiedDate or "19700101");
     in {
-      sphinxbase = pkgs.callPackage ./nix/sphinxbase.nix {inherit sphinxbase-src;};
       pocketsphinx = pkgs.callPackage ./nix/pocketsphinx.nix {
-        inherit (self.packages.${system}) sphinxbase;
         inherit pocketsphinx-src;
       };
 
       subsync = pkgs.callPackage ./nix {
         version = date;
-        inherit (self.packages.${system}) sphinxbase pocketsphinx;
+        inherit (self.packages.${system}) pocketsphinx;
       };
 
       default = self.packages.${system}.subsync;

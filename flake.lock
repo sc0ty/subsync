@@ -19,16 +19,16 @@
     "pocketsphinx-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1645539790,
-        "narHash": "sha256-YZwuVYg8Uqt1gOYXeYC8laRj+IObbuO9f/BjcQKRwkY=",
+        "lastModified": 1703798398,
+        "narHash": "sha256-aCQpRmGHX08rA8UIt6Xf37XM34HysEzvcucLhL355k8=",
         "owner": "cmusphinx",
         "repo": "pocketsphinx",
-        "rev": "5da71f0a05350c923676b02a69423d1291825d5b",
+        "rev": "1f146934e0735ca1e65143f959f670c67c5ac303",
         "type": "github"
       },
       "original": {
         "owner": "cmusphinx",
-        "ref": "last-pre-1.0",
+        "ref": "v5.0.3",
         "repo": "pocketsphinx",
         "type": "github"
       }
@@ -36,25 +36,7 @@
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
-        "pocketsphinx-src": "pocketsphinx-src",
-        "sphinxbase-src": "sphinxbase-src"
-      }
-    },
-    "sphinxbase-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1654774494,
-        "narHash": "sha256-w/Huz4+crTzdiSyQVAx0h3lhtTTrtPyKp3xpQD5EG9g=",
-        "owner": "cmusphinx",
-        "repo": "sphinxbase",
-        "rev": "617e53691889336a482631380f75b453445d0dae",
-        "type": "github"
-      },
-      "original": {
-        "owner": "cmusphinx",
-        "repo": "sphinxbase",
-        "rev": "617e53691889336a482631380f75b453445d0dae",
-        "type": "github"
+        "pocketsphinx-src": "pocketsphinx-src"
       }
     }
   },

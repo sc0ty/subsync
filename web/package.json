@@ -62,7 +62,6 @@
   },
   "napa": {
     "ffmpeg": "FFmpeg/FFmpeg#n4.2",
-    "sphinxbase": "cmusphinx/sphinxbase",
     "pocketsphinx": "cmusphinx/pocketsphinx"
   },
   "devDependencies": {

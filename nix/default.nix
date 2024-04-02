@@ -3,7 +3,6 @@
   pkg-config,
   pocketsphinx,
   python3Packages,
-  sphinxbase,
   version,
   ...
 }: let
@@ -18,7 +17,6 @@ in
     buildInputs = [
       ffmpeg
       pkg-config
-      sphinxbase
       pocketsphinx
     ];
 
