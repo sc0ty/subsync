@@ -1,6 +1,7 @@
 #include "logger.h"
 #include "text/utf8.h"
-#include <sphinxbase/err.h>
+#include <pocketsphinx/err.h>
+#include <pocketsphinx.h>
 #include <string>
 #include <cstdarg>
 
@@ -60,7 +61,7 @@ static void sphinxLogCb(void *user_data, err_lvl_t level, const char *fmt, ...)
 {
 	(void) user_data;
 
-	if (g_loggerCallback && level != ERR_INFOCONT && level >= g_sphinxLogLevel)
+	if (g_loggerCallback && level >= g_sphinxLogLevel)
 	{
 		char line[MAX_LOG_SIZE];
 		va_list args;
@@ -73,7 +74,6 @@ static void sphinxLogCb(void *user_data, err_lvl_t level, const char *fmt, ...)
 		{
 			case ERR_DEBUG:    lvl = LOG_DEBUG;    break;
 			case ERR_INFO:     lvl = LOG_DEBUG;    break;
-			case ERR_INFOCONT: lvl = LOG_DEBUG;    break;
 			case ERR_WARN:     lvl = LOG_WARNING;  break;
 			case ERR_ERROR:    lvl = LOG_ERROR;    break;
 			case ERR_FATAL:    lvl = LOG_CRITICAL; break;
