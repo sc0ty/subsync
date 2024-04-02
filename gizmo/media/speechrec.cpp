@@ -37,15 +37,8 @@ void SpeechRecognition::setParam(const string &key, const string &val)
 		if (key == args[i].name)
 		{
 			int type = args[i].type;
-			if (type & ARG_INTEGER)
-				cmd_ln_set_int_r(m_config, key.c_str(), atol(val.c_str()));
-			else if (type & ARG_FLOATING)
-				cmd_ln_set_float_r(m_config, key.c_str(), atof(val.c_str()));
-			else if (type & ARG_STRING)
-				cmd_ln_set_str_r(m_config, key.c_str(), val.c_str());
-			else if (type & ARG_BOOLEAN)
-				cmd_ln_set_boolean_r(m_config, key.c_str(),
-						!(val.empty() || val == "0"));
+			if (type & ARG_STRING || type & ARG_INTEGER || type & ARG_FLOATING || type & ARG_BOOLEAN)
+				cmd_ln_set_str_extra_r(m_config, key.c_str(), val.c_str());
 			else
 				throw EXCEPTION("invalid parameter type")
 					.module("SpeechRecognition", "setParameter")
