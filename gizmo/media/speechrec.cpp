@@ -25,12 +25,12 @@ SpeechRecognition::SpeechRecognition() :
 
 SpeechRecognition::~SpeechRecognition()
 {
-	cmd_ln_free_r(m_config);
+	ps_config_free(m_config);
 }
 
 void SpeechRecognition::setParam(const string &key, const string &val)
 {
-	arg_t const *args = ps_args();
+	ps_arg_t const *args = ps_args();
 
 	for (size_t i = 0; args[i].name != NULL; i++)
 	{
