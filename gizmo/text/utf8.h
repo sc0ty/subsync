@@ -2,6 +2,7 @@
 #define __UTF8_H__
 
 #include <string>
+#include <cstdint>
 
 
 class Utf8

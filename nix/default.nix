@@ -11,6 +11,7 @@ in
   python3Packages.buildPythonPackage {
     pname = "subsync";
     inherit version;
+    format = "other";
 
     src = ../.;
 
@@ -37,18 +38,14 @@ in
       utils
     ];
 
-    # This is basically fetching the submodule
-    prePatch = ''
-      cp -ar ${pocketsphinx.src} ./pocketsphinx
-    '';
-
-    patches = [./patches/subsync-cstdint.patch];
-
     # The tests are for the GUI
     doCheck = false;
 
     # 'pip install .' takes care of building the package
-    buildPhase = "";
+    buildPhase = ''
+      # This is basically fetching the submodule
+      ln -sf ${pocketsphinx.src}/src/util ./gizmo
+    '';
 
     installPhase = ''
       python -m pip install . ${concatStringsSep " " [
