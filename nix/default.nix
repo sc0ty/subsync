@@ -37,6 +37,11 @@ in
       utils
     ];
 
+    # This is basically fetching the submodule
+    prePatch = ''
+      cp -ar ${pocketsphinx.src} ./pocketsphinx
+    '';
+
     patches = [./patches/subsync-cstdint.patch];
 
     # The tests are for the GUI
