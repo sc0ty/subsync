@@ -42,13 +42,7 @@ in
     doCheck = false;
 
     # 'pip install .' takes care of building the package
-    buildPhase = ''
-      chmod +x ./subsync/__main__.py
-      patchShebangs .
-
-      # This is basically fetching the submodule
-      ln -sf ${pocketsphinx.src}/src/util ./gizmo
-    '';
+    buildPhase = "";
 
     installPhase = ''
       python -m pip install . ${concatStringsSep " " [
