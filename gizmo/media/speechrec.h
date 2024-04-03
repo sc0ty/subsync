@@ -4,7 +4,6 @@
 #include "avout.h"
 #include "text/words.h"
 #include <pocketsphinx.h>
-#include "util/cmd_ln.h"
 #include <string>
 
 
@@ -39,7 +38,7 @@ class SpeechRecognition : public AVOutput
 
 	private:
 		ps_decoder_t *m_ps;
-		cmd_ln_t *m_config;
+		ps_config_t *m_config;
 
 		bool m_utteranceStarted;
 

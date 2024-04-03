@@ -17,10 +17,10 @@ SpeechRecognition::SpeechRecognition() :
 	m_minProb(1.0f),
 	m_minLen(0)
 {
-	m_config = cmd_ln_parse_r(NULL, ps_args(), 0, NULL, TRUE);
+	m_config = ps_config_init(NULL);
 	if (m_config == NULL)
 		throw EXCEPTION("can't init Sphinx configuration")
-			.module("SpeechRecognition", "cmd_ln_parse_r");
+			.module("SpeechRecognition", "ps_config_init");
 }
 
 SpeechRecognition::~SpeechRecognition()
@@ -34,11 +34,22 @@ void SpeechRecognition::setParam(const string &key, const string &val)
 
 	for (size_t i = 0; args[i].name != NULL; i++)
 	{
-		if (key == args[i].name)
+		if (key == string("-").append(args[i].name))
 		{
 			int type = args[i].type;
-			if (type & ARG_STRING || type & ARG_INTEGER || type & ARG_FLOATING || type & ARG_BOOLEAN)
-				cmd_ln_set_str_extra_r(m_config, key.c_str(), val.c_str());
+			if (type & ARG_INTEGER)
+				ps_config_set_int(m_config, args[i].name, atol(val.c_str()));
+
+			else if (type & ARG_FLOATING)
+				ps_config_set_float(m_config, args[i].name, atof(val.c_str()));
+
+			else if (type & ARG_STRING)
+				ps_config_set_str(m_config, args[i].name, val.c_str());
+
+			else if (type & ARG_BOOLEAN)
+				ps_config_set_bool(m_config, args[i].name,
+						!(val.empty() || val == "0"));
+
 			else
 				throw EXCEPTION("invalid parameter type")
 					.module("SpeechRecognition", "setParameter")
@@ -82,12 +93,12 @@ void SpeechRecognition::start(const AVStream *stream)
 		throw EXCEPTION("can't init Sphinx engine")
 			.module("SpeechRecognition", "ps_init");
 
-	double frate = ((cmd_ln_access_r(m_config, "-frate"))->val).fl;
+	double frate = ps_config_get(m_config, "frate")->fl;
 	m_framePeriod = 1.0 / frate;
 
 	if (frate == 0)
 		throw EXCEPTION("can't get frame rate value")
-			.module("SpeechRecognition", "cmd_ln_int32_r");
+			.module("SpeechRecognition", "ps_config_get");
 
 	if (ps_start_utt(m_ps))
 		throw EXCEPTION("can't start speech recognition")
