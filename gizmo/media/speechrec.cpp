@@ -175,11 +175,6 @@ void SpeechRecognition::discontinuity()
 		parseUtterance();
 
 	m_deltaTime = -1.0;
-	if (ps_start_stream(m_ps))
-	{
-		throw EXCEPTION("can't reset speech recognition engine")
-			.module("SpeechRecognition", "sphinx", "ps_start_stream");
-	}
 
 	if (ps_start_utt(m_ps))
 		throw EXCEPTION("can't start speech recognition")
