@@ -93,8 +93,8 @@ void SpeechRecognition::start(const AVStream *stream)
 		throw EXCEPTION("can't init Sphinx engine")
 			.module("SpeechRecognition", "ps_init");
 
-	double frate = ps_config_get(m_config, "frate")->fl;
-	m_framePeriod = 1.0 / frate;
+	int32_t frate = ps_config_int(m_config, "frate");
+	m_framePeriod = 1.0 / (double)frate;
 
 	if (frate == 0)
 		throw EXCEPTION("can't get frame rate value")
