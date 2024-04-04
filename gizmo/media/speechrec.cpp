@@ -100,7 +100,7 @@ void SpeechRecognition::start(const AVStream *stream)
 		throw EXCEPTION("can't get frame rate value")
 			.module("SpeechRecognition", "ps_config_get");
 
-	if (ps_start_utt(m_ps))
+	if (ps_start_utt(m_ps) < 0)
 		throw EXCEPTION("can't start speech recognition")
 			.module("SpeechRecognition", "ps_start_utt");
 
@@ -112,7 +112,7 @@ void SpeechRecognition::stop()
 {
 	if (m_ps)
 	{
-		if (ps_end_utt(m_ps))
+		if (ps_end_utt(m_ps) < 0)
 			throw EXCEPTION("can't stop speech recognition")
 				.module("SpeechRecognition", "ps_end_utt");
 
@@ -147,13 +147,13 @@ void SpeechRecognition::feed(const AVFrame *frame)
 	}
 	if (!inSpeech && m_utteranceStarted)
 	{
-		if (ps_end_utt(m_ps))
+		if (ps_end_utt(m_ps) < 0)
 			throw EXCEPTION("can't end utterance")
 				.module("SpeechRecognition", "ps_end_utt");
 
 		parseUtterance();
 
-		if (ps_start_utt(m_ps))
+		if (ps_start_utt(m_ps) < 0)
 			throw EXCEPTION("can't start utterance")
 				.module("SpeechRecognition", "ps_start_utt");
 
@@ -167,7 +167,7 @@ void SpeechRecognition::flush()
 
 void SpeechRecognition::discontinuity()
 {
-	if (ps_end_utt(m_ps))
+	if (ps_end_utt(m_ps) < 0)
 		throw EXCEPTION("can't stop speech recognition")
 			.module("SpeechRecognition", "ps_end_utt");
 
@@ -176,7 +176,7 @@ void SpeechRecognition::discontinuity()
 
 	m_deltaTime = -1.0;
 
-	if (ps_start_utt(m_ps))
+	if (ps_start_utt(m_ps) < 0)
 		throw EXCEPTION("can't start speech recognition")
 			.module("SpeechRecognition", "ps_start_utt");
 
