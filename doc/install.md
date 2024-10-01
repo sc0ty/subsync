@@ -5,7 +5,7 @@ You could download release builds from [download page](https://sc0ty.github.io/s
 - C++11 compatible compiler (or better C++14);
 - pybind11;
 - ffmpeg libraries (4.0 or newer);
-- sphinxbase and pocketsphinx;
+- pocketsphinx;
 - Python interpreter (supporting Python 3.5 or newer);
 - Python modules listed in `requirements.txt` file;
 
@@ -30,10 +30,9 @@ Activate your virtual environment:
 source .env/bin/activate
 ```
 
-If you have ffmpeg, sphinxbase and pocketsphinx libraries installed and avaiable via `pkg-config`, it will be configured automatically. Otherwise, you must provide paths to these libraries manually, using evironment variables:
+If you have ffmpeg and pocketsphinx libraries installed and avaiable via `pkg-config`, it will be configured automatically. Otherwise, you must provide paths to these libraries manually, using evironment variables:
 ```
 export FFMPEG_DIR=PATH
-export SPHINXBASE_DIR=PATH
 export POCKETSPHINX_DIR=PATH
 export USE_PKG_CONFIG=no
 ```
@@ -75,13 +74,12 @@ python -m venv .env
 ```
 
 To build subsync, you need to provide dependencies first.
-Sphinxbase and pocketsphinx are published with Visual Studio solution file, which is [easy to use](https://github.com/cmusphinx/pocketsphinx#ms-windows-ms-visual-studio-2012-or-newer---we-test-with-vc-2012-express).
+pocketsphinx is published with a Visual Studio solution file, which is [easy to use](https://github.com/cmusphinx/pocketsphinx#ms-windows-ms-visual-studio-2012-or-newer---we-test-with-vc-2012-express).
 Building ffmpeg on the other hand is not that easy. You could use [official build](https://ffmpeg.zeranoe.com/builds/) instead.
 
 Configure dependencies paths:
 ```
 set FFMPEG_DIR=d:\projects\ffmpeg
-set SPHINXBASE_DIR=d:\projects\sphinxbase
 set POCKETSPHINX_DIR=d:\projects\pocketsphinx
 set USE_PKG_CONFIG=no
 ```

@@ -17,35 +17,39 @@ SpeechRecognition::SpeechRecognition() :
 	m_minProb(1.0f),
 	m_minLen(0)
 {
-	m_config = cmd_ln_parse_r(NULL, ps_args(), 0, NULL, TRUE);
+	m_config = ps_config_init(NULL);
 	if (m_config == NULL)
 		throw EXCEPTION("can't init Sphinx configuration")
-			.module("SpeechRecognition", "cmd_ln_parse_r");
+			.module("SpeechRecognition", "ps_config_init");
 }
 
 SpeechRecognition::~SpeechRecognition()
 {
-	cmd_ln_free_r(m_config);
+	ps_config_free(m_config);
 }
 
 void SpeechRecognition::setParam(const string &key, const string &val)
 {
-	arg_t const *args = ps_args();
+	ps_arg_t const *args = ps_args();
 
 	for (size_t i = 0; args[i].name != NULL; i++)
 	{
-		if (key == args[i].name)
+		if (key == string("-").append(args[i].name))
 		{
 			int type = args[i].type;
 			if (type & ARG_INTEGER)
-				cmd_ln_set_int_r(m_config, key.c_str(), atol(val.c_str()));
+				ps_config_set_int(m_config, args[i].name, atol(val.c_str()));
+
 			else if (type & ARG_FLOATING)
-				cmd_ln_set_float_r(m_config, key.c_str(), atof(val.c_str()));
+				ps_config_set_float(m_config, args[i].name, atof(val.c_str()));
+
 			else if (type & ARG_STRING)
-				cmd_ln_set_str_r(m_config, key.c_str(), val.c_str());
+				ps_config_set_str(m_config, args[i].name, val.c_str());
+
 			else if (type & ARG_BOOLEAN)
-				cmd_ln_set_boolean_r(m_config, key.c_str(),
+				ps_config_set_bool(m_config, args[i].name,
 						!(val.empty() || val == "0"));
+
 			else
 				throw EXCEPTION("invalid parameter type")
 					.module("SpeechRecognition", "setParameter")
@@ -89,14 +93,14 @@ void SpeechRecognition::start(const AVStream *stream)
 		throw EXCEPTION("can't init Sphinx engine")
 			.module("SpeechRecognition", "ps_init");
 
-	int32_t frate = cmd_ln_int32_r(m_config, "-frate");
+	int32_t frate = ps_config_int(m_config, "frate");
 	m_framePeriod = 1.0 / (double)frate;
 
 	if (frate == 0)
 		throw EXCEPTION("can't get frame rate value")
-			.module("SpeechRecognition", "cmd_ln_int32_r");
+			.module("SpeechRecognition", "ps_config_get");
 
-	if (ps_start_utt(m_ps))
+	if (ps_start_utt(m_ps) < 0)
 		throw EXCEPTION("can't start speech recognition")
 			.module("SpeechRecognition", "ps_start_utt");
 
@@ -108,7 +112,7 @@ void SpeechRecognition::stop()
 {
 	if (m_ps)
 	{
-		if (ps_end_utt(m_ps))
+		if (ps_end_utt(m_ps) < 0)
 			throw EXCEPTION("can't stop speech recognition")
 				.module("SpeechRecognition", "ps_end_utt");
 
@@ -143,13 +147,13 @@ void SpeechRecognition::feed(const AVFrame *frame)
 	}
 	if (!inSpeech && m_utteranceStarted)
 	{
-		if (ps_end_utt(m_ps))
+		if (ps_end_utt(m_ps) < 0)
 			throw EXCEPTION("can't end utterance")
 				.module("SpeechRecognition", "ps_end_utt");
 
 		parseUtterance();
 
-		if (ps_start_utt(m_ps))
+		if (ps_start_utt(m_ps) < 0)
 			throw EXCEPTION("can't start utterance")
 				.module("SpeechRecognition", "ps_start_utt");
 
@@ -163,7 +167,7 @@ void SpeechRecognition::flush()
 
 void SpeechRecognition::discontinuity()
 {
-	if (ps_end_utt(m_ps))
+	if (ps_end_utt(m_ps) < 0)
 		throw EXCEPTION("can't stop speech recognition")
 			.module("SpeechRecognition", "ps_end_utt");
 
@@ -171,13 +175,8 @@ void SpeechRecognition::discontinuity()
 		parseUtterance();
 
 	m_deltaTime = -1.0;
-	if (ps_start_stream(m_ps))
-	{
-		throw EXCEPTION("can't reset speech recognition engine")
-			.module("SpeechRecognition", "sphinx", "ps_start_stream");
-	}
 
-	if (ps_start_utt(m_ps))
+	if (ps_start_utt(m_ps) < 0)
 		throw EXCEPTION("can't start speech recognition")
 			.module("SpeechRecognition", "ps_start_utt");
 

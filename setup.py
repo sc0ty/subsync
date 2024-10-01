@@ -38,7 +38,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
     user_options = setuptools.command.build_ext.build_ext.user_options + [
             ('use-pkg-config=', None, 'yes/no, use pkg-config to obtain information about installed libraries'),
             ('ffmpeg-dir=', None, 'ffmpeg library location'),
-            ('sphinxbase-dir=', None, 'sphinxbase library location'),
             ('pocketsphinx-dir=', None, 'pocketsphinx library location'),
             ]
 
@@ -48,7 +47,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
         self.ldflags = []
         self.use_pkg_config   = os.environ.get('USE_PKG_CONFIG')
         self.ffmpeg_dir       = os.environ.get('FFMPEG_DIR')
-        self.sphinxbase_dir   = os.environ.get('SPHINXBASE_DIR')
         self.pocketsphinx_dir = os.environ.get('POCKETSPHINX_DIR')
 
     def finalize_options(self):
@@ -68,8 +66,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
 
         if self.ffmpeg_dir is not None and not os.path.isdir(self.ffmpeg_dir):
             raise Exception('ffmpeg directory does not exists: '.format(self.ffmpeg_dir))
-        if self.sphinxbase_dir is not None and not os.path.isdir(self.sphinxbase_dir):
-            raise Exception('sphinxbase directory does not exists: '.format(self.sphinxbase_dir))
         if self.pocketsphinx_dir is not None and not os.path.isdir(self.pocketsphinx_dir):
             raise Exception('pocketsphinx directory does not exists: '.format(self.pocketsphinx_dir))
 
@@ -85,7 +81,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
 
         sphinx_libs = [
                 'pocketsphinx',
-                'sphinxbase',
                 ]
 
         if use_pkg_config:
@@ -104,19 +99,15 @@ class build_ext(setuptools.command.build_ext.build_ext):
         self.include_dirs += self.get_paths(pybind11.get_include(True), '')
 
         self.include_dirs += self.get_paths(self.ffmpeg_dir,       '', 'include')
-        self.include_dirs += self.get_paths(self.sphinxbase_dir,   '', 'include')
         self.include_dirs += self.get_paths(self.pocketsphinx_dir, '', 'include')
 
         self.library_dirs += [ sysconfig.get_path('include') ]
         self.library_dirs += self.get_paths(self.ffmpeg_dir,       '', 'lib')
-        self.library_dirs += self.get_paths(self.sphinxbase_dir,   '', 'lib')
         self.library_dirs += self.get_paths(self.pocketsphinx_dir, '', 'lib')
 
         if sys.platform == 'win32':
             bit64 = sys.maxsize > 2**32
             arch = 'x64' if bit64 else 'win32'
-            self.include_dirs += self.get_paths(self.sphinxbase_dir,   os.path.join('include', 'win32'))
-            self.library_dirs += self.get_paths(self.sphinxbase_dir,   os.path.join('bin', 'Release', arch))
             self.library_dirs += self.get_paths(self.pocketsphinx_dir, os.path.join('bin', 'Release', arch))
 
     def build_extensions(self):

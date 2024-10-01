@@ -209,26 +209,6 @@ parts:
       - -usr/share/doc
       - -usr/share/man
 
-  sphinxbase:
-    plugin: autotools
-    source: https://github.com/cmusphinx/sphinxbase.git
-    source-type: git
-    build-packages:
-      - bison
-      - libasound2-dev
-      - alsa-utils
-      - pkg-config
-    configflags:
-      - --prefix=/usr
-      - --with-python=no
-    prime:
-      - -usr/include
-      - -usr/lib/pkgconfig
-      - -usr/share/man
-      - -usr/share/sphinxbase
-      - -usr/lib/*.a
-      - -usr/lib/**/*.a
-
   pocketsphinx:
     plugin: autotools
     source: https://github.com/cmusphinx/pocketsphinx.git
@@ -250,5 +230,3 @@ parts:
       - -usr/share/pocketsphinx
       - -usr/lib/*.a
       - -usr/lib/**/*.a
-    after:
-      - sphinxbase

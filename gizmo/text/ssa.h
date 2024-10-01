@@ -5,6 +5,7 @@
 #include <list>
 #include <set>
 #include <string>
+#include <cstdint>
 
 
 class SSAParser

@@ -1,0 +1,45 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1711703276,
+        "narHash": "sha256-iMUFArF0WCatKK6RzfUJknjem0H9m4KgorO/p3Dopkk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "d8fe5e6c92d0d190646fb9f1056741a229980089",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "pocketsphinx-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1703798398,
+        "narHash": "sha256-aCQpRmGHX08rA8UIt6Xf37XM34HysEzvcucLhL355k8=",
+        "owner": "cmusphinx",
+        "repo": "pocketsphinx",
+        "rev": "1f146934e0735ca1e65143f959f670c67c5ac303",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cmusphinx",
+        "ref": "v5.0.3",
+        "repo": "pocketsphinx",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "pocketsphinx-src": "pocketsphinx-src"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

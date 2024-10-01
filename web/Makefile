@@ -17,7 +17,6 @@ TARGETS = \
 
 EXTRACTOR_DEPS   = \
 		 $(DEPS_DIR)/lib/libavcodec.a \
-		 $(DEPS_DIR)/lib/libsphinxbase.a \
 		 $(DEPS_DIR)/lib/libpocketsphinx.a \
 
 CXXFLAGS += \
@@ -104,7 +103,6 @@ clean-all: clean clean-deps
 
 $(EXTRACTOR_OBJECTS): CXXFLAGS += \
 	-I$(DEPS_DIR)/include \
-	-I$(DEPS_DIR)/include/sphinxbase \
 	-I$(DEPS_DIR)/include/pocketsphinx \
 	-DTRACK_EXCEPTIONS \
 
@@ -121,7 +119,6 @@ $(EXTRACTOR_TARGET): LDFLAGS += \
 	-lswscale \
 	-lavutil \
 	-lpocketsphinx \
-	-lsphinxbase \
 	-s FORCE_FILESYSTEM=1 \
 	-s 'EXTRA_EXPORTED_RUNTIME_METHODS=["FS"]' \
 	-s FETCH=1 \
@@ -147,14 +144,7 @@ $(CORRELATOR_TARGET): $(CORRELATOR_OBJECTS) $(SHARED_OBJECTS)
 ############################
 
 .ONESHELL:
-$(DEPS_DIR)/lib/libsphinxbase.a:
-	cd $(MODUELS_DIR)/sphinxbase
-	echo "SUBDIRS = libsphinxbase" > src/Makefile.am
-	emconfigure ./autogen.sh --without-python --prefix=$(DEPS_DIR)
-	emmake make -j4 install
-
-.ONESHELL:
-$(DEPS_DIR)/lib/libpocketsphinx.a: $(DEPS_DIR)/lib/libsphinxbase.a
+$(DEPS_DIR)/lib/libpocketsphinx.a:
 	cd $(MODUELS_DIR)/pocketsphinx
 	echo "SUBDIRS = libpocketsphinx" > src/Makefile.am
 	emconfigure ./autogen.sh --without-python --prefix=$(DEPS_DIR)
@@ -183,7 +173,6 @@ $(DEPS_DIR)/lib/libavcodec.a:
 	emmake make -j4 install
 
 clean-deps:
-	cd $(MODUELS_DIR)/sphinxbase && make clean
 	cd $(MODUELS_DIR)/pocketsphinx && make clean
 	cd $(MODUELS_DIR)/ffmpeg && make clean
 	$(RM) -r $(DEPS_DIR)

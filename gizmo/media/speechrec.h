@@ -38,7 +38,7 @@ class SpeechRecognition : public AVOutput
 
 	private:
 		ps_decoder_t *m_ps;
-		cmd_ln_t *m_config;
+		ps_config_t *m_config;
 
 		bool m_utteranceStarted;
 

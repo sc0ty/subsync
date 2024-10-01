@@ -35,3 +35,4 @@ CppCheckResults.xml
 .eggs
 *.egg-info
 *.snap
+*result
